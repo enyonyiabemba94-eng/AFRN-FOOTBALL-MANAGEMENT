@@ -236,14 +236,44 @@
   <!-- SECTIONS -->
 
   <section id="clubs" class="section">
-    <button class="back" onclick="showSection('dashboard')">← Rudi</button>
-    <div class="section-title">
-      <h2>🏟️ Vilabu</h2>
+    <section id="clubs" class="section">
+  <button class="back" onclick="showSection('dashboard')">← Rudi</button>
+
+  <div class="section-title">
+    <h2>🏟️ Vilabu</h2>
+  </div>
+
+  <div class="welcome">
+    <h3>➕ Ongeza Klabu</h3>
+
+    <form id="club-form">
+      <input id="club-name" type="text" placeholder="Jina la klabu" required>
+      <input id="club-short-name" type="text" placeholder="Jina fupi">
+      <input id="club-logo-url" type="url" placeholder="Logo URL">
+      <input id="club-zone" type="text" placeholder="Zone">
+      <input id="club-address" type="text" placeholder="Anwani">
+      <input id="club-phone" type="tel" placeholder="Simu">
+      <input id="club-email" type="email" placeholder="Email">
+      <input id="club-founded-year" type="number" placeholder="Mwaka iliyoanzishwa">
+
+      <select id="club-status">
+        <option value="active">Active</option>
+        <option value="inactive">Inactive</option>
+      </select>
+
+      <button type="submit">💾 Hifadhi Klabu</button>
+    </form>
+
+    <p id="club-message"></p>
+  </div>
+
+  <div class="welcome">
+    <h3>🏟️ Vilabu Vilivyosajiliwa</h3>
+    <div id="clubs-list">
+      <p>Inapakia vilabu...</p>
     </div>
-    <div class="welcome">
-      <p>Hapa tutaonyesha vilabu vilivyopo kwenye database ya AFRN.</p>
-    </div>
-  </section>
+  </div>
+</section>
 
   <section id="players" class="section">
     <button class="back" onclick="showSection('dashboard')">← Rudi</button>
@@ -371,7 +401,7 @@ function showSection(sectionId) {
   }
 }
 
-loadClubs();<script src="supabase-config.js"></script>
+<script src="supabase-config.js"></script>
 
 <script>
 function showSection(sectionId) {
@@ -389,6 +419,8 @@ function showSection(sectionId) {
 
 async function loadClubs() {
   const clubsList = document.getElementById("clubs-list");
+
+  if (!clubsList) return;
 
   try {
     const response = await fetch(
@@ -429,6 +461,66 @@ async function loadClubs() {
       "<p>Imeshindikana kupakia taarifa za vilabu.</p>";
   }
 }
+
+document.getElementById("club-form").addEventListener("submit", async function(event) {
+  event.preventDefault();
+
+  const message = document.getElementById("club-message");
+
+  const club = {
+    name: document.getElementById("club-name").value.trim(),
+    short_name: document.getElementById("club-short-name").value.trim() || null,
+    logo_url: document.getElementById("club-logo-url").value.trim() || null,
+    zone: document.getElementById("club-zone").value.trim() || null,
+    adresse: document.getElementById("club-address").value.trim() || null,
+    phone: document.getElementById("club-phone").value.trim() || null,
+    email: document.getElementById("club-email").value.trim() || null,
+    founded_year: document.getElementById("club-founded-year").value
+      ? Number(document.getElementById("club-founded-year").value)
+      : null,
+    status: document.getElementById("club-status").value
+  };
+
+  try {
+    message.textContent = "Inahifadhi...";
+
+    const response = await fetch(
+      SUPABASE_URL + "/rest/v1/clubs",
+      {
+        method: "POST",
+        headers: {
+          "apikey": SUPABASE_PUBLISHABLE_KEY,
+          "Authorization": "Bearer " + SUPABASE_PUBLISHABLE_KEY,
+          "Content-Type": "application/json",
+          "Prefer": "return=representation"
+        },
+        body: JSON.stringify(club)
+      }
+    );
+
+    if (!response.ok) {
+      const error = await response.text();
+      console.error(error);
+      throw new Error(error);
+    }
+
+    message.textContent = "✅ Klabu imehifadhiwa kikamilifu.";
+
+    document.getElementById("club-form").reset();
+
+    loadClubs();
+
+  } catch (error) {
+    console.error(error);
+    message.textContent = "❌ Imeshindikana kuhifadhi klabu.";
+  }
+});
+
+loadClubs();
+</script>
+
+</body>
+</html>
 
 loadClubs();
 </script>
