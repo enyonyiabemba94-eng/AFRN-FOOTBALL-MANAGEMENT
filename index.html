@@ -250,10 +250,9 @@
     <div class="section-title">
       <h2>👤 Wachezaji</h2>
     </div>
-    <div class="welcome">
-      <p>Hapa tutaonyesha na kusimamia wachezaji wa AFRN.</p>
-    </div>
-  </section>
+    <<div id="clubs-list" class="welcome">
+  <p>Inapakia vilabu...</p>
+</div>
 
   <section id="contracts" class="section">
     <button class="back" onclick="showSection('dashboard')">← Rudi</button>
@@ -329,6 +328,53 @@
 
 <script>
 function showSection(sectionId) {
+  async function loadClubs() {
+  const clubsList = document.getElementById("clubs-list");
+
+  try {
+    const response = await fetch(
+      SUPABASE_URL + "/rest/v1/clubs?select=id,name,short_name,logo_url,zone,adresse,phone,email,founded_year,status,created_at",
+      {
+        headers: {
+          "apikey": SUPABASE_PUBLISHABLE_KEY,
+          "Authorization": "Bearer " + SUPABASE_PUBLISHABLE_KEY
+        }
+      }
+    );
+
+    if (!response.ok) {
+      throw new Error("Imeshindikana kupata vilabu.");
+    }
+
+    const clubs = await response.json();
+
+    if (clubs.length === 0) {
+      clubsList.innerHTML = "<p>Hakuna vilabu vilivyosajiliwa.</p>";
+      return;
+    }
+
+    clubsList.innerHTML = clubs.map(function(club) {
+      return `
+        <div style="background:white;padding:15px;border-radius:12px;margin-bottom:12px;">
+          <h3>🏟️ ${club.name || "Bila jina"}</h3>
+          <p>Jina fupi: ${club.short_name || "-"}</p>
+          <p>Zone: ${club.zone || "-"}</p>
+          <p>Status: ${club.status || "-"}</p>
+        </div>
+      `;
+    }).join("");
+
+  } catch (error) {
+    console.error(error);
+    clubsList.innerHTML =
+      "<p>Imeshindikana kupakia taarifa za vilabu.</p>";
+  }
+}
+
+loadClubs();<script src="supabase-config.js"></script>
+
+<script>
+function showSection(sectionId) {
   document.querySelectorAll(".section").forEach(function(section) {
     section.classList.remove("active");
   });
@@ -340,6 +386,51 @@ function showSection(sectionId) {
     window.scrollTo(0, 0);
   }
 }
+
+async function loadClubs() {
+  const clubsList = document.getElementById("clubs-list");
+
+  try {
+    const response = await fetch(
+      SUPABASE_URL + "/rest/v1/clubs?select=id,name,short_name,logo_url,zone,adresse,phone,email,founded_year,status,created_at",
+      {
+        headers: {
+          "apikey": SUPABASE_PUBLISHABLE_KEY,
+          "Authorization": "Bearer " + SUPABASE_PUBLISHABLE_KEY
+        }
+      }
+    );
+
+    if (!response.ok) {
+      throw new Error("Imeshindikana kupata vilabu.");
+    }
+
+    const clubs = await response.json();
+
+    if (clubs.length === 0) {
+      clubsList.innerHTML = "<p>Hakuna vilabu vilivyosajiliwa.</p>";
+      return;
+    }
+
+    clubsList.innerHTML = clubs.map(function(club) {
+      return `
+        <div style="background:white;padding:15px;border-radius:12px;margin-bottom:12px;">
+          <h3>🏟️ ${club.name || "Bila jina"}</h3>
+          <p>Jina fupi: ${club.short_name || "-"}</p>
+          <p>Zone: ${club.zone || "-"}</p>
+          <p>Status: ${club.status || "-"}</p>
+        </div>
+      `;
+    }).join("");
+
+  } catch (error) {
+    console.error(error);
+    clubsList.innerHTML =
+      "<p>Imeshindikana kupakia taarifa za vilabu.</p>";
+  }
+}
+
+loadClubs();
 </script>
 
 </body>
