@@ -1,0 +1,324 @@
+<!DOCTYPE html>
+<html lang="sw">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>AFRN Football Management</title>
+
+  <style>
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+      font-family: Arial, sans-serif;
+    }
+
+    body {
+      background: #f4f6f8;
+      color: #17202a;
+    }
+
+    header {
+      background: #0b5d3b;
+      color: white;
+      padding: 18px;
+      position: sticky;
+      top: 0;
+      z-index: 10;
+    }
+
+    header h1 {
+      font-size: 21px;
+    }
+
+    header p {
+      font-size: 13px;
+      margin-top: 4px;
+      opacity: 0.9;
+    }
+
+    .container {
+      padding: 16px;
+      padding-bottom: 90px;
+    }
+
+    .welcome {
+      background: white;
+      border-radius: 14px;
+      padding: 18px;
+      margin-bottom: 16px;
+      box-shadow: 0 2px 8px rgba(0,0,0,.06);
+    }
+
+    .welcome h2 {
+      font-size: 20px;
+      margin-bottom: 6px;
+    }
+
+    .welcome p {
+      color: #667085;
+      font-size: 14px;
+    }
+
+    .grid {
+      display: grid;
+      grid-template-columns: repeat(2, 1fr);
+      gap: 12px;
+    }
+
+    .card {
+      background: white;
+      border-radius: 14px;
+      padding: 18px;
+      box-shadow: 0 2px 8px rgba(0,0,0,.06);
+      cursor: pointer;
+    }
+
+    .card:active {
+      transform: scale(.98);
+    }
+
+    .icon {
+      font-size: 28px;
+      margin-bottom: 10px;
+    }
+
+    .card h3 {
+      font-size: 15px;
+      margin-bottom: 5px;
+    }
+
+    .card p {
+      color: #667085;
+      font-size: 12px;
+    }
+
+    nav {
+      position: fixed;
+      bottom: 0;
+      left: 0;
+      right: 0;
+      background: white;
+      border-top: 1px solid #ddd;
+      display: flex;
+      justify-content: space-around;
+      padding: 10px 4px;
+      z-index: 20;
+    }
+
+    nav button {
+      border: none;
+      background: transparent;
+      font-size: 11px;
+      color: #667085;
+    }
+
+    nav button span {
+      display: block;
+      font-size: 21px;
+      margin-bottom: 2px;
+    }
+
+    .section {
+      display: none;
+    }
+
+    .section.active {
+      display: block;
+    }
+
+    .section-title {
+      margin-bottom: 15px;
+    }
+
+    .section-title h2 {
+      font-size: 20px;
+    }
+
+    .back {
+      margin-bottom: 15px;
+      border: none;
+      background: #0b5d3b;
+      color: white;
+      padding: 9px 14px;
+      border-radius: 8px;
+    }
+
+    @media (min-width: 700px) {
+      .container {
+        max-width: 900px;
+        margin: auto;
+      }
+
+      .grid {
+        grid-template-columns: repeat(3, 1fr);
+      }
+    }
+  </style>
+</head>
+
+<body>
+
+<header>
+  <h1>AFRN FOOTBALL MANAGEMENT</h1>
+  <p>Association / Football Federation for Refugees in Nyarugusu</p>
+</header>
+
+<main class="container">
+
+  <!-- DASHBOARD -->
+  <section id="dashboard" class="section active">
+
+    <div class="welcome">
+      <h2>Karibu kwenye AFRN</h2>
+      <p>Mfumo wa kisasa wa usimamizi wa soka wa shirikisho.</p>
+    </div>
+
+    <div class="grid">
+
+      <div class="card" onclick="showSection('clubs')">
+        <div class="icon">🏟️</div>
+        <h3>Vilabu</h3>
+        <p>Usimamizi wa vilabu</p>
+      </div>
+
+      <div class="card" onclick="showSection('players')">
+        <div class="icon">👤</div>
+        <h3>Wachezaji</h3>
+        <p>Usajili wa wachezaji</p>
+      </div>
+
+      <div class="card" onclick="showSection('contracts')">
+        <div class="icon">📄</div>
+        <h3>Mikataba</h3>
+        <p>Usimamizi wa mikataba</p>
+      </div>
+
+      <div class="card" onclick="showSection('transfers')">
+        <div class="icon">🔄</div>
+        <h3>Uhamisho</h3>
+        <p>Historia ya uhamisho</p>
+      </div>
+
+      <div class="card" onclick="showSection('free-agents')">
+        <div class="icon">🟢</div>
+        <h3>Wachezaji Huru</h3>
+        <p>Wachezaji wasio na mkataba</p>
+      </div>
+
+      <div class="card" onclick="showSection('competitions')">
+        <div class="icon">🏆</div>
+        <h3>Mashindano</h3>
+        <p>Usimamizi wa mashindano</p>
+      </div>
+
+      <div class="card" onclick="showSection('matches')">
+        <div class="icon">⚽</div>
+        <h3>Mechi</h3>
+        <p>Ratiba na matokeo</p>
+      </div>
+
+      <div class="card" onclick="showSection('standings')">
+        <div class="icon">📊</div>
+        <h3>Msimamo</h3>
+        <p>Misimamo ya mashindano</p>
+      </div>
+
+      <div class="card" onclick="showSection('documents')">
+        <div class="icon">📁</div>
+        <h3>Nyaraka</h3>
+        <p>Nyaraka za shirikisho</p>
+      </div>
+
+    </div>
+  </section>
+
+  <!-- SECTIONS -->
+
+  <section id="clubs" class="section">
+    <button class="back" onclick="showSection('dashboard')">← Rudi</button>
+    <div class="section-title">
+      <h2>🏟️ Vilabu</h2>
+    </div>
+    <div class="welcome">
+      <p>Hapa tutaonyesha vilabu vilivyopo kwenye database ya AFRN.</p>
+    </div>
+  </section>
+
+  <section id="players" class="section">
+    <button class="back" onclick="showSection('dashboard')">← Rudi</button>
+    <div class="section-title">
+      <h2>👤 Wachezaji</h2>
+    </div>
+    <div class="welcome">
+      <p>Hapa tutaonyesha na kusimamia wachezaji wa AFRN.</p>
+    </div>
+  </section>
+
+  <section id="contracts" class="section">
+    <button class="back" onclick="showSection('dashboard')">← Rudi</button>
+    <div class="section-title">
+      <h2>📄 Mikataba</h2>
+    </div>
+    <div class="welcome">
+      <p>Usimamizi wa mikataba ya wachezaji.</p>
+    </div>
+  </section>
+
+  <section id="transfers" class="section">
+    <button class="back" onclick="showSection('dashboard')">← Rudi</button>
+    <div class="section-title">
+      <h2>🔄 Uhamisho</h2>
+    </div>
+    <div class="welcome">
+      <p>Historia na usimamizi wa uhamisho wa wachezaji.</p>
+    </div>
+  </section>
+
+  <section id="free-agents" class="section">
+    <button class="back" onclick="showSection('dashboard')">← Rudi</button>
+    <div class="section-title">
+      <h2>🟢 Wachezaji Huru</h2>
+    </div>
+    <div class="welcome">
+      <p>Wachezaji ambao hawana mkataba hai.</p>
+    </div>
+  </section>
+
+  <section id="competitions" class="section">
+    <button class="back" onclick="showSection('dashboard')">← Rudi</button>
+    <div class="section-title">
+      <h2>🏆 Mashindano</h2>
+    </div>
+    <div class="welcome">
+      <p>Usimamizi wa mashindano na timu zinazoshiriki.</p>
+    </div>
+  </section>
+
+  <section id="matches" class="section">
+    <button class="back" onclick="showSection('dashboard')">← Rudi</button>
+    <div class="section-title">
+      <h2>⚽ Mechi</h2>
+    </div>
+    <div class="welcome">
+      <p>Ratiba, matokeo na matukio ya mechi.</p>
+    </div>
+  </section>
+
+  <section id="standings" class="section">
+    <button class="back" onclick="showSection('dashboard')">← Rudi</button>
+    <div class="section-title">
+      <h2>📊 Msimamo</h2>
+    </div>
+    <div class="welcome">
+      <p>Misimamo ya mashindano.</p>
+    </div>
+  </section>
+
+  <section id="documents" class="section">
+    <button class="back" onclick="showSection('dashboard')">← Rudi</button>
+    <div class="section-title">
+      <h2>📁 Nyaraka</h2>
+    </div>
+    <div class="welcome">
+      <
