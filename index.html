@@ -929,6 +929,214 @@
         email:
           document
             .getElementById("club-email")
+<script>
+window.showSection = function(sectionId) {
+
+  console.log("Section:", sectionId);
+
+  const sections = document.querySelectorAll(".section");
+
+  sections.forEach(function(section) {
+    section.classList.remove("active");
+  });
+
+  const selectedSection = document.getElementById(sectionId);
+
+  if (!selectedSection) {
+    console.error("Section haipo:", sectionId);
+    return;
+  }
+
+  selectedSection.classList.add("active");
+
+  window.scrollTo({
+    top: 0,
+    behavior: "smooth"
+  });
+
+  if (sectionId === "clubs") {
+    loadClubs();
+  }
+};
+
+
+async function loadClubs() {
+
+  const list = document.getElementById("clubs-list");
+
+  if (!list) {
+    console.error("clubs-list haipo");
+    return;
+  }
+
+  list.innerHTML = `
+    <div class="empty">
+      Inapakia vilabu...
+    </div>
+  `;
+
+  try {
+
+    const response = await fetch(
+      SUPABASE_URL +
+      "/rest/v1/clubs?select=id,name,short_name,logo_url,zone,adresse,phone,email,founded_year,status,created_at&order=name.asc",
+      {
+        method: "GET",
+
+        headers: {
+          "apikey": SUPABASE_PUBLISHABLE_KEY,
+          "Authorization":
+            "Bearer " + SUPABASE_PUBLISHABLE_KEY
+        }
+      }
+    );
+
+    if (!response.ok) {
+
+      const errorText = await response.text();
+
+      console.error(
+        "Supabase error:",
+        errorText
+      );
+
+      throw new Error(
+        "Supabase haikukubali ombi."
+      );
+    }
+
+    const clubs = await response.json();
+
+    if (!clubs || clubs.length === 0) {
+
+      list.innerHTML = `
+        <div class="empty">
+          Hakuna vilabu vilivyosajiliwa.
+        </div>
+      `;
+
+      return;
+    }
+
+    list.innerHTML = clubs.map(function(club) {
+
+      return `
+        <div class="club-item">
+
+          <h3>
+            🏟️ ${club.name || "Bila jina"}
+          </h3>
+
+          <p>
+            Jina fupi:
+            ${club.short_name || "-"}
+          </p>
+
+          <p>
+            Zone:
+            ${club.zone || "-"}
+          </p>
+
+          <p>
+            Simu:
+            ${club.phone || "-"}
+          </p>
+
+          <p>
+            Email:
+            ${club.email || "-"}
+          </p>
+
+          <p>
+            Status:
+            ${club.status || "-"}
+          </p>
+
+        </div>
+      `;
+
+    }).join("");
+
+  } catch (error) {
+
+    console.error(
+      "Load clubs error:",
+      error
+    );
+
+    list.innerHTML = `
+      <div class="empty">
+        ❌ Imeshindikana kupakia vilabu.
+      </div>
+    `;
+  }
+}
+
+
+/* CLUB FORM */
+
+const clubForm =
+  document.getElementById("club-form");
+
+
+if (clubForm) {
+
+  clubForm.addEventListener(
+    "submit",
+    async function(event) {
+
+      event.preventDefault();
+
+      const message =
+        document.getElementById(
+          "club-message"
+        );
+
+      message.textContent =
+        "Inahifadhi klabu...";
+
+
+      const club = {
+
+        name:
+          document
+            .getElementById("club-name")
+            .value
+            .trim(),
+
+        short_name:
+          document
+            .getElementById("club-short-name")
+            .value
+            .trim() || null,
+
+        logo_url:
+          document
+            .getElementById("club-logo-url")
+            .value
+            .trim() || null,
+
+        zone:
+          document
+            .getElementById("club-zone")
+            .value
+            .trim() || null,
+
+        adresse:
+          document
+            .getElementById("club-address")
+            .value
+            .trim() || null,
+
+        phone:
+          document
+            .getElementById("club-phone")
+            .value
+            .trim() || null,
+
+        email:
+          document
+            .getElementById("club-email")
             .value
             .trim() || null,
 
@@ -949,78 +1157,61 @@
           document
             .getElementById("club-status")
             .value
-
       };
-
-
-      if (!club.name) {
-
-        message.textContent =
-          "❌ Weka jina la klabu.";
-
-        return;
-
-      }
 
 
       try {
 
-        const response =
-          await fetch(
-            SUPABASE_URL +
-            "/rest/v1/clubs",
-            {
+        const response = await fetch(
+          SUPABASE_URL +
+          "/rest/v1/clubs",
+          {
+            method: "POST",
 
-              method: "POST",
+            headers: {
+              "apikey":
+                SUPABASE_PUBLISHABLE_KEY,
 
-              headers: {
+              "Authorization":
+                "Bearer " +
+                SUPABASE_PUBLISHABLE_KEY,
 
-                "apikey":
-                  SUPABASE_PUBLISHABLE_KEY,
+              "Content-Type":
+                "application/json",
 
-                "Authorization":
-                  "Bearer " +
-                  SUPABASE_PUBLISHABLE_KEY,
+              "Prefer":
+                "return=representation"
+            },
 
-                "Content-Type":
-                  "application/json",
-
-                "Prefer":
-                  "return=representation"
-
-              },
-
-              body:
-                JSON.stringify(club)
-
-            }
-          );
+            body:
+              JSON.stringify(club)
+          }
+        );
 
 
         if (!response.ok) {
 
-          const error =
+          const errorText =
             await response.text();
 
-          console.error(error);
+          console.error(
+            "Insert error:",
+            errorText
+          );
 
           message.textContent =
             "❌ Imeshindikana kuhifadhi klabu.";
 
           return;
-
         }
 
 
         message.textContent =
           "✅ Klabu imehifadhiwa kikamilifu.";
 
-
         clubForm.reset();
 
-
-        await loadClubs();
-
+        loadClubs();
 
       } catch (error) {
 
@@ -1028,16 +1219,12 @@
 
         message.textContent =
           "❌ Tatizo la kuunganisha na Supabase.";
-
       }
 
     }
   );
-
-
-  loadClubs();
-
+}
 </script>
 
 </body>
-  </html>
+</html>
