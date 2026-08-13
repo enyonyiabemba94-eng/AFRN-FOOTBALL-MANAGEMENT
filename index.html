@@ -3,6 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
   <title>AFRN Football Management</title>
 
   <style>
@@ -14,50 +15,64 @@
     }
 
     body {
-      background: #f4f6f8;
+      background: #f3f6f4;
       color: #17202a;
+      min-height: 100vh;
     }
 
     header {
-      background: #0b5d3b;
+      background: #075b3a;
       color: white;
-      padding: 18px;
+      padding: 18px 16px;
       position: sticky;
       top: 0;
-      z-index: 10;
+      z-index: 100;
+      box-shadow: 0 2px 8px rgba(0,0,0,.15);
     }
 
     header h1 {
-      font-size: 21px;
+      font-size: 20px;
+      font-weight: 700;
     }
 
     header p {
-      font-size: 13px;
-      margin-top: 4px;
-      opacity: 0.9;
+      font-size: 12px;
+      margin-top: 5px;
+      opacity: .9;
     }
 
-    .container {
+    main {
+      max-width: 1000px;
+      margin: auto;
       padding: 16px;
       padding-bottom: 90px;
     }
 
+    .section {
+      display: none;
+    }
+
+    .section.active {
+      display: block;
+    }
+
     .welcome {
       background: white;
-      border-radius: 14px;
+      border-radius: 16px;
       padding: 18px;
       margin-bottom: 16px;
-      box-shadow: 0 2px 8px rgba(0,0,0,.06);
+      box-shadow: 0 2px 10px rgba(0,0,0,.06);
     }
 
     .welcome h2 {
-      font-size: 20px;
-      margin-bottom: 6px;
+      font-size: 21px;
+      margin-bottom: 7px;
     }
 
     .welcome p {
       color: #667085;
       font-size: 14px;
+      line-height: 1.5;
     }
 
     .grid {
@@ -68,17 +83,20 @@
 
     .card {
       background: white;
-      border-radius: 14px;
-      padding: 18px;
-      box-shadow: 0 2px 8px rgba(0,0,0,.06);
+      border: none;
+      border-radius: 16px;
+      padding: 18px 14px;
+      text-align: left;
+      box-shadow: 0 2px 10px rgba(0,0,0,.06);
       cursor: pointer;
+      transition: .15s;
     }
 
     .card:active {
-      transform: scale(.98);
+      transform: scale(.97);
     }
 
-    .icon {
+    .card .icon {
       font-size: 28px;
       margin-bottom: 10px;
     }
@@ -91,6 +109,131 @@
     .card p {
       color: #667085;
       font-size: 12px;
+      line-height: 1.4;
+    }
+
+    .section-title {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 10px;
+      margin-bottom: 15px;
+    }
+
+    .section-title h2 {
+      font-size: 21px;
+    }
+
+    .back {
+      border: none;
+      background: #075b3a;
+      color: white;
+      padding: 9px 14px;
+      border-radius: 9px;
+      cursor: pointer;
+      margin-bottom: 14px;
+    }
+
+    .primary-btn {
+      width: 100%;
+      border: none;
+      background: #075b3a;
+      color: white;
+      padding: 13px;
+      border-radius: 10px;
+      font-size: 15px;
+      font-weight: 600;
+      cursor: pointer;
+      margin-top: 8px;
+    }
+
+    .secondary-btn {
+      border: none;
+      background: #eef2f0;
+      color: #075b3a;
+      padding: 10px 14px;
+      border-radius: 9px;
+      cursor: pointer;
+      font-weight: 600;
+    }
+
+    .form-grid {
+      display: grid;
+      gap: 11px;
+    }
+
+    input,
+    select {
+      width: 100%;
+      border: 1px solid #d0d5dd;
+      border-radius: 10px;
+      padding: 12px;
+      background: white;
+      font-size: 14px;
+      outline: none;
+    }
+
+    input:focus,
+    select:focus {
+      border-color: #075b3a;
+    }
+
+    label {
+      font-size: 12px;
+      font-weight: 600;
+      color: #344054;
+      margin-bottom: -5px;
+    }
+
+    .message {
+      margin-top: 12px;
+      font-size: 13px;
+      font-weight: 600;
+    }
+
+    .club-item {
+      background: white;
+      border-radius: 14px;
+      padding: 15px;
+      margin-bottom: 12px;
+      box-shadow: 0 2px 8px rgba(0,0,0,.06);
+    }
+
+    .club-item h3 {
+      font-size: 17px;
+      margin-bottom: 7px;
+    }
+
+    .club-item p {
+      color: #667085;
+      font-size: 13px;
+           margin-top: 4px;
+    }
+
+    .status {
+      display: inline-block;
+      margin-top: 9px;
+      padding: 5px 9px;
+      border-radius: 20px;
+      font-size: 11px;
+      font-weight: 700;
+    }
+
+    .status.active {
+      background: #dcfce7;
+      color: #166534;
+    }
+
+    .status.inactive {
+      background: #fee2e2;
+      color: #991b1b;
+    }
+
+    .empty {
+      text-align: center;
+      color: #667085;
+      padding: 20px;
+      font-size: 14px;
     }
 
     nav {
@@ -98,60 +241,41 @@
       bottom: 0;
       left: 0;
       right: 0;
+      height: 68px;
       background: white;
-      border-top: 1px solid #ddd;
+      border-top: 1px solid #e4e7ec;
       display: flex;
       justify-content: space-around;
-      padding: 10px 4px;
-      z-index: 20;
+      align-items: center;
+      z-index: 200;
     }
 
     nav button {
       border: none;
       background: transparent;
-      font-size: 11px;
       color: #667085;
+      font-size: 11px;
+      cursor: pointer;
+      padding: 5px;
     }
 
     nav button span {
       display: block;
-      font-size: 21px;
+      font-size: 22px;
       margin-bottom: 2px;
     }
 
-    .section {
-      display: none;
-    }
-
-    .section.active {
-      display: block;
-    }
-
-    .section-title {
-      margin-bottom: 15px;
-    }
-
-    .section-title h2 {
-      font-size: 20px;
-    }
-
-    .back {
-      margin-bottom: 15px;
-      border: none;
-      background: #0b5d3b;
-      color: white;
-      padding: 9px 14px;
-      border-radius: 8px;
-    }
-
     @media (min-width: 700px) {
-      .container {
-        max-width: 900px;
-        margin: auto;
-      }
-
       .grid {
         grid-template-columns: repeat(3, 1fr);
+      }
+
+      .form-grid {
+        grid-template-columns: repeat(2, 1fr);
+      }
+
+      .primary-btn {
+        grid-column: 1 / -1;
       }
     }
   </style>
@@ -164,366 +288,856 @@
   <p>Association / Football Federation for Refugees in Nyarugusu</p>
 </header>
 
-<main class="container">
+<main>
 
   <!-- DASHBOARD -->
   <section id="dashboard" class="section active">
 
     <div class="welcome">
       <h2>Karibu kwenye AFRN</h2>
-      <p>Mfumo wa kisasa wa usimamizi wa soka wa shirikisho.</p>
+      <p>
+        Mfumo wa kisasa wa usimamizi wa soka wa Shirikisho la Mpira wa Miguu
+        Kambini Nyarugusu.
+      </p>
     </div>
 
     <div class="grid">
 
-      <div class="card" onclick="showSection('clubs')">
+      <button class="card" onclick="showSection('clubs')">
         <div class="icon">🏟️</div>
         <h3>Vilabu</h3>
-        <p>Usimamizi wa vilabu</p>
-      </div>
+        <p>Ongeza na simamia vilabu</p>
+      </button>
 
-      <div class="card" onclick="showSection('players')">
+      <button class="card" onclick="showSection('players')">
         <div class="icon">👤</div>
         <h3>Wachezaji</h3>
-        <p>Usajili wa wachezaji</p>
-      </div>
+        <p>Usajili na taarifa za wachezaji</p>
+      </button>
 
-      <div class="card" onclick="showSection('contracts')">
+      <button class="card" onclick="showSection('contracts')">
         <div class="icon">📄</div>
         <h3>Mikataba</h3>
-        <p>Usimamizi wa mikataba</p>
-      </div>
+        <p>Simamia mikataba ya wachezaji</p>
+      </button>
 
-      <div class="card" onclick="showSection('transfers')">
+      <button class="card" onclick="showSection('transfers')">
         <div class="icon">🔄</div>
         <h3>Uhamisho</h3>
         <p>Historia ya uhamisho</p>
-      </div>
+      </button>
 
-      <div class="card" onclick="showSection('free-agents')">
+      <button class="card" onclick="showSection('free-agents')">
         <div class="icon">🟢</div>
         <h3>Wachezaji Huru</h3>
-        <p>Wachezaji wasio na mkataba</p>
-      </div>
+        <p>Wachezaji wasio na mkataba hai</p>
+      </button>
 
-      <div class="card" onclick="showSection('competitions')">
+      <button class="card" onclick="showSection('competitions')">
         <div class="icon">🏆</div>
         <h3>Mashindano</h3>
         <p>Usimamizi wa mashindano</p>
-      </div>
+      </button>
 
-      <div class="card" onclick="showSection('matches')">
+      <button class="card" onclick="showSection('matches')">
         <div class="icon">⚽</div>
         <h3>Mechi</h3>
         <p>Ratiba na matokeo</p>
-      </div>
+      </button>
 
-      <div class="card" onclick="showSection('standings')">
+      <button class="card" onclick="showSection('standings')">
         <div class="icon">📊</div>
         <h3>Msimamo</h3>
         <p>Misimamo ya mashindano</p>
-      </div>
+      </button>
 
-      <div class="card" onclick="showSection('documents')">
+      <button class="card" onclick="showSection('documents')">
         <div class="icon">📁</div>
         <h3>Nyaraka</h3>
         <p>Nyaraka za shirikisho</p>
+      </button>
+
+    </div>
+  </section>
+
+  <!-- CLUBS -->
+  <section id="clubs" class="section">
+
+    <button class="back" onclick="showSection('dashboard')">
+      ← Rudi
+    </button>
+
+    <div class="section-title">
+      <h2>🏟️ Vilabu</h2>
+    </div>
+
+    <div class="welcome">
+
+      <h3>➕ Ongeza Klabu</h3>
+
+      <form id="club-form" class="form-grid">
+
+        <label for="club-name">Jina la Klabu *</label>
+        <input id="club-name" type="text" placeholder="Mfano: GHI1 BILOMBE FC" required>
+
+        <label for="club-short-name">Jina Fupi</label>
+        <input id="club-short-name" type="text" placeholder="Mfano: BILOMBE">
+
+        <label for="club-logo-url">Logo URL</label>
+        <input id="club-logo-url" type="url" placeholder="https://...">
+
+        <label for="club-zone">Zone</label>
+        <input id="club-zone" type="text" placeholder="Zone">
+
+        <label for="club-address">Anwani</label>
+        <input id="club-address" type="text" placeholder="Anwani ya klabu">
+
+        <label for="club-phone">Simu</label>
+        <input id="club-phone" type="tel" placeholder="+255...">
+
+        <label for="club-email">Email</label>
+        <input id="club-email" type="email" placeholder="club@example.com">
+
+        <label for="club-founded-year">Mwaka wa Kuanzishwa</label>
+        <input id="club-founded-year" type="number" placeholder="2026">
+
+        <label for="club-status">Hali ya Klabu</label>
+        <select id="club-status">
+          <option value="active">Active</option>
+          <option value="inactive">Inactive</option>
+        </select>
+
+        <button class="primary-btn" type="submit">
+          💾 Hifadhi Klabu
+        </button>
+
+      </form>
+
+      <div id="club-message" class="message"></div>
+
+    </div>
+
+    <div class="welcome">
+
+      <div class="section-title">
+        <h3>🏟️ Vilabu Vilivyosajiliwa</h3>
+
+        <button class="secondary-btn" onclick="loadClubs()">
+          🔄 Refresh
+        </button>
+      </div>
+
+      <div id="clubs-list">
+        <div class="empty">
+          Inapakia vilabu...
+        </div>
       </div>
 
     </div>
+
   </section>
-
-  <!-- SECTIONS -->
-
-  <section id="clubs" class="section">
-    <section id="clubs" class="section">
-  <button class="back" onclick="showSection('dashboard')">← Rudi</button>
-
-  <div class="section-title">
-    <h2>🏟️ Vilabu</h2>
-  </div>
-
-  <div class="welcome">
-    <h3>➕ Ongeza Klabu</h3>
-
-    <form id="club-form">
-      <input id="club-name" type="text" placeholder="Jina la klabu" required>
-      <input id="club-short-name" type="text" placeholder="Jina fupi">
-      <input id="club-logo-url" type="url" placeholder="Logo URL">
-      <input id="club-zone" type="text" placeholder="Zone">
-      <input id="club-address" type="text" placeholder="Anwani">
-      <input id="club-phone" type="tel" placeholder="Simu">
-      <input id="club-email" type="email" placeholder="Email">
-      <input id="club-founded-year" type="number" placeholder="Mwaka iliyoanzishwa">
-
-      <select id="club-status">
-        <option value="active">Active</option>
-        <option value="inactive">Inactive</option>
-      </select>
-
-      <button type="submit">💾 Hifadhi Klabu</button>
-    </form>
-
-    <p id="club-message"></p>
-  </div>
-
-  <div class="welcome">
-    <h3>🏟️ Vilabu Vilivyosajiliwa</h3>
-    <div id="clubs-list">
-      <p>Inapakia vilabu...</p>
-    </div>
-  </div>
-</section>
-
+    <!-- PLAYERS -->
   <section id="players" class="section">
-    <button class="back" onclick="showSection('dashboard')">← Rudi</button>
+
+    <button class="back" onclick="showSection('dashboard')">
+      ← Rudi
+    </button>
+
     <div class="section-title">
       <h2>👤 Wachezaji</h2>
     </div>
-    <<div id="clubs-list" class="welcome">
-  <p>Inapakia vilabu...</p>
-</div>
 
+    <div class="welcome">
+      <h3>👤 Usajili wa Wachezaji</h3>
+
+      <p>
+        Hapa tutaweka taarifa za wachezaji wa AFRN,
+        klabu zao na historia yao ya usajili.
+      </p>
+
+      <button
+        class="primary-btn"
+        onclick="showMessage('players-message')">
+        ➕ Ongeza Mchezaji
+      </button>
+
+      <div id="players-message" class="message"></div>
+    </div>
+
+  </section>
+
+
+  <!-- CONTRACTS -->
   <section id="contracts" class="section">
-    <button class="back" onclick="showSection('dashboard')">← Rudi</button>
+
+    <button class="back" onclick="showSection('dashboard')">
+      ← Rudi
+    </button>
+
     <div class="section-title">
       <h2>📄 Mikataba</h2>
     </div>
+
     <div class="welcome">
-      <p>Usimamizi wa mikataba ya wachezaji.</p>
+      <h3>📄 Usimamizi wa Mikataba</h3>
+
+      <p>
+        Hapa tutaweza kuweka tarehe ya kuanza,
+        tarehe ya kumalizika na hali ya mkataba wa mchezaji.
+      </p>
     </div>
+
   </section>
 
+
+  <!-- TRANSFERS -->
   <section id="transfers" class="section">
-    <button class="back" onclick="showSection('dashboard')">← Rudi</button>
+
+    <button class="back" onclick="showSection('dashboard')">
+      ← Rudi
+    </button>
+
     <div class="section-title">
       <h2>🔄 Uhamisho</h2>
     </div>
+
     <div class="welcome">
-      <p>Historia na usimamizi wa uhamisho wa wachezaji.</p>
+      <h3>🔄 Historia ya Uhamisho</h3>
+
+      <p>
+        Hapa tutaonyesha uhamisho wa wachezaji
+        kutoka klabu moja kwenda nyingine.
+      </p>
     </div>
+
   </section>
 
+
+  <!-- FREE AGENTS -->
   <section id="free-agents" class="section">
-    <button class="back" onclick="showSection('dashboard')">← Rudi</button>
+
+    <button class="back" onclick="showSection('dashboard')">
+      ← Rudi
+    </button>
+
     <div class="section-title">
       <h2>🟢 Wachezaji Huru</h2>
     </div>
+
     <div class="welcome">
-      <p>Wachezaji ambao hawana mkataba hai.</p>
+      <h3>🟢 Wachezaji Huru</h3>
+
+      <p>
+        Wachezaji ambao hawana mkataba hai
+        wataonekana hapa moja kwa moja.
+      </p>
     </div>
+
   </section>
 
+
+  <!-- COMPETITIONS -->
   <section id="competitions" class="section">
-    <button class="back" onclick="showSection('dashboard')">← Rudi</button>
+
+    <button class="back" onclick="showSection('dashboard')">
+      ← Rudi
+    </button>
+
     <div class="section-title">
       <h2>🏆 Mashindano</h2>
     </div>
+
     <div class="welcome">
-      <p>Usimamizi wa mashindano na timu zinazoshiriki.</p>
+      <h3>🏆 Usimamizi wa Mashindano</h3>
+
+      <p>
+        Hapa tutaweka mashindano ya AFRN
+        na timu zinazoshiriki.
+      </p>
     </div>
+
   </section>
 
+
+  <!-- MATCHES -->
   <section id="matches" class="section">
-    <button class="back" onclick="showSection('dashboard')">← Rudi</button>
+
+    <button class="back" onclick="showSection('dashboard')">
+      ← Rudi
+    </button>
+
     <div class="section-title">
       <h2>⚽ Mechi</h2>
     </div>
+
     <div class="welcome">
-      <p>Ratiba, matokeo na matukio ya mechi.</p>
+      <h3>⚽ Ratiba na Matokeo</h3>
+
+      <p>
+        Hapa tutaweka ratiba, matokeo,
+        waamuzi na matukio ya kila mechi.
+      </p>
     </div>
+
   </section>
 
+
+  <!-- STANDINGS -->
   <section id="standings" class="section">
-    <button class="back" onclick="showSection('dashboard')">← Rudi</button>
+
+    <button class="back" onclick="showSection('dashboard')">
+      ← Rudi
+    </button>
+
     <div class="section-title">
       <h2>📊 Msimamo</h2>
     </div>
+
     <div class="welcome">
-      <p>Misimamo ya mashindano.</p>
+      <h3>📊 Msimamo wa Mashindano</h3>
+
+      <p>
+        Msimamo wa kila mashindano utaonyeshwa hapa,
+        pamoja na mechi, pointi, magoli ya kufunga,
+        magoli ya kufungwa na tofauti ya magoli.
+      </p>
     </div>
+
   </section>
 
+
+  <!-- DOCUMENTS -->
   <section id="documents" class="section">
-    <button class="back" onclick="showSection('dashboard')">← Rudi</button>
+
+    <button class="back" onclick="showSection('dashboard')">
+      ← Rudi
+    </button>
+
     <div class="section-title">
       <h2>📁 Nyaraka</h2>
     </div>
+
     <div class="welcome">
-      <p>Karibu kwenye AFRN Football Management System.</p>
-</div>
-</section>
+      <h3>📁 Nyaraka za AFRN</h3>
 
+      <p>
+        Hapa tutaweka kanuni, mikataba,
+        nyaraka za mashindano na nyaraka nyingine
+        rasmi za shirikisho.
+      </p>
+    </div>
+
+  </section>
+
+
+</main>
+
+
+<!-- BOTTOM NAVIGATION -->
+<nav>
+
+  <button onclick="showSection('dashboard')">
+    <span>🏠</span>
+    Mwanzo
+  </button>
+
+  <button onclick="showSection('clubs')">
+    <span>🏟️</span>
+    Vilabu
+  </button>
+
+  <button onclick="showSection('players')">
+    <span>👤</span>
+    Wachezaji
+  </button>
+
+  <button onclick="showSection('transfers')">
+    <span>🔄</span>
+    Uhamisho
+  </button>
+
+  <button onclick="showSection('competitions')">
+    <span>🏆</span>
+    Mashindano
+  </button>
+
+</nav>
+<!-- SUPABASE CONFIGURATION -->
 <script src="supabase-config.js"></script>
 
 <script>
-function showSection(sectionId) {
+
+  /* =========================
+     NAVIGATION
+  ========================= */
+
+  function showSection(sectionId) {
+
+    document.querySelectorAll(".section").forEach(function(section) {
+      section.classList.remove("active");
+    });
+
+    const selectedSection =
+      document.getElementById(sectionId);
+
+    if (selectedSection) {
+
+      selectedSection.classList.add("active");
+
+      window.scrollTo({
+        top: 0,
+        behavior: "smooth"
+      });
+    }
+  }
+
+
+  /* =========================
+     SIMPLE MESSAGE
+  ========================= */
+
+  function showMessage(elementId) {
+
+    const element =
+      document.getElementById(elementId);
+
+    if (element) {
+
+      element.textContent =
+        "Sehemu hii itaunganishwa na database katika hatua inayofuata.";
+    }
+  }
+
+
+  /* =========================
+     LOAD CLUBS FROM SUPABASE
+  ========================= */
+
   async function loadClubs() {
-  const clubsList = document.getElementById("clubs-list");
 
-  try {
-    const response = await fetch(
-      SUPABASE_URL + "/rest/v1/clubs?select=id,name,short_name,logo_url,zone,adresse,phone,email,founded_year,status,created_at",
-      {
-        headers: {
-          "apikey": SUPABASE_PUBLISHABLE_KEY,
-          "Authorization": "Bearer " + SUPABASE_PUBLISHABLE_KEY
-        }
-      }
-    );
+    const clubsList =
+      document.getElementById("clubs-list");
 
-    if (!response.ok) {
-      throw new Error("Imeshindikana kupata vilabu.");
-    }
-
-    const clubs = await response.json();
-
-    if (clubs.length === 0) {
-      clubsList.innerHTML = "<p>Hakuna vilabu vilivyosajiliwa.</p>";
+    if (!clubsList) {
       return;
     }
 
-    clubsList.innerHTML = clubs.map(function(club) {
-      return `
-        <div style="background:white;padding:15px;border-radius:12px;margin-bottom:12px;">
-          <h3>🏟️ ${club.name || "Bila jina"}</h3>
-          <p>Jina fupi: ${club.short_name || "-"}</p>
-          <p>Zone: ${club.zone || "-"}</p>
-          <p>Status: ${club.status || "-"}</p>
-        </div>
-      `;
-    }).join("");
+    clubsList.innerHTML = `
+      <div class="empty">
+        Inapakia vilabu...
+      </div>
+    `;
 
-  } catch (error) {
-    console.error(error);
-    clubsList.innerHTML =
-      "<p>Imeshindikana kupakia taarifa za vilabu.</p>";
-  }
-}
+    try {
 
-<script src="supabase-config.js"></script>
+      const response = await fetch(
+        SUPABASE_URL +
+        "/rest/v1/clubs?select=id,name,short_name,logo_url,zone,adresse,phone,email,founded_year,status,created_at&order=name.asc",
+        {
+          method: "GET",
 
-<script>
-function showSection(sectionId) {
-  document.querySelectorAll(".section").forEach(function(section) {
-    section.classList.remove("active");
-  });
+          headers: {
+            "apikey":
+              SUPABASE_PUBLISHABLE_KEY,
 
-  const selectedSection = document.getElementById(sectionId);
-
-  if (selectedSection) {
-    selectedSection.classList.add("active");
-    window.scrollTo(0, 0);
-  }
-}
-
-async function loadClubs() {
-  const clubsList = document.getElementById("clubs-list");
-
-  if (!clubsList) return;
-
-  try {
-    const response = await fetch(
-      SUPABASE_URL + "/rest/v1/clubs?select=id,name,short_name,logo_url,zone,adresse,phone,email,founded_year,status,created_at",
-      {
-        headers: {
-          "apikey": SUPABASE_PUBLISHABLE_KEY,
-          "Authorization": "Bearer " + SUPABASE_PUBLISHABLE_KEY
+            "Authorization":
+              "Bearer " +
+              SUPABASE_PUBLISHABLE_KEY
+          }
         }
+      );
+
+
+      if (!response.ok) {
+
+        const errorText =
+          await response.text();
+
+        console.error(
+          "Supabase error:",
+          errorText
+        );
+
+        throw new Error(
+          "Imeshindikana kupata vilabu."
+        );
       }
-    );
 
-    if (!response.ok) {
-      throw new Error("Imeshindikana kupata vilabu.");
-    }
 
-    const clubs = await response.json();
+      const clubs =
+        await response.json();
 
-    if (clubs.length === 0) {
-      clubsList.innerHTML = "<p>Hakuna vilabu vilivyosajiliwa.</p>";
-      return;
-    }
 
-    clubsList.innerHTML = clubs.map(function(club) {
-      return `
-        <div style="background:white;padding:15px;border-radius:12px;margin-bottom:12px;">
-          <h3>🏟️ ${club.name || "Bila jina"}</h3>
-          <p>Jina fupi: ${club.short_name || "-"}</p>
-          <p>Zone: ${club.zone || "-"}</p>
-          <p>Status: ${club.status || "-"}</p>
-        </div>
-      `;
-    }).join("");
+      if (!clubs || clubs.length === 0) {
 
-  } catch (error) {
-    console.error(error);
-    clubsList.innerHTML =
-      "<p>Imeshindikana kupakia taarifa za vilabu.</p>";
-  }
-}
+        clubsList.innerHTML = `
+          <div class="empty">
+            Hakuna vilabu vilivyosajiliwa.
+          </div>
+        `;
 
-document.getElementById("club-form").addEventListener("submit", async function(event) {
-  event.preventDefault();
-
-  const message = document.getElementById("club-message");
-
-  const club = {
-    name: document.getElementById("club-name").value.trim(),
-    short_name: document.getElementById("club-short-name").value.trim() || null,
-    logo_url: document.getElementById("club-logo-url").value.trim() || null,
-    zone: document.getElementById("club-zone").value.trim() || null,
-    adresse: document.getElementById("club-address").value.trim() || null,
-    phone: document.getElementById("club-phone").value.trim() || null,
-    email: document.getElementById("club-email").value.trim() || null,
-    founded_year: document.getElementById("club-founded-year").value
-      ? Number(document.getElementById("club-founded-year").value)
-      : null,
-    status: document.getElementById("club-status").value
-  };
-
-  try {
-    message.textContent = "Inahifadhi...";
-
-    const response = await fetch(
-      SUPABASE_URL + "/rest/v1/clubs",
-      {
-        method: "POST",
-        headers: {
-          "apikey": SUPABASE_PUBLISHABLE_KEY,
-          "Authorization": "Bearer " + SUPABASE_PUBLISHABLE_KEY,
-          "Content-Type": "application/json",
-          "Prefer": "return=representation"
-        },
-        body: JSON.stringify(club)
+        return;
       }
-    );
 
-    if (!response.ok) {
-      const error = await response.text();
+
+      clubsList.innerHTML =
+        clubs.map(function(club) {
+
+          const statusClass =
+            club.status === "active"
+              ? "active"
+              : "inactive";
+
+          const statusText =
+            club.status === "active"
+              ? "ACTIVE"
+              : "INACTIVE";
+
+
+          return `
+            <div class="club-item">
+
+              <h3>
+                🏟️ ${escapeHtml(
+                  club.name || "Bila jina"
+                )}
+              </h3>
+
+              <p>
+                <strong>Jina fupi:</strong>
+                ${escapeHtml(
+                  club.short_name || "-"
+                )}
+              </p>
+
+              <p>
+                <strong>Zone:</strong>
+                ${escapeHtml(
+                  club.zone || "-"
+                )}
+              </p>
+
+              <p>
+                <strong>Anwani:</strong>
+                ${escapeHtml(
+                  club.adresse || "-"
+                )}
+              </p>
+
+              <p>
+                <strong>Simu:</strong>
+                ${escapeHtml(
+                  club.phone || "-"
+                )}
+              </p>
+
+              <span class="status ${statusClass}">
+                ${statusText}
+              </span>
+
+            </div>
+          `;
+
+        }).join("");
+
+
+    } catch (error) {
+
       console.error(error);
-      throw new Error(error);
+
+      clubsList.innerHTML = `
+        <div class="empty">
+          ❌ Imeshindikana kupakia vilabu.
+          <br><br>
+          Jaribu kubonyeza Refresh.
+        </div>
+      `;
     }
-
-    message.textContent = "✅ Klabu imehifadhiwa kikamilifu.";
-
-    document.getElementById("club-form").reset();
-
-    loadClubs();
-
-  } catch (error) {
-    console.error(error);
-    message.textContent = "❌ Imeshindikana kuhifadhi klabu.";
   }
-});
 
-loadClubs();
+
+  /* =========================
+     ADD CLUB
+  ========================= */
+
+  const clubForm =
+    document.getElementById("club-form");
+
+
+  if (clubForm) {
+
+    clubForm.addEventListener(
+      "submit",
+      async function(event) {
+
+        event.preventDefault();
+
+
+        const message =
+          document.getElementById(
+            "club-message"
+          );
+
+
+        message.textContent =
+          "Inahifadhi klabu...";
+
+
+        const club = {
+
+          name:
+            document.getElementById(
+              "club-name"
+            ).value.trim(),
+
+          short_name:
+            document.getElementById(
+              "club-short-name"
+            ).value.trim() || null,
+
+          logo_url:
+            document.getElementById(
+              "club-logo-url"
+            ).value.trim() || null,
+
+                   zone:
+            document.getElementById(
+              "club-zone"
+            ).value.trim() || null,
+
+          adresse:
+            document.getElementById(
+              "club-address"
+            ).value.trim() || null,
+
+          phone:
+            document.getElementById(
+              "club-phone"
+            ).value.trim() || null,
+
+          email:
+            document.getElementById(
+              "club-email"
+            ).value.trim() || null,
+
+          founded_year:
+            document.getElementById(
+              "club-founded-year"
+            ).value
+              ? Number(
+                  document.getElementById(
+                    "club-founded-year"
+                  ).value
+                )
+              : null,
+
+          status:
+            document.getElementById(
+              "club-status"
+            ).value
+        };
+
+
+        if (!club.name) {
+
+          message.textContent =
+            "❌ Jina la klabu linahitajika.";
+
+          return;
+        }
+
+
+        try {
+
+          const response =
+            await fetch(
+              SUPABASE_URL +
+              "/rest/v1/clubs",
+              {
+
+                method: "POST",
+
+                headers: {
+
+                  "apikey":
+                    SUPABASE_PUBLISHABLE_KEY,
+
+                  "Authorization":
+                    "Bearer " +
+                    SUPABASE_PUBLISHABLE_KEY,
+
+                  "Content-Type":
+                    "application/json",
+
+                  "Prefer":
+                    "return=representation"
+                },
+
+                body:
+                  JSON.stringify(club)
+              }
+            );
+
+
+          if (!response.ok) {
+
+            const errorText =
+              await response.text();
+
+            console.error(
+              "Insert error:",
+              errorText
+            );
+
+            message.textContent =
+              "❌ Imeshindikana kuhifadhi klabu.";
+
+            return;
+          }
+
+
+          message.textContent =
+            "✅ Klabu imehifadhiwa kikamilifu.";
+
+          clubForm.reset();
+
+          await loadClubs();
+
+
+        } catch (error) {
+
+          console.error(error);
+
+          message.textContent =
+            "❌ Kuna tatizo la kuunganisha na Supabase.";
+        }
+
+      }
+    );
+          }
+            zone:
+            document.getElementById(
+              "club-zone"
+            ).value.trim() || null,
+
+          adresse:
+            document.getElementById(
+              "club-address"
+            ).value.trim() || null,
+
+          phone:
+            document.getElementById(
+              "club-phone"
+            ).value.trim() || null,
+
+          email:
+            document.getElementById(
+              "club-email"
+            ).value.trim() || null,
+
+          founded_year:
+            document.getElementById(
+              "club-founded-year"
+            ).value
+              ? Number(
+                  document.getElementById(
+                    "club-founded-year"
+                  ).value
+                )
+              : null,
+
+          status:
+            document.getElementById(
+              "club-status"
+            ).value
+        };
+
+        if (!club.name) {
+          message.textContent =
+            "❌ Jina la klabu linahitajika.";
+          return;
+        }
+
+        try {
+          const response =
+            await fetch(
+              SUPABASE_URL + "/rest/v1/clubs",
+              {
+                method: "POST",
+
+                headers: {
+                  "apikey":
+                    SUPABASE_PUBLISHABLE_KEY,
+
+                  "Authorization":
+                    "Bearer " +
+                    SUPABASE_PUBLISHABLE_KEY,
+
+                  "Content-Type":
+                    "application/json",
+
+                  "Prefer":
+                    "return=representation"
+                },
+
+                body:
+                  JSON.stringify(club)
+              }
+            );
+
+          if (!response.ok) {
+            const errorText =
+              await response.text();
+
+            console.error(
+              "Insert error:",
+              errorText
+            );
+
+            message.textContent =
+              "❌ Imeshindikana kuhifadhi klabu.";
+
+            return;
+          }
+
+          message.textContent =
+            "✅ Klabu imehifadhiwa kikamilifu.";
+
+          clubForm.reset();
+
+          await loadClubs();
+
+        } catch (error) {
+          console.error(error);
+
+          message.textContent =
+            "❌ Kuna tatizo la kuunganisha na Supabase.";
+        }
+
+      }
+    );  /* =========================
+     ESCAPE HTML
+  ========================= */
+
+  function escapeHtml(value) {
+
+    return String(value)
+      .replaceAll("&", "&amp;")
+      .replaceAll("<", "&lt;")
+      .replaceAll(">", "&gt;")
+      .replaceAll('"', "&quot;")
+      .replaceAll("'", "&#039;");
+  }
+
+
+  /* =========================
+     START APPLICATION
+  ========================= */
+
+  loadClubs();
+
 </script>
 
 </body>
 </html>
-
-loadClubs();
-</script>
-
-</body>
-</html>
+  }
