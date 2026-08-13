@@ -326,8 +326,20 @@
 </section>
 
 <script src="supabase-config.js"></script>
+
 <script>
-  console.log("AFRN Supabase configuration loaded");
+function showSection(sectionId) {
+  document.querySelectorAll(".section").forEach(function(section) {
+    section.classList.remove("active");
+  });
+
+  const selectedSection = document.getElementById(sectionId);
+
+  if (selectedSection) {
+    selectedSection.classList.add("active");
+    window.scrollTo(0, 0);
+  }
+}
 </script>
 
 </body>
