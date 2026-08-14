@@ -1,226 +1,719 @@
 <!DOCTYPE html>
 <html lang="sw">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>AFRN Football Management</title>
-  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
-  <style>
-    *{box-sizing:border-box}
-    body{margin:0;font-family:Arial,sans-serif;background:#f4f7fb;color:#172033}
-    header{background:#0b3d2e;color:white;padding:16px}
-    header h1{margin:0;font-size:20px}
-    header p{margin:5px 0 0;font-size:13px;opacity:.85}
-    nav{display:flex;gap:8px;overflow:auto;background:white;padding:10px;border-bottom:1px solid #ddd}
-    nav button{border:0;background:#eef2f5;padding:10px 14px;border-radius:8px;white-space:nowrap}
-    nav button.active{background:#0b3d2e;color:white}
-    main{max-width:900px;margin:auto;padding:16px}
-    .card{background:white;border-radius:12px;padding:16px;margin-bottom:16px;box-shadow:0 2px 8px #00000010}
-    h2{margin-top:0}
-    label{display:block;font-weight:bold;font-size:14px;margin:10px 0 5px}
-    input{width:100%;padding:11px;border:1px solid #ccd3da;border-radius:8px}
-    .btn{margin-top:12px;border:0;border-radius:8px;padding:11px 16px;background:#0b3d2e;color:white;font-weight:bold}
-    .status{padding:10px;border-radius:8px;background:#eef6f2;margin-bottom:12px;font-size:14px}
-    table{width:100%;border-collapse:collapse}
-    th,td{text-align:left;padding:9px;border-bottom:1px solid #eee;font-size:14px}
-    .hidden{display:none}
-    .error{background:#fff0f0;color:#9b1c1c}
-  </style>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>AFRN Football Management</title>
+
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+
+<style>
+*{box-sizing:border-box}
+
+body{
+  margin:0;
+  font-family:Arial,sans-serif;
+  background:#f4f7fb;
+  color:#172033;
+}
+
+header{
+  background:#0b3d2e;
+  color:white;
+  padding:18px;
+}
+
+header h1{
+  margin:0;
+  font-size:21px;
+}
+
+header p{
+  margin:6px 0 0;
+  font-size:13px;
+  opacity:.9;
+}
+
+nav{
+  display:flex;
+  gap:8px;
+  overflow-x:auto;
+  background:white;
+  padding:10px;
+  border-bottom:1px solid #ddd;
+}
+
+.nav-btn{
+  border:0;
+  background:#eef2f5;
+  color:#173b2e;
+  padding:10px 14px;
+  border-radius:8px;
+  white-space:nowrap;
+  font-weight:bold;
+}
+
+.nav-btn.active{
+  background:#0b3d2e;
+  color:white;
+}
+
+main{
+  max-width:1000px;
+  margin:auto;
+  padding:16px;
+}
+
+.page{
+  display:none;
+}
+
+.page.active{
+  display:block;
+}
+
+.card{
+  background:white;
+  border-radius:12px;
+  padding:18px;
+  margin-bottom:16px;
+  box-shadow:0 2px 8px #00000012;
+}
+
+h2{
+  margin-top:0;
+}
+
+.status{
+  padding:11px;
+  border-radius:8px;
+  background:#eef6f2;
+  margin-bottom:14px;
+  font-size:14px;
+}
+
+.error{
+  background:#fff0f0;
+  color:#a61b1b;
+}
+
+.success{
+  background:#eaf8ef;
+  color:#126b3a;
+}
+
+label{
+  display:block;
+  font-weight:bold;
+  font-size:14px;
+  margin:10px 0 5px;
+}
+
+input{
+  width:100%;
+  padding:12px;
+  border:1px solid #ccd3da;
+  border-radius:8px;
+  font-size:15px;
+}
+
+.btn{
+  margin-top:12px;
+  border:0;
+  border-radius:8px;
+  padding:11px 16px;
+  background:#0b3d2e;
+  color:white;
+  font-weight:bold;
+}
+
+.btn:disabled{
+  opacity:.6;
+}
+
+table{
+  width:100%;
+  border-collapse:collapse;
+}
+
+th,td{
+  text-align:left;
+  padding:10px;
+  border-bottom:1px solid #eee;
+  font-size:14px;
+}
+
+.empty{
+  padding:20px;
+  text-align:center;
+  color:#667085;
+}
+</style>
 </head>
+
 <body>
+
 <header>
   <h1>AFRN FOOTBALL MANAGEMENT</h1>
   <p>Association/Football Federation for Refugees in Nyarugusu</p>
 </header>
 
 <nav>
-  <button class="nav-btn active" data-page="dashboard">Dashboard</button>
-  <button class="nav-btn" data-page="clubs">Vilabu</button>
-  <button class="nav-btn" data-page="players">Wachezaji</button>
-  <button class="nav-btn" data-page="contracts">Mikataba</button>
-  <button class="nav-btn" data-page="transfers">Uhamisho</button>
+  <button class="nav-btn active" data-page="dashboard">
+    Dashboard
+  </button>
+
+  <button class="nav-btn" data-page="clubs">
+    Vilabu
+  </button>
+
+  <button class="nav-btn" data-page="players">
+    Wachezaji
+  </button>
+
+  <button class="nav-btn" data-page="contracts">
+    Mikataba
+  </button>
+
+  <button class="nav-btn" data-page="transfers">
+    Uhamisho
+  </button>
 </nav>
 
 <main>
-  <section id="dashboard" class="page">
-    <div class="card">
-      <h2>Karibu AFRN</h2>
-      <div id="connectionStatus" class="status">Inaunganisha na Supabase...</div>
-      <p>Huu ni mwanzo wa mfumo. Hakuna klabu wala mchezaji wa mfano.</p>
-    </div>
-  </section>
 
-  <section id="clubs" class="page hidden">
-    <div class="card">
-      <h2>Vilabu</h2>
-      <div id="clubStatus" class="status">Inapakia vilabu...</div>
-      <div id="clubFormWrap"></div>
-      <div style="overflow:auto">
-        <table>
-          <thead><tr><th>Jina la Klabu</th><th>Kitendo</th></tr></thead>
-          <tbody id="clubsTable"></tbody>
-        </table>
-      </div>
-    </div>
-  </section>
+<!-- DASHBOARD -->
 
-  <section id="players" class="page hidden">
-    <div class="card">
-      <h2>Wachezaji</h2>
-      <p>Sehemu hii tutajenga baada ya Vilabu kufanya kazi vizuri.</p>
-    </div>
-  </section>
+<section id="dashboard" class="page active">
 
-  <section id="contracts" class="page hidden">
-    <div class="card">
-      <h2>Mikataba</h2>
-      <p>Sehemu hii tutajenga hatua inayofuata.</p>
-    </div>
-  </section>
+  <div class="card">
 
-  <section id="transfers" class="page hidden">
-    <div class="card">
-      <h2>Uhamisho</h2>
-      <p>Sehemu hii tutajenga hatua inayofuata.</p>
+    <h2>Karibu AFRN</h2>
+
+    <div id="connectionStatus" class="status">
+      Inaunganisha na Supabase...
     </div>
-  </section>
+
+    <p>
+      Mfumo wa usimamizi wa soka wa AFRN.
+    </p>
+
+    <p>
+      Anza kwa kuongeza vilabu vyako.
+    </p>
+
+  </div>
+
+</section>
+
+
+<!-- CLUBS -->
+
+<section id="clubs" class="page">
+
+  <div class="card">
+
+    <h2>Vilabu</h2>
+
+    <div id="clubStatus" class="status">
+      Tayari.
+    </div>
+
+    <form id="clubForm">
+
+      <label for="clubName">
+        Jina la Klabu
+      </label>
+
+      <input
+        id="clubName"
+        type="text"
+        placeholder="Mfano: AFRN FC"
+        required
+      >
+
+      <button
+        id="addClubBtn"
+        class="btn"
+        type="submit"
+      >
+        + Ongeza Klabu
+      </button>
+
+    </form>
+
+  </div>
+
+
+  <div class="card">
+
+    <h2>Orodha ya Vilabu</h2>
+
+    <div style="overflow:auto">
+
+      <table>
+
+        <thead>
+
+          <tr>
+            <th>#</th>
+            <th>Jina la Klabu</th>
+          </tr>
+
+        </thead>
+
+        <tbody id="clubsTable">
+
+        </tbody>
+
+      </table>
+
+    </div>
+
+  </div>
+
+</section>
+
+
+<!-- PLAYERS -->
+
+<section id="players" class="page">
+
+  <div class="card">
+
+    <h2>Wachezaji</h2>
+
+    <div class="empty">
+      Sehemu ya Wachezaji tutajenga baada ya Vilabu kufanya kazi.
+    </div>
+
+  </div>
+
+</section>
+
+
+<!-- CONTRACTS -->
+
+<section id="contracts" class="page">
+
+  <div class="card">
+
+    <h2>Mikataba</h2>
+
+    <div class="empty">
+      Sehemu ya Mikataba tutajenga hatua inayofuata.
+    </div>
+
+  </div>
+
+</section>
+
+
+<!-- TRANSFERS -->
+
+<section id="transfers" class="page">
+
+  <div class="card">
+
+    <h2>Uhamisho</h2>
+
+    <div class="empty">
+      Sehemu ya Uhamisho tutajenga hatua inayofuata.
+    </div>
+
+  </div>
+
+</section>
+
 </main>
 
+
 <script>
+
+/* =====================================
+   SUPABASE CONNECTION
+===================================== */
+
 let supabaseClient = null;
 
-function showPage(page){
-  document.querySelectorAll('.page').forEach(x => x.classList.add('hidden'));
-  document.getElementById(page).classList.remove('hidden');
-  document.querySelectorAll('.nav-btn').forEach(x =>
-    x.classList.toggle('active', x.dataset.page === page)
-  );
-  if(page === 'clubs') loadClubs();
-}
 
-document.querySelectorAll('.nav-btn').forEach(btn => {
-  btn.addEventListener('click', () => showPage(btn.dataset.page));
-});
+/* =====================================
+   NAVIGATION
+===================================== */
 
-function renderClubForm(){
-  document.getElementById('clubFormWrap').innerHTML = `
-    <form id="clubForm">
-      <label for="clubName">Jina la Klabu</label>
-      <input id="clubName" name="clubName" required placeholder="Mfano: AFRN FC">
-      <button class="btn" type="submit">+ Ongeza Klabu</button>
-    </form>
-  `;
-  document.getElementById('clubForm').addEventListener('submit', addClub);
-}
+function showPage(pageName){
 
-async function initSupabase(){
-  try{
-    if(!window.AFRN_SUPABASE_URL || !window.AFRN_SUPABASE_ANON_KEY){
-      throw new Error(
-        "Supabase config haijawekwa. Weka URL na anon key zako kwenye supabase-config.js."
+  document
+    .querySelectorAll(".page")
+    .forEach(page => {
+      page.classList.remove("active");
+    });
+
+  const selectedPage =
+    document.getElementById(pageName);
+
+  if(selectedPage){
+    selectedPage.classList.add("active");
+  }
+
+  document
+    .querySelectorAll(".nav-btn")
+    .forEach(button => {
+
+      button.classList.toggle(
+        "active",
+        button.dataset.page === pageName
       );
-    }
 
-    supabaseClient = window.supabase.createClient(
-      window.AFRN_SUPABASE_URL,
-      window.AFRN_SUPABASE_ANON_KEY
+    });
+
+  if(pageName === "clubs"){
+    loadClubs();
+  }
+
+}
+
+
+/* Navigation buttons */
+
+document
+  .querySelectorAll(".nav-btn")
+  .forEach(button => {
+
+    button.addEventListener(
+      "click",
+      function(){
+
+        showPage(
+          this.dataset.page
+        );
+
+      }
     );
 
-    document.getElementById('connectionStatus').textContent =
-      "Supabase iko tayari.";
-    renderClubForm();
-  }catch(err){
-    document.getElementById('connectionStatus').textContent = err.message;
-    document.getElementById('connectionStatus').classList.add('error');
+  });
+
+
+/* =====================================
+   SUPABASE INITIALIZATION
+===================================== */
+
+function initSupabase(){
+
+  const status =
+    document.getElementById(
+      "connectionStatus"
+    );
+
+  if(
+    !window.AFRN_SUPABASE_URL ||
+    !window.AFRN_SUPABASE_ANON_KEY
+  ){
+
+    status.textContent =
+      "Supabase config haijawekwa. Weka URL na anon key kwenye supabase-config.js.";
+
+    status.classList.add("error");
+
+    return;
   }
+
+
+  try{
+
+    supabaseClient =
+      window.supabase.createClient(
+        window.AFRN_SUPABASE_URL,
+        window.AFRN_SUPABASE_ANON_KEY
+      );
+
+    status.textContent =
+      "Supabase imeunganishwa tayari.";
+
+    status.classList.add("success");
+
+  }
+
+  catch(error){
+
+    status.textContent =
+      "Kuna tatizo la kuunganisha Supabase: " +
+      error.message;
+
+    status.classList.add("error");
+
+  }
+
 }
+
+
+/* =====================================
+   LOAD CLUBS
+===================================== */
 
 async function loadClubs(){
-  const status = document.getElementById('clubStatus');
-  const tbody = document.getElementById('clubsTable');
+
+  const status =
+    document.getElementById(
+      "clubStatus"
+    );
+
+  const table =
+    document.getElementById(
+      "clubsTable"
+    );
+
 
   if(!supabaseClient){
-    status.textContent = "Supabase bado haijaunganishwa.";
+
+    status.textContent =
+      "Supabase haijaunganishwa.";
+
+    status.classList.add("error");
+
     return;
+
   }
 
-  status.textContent = "Inapakia...";
-  const {data, error} = await supabaseClient
-    .from('clubs')
-    .select('*')
-    .order('created_at', {ascending:false});
 
-  if(error){
-    status.textContent = "Imeshindikana kusoma table 'clubs': " + error.message;
-    status.classList.add('error');
+  status.className =
+    "status";
+
+  status.textContent =
+    "Inapakia vilabu...";
+
+
+  const result =
+    await supabaseClient
+      .from("clubs")
+      .select("*");
+
+
+  if(result.error){
+
+    status.textContent =
+      "Imeshindikana kusoma vilabu: " +
+      result.error.message;
+
+    status.classList.add("error");
+
     return;
+
   }
 
-  status.textContent = `${data.length} klabu zimepatikana.`;
-  tbody.innerHTML = '';
 
-  data.forEach(club => {
-    const name =
-      club.name ?? club.club_name ?? club.clubName ?? club.title ?? 'Bila jina';
+  const clubs =
+    result.data || [];
 
-    const tr = document.createElement('tr');
-    tr.innerHTML = `<td>${escapeHtml(String(name))}</td>
-                    <td><button class="btn" style="margin:0;padding:7px 10px" disabled>Angalia</button></td>`;
-    tbody.appendChild(tr);
-  });
+
+  table.innerHTML = "";
+
+
+  if(clubs.length === 0){
+
+    table.innerHTML = `
+      <tr>
+        <td colspan="2" class="empty">
+          Hakuna klabu bado.
+        </td>
+      </tr>
+    `;
+
+    status.textContent =
+      "Hakuna klabu iliyopo.";
+
+    return;
+
+  }
+
+
+  clubs.forEach(
+    (club,index) => {
+
+      const name =
+        club.name ??
+        club.club_name ??
+        club.clubName ??
+        club.title ??
+        "Bila jina";
+
+
+      const row =
+        document.createElement("tr");
+
+
+      row.innerHTML = `
+        <td>${index + 1}</td>
+        <td>${escapeHtml(
+          String(name)
+        )}</td>
+      `;
+
+
+      table.appendChild(row);
+
+    }
+  );
+
+
+  status.textContent =
+    clubs.length +
+    " klabu zimepatikana.";
+
 }
 
-async function addClub(e){
-  e.preventDefault();
-  const name = document.getElementById('clubName').value.trim();
-  if(!name) return;
 
-  const status = document.getElementById('clubStatus');
-  status.classList.remove('error');
-  status.textContent = "Inahifadhi...";
+/* =====================================
+   ADD CLUB
+===================================== */
 
-  /*
-    Kumbuka:
-    Hapa tunatumia column 'name'. Ikiwa table yako ya clubs ina jina
-    tofauti la column (mfano club_name), tutalibadilisha baada ya
-    kuthibitisha schema yako iliyopo. Hatutaunda au kufuta table.
-  */
-  const {error} = await supabaseClient
-    .from('clubs')
-    .insert({name});
+document
+  .getElementById("clubForm")
+  .addEventListener(
+    "submit",
+    addClub
+  );
 
-  if(error){
-    status.textContent = "Imeshindikana kuhifadhi: " + error.message;
-    status.classList.add('error');
+
+async function addClub(event){
+
+  event.preventDefault();
+
+
+  if(!supabaseClient){
+
+    alert(
+      "Supabase haijaunganishwa."
+    );
+
     return;
+
   }
 
-  document.getElementById('clubForm').reset();
-  status.textContent = "Klabu imeongezwa kikamilifu.";
+
+  const input =
+    document.getElementById(
+      "clubName"
+    );
+
+  const button =
+    document.getElementById(
+      "addClubBtn"
+    );
+
+  const status =
+    document.getElementById(
+      "clubStatus"
+    );
+
+
+  const name =
+    input.value.trim();
+
+
+  if(!name){
+
+    return;
+
+  }
+
+
+  button.disabled = true;
+
+  status.className =
+    "status";
+
+  status.textContent =
+    "Inahifadhi klabu...";
+
+
+  const result =
+    await supabaseClient
+      .from("clubs")
+      .insert({
+        name: name
+      });
+
+
+  if(result.error){
+
+    status.textContent =
+      "Imeshindikana kuhifadhi klabu: " +
+      result.error.message;
+
+    status.classList.add("error");
+
+    button.disabled = false;
+
+    return;
+
+  }
+
+
+  input.value = "";
+
+  status.textContent =
+    "Klabu imeongezwa kikamilifu.";
+
+  status.classList.add("success");
+
+
+  button.disabled = false;
+
+
   await loadClubs();
+
 }
+
+
+/* =====================================
+   SECURITY / HTML ESCAPE
+===================================== */
 
 function escapeHtml(value){
-  return value.replace(/[&<>"']/g, c => ({
-    '&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#039;'
-  }[c]));
+
+  return value.replace(
+    /[&<>"']/g,
+    function(character){
+
+      return {
+        "&":"&amp;",
+        "<":"&lt;",
+        ">":"&gt;",
+        '"':"&quot;",
+        "'":"&#039;"
+      }[character];
+
+    }
+  );
+
 }
 
+
+/* =====================================
+   START APPLICATION
+===================================== */
+
 initSupabase();
+
 </script>
 
-<!--
-  Hii file inahitaji supabase-config.js.
-  Ikiwa una config yako tayari, tutatumia hiyo bila kuunda database mpya.
--->
-<<script src="./supabase-config.js"></script>
+
+<!-- SUPABASE CONFIG -->
+
+<script src="./supabase-config.js"></script>
+
 
 <script>
-let supabaseClient = null;
 
-// code yako yote ya JavaScript...
+/*
+  Baada ya supabase-config.js kupakiwa,
+  tunaanzisha tena connection.
+*/
 
 initSupabase();
+
 </script>
+
 </body>
 </html>
