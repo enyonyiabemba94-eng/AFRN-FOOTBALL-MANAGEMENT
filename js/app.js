@@ -560,3 +560,266 @@ window.addClub = addClub;
 window.deleteClub = deleteClub;
 window.editClub = editClub;
 window.loadClubs = loadClubs;
+async function loadPlayers() {
+
+  if (!db) return;
+
+  const result =
+    await db
+      .from("players")
+      .select(`
+        *,
+        clubs (
+          id,
+          name
+        )
+      `)
+      .order("first_name");
+
+  if (result.error) {
+
+    console.error(
+      "Imeshindikana kupakia wachezaji:",
+      result.error.message
+    );
+
+    return;
+  }
+
+  window.allPlayers =
+    result.data || [];
+
+  renderPlayers();
+  }
+function renderPlayers() {
+
+  const table =
+    $("playersTable");
+
+  if (!table) return;
+
+  const players =
+    window.allPlayers || [];
+
+  if (!players.length) {
+
+    table.innerHTML = `
+      <tr>
+        <td colspan="8" class="empty">
+          Hakuna wachezaji.
+        </td>
+      </tr>
+    `;
+
+    return;
+  }
+
+  table.innerHTML =
+    players.map(
+      (player, index) => {
+
+        const clubName =
+          player.clubs?.name || "—";
+
+        const fullName =
+          [
+            player.first_name,
+            player.middle_name,
+            player.last_name
+          ]
+            .filter(Boolean)
+            .join(" ");
+
+        return `
+          <tr>
+            <td>${index + 1}</td>
+            <td>${fullName || "—"}</td>
+            <td>${clubName}</td>
+            <td>${player.position || "—"}</td>
+            <td>${player.jersey_number || "—"}</td>
+            <td>${player.nationality || "—"}</td>
+            <td>${player.status || "—"}</td>
+            <td>
+              <button
+                type="button"
+                onclick="editPlayer('${player.id}')">
+                ✏️ Hariri
+              </button>
+
+              <button
+                type="button"
+                onclick="deletePlayer('${player.id}')">
+                🗑️ Futa
+              </button>
+            </td>
+          </tr>
+        `;
+
+      }
+    )
+    .join("");
+    }
+const playersButton =
+  document.querySelector(
+    '[data-page="players"]'
+  );
+
+if (playersButton) {
+
+  playersButton.addEventListener(
+    "click",
+    loadPlayers
+  );
+
+}
+const playersRefreshBtn =
+  $("refreshPlayersBtn");
+
+if (playersRefreshBtn) {
+
+  playersRefreshBtn.addEventListener(
+    "click",
+    loadPlayers
+  );
+
+}
+async function addPlayer() {
+
+  const firstName =
+    $("playerFirstName")?.value.trim();
+
+  if (!firstName) {
+
+    alert(
+      "Tafadhali weka jina la kwanza la mchezaji."
+    );
+
+    return;
+  }
+
+  const playerIdNumber =
+    $("playerIdNumber")?.value.trim();
+
+  if (playerIdNumber) {
+
+    const exists =
+      await playerExists(
+        playerIdNumber
+      );
+
+    if (exists) {
+
+      alert(
+        "Namba ya mchezaji tayari ipo."
+      );
+
+      return;
+    }
+  }
+
+  const data = {
+    club_id:
+      $("playerClubId")?.value || null,
+
+    first_name:
+      firstName,
+
+    middle_name:
+      $("playerMiddleName")?.value.trim() || null,
+
+    last_name:
+      $("playerLastName")?.value.trim() || null,
+    date_of_birth:
+      $("playerDateOfBirth")?.value || null,
+
+    nationality:
+      $("playerNationality")?.value.trim() || null,
+
+    position:
+      $("playerPosition")?.value || null,
+
+    jersey_number:
+      $("playerJerseyNumber")?.value || null,
+
+    photo_url:
+      $("playerPhotoUrl")?.value.trim() || null,
+
+    player_id_number:
+      $("playerIdNumber")?.value.trim() || null,
+
+    phone:
+      $("playerPhone")?.value.trim() || null,
+
+    address:
+      $("playerAddress")?.value.trim() || null,
+
+    status:
+      $("playerStatus")?.value || "active"
+  };
+
+  const result =
+    await db
+      .from("players")
+      .insert(data);
+
+  if (result.error) {
+
+    alert(
+      "Imeshindikana kuongeza mchezaji: " +
+      result.error.message
+    );
+
+    return;
+  }
+
+  alert(
+    "Mchezaji ameongezwa kikamilifu."
+  );
+
+  await loadPlayers();
+}
+async function playerExists(playerIdNumber) {
+
+  if (!playerIdNumber) return false;
+
+  const result =
+    await db
+      .from("players")
+      .select("id")
+      .eq(
+        "player_id_number",
+        playerIdNumber
+      )
+      .limit(1);
+
+  if (result.error) {
+
+    console.error(
+      "Imeshindikana kukagua mchezaji:",
+      result.error.message
+    );
+
+    return false;
+  }
+
+  return result.data?.length > 0;
+}
+const playerForm =
+  $("playerForm");
+
+if (playerForm) {
+
+  playerForm.addEventListener(
+    "submit",
+    async event => {
+
+      event.preventDefault();
+
+      await addPlayer();
+
+    }
+  );
+
+}
+window.addPlayer = addPlayer;
+window.loadPlayers = loadPlayers;
