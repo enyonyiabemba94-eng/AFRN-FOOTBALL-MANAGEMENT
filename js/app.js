@@ -823,3 +823,53 @@ if (playerForm) {
 }
 window.addPlayer = addPlayer;
 window.loadPlayers = loadPlayers;
+async function loadPlayerClubs() {
+
+  if (!db) return;
+
+  const result =
+    await db
+      .from("clubs")
+      .select("id, name")
+      .order("name");
+
+  if (result.error) {
+
+    console.error(
+      "Imeshindikana kupakia klabu:",
+      result.error.message
+    );
+
+    return;
+  }
+
+  const select =
+    $("playerClubId");
+
+  if (!select) return;
+
+  select.innerHTML = `
+    <option value="">
+      Chagua Klabu
+    </option>
+  `;
+
+  (result.data || []).forEach(
+    club => {
+
+      const option =
+        document.createElement("option");
+
+      option.value =
+        club.id;
+
+      option.textContent =
+        club.name;
+
+      select.appendChild(option);
+
+    }
+  );
+}
+
+loadPlayerClubs();
