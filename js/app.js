@@ -643,7 +643,7 @@ function renderPlayers() {
       (player, index) => {
 
         const clubName =
-          player.clubs?.name || "—";
+  player.club_id || "—";
 
         const fullName =
           [
