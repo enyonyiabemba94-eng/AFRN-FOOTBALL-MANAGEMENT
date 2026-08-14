@@ -974,7 +974,9 @@ if (editSelect) {
 
   editSelect.appendChild(editOption);
 }
-
+  }
+);
+}
 loadPlayerClubs();
 async function deletePlayer(id) {
 
