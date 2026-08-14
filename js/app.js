@@ -652,15 +652,32 @@ if (visiblePlayerCount) {
             .join(" ");
 
         return `
-          <tr>
-            <td>${index + 1}</td>
-            <td>${fullName || "—"}</td>
-            <td>${clubName}</td>
-            <td>${player.position || "—"}</td>
-            <td>${player.jersey_number || "—"}</td>
-            <td>${player.nationality || "—"}</td>
-            <td>${player.status || "—"}</td>
-            <td>
+  <tr>
+    <td>${index + 1}</td>
+
+    <td>
+      ${
+        player.photo_url
+          ? `<img
+              src="${player.photo_url}"
+              alt="${fullName}"
+              style="width:45px;height:45px;object-fit:cover;border-radius:50%;"
+            >`
+          : "—"
+      }
+    </td>
+
+    <td>${fullName || "—"}</td>
+
+    <td>${clubName}</td>
+
+    <td>${player.position || "—"}</td>
+
+    <td>${player.jersey_number || "—"}</td>
+
+    <td>${player.status || "—"}</td>
+
+    <td>
               <button
                 type="button"
                 onclick="editPlayer('${player.id}')">
@@ -936,7 +953,11 @@ async function editPlayer(id) {
     );
 
   if (!player) {
-    alert("Mchezaji hakupatikana.");
+
+    alert(
+      "Mchezaji hakupatikana."
+    );
+
     return;
   }
 
@@ -949,9 +970,21 @@ async function editPlayer(id) {
   if (firstName === null) return;
 
   if (!firstName.trim()) {
-    alert("First Name haiwezi kuwa tupu.");
+
+    alert(
+      "First Name haiwezi kuwa tupu."
+    );
+
     return;
   }
+
+  const middleName =
+    prompt(
+      "Middle Name:",
+      player.middle_name || ""
+    );
+
+  if (middleName === null) return;
 
   const lastName =
     prompt(
@@ -961,9 +994,34 @@ async function editPlayer(id) {
 
   if (lastName === null) return;
 
+  if (!lastName.trim()) {
+
+    alert(
+      "Last Name haiwezi kuwa tupu."
+    );
+
+    return;
+  }
+
+  const dateOfBirth =
+    prompt(
+      "Date of Birth (YYYY-MM-DD):",
+      player.date_of_birth || ""
+    );
+
+  if (dateOfBirth === null) return;
+
+  const nationality =
+    prompt(
+      "Nationality:",
+      player.nationality || ""
+    );
+
+  if (nationality === null) return;
+
   const position =
     prompt(
-      "Position:",
+      "Position (GK, DF, MF, FW):",
       player.position || ""
     );
 
@@ -977,17 +1035,87 @@ async function editPlayer(id) {
 
   if (jerseyNumber === null) return;
 
+  const phone =
+    prompt(
+      "Phone:",
+      player.phone || ""
+    );
+
+  if (phone === null) return;
+
+  const address =
+    prompt(
+      "Address:",
+      player.address || ""
+    );
+
+  if (address === null) return;
+
+  const playerIdNumber =
+    prompt(
+      "Player ID Number:",
+      player.player_id_number || ""
+    );
+
+  if (playerIdNumber === null) return;
+
+  const photoUrl =
+    prompt(
+      "Photo URL:",
+      player.photo_url || ""
+    );
+
+  if (photoUrl === null) return;
+
+  const status =
+    prompt(
+      "Status (active, inactive, suspended):",
+      player.status || "active"
+    );
+
+  if (status === null) return;
+
   const result =
     await db
       .from("players")
       .update({
-        first_name: firstName.trim(),
+
+        first_name:
+          firstName.trim(),
+
+        middle_name:
+          middleName.trim() || null,
+
         last_name:
-          lastName.trim() || null,
+          lastName.trim(),
+
+        date_of_birth:
+          dateOfBirth || null,
+
+        nationality:
+          nationality.trim() || null,
+
         position:
           position.trim() || null,
+
         jersey_number:
-          jerseyNumber || null
+          jerseyNumber || null,
+
+        phone:
+          phone.trim() || null,
+
+        address:
+          address.trim() || null,
+
+        player_id_number:
+          playerIdNumber.trim() || null,
+
+        photo_url:
+          photoUrl.trim() || null,
+
+        status:
+          status.trim() || "active"
+
       })
       .eq("id", id);
 
@@ -1002,7 +1130,7 @@ async function editPlayer(id) {
   }
 
   alert(
-    "Taarifa za mchezaji zimebadilishwa."
+    "Taarifa za mchezaji zimebadilishwa kikamilifu."
   );
 
   await loadPlayers();
