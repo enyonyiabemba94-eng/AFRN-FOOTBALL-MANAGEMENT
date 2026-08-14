@@ -601,6 +601,22 @@ function renderPlayers() {
   const players =
     window.allPlayers || [];
 
+  const playerCount =
+    $("playerCount");
+
+  const visiblePlayerCount =
+    $("visiblePlayerCount");
+
+  if (playerCount) {
+    playerCount.textContent =
+      players.length;
+  }
+
+  if (visiblePlayerCount) {
+    visiblePlayerCount.textContent =
+      players.length;
+  }
+
   if (!players.length) {
 
     table.innerHTML = `
