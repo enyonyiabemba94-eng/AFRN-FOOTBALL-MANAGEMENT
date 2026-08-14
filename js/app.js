@@ -928,14 +928,24 @@ async function loadPlayerClubs() {
 
   const select =
     $("playerClubId");
+  const editSelect =
+  $("editPlayerClubId");
 
   if (!select) return;
 
   select.innerHTML = `
+  <option value="">
+    Chagua Klabu
+  </option>
+`;
+
+if (editSelect) {
+  editSelect.innerHTML = `
     <option value="">
       Chagua Klabu
     </option>
   `;
+}
 
   (result.data || []).forEach(
     club => {
@@ -944,15 +954,25 @@ async function loadPlayerClubs() {
         document.createElement("option");
 
       option.value =
-        club.id;
+  club.id;
 
-      option.textContent =
-        club.name;
+option.textContent =
+  club.name;
 
-      select.appendChild(option);
+select.appendChild(option);
 
-    }
-  );
+if (editSelect) {
+
+  const editOption =
+    document.createElement("option");
+
+  editOption.value =
+    club.id;
+
+  editOption.textContent =
+    club.name;
+
+  editSelect.appendChild(editOption);
 }
 
 loadPlayerClubs();
@@ -1005,6 +1025,12 @@ async function editPlayer(id) {
 
     return;
   }
+  const clubSelect =
+  $("editPlayerClubId");
+  if (clubSelect) {
+  clubSelect.value =
+    player.club_id || "";
+}
 
   const firstName =
     prompt(
@@ -1047,6 +1073,13 @@ async function editPlayer(id) {
 
     return;
   }
+  const selectedClubId =
+  $("editPlayerClubId")?.value || "";
+
+if (!selectedClubId) {
+  alert("Tafadhali chagua Klabu.");
+  return;
+}
 
   const dateOfBirth =
     prompt(
@@ -1133,6 +1166,8 @@ async function editPlayer(id) {
 
         last_name:
           lastName.trim(),
+        club_id:
+  selectedClubId || null,
 
         date_of_birth:
           dateOfBirth || null,
