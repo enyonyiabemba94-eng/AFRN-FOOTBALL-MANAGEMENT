@@ -72,19 +72,26 @@ function showPage(pageName) {
   }
 }
 document
-  .querySelectorAll(".nav-btn")
-  .forEach(button => {
+.querySelectorAll(".nav-btn")
+.forEach(button => {
 
-    button.addEventListener(
-      "click",
-      () => {
-        showPage(
-          button.dataset.page
-        );
+  button.addEventListener(
+    "click",
+    async () => {
+
+      const pageName =
+        button.dataset.page;
+
+      showPage(pageName);
+
+      if (pageName === "players") {
+        await loadPlayers();
       }
-    );
 
-  });
+    }
+  );
+
+});
 async function testConnection() {
 
   const status =
