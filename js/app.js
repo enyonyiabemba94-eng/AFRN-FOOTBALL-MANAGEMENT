@@ -1020,16 +1020,19 @@ async function editPlayer(id) {
     );
 
   if (!player) {
+alert(
+  "Mchezaji hakupatikana."
+);
 
-    alert(
-      "Mchezaji hakupatikana."
-    );
+return;
+}
 
-    return;
-  }
-  const clubSelect =
+await loadPlayerClubs();
+
+const clubSelect =
   $("editPlayerClubId");
-  if (clubSelect) {
+
+if (clubSelect) {
   clubSelect.value =
     player.club_id || "";
 }
@@ -1139,77 +1142,78 @@ if (!selectedClubId) {
 
   if (playerIdNumber === null) return;
 
-  const photoUrl =
-    prompt(
-      "Photo URL:",
-      player.photo_url || ""
-    );
+const photoUrl =
+  prompt(
+    "Photo URL:",
+    player.photo_url || ""
+  );
 
-  if (photoUrl === null) return;
+if (photoUrl === null) return;
 
-  const status =
-    prompt(
-      "Status (active, inactive, suspended):",
-      player.status || "active"
-    );
+const status =
+  prompt(
+    "Status (active, inactive, suspended):",
+    player.status || "active"
+  );
 
-  if (status === null) return;
+if (status === null) return;
 
-  const result =
-    await db
-      .from("players")
-      .update({
+const result =
+  await db
+    .from("players")
+    .update({
 
-        first_name:
-          firstName.trim(),
+      first_name:
+        firstName.trim(),
 
-        middle_name:
-          middleName.trim() || null,
+      middle_name:
+        middleName.trim() || null,
 
-        last_name:
-          lastName.trim(),
-        club_id:
-  selectedClubId || null,
+      last_name:
+        lastName.trim(),
+
+      club_id:
+        selectedClubId || null,
 
         date_of_birth:
-          dateOfBirth || null,
+  dateOfBirth || null,
 
-        nationality:
-          nationality.trim() || null,
+nationality:
+  nationality.trim() || null,
 
-        position:
-          position.trim() || null,
+position:
+  position.trim() || null,
 
-        jersey_number:
-          jerseyNumber || null,
+jersey_number:
+  jerseyNumber || null,
 
-        phone:
-          phone.trim() || null,
+phone:
+  phone.trim() || null,
 
-        address:
-          address.trim() || null,
+address:
+  address.trim() || null,
 
-        player_id_number:
-          playerIdNumber.trim() || null,
+player_id_number:
+  playerIdNumber.trim() || null,
 
-        photo_url:
-          photoUrl.trim() || null,
+photo_url:
+  photoUrl.trim() || null,
 
-        status:
-          status.trim() || "active"
+status:
+  status.trim() || "active"
 
-      })
-      .eq("id", id);
+})
+.eq("id", id);
 
-  if (result.error) {
+if (result.error) {
 
-    alert(
-      "Imeshindikana kuhariri mchezaji: " +
-      result.error.message
-    );
+  alert(
+    "Imeshindikana kuhariri mchezaji: " +
+    result.error.message
+  );
 
-    return;
-  }
+  return;
+}
 
   alert(
     "Taarifa za mchezaji zimebadilishwa kikamilifu."
