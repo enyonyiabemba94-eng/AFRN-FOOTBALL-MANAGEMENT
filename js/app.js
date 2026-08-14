@@ -602,15 +602,20 @@ function renderPlayers() {
     window.allPlayers || [];
 
   const playerCount =
-    $("playerCount");
+  document.getElementById("playerCount");
 
-  const visiblePlayerCount =
-    $("visiblePlayerCount");
+const visiblePlayerCount =
+  document.getElementById("visiblePlayerCount");
 
-  if (playerCount) {
-    playerCount.textContent =
-      players.length;
-  }
+if (playerCount) {
+  playerCount.textContent =
+    String(players.length);
+}
+
+if (visiblePlayerCount) {
+  visiblePlayerCount.textContent =
+    String(players.length);
+}
 
   if (visiblePlayerCount) {
     visiblePlayerCount.textContent =
