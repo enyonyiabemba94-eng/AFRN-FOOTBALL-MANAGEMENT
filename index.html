@@ -3,12 +3,15 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
 <title>AFRN Football Management</title>
 
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 
 <style>
-*{box-sizing:border-box}
+*{
+  box-sizing:border-box;
+}
 
 body{
   margin:0;
@@ -51,6 +54,7 @@ nav{
   border-radius:8px;
   white-space:nowrap;
   font-weight:bold;
+  cursor:pointer;
 }
 
 .nav-btn.active{
@@ -59,7 +63,7 @@ nav{
 }
 
 main{
-  max-width:1050px;
+  max-width:1100px;
   margin:auto;
   padding:16px;
 }
@@ -74,7 +78,7 @@ main{
 
 .card{
   background:white;
-  border-radius:12px;
+  border-radius:14px;
   padding:18px;
   margin-bottom:16px;
   box-shadow:0 2px 8px #00000012;
@@ -92,14 +96,14 @@ h2{
   font-size:14px;
 }
 
-.error{
-  background:#fff0f0;
-  color:#a61b1b;
-}
-
 .success{
   background:#eaf8ef;
   color:#126b3a;
+}
+
+.error{
+  background:#fff0f0;
+  color:#a61b1b;
 }
 
 label{
@@ -109,12 +113,14 @@ label{
   margin:10px 0 5px;
 }
 
-input{
+input,
+select{
   width:100%;
   padding:12px;
   border:1px solid #ccd3da;
   border-radius:8px;
   font-size:15px;
+  background:white;
 }
 
 .btn{
@@ -158,7 +164,7 @@ input{
 
 .stats{
   display:grid;
-  grid-template-columns:repeat(2,1fr);
+  grid-template-columns:repeat(3,1fr);
   gap:10px;
   margin-bottom:16px;
 }
@@ -166,19 +172,29 @@ input{
 .stat{
   background:white;
   border:1px solid #e5e7eb;
-  border-radius:10px;
-  padding:14px;
+  border-radius:12px;
+  padding:15px;
 }
 
 .stat strong{
   display:block;
-  font-size:24px;
+  font-size:25px;
   color:#0b3d2e;
 }
 
 .stat span{
   font-size:13px;
   color:#667085;
+}
+
+.form-grid{
+  display:grid;
+  grid-template-columns:repeat(2,1fr);
+  gap:10px;
+}
+
+.full{
+  grid-column:1/-1;
 }
 
 .club-tools{
@@ -197,7 +213,8 @@ table{
   border-collapse:collapse;
 }
 
-th,td{
+th,
+td{
   text-align:left;
   padding:10px;
   border-bottom:1px solid #eee;
@@ -207,6 +224,14 @@ th,td{
 
 th{
   background:#f8fafc;
+}
+
+.logo{
+  width:42px;
+  height:42px;
+  object-fit:cover;
+  border-radius:50%;
+  border:1px solid #ddd;
 }
 
 .empty{
@@ -224,6 +249,7 @@ th{
   padding:18px;
   align-items:center;
   justify-content:center;
+  overflow:auto;
 }
 
 .modal.show{
@@ -232,7 +258,7 @@ th{
 
 .modal-box{
   background:white;
-  width:min(500px,100%);
+  width:min(600px,100%);
   border-radius:14px;
   padding:20px;
 }
@@ -248,17 +274,22 @@ th{
   margin-top:14px;
 }
 
-@media(max-width:600px){
-
-  .club-tools{
-    grid-template-columns:1fr;
-  }
+@media(max-width:700px){
 
   .stats{
     grid-template-columns:1fr;
   }
 
-  th,td{
+  .form-grid{
+    grid-template-columns:1fr;
+  }
+
+  .club-tools{
+    grid-template-columns:1fr;
+  }
+
+  th,
+  td{
     font-size:13px;
     padding:8px;
   }
@@ -270,7 +301,9 @@ th{
 
 <header>
   <h1>AFRN FOOTBALL MANAGEMENT</h1>
-  <p>Association/Football Federation for Refugees in Nyarugusu</p>
+  <p>
+    Association/Football Federation for Refugees in Nyarugusu
+  </p>
 </header>
 
 <nav>
@@ -299,65 +332,53 @@ th{
 
 <main>
 
-<!-- ================= DASHBOARD ================= -->
-
 <section id="dashboard" class="page active">
 
   <div class="card">
 
-    <h2>Karibu AFRN</h2>
+    <h2>Karibu AFRN 👋</h2>
 
     <div id="connectionStatus" class="status">
       Inaunganisha na Supabase...
     </div>
 
     <p>
-      Mfumo wa usimamizi wa soka wa AFRN.
+      Mfumo wa kitaalamu wa usimamizi wa soka wa AFRN.
     </p>
 
     <p>
-      Chagua <strong>Vilabu</strong> kuanza kusimamia klabu zako.
+      Tumia menyu ya <strong>Vilabu</strong> kusimamia taarifa
+      za klabu zako.
     </p>
 
   </div>
 
 </section>
 
-
-<!-- ================= CLUBS ================= -->
-
 <section id="clubs" class="page">
 
   <div class="stats">
 
     <div class="stat">
-
       <strong id="clubCount">0</strong>
-
-      <span>
-        Jumla ya Vilabu
-      </span>
-
+      <span>Jumla ya Vilabu</span>
     </div>
 
     <div class="stat">
-
       <strong id="visibleClubCount">0</strong>
+      <span>Vinavyoonekana</span>
+    </div>
 
-      <span>
-        Vinavyoonekana
-      </span>
-
+    <div class="stat">
+      <strong id="activeClubCount">0</strong>
+      <span>Vilabu Hai</span>
     </div>
 
   </div>
 
-
-  <!-- ADD CLUB -->
-
   <div class="card">
 
-    <h2>Vilabu</h2>
+    <h2>➕ Ongeza Klabu</h2>
 
     <div id="clubStatus" class="status">
       Tayari.
@@ -365,38 +386,153 @@ th{
 
     <form id="clubForm">
 
-      <label for="clubName">
-        Jina la Klabu
-      </label>
+      <div class="form-grid">
 
-      <input
-        id="clubName"
-        type="text"
-        placeholder="Mfano: AFRN FC"
-        maxlength="150"
-        required
-      >
+        <div>
+          <label for="clubName">
+            Jina la Klabu *
+          </label>
 
-      <button
-        id="addClubBtn"
-        class="btn"
-        type="submit"
-      >
-        + Ongeza Klabu
-      </button>
+          <input
+            id="clubName"
+            type="text"
+            placeholder="Mfano: AFRN FC"
+            maxlength="150"
+            required
+          >
+        </div>
+
+        <div>
+          <label for="shortName">
+            Short Name
+          </label>
+
+          <input
+            id="shortName"
+            type="text"
+            placeholder="Mfano: AFRN"
+            maxlength="50"
+          >
+        </div>
+
+        <div>
+          <label for="logoUrl">
+            🖼️ Logo URL
+          </label>
+
+          <input
+            id="logoUrl"
+            type="url"
+            placeholder="https://..."
+          >
+        </div>
+
+        <div>
+          <label for="zone">
+            📍 Kanda / Eneo
+          </label>
+
+          <input
+            id="zone"
+            type="text"
+            placeholder="Mfano: Zone 3"
+            maxlength="100"
+          >
+        </div>
+
+        <div>
+          <label for="address">
+            🏠 Address
+          </label>
+
+          <input
+            id="address"
+            type="text"
+            placeholder="Anwani ya klabu"
+            maxlength="200"
+          >
+        </div>
+
+        <div>
+          <label for="phone">
+            📞 Simu
+          </label>
+
+          <input
+            id="phone"
+            type="tel"
+            placeholder="+255..."
+            maxlength="50"
+          >
+        </div>
+
+        <div>
+          <label for="email">
+            ✉️ Email
+          </label>
+
+          <input
+            id="email"
+            type="email"
+            placeholder="club@example.com"
+          >
+        </div>
+
+        <div>
+          <label for="foundedYear">
+            📅 Mwaka wa Kuanzishwa
+          </label>
+
+          <input
+            id="foundedYear"
+            type="number"
+            placeholder="2026"
+            min="1900"
+            max="2100"
+          >
+        </div>
+
+        <div>
+          <label for="clubStatusSelect">
+            Hali ya Klabu
+          </label>
+
+          <select id="clubStatusSelect">
+            <option value="active">
+              Hai
+            </option>
+
+            <option value="inactive">
+              Haifanyi kazi
+            </option>
+
+            <option value="suspended">
+              Imesimamishwa
+            </option>
+          </select>
+        </div>
+
+        <div class="full">
+
+          <button
+            id="addClubBtn"
+            class="btn"
+            type="submit"
+          >
+            + Ongeza Klabu
+          </button>
+
+        </div>
+
+      </div>
 
     </form>
 
   </div>
 
-
-  <!-- CLUB LIST -->
-
   <div class="card">
 
-    <h2>
-      Orodha ya Vilabu
-    </h2>
+    <h2>Orodha ya Vilabu</h2>
 
     <div class="club-tools">
 
@@ -424,7 +560,6 @@ th{
 
     </div>
 
-
     <div style="overflow:auto;margin-top:16px">
 
       <table>
@@ -432,17 +567,13 @@ th{
         <thead>
 
           <tr>
-
             <th>#</th>
-
-            <th>
-              Jina la Klabu
-            </th>
-
-            <th>
-              Vitendo
-            </th>
-
+            <th>Logo</th>
+            <th>Jina</th>
+            <th>Short Name</th>
+            <th>Kanda</th>
+            <th>Status</th>
+            <th>Vitendo</th>
           </tr>
 
         </thead>
@@ -457,63 +588,42 @@ th{
 
 </section>
 
-
-<!-- ================= PLAYERS ================= -->
-
 <section id="players" class="page">
 
   <div class="card">
 
-    <h2>
-      Wachezaji
-    </h2>
+    <h2>Wachezaji</h2>
 
     <div class="empty">
-
-      Sehemu ya Wachezaji tutajenga baada ya Vilabu.
-
+      Moduli ya Wachezaji tutajenga baada ya Vilabu.
     </div>
 
   </div>
 
 </section>
-
-
-<!-- ================= CONTRACTS ================= -->
 
 <section id="contracts" class="page">
 
   <div class="card">
 
-    <h2>
-      Mikataba
-    </h2>
+    <h2>Mikataba</h2>
 
     <div class="empty">
-
-      Sehemu ya Mikataba tutajenga hatua inayofuata.
-
+      Moduli ya Mikataba itafuata.
     </div>
 
   </div>
 
 </section>
 
-
-<!-- ================= TRANSFERS ================= -->
-
 <section id="transfers" class="page">
 
   <div class="card">
 
-    <h2>
-      Uhamisho
-    </h2>
+    <h2>Uhamisho</h2>
 
     <div class="empty">
-
-      Sehemu ya Uhamisho tutajenga hatua inayofuata.
-
+      Moduli ya Uhamisho itafuata.
     </div>
 
   </div>
@@ -521,9 +631,6 @@ th{
 </section>
 
 </main>
-
-
-<!-- ================= EDIT MODAL ================= -->
 
 <div id="editModal" class="modal">
 
@@ -538,15 +645,116 @@ th{
       id="editClubId"
     >
 
-    <label for="editClubName">
-      Jina la Klabu
-    </label>
+    <div class="form-grid">
 
-    <input
-      id="editClubName"
-      type="text"
-      maxlength="150"
-    >
+      <div>
+        <label for="editClubName">
+          Jina la Klabu *
+        </label>
+
+        <input
+          id="editClubName"
+          type="text"
+          maxlength="150"
+        >
+      </div>
+
+      <div>
+        <label for="editShortName">
+          Short Name
+        </label>
+
+        <input
+          id="editShortName"
+          type="text"
+          maxlength="50"
+        >
+      </div>
+
+      <div>
+        <label for="editLogoUrl">
+          🖼️ Logo URL
+        </label>
+
+        <input
+          id="editLogoUrl"
+          type="url"
+        >
+      </div>
+
+      <div>
+        <label for="editZone">
+          📍 Kanda / Eneo
+        </label>
+
+        <input
+          id="editZone"
+          type="text"
+          maxlength="100"
+        >
+      </div>
+
+      <div>
+        <label for="editAddress">
+          🏠 Address
+        </label>
+
+        <input
+          id="editAddress"
+          type="text"
+          maxlength="200"
+        >
+      </div>
+
+      <div>
+        <label for="editPhone">
+          📞 Simu
+        </label>
+
+        <input
+          id="editPhone"
+          type="tel"
+          maxlength="50"
+        >
+      </div>
+
+      <div>
+        <label for="editEmail">
+          ✉️ Email
+        </label>
+
+        <input
+          id="editEmail"
+          type="email"
+        >
+      </div>
+
+      <div>
+        <label for="editFoundedYear">
+          📅 Mwaka
+        </label>
+
+        <input
+          id="editFoundedYear"
+          type="number"
+          min="1900"
+          max="2100"
+        >
+      </div>
+
+      <div>
+        <label for="editStatus">
+          Hali
+        </label>
+
+        <select id="editStatus">
+          <option value="active">Hai</option>
+          <option value="inactive">Haifanyi kazi</option>
+          <option value="suspended">Imesimamishwa</option>
+        </select>
+      </div>
+
+    </div>
 
     <div class="modal-actions">
 
@@ -572,79 +780,62 @@ th{
 
 </div>
 
-
-<!-- ================= SUPABASE CONFIG ================= -->
-
 <script src="./supabase-config.js"></script>
-
-
 <script>
 
-/* =====================================
-   SUPABASE
-===================================== */
-
 let supabaseClient = null;
-
 let allClubs = [];
 
 
-/* =====================================
+/* ===============================
    STATUS
-===================================== */
+================================ */
 
-function setStatus(text,type="normal"){
+function setStatus(message, type = "normal") {
 
   const status =
-    document.getElementById(
-      "clubStatus"
-    );
+    document.getElementById("clubStatus");
 
-  status.className =
-    "status";
+  if (!status) return;
 
-  if(type === "error"){
-    status.classList.add("error");
-  }
+  status.className = "status";
 
-  if(type === "success"){
+  if (type === "success") {
     status.classList.add("success");
   }
 
-  status.textContent =
-    text;
+  if (type === "error") {
+    status.classList.add("error");
+  }
+
+  status.textContent = message;
 }
 
 
-/* =====================================
-   INITIALIZE SUPABASE
-===================================== */
+/* ===============================
+   SUPABASE CONNECTION
+================================ */
 
-function initSupabase(){
+function initSupabase() {
 
-  const status =
-    document.getElementById(
-      "connectionStatus"
-    );
+  const connectionStatus =
+    document.getElementById("connectionStatus");
 
-
-  if(
+  if (
     !window.AFRN_SUPABASE_URL ||
     !window.AFRN_SUPABASE_ANON_KEY
-  ){
+  ) {
 
-    status.textContent =
+    connectionStatus.textContent =
       "Supabase config haijawekwa. Hakikisha supabase-config.js ipo.";
 
-    status.className =
+    connectionStatus.className =
       "status error";
 
     return false;
-
   }
 
-
-  try{
+  try {
 
     supabaseClient =
       window.supabase.createClient(
@@ -652,61 +843,50 @@ function initSupabase(){
         window.AFRN_SUPABASE_ANON_KEY
       );
 
-
-    status.textContent =
+    connectionStatus.textContent =
       "Supabase imeunganishwa tayari.";
 
-    status.className =
+    connectionStatus.className =
       "status success";
-
 
     return true;
 
-  }
+  } catch (error) {
 
-  catch(error){
-
-    status.textContent =
-      "Kuna tatizo la kuunganisha Supabase: " +
+    connectionStatus.textContent =
+      "Tatizo la Supabase: " +
       error.message;
 
-    status.className =
+    connectionStatus.className =
       "status error";
 
     return false;
-
   }
-
 }
 
 
-/* =====================================
+/* ===============================
    NAVIGATION
-===================================== */
+================================ */
 
-function showPage(pageName){
+function showPage(pageName) {
 
   document
     .querySelectorAll(".page")
-    .forEach(
-      page =>
-        page.classList.remove(
-          "active"
-        )
-    );
+    .forEach(page => {
+
+      page.classList.remove("active");
+
+    });
 
 
   const selectedPage =
-    document.getElementById(
-      pageName
-    );
+    document.getElementById(pageName);
 
 
-  if(selectedPage){
+  if (selectedPage) {
 
-    selectedPage.classList.add(
-      "active"
-    );
+    selectedPage.classList.add("active");
 
   }
 
@@ -717,14 +897,13 @@ function showPage(pageName){
 
       button.classList.toggle(
         "active",
-        button.dataset.page ===
-        pageName
+        button.dataset.page === pageName
       );
 
     });
 
 
-  if(pageName === "clubs"){
+  if (pageName === "clubs") {
 
     loadClubs();
 
@@ -739,7 +918,7 @@ document
 
     button.addEventListener(
       "click",
-      function(){
+      function () {
 
         showPage(
           this.dataset.page
@@ -751,11 +930,21 @@ document
   });
 
 
-/* =====================================
+/* ===============================
    CLUB HELPERS
-===================================== */
+================================ */
 
-function getClubName(club){
+function getClubId(club) {
+
+  return club.id ??
+    club.club_id ??
+    club.clubId ??
+    null;
+
+}
+
+
+function getClubName(club) {
 
   return club.name ??
     club.club_name ??
@@ -766,48 +955,48 @@ function getClubName(club){
 }
 
 
-function getClubId(club){
-
-  return club.id ??
-    club.club_id ??
-    club.clubId ??
-    null;
-
-}
-
-
-function normalizedName(name){
+function normalizeName(name) {
 
   return String(name)
     .trim()
-    .replace(/\s+/g," ")
+    .replace(/\s+/g, " ")
     .toLowerCase();
 
 }
 
 
+/* ===============================
+   DUPLICATE CHECK
+================================ */
+
 function duplicateExists(
   name,
-  ignoreId=null
-){
+  ignoreId = null
+) {
 
   const target =
-    normalizedName(name);
+    normalizeName(name);
 
 
   return allClubs.some(club => {
 
-    const sameName =
-      normalizedName(
+    const clubName =
+      normalizeName(
         getClubName(club)
-      ) === target;
+      );
+
+
+    const clubId =
+      getClubId(club);
+
+
+    const sameName =
+      clubName === target;
 
 
     const sameId =
-      String(
-        getClubId(club)
-      ) ===
-      String(ignoreId);
+      ignoreId !== null &&
+      String(clubId) === String(ignoreId);
 
 
     return sameName && !sameId;
@@ -817,13 +1006,13 @@ function duplicateExists(
 }
 
 
-/* =====================================
+/* ===============================
    LOAD CLUBS
-===================================== */
+================================ */
 
-async function loadClubs(){
+async function loadClubs() {
 
-  if(!supabaseClient){
+  if (!supabaseClient) {
 
     setStatus(
       "Supabase haijaunganishwa.",
@@ -849,10 +1038,13 @@ async function loadClubs(){
   const result =
     await supabaseClient
       .from("clubs")
-      .select("*");
+      .select("*")
+      .order("created_at", {
+        ascending: true
+      });
 
 
-  if(result.error){
+  if (result.error) {
 
     setStatus(
       "Imeshindikana kusoma vilabu: " +
@@ -864,10 +1056,10 @@ async function loadClubs(){
     table.innerHTML = `
       <tr>
         <td
-          colspan="3"
+          colspan="7"
           class="empty"
         >
-          Imeshindikana kupakia data.
+          Imeshindikana kupakia vilabu.
         </td>
       </tr>
     `;
@@ -893,21 +1085,11 @@ async function loadClubs(){
 }
 
 
-/* =====================================
-   DISPLAY CLUBS
-===================================== */
+/* ===============================
+   RENDER CLUBS
+================================ */
 
-function renderClubs(){
-
-  const search =
-    document
-      .getElementById(
-        "clubSearch"
-      )
-      .value
-      .trim()
-      .toLowerCase();
-
+function renderClubs() {
 
   const table =
     document.getElementById(
@@ -915,15 +1097,48 @@ function renderClubs(){
     );
 
 
+  const searchInput =
+    document.getElementById(
+      "clubSearch"
+    );
+
+
+  const search =
+    searchInput
+      ? searchInput.value
+          .trim()
+          .toLowerCase()
+      : "";
+
+
   const filtered =
-    allClubs.filter(
-      club =>
+    allClubs.filter(club => {
+
+      const name =
         String(
           getClubName(club)
-        )
-        .toLowerCase()
-        .includes(search)
-    );
+        ).toLowerCase();
+
+
+      const shortName =
+        String(
+          club.short_name || ""
+        ).toLowerCase();
+
+
+      const zone =
+        String(
+          club.zone || ""
+        ).toLowerCase();
+
+
+      return (
+        name.includes(search) ||
+        shortName.includes(search) ||
+        zone.includes(search)
+      );
+
+    });
 
 
   document.getElementById(
@@ -938,16 +1153,31 @@ function renderClubs(){
     filtered.length;
 
 
-  table.innerHTML =
-    "";
+  const activeCount =
+    allClubs.filter(club => {
+
+      return String(
+        club.status || "active"
+      ).toLowerCase() === "active";
+
+    }).length;
 
 
-  if(filtered.length === 0){
+  document.getElementById(
+    "activeClubCount"
+  ).textContent =
+    activeCount;
+
+
+  table.innerHTML = "";
+
+
+  if (filtered.length === 0) {
 
     table.innerHTML = `
       <tr>
         <td
-          colspan="3"
+          colspan="7"
           class="empty"
         >
           Hakuna klabu inayolingana na utafutaji.
@@ -961,97 +1191,180 @@ function renderClubs(){
 
 
   filtered.forEach(
-    (club,index) => {
+    (club, index) => {
 
       const row =
-        document.createElement(
-          "tr"
-        );
+        document.createElement("tr");
 
+
+      /* NUMBER */
 
       const numberCell =
-        document.createElement(
-          "td"
-        );
+        document.createElement("td");
 
       numberCell.textContent =
         index + 1;
 
 
-      const nameCell =
-        document.createElement(
-          "td"
+      /* LOGO */
+
+      const logoCell =
+        document.createElement("td");
+
+
+      if (club.logo_url) {
+
+        const image =
+          document.createElement("img");
+
+        image.className =
+          "logo";
+
+        image.src =
+          club.logo_url;
+
+        image.alt =
+          getClubName(club);
+
+        image.onerror =
+          function () {
+
+            this.style.display =
+              "none";
+
+          };
+
+        logoCell.appendChild(
+          image
         );
+
+      } else {
+
+        logoCell.textContent =
+          "⚽";
+
+      }
+
+
+      /* NAME */
+
+      const nameCell =
+        document.createElement("td");
 
       nameCell.textContent =
-        String(
-          getClubName(club)
-        );
+        getClubName(club);
 
+
+      /* SHORT NAME */
+
+      const shortCell =
+        document.createElement("td");
+
+      shortCell.textContent =
+        club.short_name || "-";
+
+
+      /* ZONE */
+
+      const zoneCell =
+        document.createElement("td");
+
+      zoneCell.textContent =
+        club.zone || "-";
+
+
+      /* STATUS */
+
+      const statusCell =
+        document.createElement("td");
+
+      const clubStatus =
+        String(
+          club.status || "active"
+        ).toLowerCase();
+
+
+      if (clubStatus === "active") {
+
+        statusCell.textContent =
+          "🟢 Hai";
+
+      } else if (
+        clubStatus === "suspended"
+      ) {
+
+        statusCell.textContent =
+          "🟠 Imesimamishwa";
+
+      } else {
+
+        statusCell.textContent =
+          "⚪ Haifanyi kazi";
+
+      }
+
+
+      /* ACTIONS */
 
       const actionCell =
-        document.createElement(
-          "td"
-        );
+        document.createElement("td");
 
       actionCell.className =
         "actions";
 
 
-      /* EDIT */
+      const editButton =
+        document.createElement("button");
 
-      const editBtn =
-        document.createElement(
-          "button"
-        );
-
-      editBtn.className =
+      editButton.className =
         "btn edit";
 
-      editBtn.type =
+      editButton.type =
         "button";
 
-      editBtn.textContent =
+      editButton.textContent =
         "✏️ Hariri";
 
 
-      editBtn.addEventListener(
+      editButton.addEventListener(
         "click",
-        () =>
-          openEditClub(club)
+        function () {
+
+          openEditClub(club);
+
+        }
       );
 
 
-      /* DELETE */
+      const deleteButton =
+        document.createElement("button");
 
-      const deleteBtn =
-        document.createElement(
-          "button"
-        );
-
-      deleteBtn.className =
+      deleteButton.className =
         "btn danger";
 
-      deleteBtn.type =
+      deleteButton.type =
         "button";
 
-      deleteBtn.textContent =
+      deleteButton.textContent =
         "🗑️ Futa";
 
 
-      deleteBtn.addEventListener(
+      deleteButton.addEventListener(
         "click",
-        () =>
-          deleteClub(club)
+        function () {
+
+          deleteClub(club);
+
+        }
       );
 
 
       actionCell.appendChild(
-        editBtn
+        editButton
       );
 
       actionCell.appendChild(
-        deleteBtn
+        deleteButton
       );
 
 
@@ -1060,7 +1373,23 @@ function renderClubs(){
       );
 
       row.appendChild(
+        logoCell
+      );
+
+      row.appendChild(
         nameCell
+      );
+
+      row.appendChild(
+        shortCell
+      );
+
+      row.appendChild(
+        zoneCell
+      );
+
+      row.appendChild(
+        statusCell
       );
 
       row.appendChild(
@@ -1078,26 +1407,24 @@ function renderClubs(){
 }
 
 
-/* =====================================
+/* ===============================
    ADD CLUB
-===================================== */
+================================ */
 
 document
-  .getElementById(
-    "clubForm"
-  )
+  .getElementById("clubForm")
   .addEventListener(
     "submit",
     addClub
   );
 
 
-async function addClub(event){
+async function addClub(event) {
 
   event.preventDefault();
 
 
-  if(!supabaseClient){
+  if (!supabaseClient) {
 
     setStatus(
       "Supabase haijaunganishwa.",
@@ -1109,10 +1436,66 @@ async function addClub(event){
   }
 
 
-  const input =
-    document.getElementById(
-      "clubName"
-    );
+  const name =
+    document
+      .getElementById("clubName")
+      .value
+      .trim();
+
+
+  const shortName =
+    document
+      .getElementById("shortName")
+      .value
+      .trim();
+
+
+  const logoUrl =
+    document
+      .getElementById("logoUrl")
+      .value
+      .trim();
+
+
+  const zone =
+    document
+      .getElementById("zone")
+      .value
+      .trim();
+
+
+  const address =
+    document
+      .getElementById("address")
+      .value
+      .trim();
+
+
+  const phone =
+    document
+      .getElementById("phone")
+      .value
+      .trim();
+
+
+  const email =
+    document
+      .getElementById("email")
+      .value
+      .trim();
+
+
+  const foundedYearValue =
+    document
+      .getElementById("foundedYear")
+      .value
+      .trim();
+
+
+  const status =
+    document
+      .getElementById("clubStatusSelect")
+      .value;
 
 
   const button =
@@ -1121,29 +1504,26 @@ async function addClub(event){
     );
 
 
-  const name =
-    input.value.trim();
+  if (!name) {
 
-
-  if(!name){
+    setStatus(
+      "Jina la klabu linahitajika.",
+      "error"
+    );
 
     return;
 
   }
 
 
-  /* DUPLICATE CHECK */
-
-  if(
+  if (
     duplicateExists(name)
-  ){
+  ) {
 
     setStatus(
       "Klabu yenye jina hilo tayari ipo. Duplicate hairuhusiwi.",
       "error"
     );
-
-    input.focus();
 
     return;
 
@@ -1159,15 +1539,46 @@ async function addClub(event){
   );
 
 
+  const data = {
+
+    name: name,
+
+    short_name:
+      shortName || null,
+
+    logo_url:
+      logoUrl || null,
+
+    zone:
+      zone || null,
+
+    address:
+      address || null,
+
+    phone:
+      phone || null,
+
+    email:
+      email || null,
+
+    founded_year:
+      foundedYearValue
+        ? Number(foundedYearValue)
+        : null,
+
+    status:
+      status || "active"
+
+  };
+
+
   const result =
     await supabaseClient
       .from("clubs")
-      .insert({
-        name:name
-      });
+      .insert(data);
 
 
-  if(result.error){
+  if (result.error) {
 
     setStatus(
       "Imeshindikana kuhifadhi klabu: " +
@@ -1183,8 +1594,9 @@ async function addClub(event){
   }
 
 
-  input.value =
-    "";
+  document
+    .getElementById("clubForm")
+    .reset();
 
 
   button.disabled =
@@ -1195,24 +1607,21 @@ async function addClub(event){
 
 
   setStatus(
-    "Klabu imeongezwa kikamilifu.",
+    "Klabu imeongezwa kikamilifu. ✅",
     "success"
   );
 
 }
-
-
-/* =====================================
+  /* ===============================
    EDIT CLUB
-===================================== */
+================================ */
 
-function openEditClub(club){
+function openEditClub(club) {
 
   const id =
     getClubId(club);
 
-
-  if(id === null){
+  if (id === null) {
 
     setStatus(
       "Klabu hii haina ID inayotambulika.",
@@ -1220,79 +1629,176 @@ function openEditClub(club){
     );
 
     return;
-
   }
-
 
   document.getElementById(
     "editClubId"
-  ).value =
-    id;
-
+  ).value = id;
 
   document.getElementById(
     "editClubName"
   ).value =
-    getClubName(club);
+    club.name || "";
 
+  document.getElementById(
+    "editShortName"
+  ).value =
+    club.short_name || "";
+
+  document.getElementById(
+    "editLogoUrl"
+  ).value =
+    club.logo_url || "";
+
+  document.getElementById(
+    "editZone"
+  ).value =
+    club.zone || "";
+
+  document.getElementById(
+    "editAddress"
+  ).value =
+    club.address || "";
+
+  document.getElementById(
+    "editPhone"
+  ).value =
+    club.phone || "";
+
+  document.getElementById(
+    "editEmail"
+  ).value =
+    club.email || "";
+
+  document.getElementById(
+    "editFoundedYear"
+  ).value =
+    club.founded_year || "";
+
+  document.getElementById(
+    "editStatus"
+  ).value =
+    club.status || "active";
 
   document.getElementById(
     "editModal"
-  ).classList.add(
-    "show"
-  );
-
-
-  document.getElementById(
-    "editClubName"
-  ).focus();
+  ).classList.add("show");
 
 }
 
 
-function closeEdit(){
+/* ===============================
+   CLOSE EDIT
+================================ */
+
+function closeEdit() {
 
   document.getElementById(
     "editModal"
-  ).classList.remove(
-    "show"
-  );
+  ).classList.remove("show");
 
 }
 
 
 document
-  .getElementById(
-    "cancelEditBtn"
-  )
+  .getElementById("cancelEditBtn")
   .addEventListener(
     "click",
     closeEdit
   );
 
 
+/* ===============================
+   SAVE EDIT
+================================ */
+
 document
-  .getElementById(
-    "saveEditBtn"
-  )
+  .getElementById("saveEditBtn")
   .addEventListener(
     "click",
     saveEditClub
   );
 
 
-async function saveEditClub(){
+async function saveEditClub() {
+
+  if (!supabaseClient) {
+
+    setStatus(
+      "Supabase haijaunganishwa.",
+      "error"
+    );
+
+    return;
+  }
+
 
   const id =
-    document.getElementById(
-      "editClubId"
-    ).value;
+    document
+      .getElementById("editClubId")
+      .value;
 
 
-  const input =
-    document.getElementById(
-      "editClubName"
-    );
+  const name =
+    document
+      .getElementById("editClubName")
+      .value
+      .trim();
+
+
+  const shortName =
+    document
+      .getElementById("editShortName")
+      .value
+      .trim();
+
+
+  const logoUrl =
+    document
+      .getElementById("editLogoUrl")
+      .value
+      .trim();
+
+
+  const zone =
+    document
+      .getElementById("editZone")
+      .value
+      .trim();
+
+
+  const address =
+    document
+      .getElementById("editAddress")
+      .value
+      .trim();
+
+
+  const phone =
+    document
+      .getElementById("editPhone")
+      .value
+      .trim();
+
+
+  const email =
+    document
+      .getElementById("editEmail")
+      .value
+      .trim();
+
+
+  const foundedYearValue =
+    document
+      .getElementById("editFoundedYear")
+      .value
+      .trim();
+
+
+  const status =
+    document
+      .getElementById("editStatus")
+      .value;
 
 
   const button =
@@ -1301,34 +1807,28 @@ async function saveEditClub(){
     );
 
 
-  const name =
-    input.value.trim();
-
-
-  if(!name){
+  if (!name) {
 
     alert(
       "Andika jina la klabu."
     );
 
     return;
-
   }
 
 
-  if(
+  if (
     duplicateExists(
       name,
       id
     )
-  ){
+  ) {
 
     alert(
       "Jina hili tayari limetumika na klabu nyingine."
     );
 
     return;
-
   }
 
 
@@ -1336,22 +1836,55 @@ async function saveEditClub(){
     true;
 
 
+  setStatus(
+    "Inahifadhi mabadiliko..."
+  );
+
+
+  const updateData = {
+
+    name: name,
+
+    short_name:
+      shortName || null,
+
+    logo_url:
+      logoUrl || null,
+
+    zone:
+      zone || null,
+
+    address:
+      address || null,
+
+    phone:
+      phone || null,
+
+    email:
+      email || null,
+
+    founded_year:
+      foundedYearValue
+        ? Number(foundedYearValue)
+        : null,
+
+    status:
+      status || "active"
+
+  };
+
+
   const result =
     await supabaseClient
       .from("clubs")
-      .update({
-        name:name
-      })
-      .eq(
-        "id",
-        id
-      );
+      .update(updateData)
+      .eq("id", id);
 
 
-  if(result.error){
+  if (result.error) {
 
     alert(
-      "Imeshindikana kuhariri klabu: " +
+      "Imeshindikana kuhariri klabu:\n\n" +
       result.error.message
     );
 
@@ -1359,7 +1892,6 @@ async function saveEditClub(){
       false;
 
     return;
-
   }
 
 
@@ -1374,38 +1906,46 @@ async function saveEditClub(){
 
 
   setStatus(
-    "Klabu imehaririwa kikamilifu.",
+    "Klabu imehaririwa kikamilifu. ✅",
     "success"
   );
 
 }
 
 
-/* =====================================
+/* ===============================
    DELETE CLUB
-===================================== */
+================================ */
 
-async function deleteClub(club){
+async function deleteClub(club) {
+
+  if (!supabaseClient) {
+
+    setStatus(
+      "Supabase haijaunganishwa.",
+      "error"
+    );
+
+    return;
+  }
+
 
   const id =
     getClubId(club);
 
 
   const name =
-    String(
-      getClubName(club)
-    );
+    getClubName(club);
 
 
-  if(id === null){
+  if (id === null) {
 
     setStatus(
-      "Klabu hii haina ID inayotambulika.",
+      "Klabu hii haina ID.",
       "error"
     );
 
     return;
-
   }
 
 
@@ -1417,10 +1957,9 @@ async function deleteClub(club){
     );
 
 
-  if(!confirmed){
+  if (!confirmed) {
 
     return;
-
   }
 
 
@@ -1433,13 +1972,10 @@ async function deleteClub(club){
     await supabaseClient
       .from("clubs")
       .delete()
-      .eq(
-        "id",
-        id
-      );
+      .eq("id", id);
 
 
-  if(result.error){
+  if (result.error) {
 
     setStatus(
       "Imeshindikana kufuta klabu: " +
@@ -1448,7 +1984,6 @@ async function deleteClub(club){
     );
 
     return;
-
   }
 
 
@@ -1458,56 +1993,50 @@ async function deleteClub(club){
   setStatus(
     'Klabu "' +
     name +
-    '" imefutwa.',
+    '" imefutwa. ✅',
     "success"
   );
 
 }
 
 
-/* =====================================
+/* ===============================
    SEARCH
-===================================== */
+================================ */
 
 document
-  .getElementById(
-    "clubSearch"
-  )
+  .getElementById("clubSearch")
   .addEventListener(
     "input",
     renderClubs
   );
 
 
-/* =====================================
+/* ===============================
    REFRESH
-===================================== */
+================================ */
 
 document
-  .getElementById(
-    "refreshClubsBtn"
-  )
+  .getElementById("refreshClubsBtn")
   .addEventListener(
     "click",
     loadClubs
   );
 
 
-/* =====================================
-   CLOSE MODAL
-===================================== */
+/* ===============================
+   CLOSE MODAL BY BACKGROUND
+================================ */
 
 document
-  .getElementById(
-    "editModal"
-  )
+  .getElementById("editModal")
   .addEventListener(
     "click",
-    function(event){
+    function(event) {
 
-      if(
+      if (
         event.target === this
-      ){
+      ) {
 
         closeEdit();
 
@@ -1517,13 +2046,13 @@ document
   );
 
 
-/* =====================================
-   START
-===================================== */
+/* ===============================
+   START APPLICATION
+================================ */
 
 initSupabase();
 
 </script>
 
 </body>
-  </html>
+</html>
