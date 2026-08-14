@@ -371,3 +371,177 @@ document.addEventListener(
 
   }
 );
+async function addClub() {
+
+  const name =
+    $("clubName")?.value.trim();
+
+  if (!name) {
+
+    alert(
+      "Tafadhali weka jina la klabu."
+    );
+
+    return;
+  }
+
+  const data = {
+    name: name,
+    short_name:
+      $("clubShortName")?.value.trim(),
+    zone:
+      $("clubZone")?.value.trim(),
+    address:
+      $("clubAddress")?.value.trim(),
+    phone:
+      $("clubPhone")?.value.trim(),
+    email:
+      $("clubEmail")?.value.trim(),
+    founded_year:
+      $("clubFoundedYear")?.value || null,
+    logo_url:
+      $("clubLogoUrl")?.value.trim() || null,
+    status:
+      $("clubStatusInput")?.value || "active"
+  };
+
+  const result =
+    await db
+      .from("clubs")
+      .insert(data);
+
+  if (result.error) {
+
+    alert(
+      "Imeshindikana kuongeza klabu: " +
+      result.error.message
+    );
+
+    return;
+  }
+
+  alert(
+    "Klabu imeongezwa kikamilifu."
+  );
+
+  await loadClubs();
+        }
+const addClubBtn =
+  $("addClubBtn");
+
+if (addClubBtn) {
+
+  addClubBtn.addEventListener(
+    "click",
+    addClub
+  );
+
+    }
+const clubForm =
+  $("clubForm");
+
+if (clubForm) {
+
+  clubForm.addEventListener(
+    "submit",
+    async event => {
+
+      event.preventDefault();
+
+      await addClub();
+
+    }
+  );
+
+}
+async function deleteClub(id) {
+
+  if (
+    !confirm(
+      "Una uhakika unataka kufuta klabu hii?"
+    )
+  ) {
+    return;
+  }
+
+  const result =
+    await db
+      .from("clubs")
+      .delete()
+      .eq("id", id);
+
+  if (result.error) {
+
+    alert(
+      "Imeshindikana kufuta klabu: " +
+      result.error.message
+    );
+
+    return;
+  }
+
+  alert(
+    "Klabu imefutwa."
+  );
+
+  await loadClubs();
+}
+async function editClub(id) {
+
+  const club =
+    allClubs.find(
+      item => String(item.id) === String(id)
+    );
+
+  if (!club) {
+
+    alert("Klabu haijapatikana.");
+
+    return;
+  }
+
+  const name =
+    prompt(
+      "Jina la klabu:",
+      club.name || ""
+    );
+
+  if (name === null) return;
+
+  if (!name.trim()) {
+
+    alert(
+      "Jina la klabu haliwezi kuwa tupu."
+    );
+
+    return;
+  }
+
+  const result =
+    await db
+      .from("clubs")
+      .update({
+        name: name.trim()
+      })
+      .eq("id", id);
+
+  if (result.error) {
+
+    alert(
+      "Imeshindikana kuhariri klabu: " +
+      result.error.message
+    );
+
+    return;
+  }
+
+  alert(
+    "Jina la klabu limebadilishwa."
+  );
+
+  await loadClubs();
+}
+window.addClub = addClub;
+window.deleteClub = deleteClub;
+window.editClub = editClub;
+window.loadClubs = loadClubs;
