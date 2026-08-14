@@ -59,7 +59,7 @@ nav{
 }
 
 main{
-  max-width:1000px;
+  max-width:1050px;
   margin:auto;
   padding:16px;
 }
@@ -125,10 +125,71 @@ input{
   background:#0b3d2e;
   color:white;
   font-weight:bold;
+  cursor:pointer;
 }
 
 .btn:disabled{
   opacity:.6;
+}
+
+.btn.secondary{
+  background:#667085;
+}
+
+.btn.edit{
+  background:#175cd3;
+}
+
+.btn.danger{
+  background:#b42318;
+}
+
+.actions{
+  display:flex;
+  gap:6px;
+  flex-wrap:wrap;
+}
+
+.actions .btn{
+  margin-top:0;
+  padding:8px 10px;
+  font-size:13px;
+}
+
+.stats{
+  display:grid;
+  grid-template-columns:repeat(2,1fr);
+  gap:10px;
+  margin-bottom:16px;
+}
+
+.stat{
+  background:white;
+  border:1px solid #e5e7eb;
+  border-radius:10px;
+  padding:14px;
+}
+
+.stat strong{
+  display:block;
+  font-size:24px;
+  color:#0b3d2e;
+}
+
+.stat span{
+  font-size:13px;
+  color:#667085;
+}
+
+.club-tools{
+  display:grid;
+  grid-template-columns:1fr auto;
+  gap:10px;
+  align-items:end;
+}
+
+.club-tools .btn{
+  margin-top:0;
 }
 
 table{
@@ -141,12 +202,66 @@ th,td{
   padding:10px;
   border-bottom:1px solid #eee;
   font-size:14px;
+  vertical-align:middle;
+}
+
+th{
+  background:#f8fafc;
 }
 
 .empty{
   padding:20px;
   text-align:center;
   color:#667085;
+}
+
+.modal{
+  display:none;
+  position:fixed;
+  inset:0;
+  background:#0008;
+  z-index:20;
+  padding:18px;
+  align-items:center;
+  justify-content:center;
+}
+
+.modal.show{
+  display:flex;
+}
+
+.modal-box{
+  background:white;
+  width:min(500px,100%);
+  border-radius:14px;
+  padding:20px;
+}
+
+.modal-box h3{
+  margin-top:0;
+}
+
+.modal-actions{
+  display:flex;
+  gap:8px;
+  justify-content:flex-end;
+  margin-top:14px;
+}
+
+@media(max-width:600px){
+
+  .club-tools{
+    grid-template-columns:1fr;
+  }
+
+  .stats{
+    grid-template-columns:1fr;
+  }
+
+  th,td{
+    font-size:13px;
+    padding:8px;
+  }
 }
 </style>
 </head>
@@ -159,6 +274,7 @@ th,td{
 </header>
 
 <nav>
+
   <button class="nav-btn active" data-page="dashboard">
     Dashboard
   </button>
@@ -178,11 +294,12 @@ th,td{
   <button class="nav-btn" data-page="transfers">
     Uhamisho
   </button>
+
 </nav>
 
 <main>
 
-<!-- DASHBOARD -->
+<!-- ================= DASHBOARD ================= -->
 
 <section id="dashboard" class="page active">
 
@@ -199,7 +316,7 @@ th,td{
     </p>
 
     <p>
-      Anza kwa kuongeza vilabu vyako.
+      Chagua <strong>Vilabu</strong> kuanza kusimamia klabu zako.
     </p>
 
   </div>
@@ -207,9 +324,36 @@ th,td{
 </section>
 
 
-<!-- CLUBS -->
+<!-- ================= CLUBS ================= -->
 
 <section id="clubs" class="page">
+
+  <div class="stats">
+
+    <div class="stat">
+
+      <strong id="clubCount">0</strong>
+
+      <span>
+        Jumla ya Vilabu
+      </span>
+
+    </div>
+
+    <div class="stat">
+
+      <strong id="visibleClubCount">0</strong>
+
+      <span>
+        Vinavyoonekana
+      </span>
+
+    </div>
+
+  </div>
+
+
+  <!-- ADD CLUB -->
 
   <div class="card">
 
@@ -229,6 +373,7 @@ th,td{
         id="clubName"
         type="text"
         placeholder="Mfano: AFRN FC"
+        maxlength="150"
         required
       >
 
@@ -245,26 +390,64 @@ th,td{
   </div>
 
 
+  <!-- CLUB LIST -->
+
   <div class="card">
 
-    <h2>Orodha ya Vilabu</h2>
+    <h2>
+      Orodha ya Vilabu
+    </h2>
 
-    <div style="overflow:auto">
+    <div class="club-tools">
+
+      <div>
+
+        <label for="clubSearch">
+          🔎 Tafuta Klabu
+        </label>
+
+        <input
+          id="clubSearch"
+          type="search"
+          placeholder="Andika jina la klabu..."
+        >
+
+      </div>
+
+      <button
+        id="refreshClubsBtn"
+        class="btn secondary"
+        type="button"
+      >
+        ↻ Refresh
+      </button>
+
+    </div>
+
+
+    <div style="overflow:auto;margin-top:16px">
 
       <table>
 
         <thead>
 
           <tr>
+
             <th>#</th>
-            <th>Jina la Klabu</th>
+
+            <th>
+              Jina la Klabu
+            </th>
+
+            <th>
+              Vitendo
+            </th>
+
           </tr>
 
         </thead>
 
-        <tbody id="clubsTable">
-
-        </tbody>
+        <tbody id="clubsTable"></tbody>
 
       </table>
 
@@ -275,16 +458,20 @@ th,td{
 </section>
 
 
-<!-- PLAYERS -->
+<!-- ================= PLAYERS ================= -->
 
 <section id="players" class="page">
 
   <div class="card">
 
-    <h2>Wachezaji</h2>
+    <h2>
+      Wachezaji
+    </h2>
 
     <div class="empty">
-      Sehemu ya Wachezaji tutajenga baada ya Vilabu kufanya kazi.
+
+      Sehemu ya Wachezaji tutajenga baada ya Vilabu.
+
     </div>
 
   </div>
@@ -292,16 +479,20 @@ th,td{
 </section>
 
 
-<!-- CONTRACTS -->
+<!-- ================= CONTRACTS ================= -->
 
 <section id="contracts" class="page">
 
   <div class="card">
 
-    <h2>Mikataba</h2>
+    <h2>
+      Mikataba
+    </h2>
 
     <div class="empty">
+
       Sehemu ya Mikataba tutajenga hatua inayofuata.
+
     </div>
 
   </div>
@@ -309,16 +500,20 @@ th,td{
 </section>
 
 
-<!-- TRANSFERS -->
+<!-- ================= TRANSFERS ================= -->
 
 <section id="transfers" class="page">
 
   <div class="card">
 
-    <h2>Uhamisho</h2>
+    <h2>
+      Uhamisho
+    </h2>
 
     <div class="empty">
+
       Sehemu ya Uhamisho tutajenga hatua inayofuata.
+
     </div>
 
   </div>
@@ -328,13 +523,161 @@ th,td{
 </main>
 
 
+<!-- ================= EDIT MODAL ================= -->
+
+<div id="editModal" class="modal">
+
+  <div class="modal-box">
+
+    <h3>
+      ✏️ Hariri Klabu
+    </h3>
+
+    <input
+      type="hidden"
+      id="editClubId"
+    >
+
+    <label for="editClubName">
+      Jina la Klabu
+    </label>
+
+    <input
+      id="editClubName"
+      type="text"
+      maxlength="150"
+    >
+
+    <div class="modal-actions">
+
+      <button
+        id="cancelEditBtn"
+        class="btn secondary"
+        type="button"
+      >
+        Ghairi
+      </button>
+
+      <button
+        id="saveEditBtn"
+        class="btn edit"
+        type="button"
+      >
+        Hifadhi Mabadiliko
+      </button>
+
+    </div>
+
+  </div>
+
+</div>
+
+
+<!-- ================= SUPABASE CONFIG ================= -->
+
+<script src="./supabase-config.js"></script>
+
+
 <script>
 
 /* =====================================
-   SUPABASE CONNECTION
+   SUPABASE
 ===================================== */
 
 let supabaseClient = null;
+
+let allClubs = [];
+
+
+/* =====================================
+   STATUS
+===================================== */
+
+function setStatus(text,type="normal"){
+
+  const status =
+    document.getElementById(
+      "clubStatus"
+    );
+
+  status.className =
+    "status";
+
+  if(type === "error"){
+    status.classList.add("error");
+  }
+
+  if(type === "success"){
+    status.classList.add("success");
+  }
+
+  status.textContent =
+    text;
+}
+
+
+/* =====================================
+   INITIALIZE SUPABASE
+===================================== */
+
+function initSupabase(){
+
+  const status =
+    document.getElementById(
+      "connectionStatus"
+    );
+
+
+  if(
+    !window.AFRN_SUPABASE_URL ||
+    !window.AFRN_SUPABASE_ANON_KEY
+  ){
+
+    status.textContent =
+      "Supabase config haijawekwa. Hakikisha supabase-config.js ipo.";
+
+    status.className =
+      "status error";
+
+    return false;
+
+  }
+
+
+  try{
+
+    supabaseClient =
+      window.supabase.createClient(
+        window.AFRN_SUPABASE_URL,
+        window.AFRN_SUPABASE_ANON_KEY
+      );
+
+
+    status.textContent =
+      "Supabase imeunganishwa tayari.";
+
+    status.className =
+      "status success";
+
+
+    return true;
+
+  }
+
+  catch(error){
+
+    status.textContent =
+      "Kuna tatizo la kuunganisha Supabase: " +
+      error.message;
+
+    status.className =
+      "status error";
+
+    return false;
+
+  }
+
+}
 
 
 /* =====================================
@@ -345,16 +688,28 @@ function showPage(pageName){
 
   document
     .querySelectorAll(".page")
-    .forEach(page => {
-      page.classList.remove("active");
-    });
+    .forEach(
+      page =>
+        page.classList.remove(
+          "active"
+        )
+    );
+
 
   const selectedPage =
-    document.getElementById(pageName);
+    document.getElementById(
+      pageName
+    );
+
 
   if(selectedPage){
-    selectedPage.classList.add("active");
+
+    selectedPage.classList.add(
+      "active"
+    );
+
   }
+
 
   document
     .querySelectorAll(".nav-btn")
@@ -362,19 +717,21 @@ function showPage(pageName){
 
       button.classList.toggle(
         "active",
-        button.dataset.page === pageName
+        button.dataset.page ===
+        pageName
       );
 
     });
 
+
   if(pageName === "clubs"){
+
     loadClubs();
+
   }
 
 }
 
-
-/* Navigation buttons */
 
 document
   .querySelectorAll(".nav-btn")
@@ -395,54 +752,67 @@ document
 
 
 /* =====================================
-   SUPABASE INITIALIZATION
+   CLUB HELPERS
 ===================================== */
 
-function initSupabase(){
+function getClubName(club){
 
-  const status =
-    document.getElementById(
-      "connectionStatus"
-    );
+  return club.name ??
+    club.club_name ??
+    club.clubName ??
+    club.title ??
+    "Bila jina";
 
-  if(
-    !window.AFRN_SUPABASE_URL ||
-    !window.AFRN_SUPABASE_ANON_KEY
-  ){
-
-    status.textContent =
-      "Supabase config haijawekwa. Weka URL na anon key kwenye supabase-config.js.";
-
-    status.classList.add("error");
-
-    return;
-  }
+}
 
 
-  try{
+function getClubId(club){
 
-    supabaseClient =
-      window.supabase.createClient(
-        window.AFRN_SUPABASE_URL,
-        window.AFRN_SUPABASE_ANON_KEY
-      );
+  return club.id ??
+    club.club_id ??
+    club.clubId ??
+    null;
 
-    status.textContent =
-      "Supabase imeunganishwa tayari.";
+}
 
-    status.classList.add("success");
 
-  }
+function normalizedName(name){
 
-  catch(error){
+  return String(name)
+    .trim()
+    .replace(/\s+/g," ")
+    .toLowerCase();
 
-    status.textContent =
-      "Kuna tatizo la kuunganisha Supabase: " +
-      error.message;
+}
 
-    status.classList.add("error");
 
-  }
+function duplicateExists(
+  name,
+  ignoreId=null
+){
+
+  const target =
+    normalizedName(name);
+
+
+  return allClubs.some(club => {
+
+    const sameName =
+      normalizedName(
+        getClubName(club)
+      ) === target;
+
+
+    const sameId =
+      String(
+        getClubId(club)
+      ) ===
+      String(ignoreId);
+
+
+    return sameName && !sameId;
+
+  });
 
 }
 
@@ -453,34 +823,27 @@ function initSupabase(){
 
 async function loadClubs(){
 
-  const status =
-    document.getElementById(
-      "clubStatus"
-    );
-
-  const table =
-    document.getElementById(
-      "clubsTable"
-    );
-
-
   if(!supabaseClient){
 
-    status.textContent =
-      "Supabase haijaunganishwa.";
-
-    status.classList.add("error");
+    setStatus(
+      "Supabase haijaunganishwa.",
+      "error"
+    );
 
     return;
 
   }
 
 
-  status.className =
-    "status";
+  setStatus(
+    "Inapakia vilabu..."
+  );
 
-  status.textContent =
-    "Inapakia vilabu...";
+
+  const table =
+    document.getElementById(
+      "clubsTable"
+    );
 
 
   const result =
@@ -491,74 +854,226 @@ async function loadClubs(){
 
   if(result.error){
 
-    status.textContent =
+    setStatus(
       "Imeshindikana kusoma vilabu: " +
-      result.error.message;
+      result.error.message,
+      "error"
+    );
 
-    status.classList.add("error");
-
-    return;
-
-  }
-
-
-  const clubs =
-    result.data || [];
-
-
-  table.innerHTML = "";
-
-
-  if(clubs.length === 0){
 
     table.innerHTML = `
       <tr>
-        <td colspan="2" class="empty">
-          Hakuna klabu bado.
+        <td
+          colspan="3"
+          class="empty"
+        >
+          Imeshindikana kupakia data.
         </td>
       </tr>
     `;
 
-    status.textContent =
-      "Hakuna klabu iliyopo.";
+    return;
+
+  }
+
+
+  allClubs =
+    result.data || [];
+
+
+  renderClubs();
+
+
+  setStatus(
+    allClubs.length +
+    " klabu zimepatikana.",
+    "success"
+  );
+
+}
+
+
+/* =====================================
+   DISPLAY CLUBS
+===================================== */
+
+function renderClubs(){
+
+  const search =
+    document
+      .getElementById(
+        "clubSearch"
+      )
+      .value
+      .trim()
+      .toLowerCase();
+
+
+  const table =
+    document.getElementById(
+      "clubsTable"
+    );
+
+
+  const filtered =
+    allClubs.filter(
+      club =>
+        String(
+          getClubName(club)
+        )
+        .toLowerCase()
+        .includes(search)
+    );
+
+
+  document.getElementById(
+    "clubCount"
+  ).textContent =
+    allClubs.length;
+
+
+  document.getElementById(
+    "visibleClubCount"
+  ).textContent =
+    filtered.length;
+
+
+  table.innerHTML =
+    "";
+
+
+  if(filtered.length === 0){
+
+    table.innerHTML = `
+      <tr>
+        <td
+          colspan="3"
+          class="empty"
+        >
+          Hakuna klabu inayolingana na utafutaji.
+        </td>
+      </tr>
+    `;
 
     return;
 
   }
 
 
-  clubs.forEach(
+  filtered.forEach(
     (club,index) => {
 
-      const name =
-        club.name ??
-        club.club_name ??
-        club.clubName ??
-        club.title ??
-        "Bila jina";
-
-
       const row =
-        document.createElement("tr");
+        document.createElement(
+          "tr"
+        );
 
 
-      row.innerHTML = `
-        <td>${index + 1}</td>
-        <td>${escapeHtml(
-          String(name)
-        )}</td>
-      `;
+      const numberCell =
+        document.createElement(
+          "td"
+        );
+
+      numberCell.textContent =
+        index + 1;
 
 
-      table.appendChild(row);
+      const nameCell =
+        document.createElement(
+          "td"
+        );
+
+      nameCell.textContent =
+        String(
+          getClubName(club)
+        );
+
+
+      const actionCell =
+        document.createElement(
+          "td"
+        );
+
+      actionCell.className =
+        "actions";
+
+
+      /* EDIT */
+
+      const editBtn =
+        document.createElement(
+          "button"
+        );
+
+      editBtn.className =
+        "btn edit";
+
+      editBtn.type =
+        "button";
+
+      editBtn.textContent =
+        "✏️ Hariri";
+
+
+      editBtn.addEventListener(
+        "click",
+        () =>
+          openEditClub(club)
+      );
+
+
+      /* DELETE */
+
+      const deleteBtn =
+        document.createElement(
+          "button"
+        );
+
+      deleteBtn.className =
+        "btn danger";
+
+      deleteBtn.type =
+        "button";
+
+      deleteBtn.textContent =
+        "🗑️ Futa";
+
+
+      deleteBtn.addEventListener(
+        "click",
+        () =>
+          deleteClub(club)
+      );
+
+
+      actionCell.appendChild(
+        editBtn
+      );
+
+      actionCell.appendChild(
+        deleteBtn
+      );
+
+
+      row.appendChild(
+        numberCell
+      );
+
+      row.appendChild(
+        nameCell
+      );
+
+      row.appendChild(
+        actionCell
+      );
+
+
+      table.appendChild(
+        row
+      );
 
     }
   );
-
-
-  status.textContent =
-    clubs.length +
-    " klabu zimepatikana.";
 
 }
 
@@ -568,7 +1083,9 @@ async function loadClubs(){
 ===================================== */
 
 document
-  .getElementById("clubForm")
+  .getElementById(
+    "clubForm"
+  )
   .addEventListener(
     "submit",
     addClub
@@ -582,8 +1099,9 @@ async function addClub(event){
 
   if(!supabaseClient){
 
-    alert(
-      "Supabase haijaunganishwa."
+    setStatus(
+      "Supabase haijaunganishwa.",
+      "error"
     );
 
     return;
@@ -596,14 +1114,10 @@ async function addClub(event){
       "clubName"
     );
 
+
   const button =
     document.getElementById(
       "addClubBtn"
-    );
-
-  const status =
-    document.getElementById(
-      "clubStatus"
     );
 
 
@@ -618,102 +1132,398 @@ async function addClub(event){
   }
 
 
-  button.disabled = true;
+  /* DUPLICATE CHECK */
 
-  status.className =
-    "status";
+  if(
+    duplicateExists(name)
+  ){
 
-  status.textContent =
-    "Inahifadhi klabu...";
+    setStatus(
+      "Klabu yenye jina hilo tayari ipo. Duplicate hairuhusiwi.",
+      "error"
+    );
 
-
-  const result =
-    await supabaseClient
-      .from("clubs")
-      .insert({
-        name: name
-      });
-
-
-  if(result.error){
-
-    status.textContent =
-      "Imeshindikana kuhifadhi klabu: " +
-      result.error.message;
-
-    status.classList.add("error");
-
-    button.disabled = false;
+    input.focus();
 
     return;
 
   }
 
 
-  input.value = "";
-
-  status.textContent =
-    "Klabu imeongezwa kikamilifu.";
-
-  status.classList.add("success");
+  button.disabled =
+    true;
 
 
-  button.disabled = false;
+  setStatus(
+    "Inahifadhi klabu..."
+  );
+
+
+  const result =
+    await supabaseClient
+      .from("clubs")
+      .insert({
+        name:name
+      });
+
+
+  if(result.error){
+
+    setStatus(
+      "Imeshindikana kuhifadhi klabu: " +
+      result.error.message,
+      "error"
+    );
+
+    button.disabled =
+      false;
+
+    return;
+
+  }
+
+
+  input.value =
+    "";
+
+
+  button.disabled =
+    false;
 
 
   await loadClubs();
 
-}
 
-
-/* =====================================
-   SECURITY / HTML ESCAPE
-===================================== */
-
-function escapeHtml(value){
-
-  return value.replace(
-    /[&<>"']/g,
-    function(character){
-
-      return {
-        "&":"&amp;",
-        "<":"&lt;",
-        ">":"&gt;",
-        '"':"&quot;",
-        "'":"&#039;"
-      }[character];
-
-    }
+  setStatus(
+    "Klabu imeongezwa kikamilifu.",
+    "success"
   );
 
 }
 
 
 /* =====================================
-   START APPLICATION
+   EDIT CLUB
+===================================== */
+
+function openEditClub(club){
+
+  const id =
+    getClubId(club);
+
+
+  if(id === null){
+
+    setStatus(
+      "Klabu hii haina ID inayotambulika.",
+      "error"
+    );
+
+    return;
+
+  }
+
+
+  document.getElementById(
+    "editClubId"
+  ).value =
+    id;
+
+
+  document.getElementById(
+    "editClubName"
+  ).value =
+    getClubName(club);
+
+
+  document.getElementById(
+    "editModal"
+  ).classList.add(
+    "show"
+  );
+
+
+  document.getElementById(
+    "editClubName"
+  ).focus();
+
+}
+
+
+function closeEdit(){
+
+  document.getElementById(
+    "editModal"
+  ).classList.remove(
+    "show"
+  );
+
+}
+
+
+document
+  .getElementById(
+    "cancelEditBtn"
+  )
+  .addEventListener(
+    "click",
+    closeEdit
+  );
+
+
+document
+  .getElementById(
+    "saveEditBtn"
+  )
+  .addEventListener(
+    "click",
+    saveEditClub
+  );
+
+
+async function saveEditClub(){
+
+  const id =
+    document.getElementById(
+      "editClubId"
+    ).value;
+
+
+  const input =
+    document.getElementById(
+      "editClubName"
+    );
+
+
+  const button =
+    document.getElementById(
+      "saveEditBtn"
+    );
+
+
+  const name =
+    input.value.trim();
+
+
+  if(!name){
+
+    alert(
+      "Andika jina la klabu."
+    );
+
+    return;
+
+  }
+
+
+  if(
+    duplicateExists(
+      name,
+      id
+    )
+  ){
+
+    alert(
+      "Jina hili tayari limetumika na klabu nyingine."
+    );
+
+    return;
+
+  }
+
+
+  button.disabled =
+    true;
+
+
+  const result =
+    await supabaseClient
+      .from("clubs")
+      .update({
+        name:name
+      })
+      .eq(
+        "id",
+        id
+      );
+
+
+  if(result.error){
+
+    alert(
+      "Imeshindikana kuhariri klabu: " +
+      result.error.message
+    );
+
+    button.disabled =
+      false;
+
+    return;
+
+  }
+
+
+  button.disabled =
+    false;
+
+
+  closeEdit();
+
+
+  await loadClubs();
+
+
+  setStatus(
+    "Klabu imehaririwa kikamilifu.",
+    "success"
+  );
+
+}
+
+
+/* =====================================
+   DELETE CLUB
+===================================== */
+
+async function deleteClub(club){
+
+  const id =
+    getClubId(club);
+
+
+  const name =
+    String(
+      getClubName(club)
+    );
+
+
+  if(id === null){
+
+    setStatus(
+      "Klabu hii haina ID inayotambulika.",
+      "error"
+    );
+
+    return;
+
+  }
+
+
+  const confirmed =
+    confirm(
+      'Una uhakika unataka kufuta klabu "' +
+      name +
+      '"?'
+    );
+
+
+  if(!confirmed){
+
+    return;
+
+  }
+
+
+  setStatus(
+    "Inafuta klabu..."
+  );
+
+
+  const result =
+    await supabaseClient
+      .from("clubs")
+      .delete()
+      .eq(
+        "id",
+        id
+      );
+
+
+  if(result.error){
+
+    setStatus(
+      "Imeshindikana kufuta klabu: " +
+      result.error.message,
+      "error"
+    );
+
+    return;
+
+  }
+
+
+  await loadClubs();
+
+
+  setStatus(
+    'Klabu "' +
+    name +
+    '" imefutwa.',
+    "success"
+  );
+
+}
+
+
+/* =====================================
+   SEARCH
+===================================== */
+
+document
+  .getElementById(
+    "clubSearch"
+  )
+  .addEventListener(
+    "input",
+    renderClubs
+  );
+
+
+/* =====================================
+   REFRESH
+===================================== */
+
+document
+  .getElementById(
+    "refreshClubsBtn"
+  )
+  .addEventListener(
+    "click",
+    loadClubs
+  );
+
+
+/* =====================================
+   CLOSE MODAL
+===================================== */
+
+document
+  .getElementById(
+    "editModal"
+  )
+  .addEventListener(
+    "click",
+    function(event){
+
+      if(
+        event.target === this
+      ){
+
+        closeEdit();
+
+      }
+
+    }
+  );
+
+
+/* =====================================
+   START
 ===================================== */
 
 initSupabase();
 
 </script>
 
-
-<!-- SUPABASE CONFIG -->
-
-<script src="./supabase-config.js"></script>
-
-
-<script>
-
-/*
-  Baada ya supabase-config.js kupakiwa,
-  tunaanzisha tena connection.
-*/
-
-initSupabase();
-
-</script>
-
 </body>
-</html>
+  </html>
