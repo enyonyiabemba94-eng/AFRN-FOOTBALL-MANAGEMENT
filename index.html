@@ -593,83 +593,81 @@
       </h2>
 
       <form id="playerForm">
+<label>
+  Club ID
+</label>
 
-        <label>
-          Club ID
-        </label>
-
-        <input
-          id="playerClubId"
-          type="text"
-          placeholder="ID ya klabu"
-          required>
-
-
-        <label>
-          First Name
-        </label>
-
-        <input
-          id="firstName"
-          type="text"
-          required>
+<input
+  id="playerClubId"
+  type="text"
+  placeholder="ID ya klabu"
+  required>
 
 
-        <label>
-          Middle Name
-        </label>
+<label>
+  First Name
+</label>
 
-        <input
-          id="middleName"
-          type="text">
+<input
+  id="playerFirstName"
+  type="text"
+  required>
 
 
         <label>
-          Last Name
-        </label>
+  Middle Name
+</label>
 
-        <input
-          id="lastName"
-          type="text"
-          required>
-
-
-        <label>
-          Date of Birth
-        </label>
-
-        <input
-          id="dateOfBirth"
-          type="date">
+<input
+  id="playerMiddleName"
+  type="text">
 
 
-        <label>
-          Nationality
-        </label>
+<label>
+  Last Name
+</label>
 
-        <input
-          id="nationality"
-          type="text">
+<input
+  id="playerLastName"
+  type="text">
 
 
         <label>
-          Position
-        </label>
+  Date of Birth
+</label>
 
-        <input
-          id="position"
-          type="text"
-          placeholder="GK, DF, MF, FW">
+<input
+  id="playerDateOfBirth"
+  type="date">
+
+
+<label>
+  Nationality
+</label>
+
+<input
+  id="playerNationality"
+  type="text">
 
 
         <label>
-          Jersey Number
-        </label>
+  Position
+</label>
 
-        <input
-          id="jerseyNumber"
-          type="number"
-          min="1">
+<input
+  id="playerPosition"
+  type="text"
+  placeholder="GK, DF, MF, FW">
+
+
+<label>
+  Jersey Number
+</label>
+
+<input
+  id="playerJerseyNumber"
+  type="number"
+  min="1">
 
 
         <label>
@@ -705,30 +703,40 @@
           </option>
 
           <option value="suspended">
-            Suspended
-          </option>
+  Suspended
+</option>
 
-        </select>
-
-
-        <label>
-          Photo URL
-        </label>
-
-        <input
-          id="photoUrl"
-          type="url"
-          placeholder="https://...">
+</select>
 
 
-        <button
-          id="addPlayerBtn"
-          class="btn"
-          type="submit">
+<label>
+  Player ID Number
+</label>
 
-          + Ongeza Mchezaji
+<input
+  id="playerIdNumber"
+  type="text"
+  placeholder="Namba ya mchezaji">
 
-        </button>
+
+<label>
+  Photo URL
+</label>
+
+<input
+  id="playerPhotoUrl"
+  type="url"
+  placeholder="https://...">
+
+
+<button
+  id="addPlayerBtn"
+  class="btn"
+  type="submit">
+
+  + Ongeza Mchezaji
+
+</button>
 
       </form>
 
