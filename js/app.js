@@ -740,6 +740,19 @@ if (playersRefreshBtn) {
   );
 
 }
+const playersButton =
+  document.querySelector(
+    '[data-page="players"]'
+  );
+
+if (playersButton) {
+
+  playersButton.addEventListener(
+    "click",
+    loadPlayers
+  );
+
+}
 async function addPlayer() {
 
   const firstName =
