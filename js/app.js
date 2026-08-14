@@ -894,3 +894,37 @@ async function loadPlayerClubs() {
 }
 
 loadPlayerClubs();
+async function deletePlayer(id) {
+
+  if (
+    !confirm(
+      "Una uhakika unataka kufuta mchezaji huyu?"
+    )
+  ) {
+    return;
+  }
+
+  const result =
+    await db
+      .from("players")
+      .delete()
+      .eq("id", id);
+
+  if (result.error) {
+
+    alert(
+      "Imeshindikana kufuta mchezaji: " +
+      result.error.message
+    );
+
+    return;
+  }
+
+  alert(
+    "Mchezaji amefutwa."
+  );
+
+  await loadPlayers();
+}
+
+window.deletePlayer = deletePlayer;
