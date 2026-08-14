@@ -562,40 +562,36 @@ window.editClub = editClub;
 window.loadClubs = loadClubs;
 async function loadPlayers() {
 
-  if (!db) return;
+  if (!db) {
+    alert("Supabase haijaunganishwa.");
+    return;
+  }
 
-  const result =
-    await db
-      .from("players")
-      .select(`
-        *,
-        clubs (
-          id,
-          name
-        )
-      `)
-      .order("first_name");
+  const result = await db
+    .from("players")
+    .select("*")
+    .order("first_name");
 
   if (result.error) {
 
-  console.error(
-    "Imeshindikana kupakia wachezaji:",
-    result.error
-  );
+    console.error(
+      "Imeshindikana kupakia wachezaji:",
+      result.error
+    );
 
-  alert(
-    "Imeshindikana kupakia wachezaji: " +
-    result.error.message
-  );
+    alert(
+      "Imeshindikana kupakia wachezaji: " +
+      result.error.message
+    );
 
-  return;
-}
+    return;
+  }
 
   window.allPlayers =
     result.data || [];
 
   renderPlayers();
-  }
+}
 function renderPlayers() {
 
   const table =
