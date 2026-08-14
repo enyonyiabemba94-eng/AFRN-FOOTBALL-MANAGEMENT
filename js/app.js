@@ -479,10 +479,11 @@ async function deleteClub(id) {
   }
 
   const result =
-    await db
-      .from("clubs")
-      .delete()
-      .eq("id", id);
+  await db
+    .from("clubs")
+    .delete()
+    .eq("id", id)
+    .select();
 
   if (result.error) {
 
