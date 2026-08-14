@@ -928,3 +928,84 @@ async function deletePlayer(id) {
 }
 
 window.deletePlayer = deletePlayer;
+async function editPlayer(id) {
+
+  const player =
+    (window.allPlayers || []).find(
+      item => String(item.id) === String(id)
+    );
+
+  if (!player) {
+    alert("Mchezaji hakupatikana.");
+    return;
+  }
+
+  const firstName =
+    prompt(
+      "First Name:",
+      player.first_name || ""
+    );
+
+  if (firstName === null) return;
+
+  if (!firstName.trim()) {
+    alert("First Name haiwezi kuwa tupu.");
+    return;
+  }
+
+  const lastName =
+    prompt(
+      "Last Name:",
+      player.last_name || ""
+    );
+
+  if (lastName === null) return;
+
+  const position =
+    prompt(
+      "Position:",
+      player.position || ""
+    );
+
+  if (position === null) return;
+
+  const jerseyNumber =
+    prompt(
+      "Jersey Number:",
+      player.jersey_number || ""
+    );
+
+  if (jerseyNumber === null) return;
+
+  const result =
+    await db
+      .from("players")
+      .update({
+        first_name: firstName.trim(),
+        last_name:
+          lastName.trim() || null,
+        position:
+          position.trim() || null,
+        jersey_number:
+          jerseyNumber || null
+      })
+      .eq("id", id);
+
+  if (result.error) {
+
+    alert(
+      "Imeshindikana kuhariri mchezaji: " +
+      result.error.message
+    );
+
+    return;
+  }
+
+  alert(
+    "Taarifa za mchezaji zimebadilishwa."
+  );
+
+  await loadPlayers();
+}
+
+window.editPlayer = editPlayer;
