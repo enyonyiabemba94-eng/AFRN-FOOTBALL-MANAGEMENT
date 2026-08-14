@@ -1,1 +1,317 @@
+* {
+  box-sizing: border-box;
+}
 
+html {
+  scroll-behavior: smooth;
+}
+
+body {
+  margin: 0;
+  font-family: Arial, sans-serif;
+  background: #f4f7fb;
+  color: #172033;
+}
+
+header {
+  background: #0b3d2e;
+  color: white;
+  padding: 18px;
+}
+
+header h1 {
+  margin: 0;
+  font-size: 21px;
+}
+
+header p {
+  margin: 6px 0 0;
+  font-size: 13px;
+  opacity: 0.9;
+}
+
+nav {
+  display: flex;
+  gap: 8px;
+  overflow-x: auto;
+  background: white;
+  padding: 10px;
+  border-bottom: 1px solid #ddd;
+}
+
+.nav-btn {
+  border: 0;
+  background: #eef2f5;
+  color: #173b2e;
+  padding: 10px 14px;
+  border-radius: 8px;
+  white-space: nowrap;
+  font-weight: bold;
+}
+
+.nav-btn.active {
+  background: #0b3d2e;
+  color: white;
+}
+
+main {
+  max-width: 1100px;
+  margin: auto;
+  padding: 16px;
+}
+
+.page {
+  display: none;
+}
+
+.page.active {
+  display: block;
+}
+
+.card {
+  background: white;
+  border-radius: 12px;
+  padding: 18px;
+  margin-bottom: 16px;
+  box-shadow: 0 2px 8px #00000012;
+}
+
+h2,
+h3 {
+  margin-top: 0;
+}
+
+.muted {
+  color: #667085;
+  font-size: 13px;
+}
+
+.status {
+  padding: 11px;
+  border-radius: 8px;
+  background: #eef6f2;
+  margin-bottom: 14px;
+  font-size: 14px;
+}
+
+.status.error {
+  background: #fff0f0;
+  color: #a61b1b;
+}
+
+.status.success {
+  background: #eaf8ef;
+  color: #126b3a;
+}
+
+label {
+  display: block;
+  font-weight: bold;
+  font-size: 14px;
+  margin: 10px 0 5px;
+}
+
+input,
+select {
+  width: 100%;
+  padding: 12px;
+  border: 1px solid #ccd3da;
+  border-radius: 8px;
+  font-size: 15px;
+  background: white;
+}
+
+button {
+  font-family: inherit;
+}
+
+.btn {
+  margin-top: 12px;
+  border: 0;
+  border-radius: 8px;
+  padding: 11px 16px;
+  background: #0b3d2e;
+  color: white;
+  font-weight: bold;
+  cursor: pointer;
+}
+
+.btn:disabled {
+  opacity: 0.6;
+}
+
+.btn.secondary {
+  background: #667085;
+}
+
+.btn.edit {
+  background: #175cd3;
+}
+
+.btn.danger {
+  background: #b42318;
+}
+
+.actions {
+  display: flex;
+  gap: 6px;
+  flex-wrap: wrap;
+}
+
+.actions .btn {
+  margin-top: 0;
+  padding: 8px 10px;
+  font-size: 13px;
+}
+
+.tools {
+  display: grid;
+  grid-template-columns: 1fr auto;
+  gap: 10px;
+  align-items: end;
+}
+
+.tools .btn {
+  margin-top: 0;
+}
+
+table {
+  width: 100%;
+  border-collapse: collapse;
+}
+
+th,
+td {
+  text-align: left;
+  padding: 10px;
+  border-bottom: 1px solid #eee;
+  font-size: 14px;
+  vertical-align: middle;
+}
+
+th {
+  background: #f8fafc;
+}
+
+.table-container {
+  overflow-x: auto;
+  margin-top: 16px;
+}
+
+.empty {
+  padding: 20px;
+  text-align: center;
+  color: #667085;
+}
+
+.grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 10px;
+}
+
+.stats,
+.stats-grid,
+.hero {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 10px;
+  margin-bottom: 16px;
+}
+
+.stat,
+.stat-card {
+  background: white;
+  border: 1px solid #e5e7eb;
+  border-radius: 10px;
+  padding: 14px;
+}
+
+.stat strong,
+.stat-card strong {
+  display: block;
+  font-size: 24px;
+  color: #0b3d2e;
+}
+
+.stat span,
+.stat-card span {
+  font-size: 13px;
+  color: #667085;
+}
+
+.page-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 10px;
+  margin-bottom: 16px;
+}
+
+.page-header .btn {
+  margin-top: 0;
+}
+
+.modal {
+  display: none;
+  position: fixed;
+  inset: 0;
+  background: #0008;
+  z-index: 20;
+  padding: 18px;
+  align-items: center;
+  justify-content: center;
+}
+
+.modal.show {
+  display: flex;
+}
+
+.modal-box {
+  background: white;
+  width: min(650px, 100%);
+  max-height: 92vh;
+  overflow: auto;
+  border-radius: 14px;
+  padding: 20px;
+}
+
+.modal-actions {
+  display: flex;
+  gap: 8px;
+  justify-content: flex-end;
+  margin-top: 14px;
+}
+
+.photo {
+  width: 42px;
+  height: 42px;
+  border-radius: 50%;
+  object-fit: cover;
+  background: #e8ecef;
+}
+
+@media (max-width: 700px) {
+
+  .stats,
+  .stats-grid,
+  .hero {
+    grid-template-columns: 1fr 1fr;
+  }
+
+  .tools,
+  .grid {
+    grid-template-columns: 1fr;
+  }
+
+  .page-header {
+    align-items: stretch;
+    flex-direction: column;
+  }
+
+  th,
+  td {
+    font-size: 13px;
+    padding: 8px;
+  }
+}
