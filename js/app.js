@@ -602,24 +602,19 @@ function renderPlayers() {
     window.allPlayers || [];
 
   const playerCount =
-  document.getElementById("playerCount");
+    document.getElementById("playerCount");
 
-const visiblePlayerCount =
-  document.getElementById("visiblePlayerCount");
+  const visiblePlayerCount =
+    document.getElementById("visiblePlayerCount");
 
-if (playerCount) {
-  playerCount.textContent =
-    String(players.length);
-}
-
-if (visiblePlayerCount) {
-  visiblePlayerCount.textContent =
-    String(players.length);
-}
+  if (playerCount) {
+    playerCount.textContent =
+      String(players.length);
+  }
 
   if (visiblePlayerCount) {
     visiblePlayerCount.textContent =
-      players.length;
+      String(players.length);
   }
 
   if (!players.length) {
@@ -651,56 +646,79 @@ if (visiblePlayerCount) {
             .filter(Boolean)
             .join(" ");
 
+        const photo =
+          player.photo_url
+            ? `
+              <img
+                src="${player.photo_url}"
+                alt="${fullName}"
+                style="
+                  width:45px;
+                  height:45px;
+                  object-fit:cover;
+                  border-radius:50%;
+                "
+              >
+            `
+            : "—";
+
         return `
-  <tr>
-    <td>${index + 1}</td>
+          <tr>
 
-    <td>
-      ${
-        player.photo_url
-          ? `<img
-              src="${player.photo_url}"
-              alt="${fullName}"
-              style="width:45px;height:45px;object-fit:cover;border-radius:50%;"
-            >`
-          : "—"
-      }
-    </td>
+            <td>
+              ${index + 1}
+            </td>
 
-    <td>${fullName || "—"}</td>
+            <td>
+              ${photo}
+            </td>
 
-    <td>${clubName}</td>
+            <td>
+              ${fullName || "—"}
+            </td>
 
-    <td>${player.position || "—"}</td>
+            <td>
+              ${clubName}
+            </td>
 
-    <td>${player.jersey_number || "—"}</td>
+            <td>
+              ${player.position || "—"}
+            </td>
 
-    <td>${player.status || "—"}</td>
+            <td>
+              ${player.jersey_number || "—"}
+            </td>
 
-    <td>
+            <td>
+              ${player.status || "—"}
+            </td>
+
+            <td>
+
               <button
                 type="button"
                 onclick="editPlayer('${player.id}')">
+
                 ✏️ Hariri
+
               </button>
 
               <button
                 type="button"
                 onclick="deletePlayer('${player.id}')">
+
                 🗑️ Futa
+
               </button>
+
             </td>
+
           </tr>
         `;
-
       }
     )
     .join("");
-    }
-const playersButton =
-  document.querySelector(
-    '[data-page="players"]'
-  );
+}
 
 if (playersButton) {
 
