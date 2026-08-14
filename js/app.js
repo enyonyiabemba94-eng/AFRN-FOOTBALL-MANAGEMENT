@@ -404,7 +404,31 @@ async function addClub() {
     status:
       $("clubStatusInput")?.value || "active"
   };
+  const exists =
+    await db
+      .from("clubs")
+      .select("id")
+      .eq("name", name)
+      .limit(1);
 
+  if (exists.error) {
+
+    alert(
+      "Imeshindikana kukagua klabu: " +
+      exists.error.message
+    );
+
+    return;
+  }
+
+  if (exists.data?.length) {
+
+    alert(
+      "Klabu yenye jina hili tayari ipo."
+    );
+
+    return;
+    }
   const result =
     await db
       .from("clubs")
@@ -426,17 +450,7 @@ async function addClub() {
 
   await loadClubs();
         }
-const addClubBtn =
-  $("addClubBtn");
 
-if (addClubBtn) {
-
-  addClubBtn.addEventListener(
-    "click",
-    addClub
-  );
-
-    }
 const clubForm =
   $("clubForm");
 
