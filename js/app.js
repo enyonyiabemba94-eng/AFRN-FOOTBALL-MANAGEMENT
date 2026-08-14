@@ -578,13 +578,18 @@ async function loadPlayers() {
 
   if (result.error) {
 
-    console.error(
-      "Imeshindikana kupakia wachezaji:",
-      result.error.message
-    );
+  console.error(
+    "Imeshindikana kupakia wachezaji:",
+    result.error
+  );
 
-    return;
-  }
+  alert(
+    "Imeshindikana kupakia wachezaji: " +
+    result.error.message
+  );
+
+  return;
+}
 
   window.allPlayers =
     result.data || [];
