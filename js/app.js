@@ -173,3 +173,201 @@ document.addEventListener(
 
   }
 );
+async function loadClubs() {
+
+  if (!db) return;
+
+  showStatus(
+    "clubStatus",
+    "Inapakia vilabu..."
+  );
+
+  const result =
+    await db
+      .from("clubs")
+      .select("*")
+      .order("name");
+
+  if (result.error) {
+
+    showStatus(
+      "clubStatus",
+      "Imeshindikana: " +
+        result.error.message,
+      "error"
+    );
+
+    return;
+  }
+
+  allClubs =
+    result.data || [];
+
+  renderClubs();
+
+  showStatus(
+    "clubStatus",
+    allClubs.length +
+      " klabu zimepatikana.",
+    "success"
+  );
+}
+function renderClubs() {
+
+  const table = $("clubsTable");
+
+  if (!table) return;
+
+  if (!allClubs.length) {
+
+    table.innerHTML = `
+      <tr>
+        <td colspan="5" class="empty">
+          Hakuna vilabu.
+        </td>
+      </tr>
+    `;
+
+    return;
+  }
+
+  table.innerHTML = allClubs
+    .map((club, index) => {
+
+      return `
+        <tr>
+
+          <td>
+            ${index + 1}
+          </td>
+
+          <td>
+            ${escapeHTML(clubName(club))}
+          </td>
+
+          <td>
+            ${escapeHTML(club.zone || "—")}
+          </td>
+
+          <td>
+            ${escapeHTML(club.status || "active")}
+          </td>
+
+          <td>
+
+            <div class="actions">
+
+              <button
+                class="btn edit"
+                onclick="editClub('${club.id}')">
+                ✏️ Hariri
+              </button>
+
+              <button
+                class="btn danger"
+                onclick="deleteClub('${club.id}')">
+                🗑️ Futa
+              </button>
+
+            </div>
+
+          </td>
+
+        </tr>
+      `;
+
+    })
+    .join("");
+
+  if ($("clubCount")) {
+    $("clubCount").textContent =
+      allClubs.length;
+  }
+
+  if ($("visibleClubCount")) {
+    $("visibleClubCount").textContent =
+      allClubs.length;
+  }
+}
+function searchClubs() {
+
+  const input = $("clubSearch");
+
+  if (!input) return;
+
+  const query =
+    normalize(input.value);
+
+  const filtered =
+    allClubs.filter(club => {
+
+      const name =
+        normalize(clubName(club));
+
+      const zone =
+        normalize(club.zone);
+
+      return (
+        name.includes(query) ||
+        zone.includes(query)
+      );
+
+    });
+
+  const original =
+    allClubs;
+
+  allClubs =
+    filtered;
+
+  renderClubs();
+
+  allClubs =
+    original;
+}
+const clubSearch = $("clubSearch");
+
+if (clubSearch) {
+
+  clubSearch.addEventListener(
+    "input",
+    searchClubs
+  );
+
+}
+const refreshClubsBtn =
+  $("refreshClubsBtn");
+
+if (refreshClubsBtn) {
+
+  refreshClubsBtn.addEventListener(
+    "click",
+    loadClubs
+  );
+
+}
+const clubsButton =
+  document.querySelector(
+    '[data-page="clubs"]'
+  );
+
+if (clubsButton) {
+
+  clubsButton.addEventListener(
+    "click",
+    loadClubs
+  );
+
+}
+document.addEventListener(
+  "DOMContentLoaded",
+  async () => {
+
+    await testConnection();
+
+    await loadDashboard();
+
+    await loadClubs();
+
+  }
+);
