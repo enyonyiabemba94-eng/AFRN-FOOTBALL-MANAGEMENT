@@ -575,9 +575,15 @@ async function loadPlayers() {
   }
 
   const result = await db
-    .from("players")
-    .select("*")
-    .order("first_name");
+  .from("players")
+  .select(`
+    *,
+    clubs:club_id (
+      id,
+      name
+    )
+  `)
+  .order("first_name");
 
   if (result.error) {
 
@@ -643,7 +649,7 @@ function renderPlayers() {
       (player, index) => {
 
         const clubName =
-  player.club_id || "—";
+  player.clubs?.name || "—";
 
         const fullName =
           [
