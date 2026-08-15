@@ -675,3 +675,65 @@ async function editClub(id) {
    ========================================================= */
 
 window.editClub = editClub;
+/* =========================================================
+   DELETE CLUB
+   ========================================================= */
+
+async function deleteClub(id) {
+
+  if (!db) {
+    alert("Supabase haijaunganishwa.");
+    return;
+  }
+
+  const club = allClubs.find(
+    item => String(item.id) === String(id)
+  );
+
+  if (!club) {
+    alert("Klabu haijapatikana.");
+    return;
+  }
+
+  const confirmed = confirm(
+    "Una uhakika unataka kufuta klabu: " +
+    club.name +
+    "?"
+  );
+
+  if (!confirmed) {
+    return;
+  }
+
+  const result = await db
+    .from("clubs")
+    .delete()
+    .eq("id", id);
+
+  if (result.error) {
+
+    alert(
+      "Imeshindikana kufuta klabu: " +
+      result.error.message
+    );
+
+    console.error(
+      "AFRN DELETE CLUB ERROR:",
+      result.error
+    );
+
+    return;
+  }
+
+  alert("Klabu imefutwa kikamilifu.");
+
+  await loadClubs();
+  await loadDashboard();
+}
+
+
+/* =========================================================
+   MAKE DELETE CLUB AVAILABLE
+   ========================================================= */
+
+window.deleteClub = deleteClub;
