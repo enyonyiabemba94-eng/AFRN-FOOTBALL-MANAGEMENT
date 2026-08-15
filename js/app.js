@@ -2542,6 +2542,89 @@ async function initContractsPage() {
 window.initContractsPage =
   initContractsPage;
 /* =========================================================
+   SAVE CONTRACT
+   ========================================================= */
+
+const saveContractBtn =
+  $("saveContractBtn");
+
+if (saveContractBtn) {
+
+  saveContractBtn.addEventListener(
+    "click",
+    async () => {
+
+      if (!db) {
+        alert("Supabase haijaunganishwa.");
+        return;
+      }
+
+      const playerId =
+        $("contractPlayerId")?.value;
+
+      const startDate =
+        $("contractStartDate")?.value;
+
+      const endDate =
+        $("contractEndDate")?.value || null;
+
+      const status =
+        $("contractStatusSelect")?.value || "active";
+
+      if (!playerId) {
+        alert("Tafadhali chagua mchezaji.");
+        return;
+      }
+
+      if (!startDate) {
+        alert("Tafadhali weka tarehe ya kuanza.");
+        return;
+      }
+
+      const result =
+        await db
+          .from("player_contracts")
+          .insert({
+            player_id: playerId,
+            start_date: startDate,
+            end_date: endDate,
+            status: status
+          });
+
+      if (result.error) {
+
+        console.error(
+          "Contract Save Error:",
+          result.error
+        );
+
+        alert(
+          "Imeshindikana kuhifadhi mkataba: " +
+          result.error.message
+        );
+
+        return;
+      }
+
+      alert(
+        "Mkataba umehifadhiwa kikamilifu."
+      );
+
+      $("contractModal")
+        ?.classList.remove("show");
+
+      await loadContracts();
+      await loadDashboard();
+
+    }
+  );
+
+}
+
+console.log(
+  "CONTRACT SAVE CODE IMESOMA"
+);
+/* =========================================================
    START APP
    ========================================================= */
 
