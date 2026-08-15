@@ -2560,3 +2560,31 @@ document
 
 window.initContractsPage =
   initContractsPage;
+/* =========================================================
+   START APP
+   ========================================================= */
+
+document.addEventListener(
+  "DOMContentLoaded",
+  async () => {
+
+    getDatabase();
+
+    setupNavigation();
+
+    await testConnection();
+
+    await loadDashboard();
+
+    await loadClubs();
+
+    await loadPlayerClubs();
+
+    await loadPlayers();
+
+    console.log(
+      "AFRN Football Management iko tayari."
+    );
+
+  }
+);
