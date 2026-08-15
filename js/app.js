@@ -2020,36 +2020,36 @@ async function addContract() {
   };
 
   const result =
-    await db
-      .from("player_contracts")
-      .insert(data);
+  await db
+    .from("player_contracts")
+    .insert(data);
 
-  if (result.error) {
-
-    alert(
-      "Imeshindikana kuongeza mkataba: " +
-      result.error.message
-    );
-
-    console.error(
-      "Add Contract Error:",
-      result.error
-    );
-
-    return;
-  }
+if (result.error) {
 
   alert(
-    "Mkataba umeongezwa kikamilifu."
+    "Imeshindikana kuongeza mkataba: " +
+    result.error.message
   );
 
-  $("
-    $("contractForm")?.reset();
+  console.error(
+    "Add Contract Error:",
+    result.error
+  );
+
+  return;
+}
+
+alert(
+  "Mkataba umeongezwa kikamilifu."
+);
+
+$("contractForm")?.reset();
 
 await loadContracts();
 
 await loadDashboard();
-   }
+
+}
 
 
 window.addContract =
