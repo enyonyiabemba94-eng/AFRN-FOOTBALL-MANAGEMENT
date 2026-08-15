@@ -2187,13 +2187,33 @@ function renderContracts(contracts) {
     contracts.map(
       (contract, index) => {
 
+        /*
+         * Tafuta mchezaji kwa player_id
+         */
         const player =
-          contract.players || null;
+          allPlayers.find(
+            item =>
+              String(item.id) ===
+              String(contract.player_id)
+          );
 
         const playerFullName =
           player
             ? playerName(player)
             : "Bila jina";
+
+        /*
+         * Tafuta klabu kwa club_id
+         */
+        const club =
+          allClubs.find(
+            item =>
+              String(item.id) ===
+              String(player?.club_id)
+          );
+
+        const clubName =
+          club?.name || "—";
 
         return `
           <tr>
@@ -2209,7 +2229,9 @@ function renderContracts(contracts) {
             </td>
 
             <td>
-              —
+              ${escapeHTML(
+                clubName
+              )}
             </td>
 
             <td>
