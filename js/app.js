@@ -882,7 +882,7 @@ document.addEventListener(
   }
 );
 /* =========================================================
-   ADD CLUB
+   ADD CLUB + LOGO UPLOAD
    ========================================================= */
 
 async function addClub() {
@@ -900,7 +900,112 @@ async function addClub() {
     return;
   }
 
+  const logoInput =
+    $("clubLogoFile");
+
+  const logoFile =
+    logoInput?.files?.[0];
+
+  let logoUrl = null;
+
+
+  /* =======================================================
+     UPLOAD LOGO
+     ======================================================= */
+
+  if (logoFile) {
+
+    if (!logoFile.type.startsWith("image/")) {
+
+      alert(
+        "Tafadhali chagua picha ya logo."
+      );
+
+      return;
+    }
+
+    const fileExtension =
+      logoFile.name
+        .split(".")
+        .pop()
+        .toLowerCase();
+
+    const fileName =
+      "club-" +
+      Date.now() +
+      "-" +
+      Math.random()
+        .toString(36)
+        .substring(2, 8) +
+      "." +
+      fileExtension;
+
+    const filePath =
+      "clubs/logos/" +
+      fileName;
+
+
+    const uploadResult =
+      await db.storage
+        .from("AFRN FILES")
+        .upload(
+          filePath,
+          logoFile,
+          {
+            cacheControl: "3600",
+            upsert: false,
+            contentType: logoFile.type
+          }
+        );
+
+
+    if (uploadResult.error) {
+
+      alert(
+        "Logo haikuweza kupakiwa: " +
+        uploadResult.error.message
+      );
+
+      console.error(
+        "AFRN LOGO UPLOAD ERROR:",
+        uploadResult.error
+      );
+
+      return;
+    }
+
+
+    /* =====================================================
+       GET PUBLIC URL
+       ===================================================== */
+
+    const publicResult =
+      db.storage
+        .from("AFRN FILES")
+        .getPublicUrl(filePath);
+
+    logoUrl =
+      publicResult.data?.publicUrl || null;
+
+
+    if (!logoUrl) {
+
+      alert(
+        "Logo imepakiwa lakini URL haikupatikana."
+      );
+
+      return;
+    }
+
+  }
+
+
+  /* =======================================================
+     CLUB DATA
+     ======================================================= */
+
   const data = {
+
     name: name,
 
     short_name:
@@ -921,9 +1026,17 @@ async function addClub() {
     founded_year:
       $("clubFoundedYear")?.value || null,
 
+    logo_url:
+      logoUrl,
+
     status:
       $("clubStatusSelect")?.value || "active"
   };
+
+
+  /* =======================================================
+     INSERT CLUB
+     ======================================================= */
 
   const result =
     await db
@@ -931,6 +1044,7 @@ async function addClub() {
       .insert(data)
       .select()
       .single();
+
 
   if (result.error) {
 
@@ -947,9 +1061,15 @@ async function addClub() {
     return;
   }
 
+
   alert(
-    "Klabu imeongezwa kikamilifu."
+    "Klabu na logo yake vimehifadhiwa kikamilifu."
   );
+
+
+  /* =======================================================
+     RESET FORM
+     ======================================================= */
 
   const form =
     $("clubForm");
@@ -958,13 +1078,27 @@ async function addClub() {
     form.reset();
   }
 
+
   if ($("clubLogoPreview")) {
+
     $("clubLogoPreview").style.display =
       "none";
+
   }
 
+
+  if ($("clubLogoPreviewImage")) {
+
+    $("clubLogoPreviewImage").src =
+      "";
+
+  }
+
+
   await loadClubs();
+
   await loadDashboard();
+
 }
 
 
