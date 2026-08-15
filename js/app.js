@@ -810,3 +810,74 @@ document.addEventListener(
 
   }
 );
+/* =========================================================
+   CLUB LOGO PREVIEW
+   ========================================================= */
+
+document.addEventListener(
+  "DOMContentLoaded",
+  function () {
+
+    const logoInput =
+      $("clubLogoFile");
+
+    const preview =
+      $("clubLogoPreview");
+
+    const previewImage =
+      $("clubLogoPreviewImage");
+
+    if (!logoInput) return;
+
+    logoInput.addEventListener(
+      "change",
+      function () {
+
+        const file =
+          logoInput.files?.[0];
+
+        if (!file) {
+
+          if (preview) {
+            preview.style.display = "none";
+          }
+
+          return;
+        }
+
+        if (!file.type.startsWith("image/")) {
+
+          alert(
+            "Tafadhali chagua picha ya logo."
+          );
+
+          logoInput.value = "";
+
+          return;
+        }
+
+        const reader =
+          new FileReader();
+
+        reader.onload =
+          function (event) {
+
+            if (previewImage) {
+              previewImage.src =
+                event.target.result;
+            }
+
+            if (preview) {
+              preview.style.display =
+                "block";
+            }
+
+          };
+
+        reader.readAsDataURL(file);
+
+      }
+    );
+
+  }
+);
