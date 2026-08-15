@@ -178,9 +178,27 @@ document.addEventListener(
       "AFRN Football Management inaanza..."
     );
 
-    getDatabase();
+    const connected =
+      getDatabase();
 
-    await testConnection();
+    console.log(
+      "AFRN DATABASE RESULT:",
+      connected
+    );
+
+    if (connected) {
+
+      await testConnection();
+
+    } else {
+
+      showStatus(
+        "connectionStatus",
+        "Supabase client haipatikani.",
+        "error"
+      );
+
+    }
 
   }
 );
