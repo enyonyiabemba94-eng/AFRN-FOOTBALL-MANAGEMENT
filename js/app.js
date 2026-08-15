@@ -607,3 +607,71 @@ function setupNavigation() {
     });
 
 }
+/* =========================================================
+   EDIT CLUB
+   ========================================================= */
+
+async function editClub(id) {
+
+  if (!db) {
+    alert("Supabase haijaunganishwa.");
+    return;
+  }
+
+  const club = allClubs.find(
+    item => String(item.id) === String(id)
+  );
+
+  if (!club) {
+    alert("Klabu haijapatikana.");
+    return;
+  }
+
+  const newName = prompt(
+    "Badilisha jina la klabu:",
+    club.name || ""
+  );
+
+  if (newName === null) {
+    return;
+  }
+
+  if (!newName.trim()) {
+    alert("Jina la klabu haliwezi kuwa tupu.");
+    return;
+  }
+
+  const result = await db
+    .from("clubs")
+    .update({
+      name: newName.trim()
+    })
+    .eq("id", id);
+
+  if (result.error) {
+
+    alert(
+      "Imeshindikana kuhariri klabu: " +
+      result.error.message
+    );
+
+    console.error(
+      "AFRN EDIT CLUB ERROR:",
+      result.error
+    );
+
+    return;
+  }
+
+  alert("Klabu imehaririwa kikamilifu.");
+
+  await loadClubs();
+  await loadDashboard();
+}
+
+
+/* =========================================================
+   MAKE EDIT CLUB AVAILABLE
+   ========================================================= */
+
+window.editClub = editClub;
