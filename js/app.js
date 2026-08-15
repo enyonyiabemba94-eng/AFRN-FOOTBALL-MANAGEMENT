@@ -72,17 +72,38 @@ function showStatus(id, message, type = "") {
 
 function getDatabase() {
 
-  if (window.supabaseClient) {
+  console.log(
+    "AFRN CHECK supabase:",
+    window.supabase
+  );
 
-  db = window.supabaseClient;
+  console.log(
+    "AFRN CHECK supabaseClient:",
+    window.supabaseClient
+  );
 
-  console.log("AFRN: Supabase client FOUND.");
+  console.log(
+    "AFRN CHECK db:",
+    window.db
+  );
 
-  return true;
+  if (
+    window.supabaseClient &&
+    typeof window.supabaseClient.from === "function"
+  ) {
+
+    db =
+      window.supabaseClient;
+
+    console.log(
+      "AFRN: Supabase client FOUND."
+    );
+
+    return true;
   }
 
   console.error(
-    "Supabase client haijapatikana."
+    "AFRN: Supabase client HAIPATIKANI."
   );
 
   return false;
