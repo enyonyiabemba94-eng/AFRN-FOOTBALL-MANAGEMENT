@@ -409,13 +409,35 @@
 
 
         <label>
-          Logo URL
-        </label>
+  Logo ya Klabu
+</label>
 
-        <input
-          id="clubLogoUrl"
-          type="url"
-          placeholder="https://...">
+<input
+  id="clubLogoFile"
+  type="file"
+  accept="image/*">
+
+<div
+  id="clubLogoPreview"
+  style="
+    margin-top:10px;
+    display:none;
+  ">
+
+  <img
+    id="clubLogoPreviewImage"
+    src=""
+    alt="Logo preview"
+    style="
+      width:100px;
+      height:100px;
+      object-fit:contain;
+      border-radius:12px;
+      border:1px solid #ddd;
+      padding:5px;
+    ">
+
+</div>
 
 
         <label>
