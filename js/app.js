@@ -2161,7 +2161,7 @@ function renderContracts(contracts) {
 
   if (!table) return;
 
-  if (!contracts.length) {
+  if (!contracts || !contracts.length) {
 
     table.innerHTML = `
       <tr>
@@ -2179,15 +2179,12 @@ function renderContracts(contracts) {
       (contract, index) => {
 
         const player =
-          contract.players;
+          contract.players || null;
 
         const playerFullName =
           player
             ? playerName(player)
             : "Bila jina";
-
-        const club =
-          contract.clubs?.name || "—";
 
         return `
           <tr>
@@ -2203,9 +2200,7 @@ function renderContracts(contracts) {
             </td>
 
             <td>
-              ${escapeHTML(
-                club
-              )}
+              —
             </td>
 
             <td>
