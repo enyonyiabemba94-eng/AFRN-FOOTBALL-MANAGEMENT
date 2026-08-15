@@ -2099,13 +2099,30 @@ async function loadContracts() {
   const result =
     await db
       .from("player_contracts")
-      .select("*")
+      .select(`
+        id,
+        player_id,
+        start_date,
+        end_date,
+        status,
+        players (
+          id,
+          first_name,
+          middle_name,
+          last_name,
+          club_id,
+          clubs (
+            id,
+            name
+          )
+        )
+      `)
       .order("start_date", {
         ascending: false
       });
 
   console.log(
-    "CONTRACTS RAW RESULT:",
+    "CONTRACTS WITH PLAYER:",
     result
   );
 
@@ -2128,16 +2145,6 @@ async function loadContracts() {
 
   const contracts =
     result.data || [];
-
-  console.log(
-    "CONTRACTS COUNT:",
-    contracts.length
-  );
-
-  console.log(
-    "CONTRACTS DATA:",
-    contracts
-  );
 
   renderContracts(contracts);
 
