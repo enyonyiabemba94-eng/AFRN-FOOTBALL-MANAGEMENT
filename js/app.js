@@ -1134,9 +1134,9 @@ async function deletePlayer(id) {
 window.deletePlayer =
   deletePlayer;
 
-
 /* =========================================================
    EDIT PLAYER
+   UPDATED - CLUB INCLUDED
    ========================================================= */
 
 async function editPlayer(id) {
@@ -1151,12 +1151,15 @@ async function editPlayer(id) {
 
   if (!player) {
 
-    alert(
-      "Mchezaji haijapatikana."
-    );
+    alert("Mchezaji hajapatikana.");
 
     return;
   }
+
+
+  /* =========================
+     FIRST NAME
+     ========================= */
 
   const firstName =
     prompt(
@@ -1175,6 +1178,24 @@ async function editPlayer(id) {
     return;
   }
 
+
+  /* =========================
+     MIDDLE NAME
+     ========================= */
+
+  const middleName =
+    prompt(
+      "Middle Name:",
+      player.middle_name || ""
+    );
+
+  if (middleName === null) return;
+
+
+  /* =========================
+     LAST NAME
+     ========================= */
+
   const lastName =
     prompt(
       "Last Name:",
@@ -1182,6 +1203,108 @@ async function editPlayer(id) {
     );
 
   if (lastName === null) return;
+
+
+  /* =========================
+     LOAD CLUBS
+     ========================= */
+
+  const clubsResult =
+    await db
+      .from("clubs")
+      .select("id, name")
+      .order("name");
+
+  if (clubsResult.error) {
+
+    alert(
+      "Imeshindikana kupakia vilabu: " +
+      clubsResult.error.message
+    );
+
+    return;
+  }
+
+  const clubs =
+    clubsResult.data || [];
+
+
+  /* =========================
+     CLUB SELECTION
+     ========================= */
+
+  let clubMessage =
+    "CHAGUA KLABU:\n\n";
+
+  clubs.forEach(
+    (club, index) => {
+
+      clubMessage +=
+        (index + 1) +
+        ". " +
+        club.name +
+        "\n";
+
+    }
+  );
+
+
+  const currentClub =
+    clubs.find(
+      club =>
+        String(club.id) ===
+        String(player.club_id)
+    );
+
+
+  if (currentClub) {
+
+    clubMessage +=
+      "\nKlabu ya sasa: " +
+      currentClub.name;
+
+  }
+
+
+  const clubChoice =
+    prompt(
+      clubMessage +
+      "\n\nWeka namba ya klabu:",
+      currentClub
+        ? String(
+            clubs.indexOf(currentClub) + 1
+          )
+        : ""
+    );
+
+
+  if (clubChoice === null) return;
+
+
+  const clubIndex =
+    Number(clubChoice) - 1;
+
+
+  if (
+    !Number.isInteger(clubIndex) ||
+    !clubs[clubIndex]
+  ) {
+
+    alert(
+      "Namba ya klabu si sahihi."
+    );
+
+    return;
+  }
+
+
+  const newClubId =
+    clubs[clubIndex].id;
+
+
+  /* =========================
+     POSITION
+     ========================= */
 
   const position =
     prompt(
@@ -1191,6 +1314,11 @@ async function editPlayer(id) {
 
   if (position === null) return;
 
+
+  /* =========================
+     JERSEY NUMBER
+     ========================= */
+
   const jersey =
     prompt(
       "Jersey Number:",
@@ -1198,6 +1326,11 @@ async function editPlayer(id) {
     );
 
   if (jersey === null) return;
+
+
+  /* =========================
+     UPDATE PLAYER
+     ========================= */
 
   const result =
     await db
@@ -1207,8 +1340,14 @@ async function editPlayer(id) {
         first_name:
           firstName.trim(),
 
+        middle_name:
+          middleName.trim() || null,
+
         last_name:
           lastName.trim() || null,
+
+        club_id:
+          newClubId,
 
         position:
           position.trim() || null,
@@ -1219,6 +1358,7 @@ async function editPlayer(id) {
       })
       .eq("id", id);
 
+
   if (result.error) {
 
     alert(
@@ -1226,20 +1366,29 @@ async function editPlayer(id) {
       result.error.message
     );
 
+    console.error(
+      "Edit Player Error:",
+      result.error
+    );
+
     return;
   }
 
+
   alert(
-    "Mchezaji amehaririwa."
+    "Mchezaji amehaririwa kikamilifu."
   );
 
+
   await loadPlayers();
+
   await loadDashboard();
 }
 
 
 window.editPlayer =
   editPlayer;
+  
 /* =========================================================
    SEARCH + REFRESH + APP START
    KIPANDE CHA 10/10
