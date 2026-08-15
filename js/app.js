@@ -1729,3 +1729,834 @@ document.addEventListener(
 
   }
 );
+/* =========================================================
+   CONTRACTS
+   KIPANDE CHA 1/10
+   ========================================================= */
+
+let allContracts = [];
+
+
+/* =========================================================
+   LOAD CONTRACTS
+   ========================================================= */
+
+async function loadContracts() {
+
+  if (!db) {
+
+    showStatus(
+      "contractStatus",
+      "Supabase haijaunganishwa.",
+      "error"
+    );
+
+    return;
+  }
+
+  showStatus(
+    "contractStatus",
+    "Inapakia mikataba..."
+  );
+
+  const result =
+    await db
+      .from("player_contracts")
+      .select(`
+        *,
+        players:player_id (
+          id,
+          first_name,
+          middle_name,
+          last_name,
+          club_id
+        )
+      `)
+      .order("created_at", {
+        ascending: false
+      });
+
+  if (result.error) {
+
+    showStatus(
+      "contractStatus",
+      "Imeshindikana kupakia mikataba: " +
+      result.error.message,
+      "error"
+    );
+
+    console.error(
+      "Contracts Error:",
+      result.error
+    );
+
+    return;
+  }
+
+  allContracts =
+    result.data || [];
+
+  renderContracts();
+
+  showStatus(
+    "contractStatus",
+    allContracts.length +
+    " mikataba imepatikana.",
+    "success"
+  );
+}
+
+
+window.loadContracts =
+  loadContracts;
+/* =========================================================
+   CONTRACTS
+   KIPANDE CHA 2/10
+   ========================================================= */
+
+function renderContracts() {
+
+  const table =
+    $("contractsTable");
+
+  if (!table) return;
+
+
+  if (!allContracts.length) {
+
+    table.innerHTML = `
+      <tr>
+        <td colspan="7" class="empty">
+          Hakuna mikataba.
+        </td>
+      </tr>
+    `;
+
+    return;
+  }
+
+
+  table.innerHTML =
+    allContracts.map(
+      (contract, index) => {
+
+        const player =
+          contract.players || {};
+
+        const fullName =
+          playerName(player);
+
+        return `
+          <tr>
+
+            <td>
+              ${index + 1}
+            </td>
+
+            <td>
+              ${escapeHTML(
+                fullName
+              )}
+            </td>
+
+            <td>
+              ${escapeHTML(
+                player.club_id || "—"
+              )}
+            </td>
+
+            <td>
+              ${escapeHTML(
+                contract.start_date || "—"
+              )}
+            </td>
+
+            <td>
+              ${escapeHTML(
+                contract.end_date || "—"
+              )}
+            </td>
+
+            <td>
+              ${escapeHTML(
+                contract.status || "—"
+              )}
+            </td>
+
+            <td>
+
+              <button
+                type="button"
+                onclick="editContract('${contract.id}')">
+                ✏️
+              </button>
+
+              <button
+                type="button"
+                onclick="deleteContract('${contract.id}')">
+                🗑️
+              </button>
+
+            </td>
+
+          </tr>
+        `;
+
+      }
+    ).join("");
+}
+
+
+window.renderContracts =
+  renderContracts;
+/* =========================================================
+   CONTRACTS
+   KIPANDE CHA 3/10
+   ========================================================= */
+
+async function loadContractPlayers() {
+
+  if (!db) return;
+
+  const result =
+    await db
+      .from("players")
+      .select(`
+        id,
+        first_name,
+        middle_name,
+        last_name,
+        club_id
+      `)
+      .order("first_name");
+
+  if (result.error) {
+
+    console.error(
+      "Imeshindikana kupakia wachezaji:",
+      result.error
+    );
+
+    return;
+  }
+
+  const select =
+    $("contractPlayerId");
+
+  if (!select) return;
+
+  select.innerHTML = `
+    <option value="">
+      Chagua Mchezaji
+    </option>
+  `;
+
+  (result.data || []).forEach(
+    player => {
+
+      const option =
+        document.createElement("option");
+
+      option.value =
+        player.id;
+
+      option.textContent =
+        playerName(player);
+
+      select.appendChild(option);
+
+    }
+  );
+}
+
+
+window.loadContractPlayers =
+  loadContractPlayers;
+/* =========================================================
+   CONTRACTS
+   KIPANDE CHA 4/10
+   ADD CONTRACT
+   ========================================================= */
+
+async function addContract() {
+
+  if (!db) {
+
+    alert(
+      "Supabase haijaunganishwa."
+    );
+
+    return;
+  }
+
+  const playerId =
+    $("contractPlayerId")?.value || null;
+
+  if (!playerId) {
+
+    alert(
+      "Tafadhali chagua mchezaji."
+    );
+
+    return;
+  }
+
+  const data = {
+
+    player_id:
+      playerId,
+
+    start_date:
+      $("contractStartDate")?.value || null,
+
+    end_date:
+      $("contractEndDate")?.value || null,
+
+    status:
+      $("contractStatusSelect")?.value || "active"
+
+  };
+
+  const result =
+    await db
+      .from("player_contracts")
+      .insert(data);
+
+  if (result.error) {
+
+    alert(
+      "Imeshindikana kuongeza mkataba: " +
+      result.error.message
+    );
+
+    console.error(
+      "Add Contract Error:",
+      result.error
+    );
+
+    return;
+  }
+
+  alert(
+    "Mkataba umeongezwa kikamilifu."
+  );
+
+  $("
+    $("contractForm")?.reset();
+
+await loadContracts();
+
+await loadDashboard();
+   }
+
+
+window.addContract =
+  addContract;
+/* =========================================================
+   CONTRACT FORM
+   KIPANDE CHA 5/10
+   ========================================================= */
+
+const contractForm =
+  $("contractForm");
+
+if (contractForm) {
+
+  contractForm.addEventListener(
+    "submit",
+    async event => {
+
+      event.preventDefault();
+
+      await addContract();
+
+    }
+  );
+}
+
+
+window.contractForm =
+  contractForm;
+/* =========================================================
+   LOAD CONTRACTS
+   KIPANDE CHA 6/10
+   ========================================================= */
+
+async function loadContracts() {
+
+  if (!db) {
+
+    console.error(
+      "Supabase haijaunganishwa."
+    );
+
+    return;
+  }
+
+  const result =
+    await db
+      .from("player_contracts")
+      .select(`
+        *,
+        players:player_id (
+          id,
+          first_name,
+          middle_name,
+          last_name
+        ),
+        clubs:club_id (
+          id,
+          name
+        )
+      `)
+      .order("start_date", {
+        ascending: false
+      });
+
+  if (result.error) {
+
+    console.error(
+      "Imeshindikana kupakia mikataba:",
+      result.error
+    );
+
+    showStatus(
+      "contractStatus",
+      "Imeshindikana kupakia mikataba: " +
+      result.error.message,
+      "error"
+    );
+
+    return;
+  }
+
+  const contracts =
+    result.data || [];
+
+  renderContracts(
+    contracts
+  );
+
+  showStatus(
+    "contractStatus",
+    contracts.length +
+    " mikataba imepatikana.",
+    "success"
+  );
+}
+
+
+window.loadContracts =
+  loadContracts;
+/* =========================================================
+   RENDER CONTRACTS
+   KIPANDE CHA 7/10
+   ========================================================= */
+
+function renderContracts(contracts) {
+
+  const table =
+    $("contractsTable");
+
+  if (!table) return;
+
+  if (!contracts.length) {
+
+    table.innerHTML = `
+      <tr>
+        <td colspan="7" class="empty">
+          Hakuna mikataba.
+        </td>
+      </tr>
+    `;
+
+    return;
+  }
+
+  table.innerHTML =
+    contracts.map(
+      (contract, index) => {
+
+        const player =
+          contract.players;
+
+        const playerFullName =
+          player
+            ? playerName(player)
+            : "Bila jina";
+
+        const club =
+          contract.clubs?.name || "—";
+
+        return `
+          <tr>
+
+            <td>
+              ${index + 1}
+            </td>
+
+            <td>
+              ${escapeHTML(
+                playerFullName
+              )}
+            </td>
+
+            <td>
+              ${escapeHTML(
+                club
+              )}
+            </td>
+
+            <td>
+              ${escapeHTML(
+                contract.start_date || "—"
+              )}
+            </td>
+
+            <td>
+              ${escapeHTML(
+                contract.end_date || "—"
+              )}
+            </td>
+
+            <td>
+              ${escapeHTML(
+                contract.status || "active"
+              )}
+            </td>
+
+            <td>
+
+              <button
+                type="button"
+                onclick="editContract('${contract.id}')">
+                ✏️
+              </button>
+
+              <button
+                type="button"
+                onclick="deleteContract('${contract.id}')">
+                🗑️
+              </button>
+
+            </td>
+
+          </tr>
+        `;
+      }
+    ).join("");
+}
+
+
+window.renderContracts =
+  renderContracts;
+/* =========================================================
+   CONTRACT SEARCH
+   KIPANDE CHA 8/10
+   ========================================================= */
+
+function searchContracts() {
+
+  const input =
+    $("contractSearch");
+
+  if (!input) return;
+
+  const query =
+    normalize(input.value);
+
+  const filtered =
+    allContracts.filter(contract => {
+
+      const player =
+        contract.players
+          ? playerName(contract.players)
+          : "";
+
+      const club =
+        contract.clubs?.name || "";
+
+      const status =
+        contract.status || "";
+
+      return (
+        normalize(player).includes(query) ||
+        normalize(club).includes(query) ||
+        normalize(status).includes(query)
+      );
+
+    });
+
+  renderContracts(filtered);
+
+}
+
+
+/* =========================================================
+   SEARCH EVENT
+   ========================================================= */
+
+const contractSearch =
+  $("contractSearch");
+
+if (contractSearch) {
+
+  contractSearch.addEventListener(
+    "input",
+    searchContracts
+  );
+
+}
+
+
+/* =========================================================
+   REFRESH CONTRACTS
+   ========================================================= */
+
+const refreshContractsBtn =
+  $("refreshContractsBtn");
+
+if (refreshContractsBtn) {
+
+  refreshContractsBtn.addEventListener(
+    "click",
+    loadContracts
+  );
+
+}
+/* =========================================================
+   CONTRACT EDIT + DELETE
+   KIPANDE CHA 9/10
+   ========================================================= */
+
+async function deleteContract(id) {
+
+  if (!db) return;
+
+  const confirmDelete =
+    confirm(
+      "Una uhakika unataka kufuta mkataba huu?"
+    );
+
+  if (!confirmDelete) return;
+
+  const result =
+    await db
+      .from("player_contracts")
+      .delete()
+      .eq("id", id);
+
+  if (result.error) {
+
+    alert(
+      "Imeshindikana kufuta mkataba: " +
+      result.error.message
+    );
+
+    console.error(
+      "Delete Contract Error:",
+      result.error
+    );
+
+    return;
+  }
+
+  alert(
+    "Mkataba umefutwa kikamilifu."
+  );
+
+  await loadContracts();
+  await loadDashboard();
+}
+
+
+window.deleteContract =
+  deleteContract;
+
+
+/* =========================================================
+   EDIT CONTRACT
+   ========================================================= */
+
+async function editContract(id) {
+
+  if (!db) return;
+
+  const contract =
+    allContracts.find(
+      item =>
+        String(item.id) === String(id)
+    );
+
+  if (!contract) {
+
+    alert(
+      "Mkataba haujapatikana."
+    );
+
+    return;
+  }
+
+  const startDate =
+    prompt(
+      "Tarehe ya kuanza:",
+      contract.start_date || ""
+    );
+
+  if (startDate === null) return;
+
+  const endDate =
+    prompt(
+      "Tarehe ya kumaliza:",
+      contract.end_date || ""
+    );
+
+  if (endDate === null) return;
+
+  const status =
+    prompt(
+      "Status:",
+      contract.status || "active"
+    );
+
+  if (status === null) return;
+
+  const result =
+    await db
+      .from("player_contracts")
+      .update({
+
+        start_date:
+          startDate.trim() || null,
+
+        end_date:
+          endDate.trim() || null,
+
+        status:
+          status.trim() || "active"
+
+      })
+      .eq("id", id);
+
+  if (result.error) {
+
+    alert(
+      "Imeshindikana kuhariri mkataba: " +
+      result.error.message
+    );
+
+    console.error(
+      "Edit Contract Error:",
+      result.error
+    );
+
+    return;
+  }
+
+    alert(
+    "Mkataba umehaririwa kikamilifu."
+  );
+
+  await loadContracts();
+
+  await loadDashboard();
+}
+
+
+window.editContract =
+  editContract;
+
+
+/* =========================================================
+   CONTRACT MODAL EVENTS
+   ========================================================= */
+
+const openAddContractBtn =
+  $("openAddContractBtn");
+
+if (openAddContractBtn) {
+
+  openAddContractBtn.addEventListener(
+    "click",
+    () => {
+
+      const modal =
+        $("contractModal");
+
+      if (modal) {
+        modal.classList.add("active");
+      }
+
+    }
+  );
+
+}
+
+
+const cancelContractEditBtn =
+  $("cancelContractEditBtn");
+
+if (cancelContractEditBtn) {
+
+  cancelContractEditBtn.addEventListener(
+    "click",
+    () => {
+
+      const modal =
+        $("contractModal");
+
+      if (modal) {
+        modal.classList.remove("active");
+      }
+
+    }
+  );
+
+}
+/* =========================================================
+   CONTRACTS PAGE INITIALIZATION
+   KIPANDE CHA 10/10
+   ========================================================= */
+
+async function initContractsPage() {
+
+  if (!db) return;
+
+  await loadContractPlayers();
+
+  await loadContracts();
+
+}
+
+
+/* =========================================================
+   NAVIGATION - CONTRACTS
+   ========================================================= */
+
+document
+  .querySelectorAll(".nav-btn")
+  .forEach(button => {
+
+    button.addEventListener(
+      "click",
+      async () => {
+
+        const pageName =
+          button.dataset.page;
+
+        if (pageName === "contracts") {
+
+          await loadContractPlayers();
+
+          await loadContracts();
+
+        }
+
+      }
+    );
+
+  });
+
+
+window.initContractsPage =
+  initContractsPage;
