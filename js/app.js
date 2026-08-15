@@ -881,3 +881,119 @@ document.addEventListener(
 
   }
 );
+/* =========================================================
+   ADD CLUB
+   ========================================================= */
+
+async function addClub() {
+
+  if (!db) {
+    alert("Supabase haijaunganishwa.");
+    return;
+  }
+
+  const name =
+    $("clubName")?.value.trim();
+
+  if (!name) {
+    alert("Tafadhali weka jina la klabu.");
+    return;
+  }
+
+  const data = {
+    name: name,
+
+    short_name:
+      $("clubShortName")?.value.trim() || null,
+
+    zone:
+      $("clubZone")?.value.trim() || null,
+
+    address:
+      $("clubAddress")?.value.trim() || null,
+
+    phone:
+      $("clubPhone")?.value.trim() || null,
+
+    email:
+      $("clubEmail")?.value.trim() || null,
+
+    founded_year:
+      $("clubFoundedYear")?.value || null,
+
+    status:
+      $("clubStatusSelect")?.value || "active"
+  };
+
+  const result =
+    await db
+      .from("clubs")
+      .insert(data)
+      .select()
+      .single();
+
+  if (result.error) {
+
+    alert(
+      "Imeshindikana kuongeza klabu: " +
+      result.error.message
+    );
+
+    console.error(
+      "AFRN ADD CLUB ERROR:",
+      result.error
+    );
+
+    return;
+  }
+
+  alert(
+    "Klabu imeongezwa kikamilifu."
+  );
+
+  const form =
+    $("clubForm");
+
+  if (form) {
+    form.reset();
+  }
+
+  if ($("clubLogoPreview")) {
+    $("clubLogoPreview").style.display =
+      "none";
+  }
+
+  await loadClubs();
+  await loadDashboard();
+}
+
+
+window.addClub = addClub;
+
+
+/* =========================================================
+   CLUB FORM SUBMIT
+   ========================================================= */
+
+document.addEventListener(
+  "DOMContentLoaded",
+  function () {
+
+    const form =
+      $("clubForm");
+
+    if (!form) return;
+
+    form.addEventListener(
+      "submit",
+      async function (event) {
+
+        event.preventDefault();
+
+        await addClub();
+
+      }
+    );
+
+  }
+);
