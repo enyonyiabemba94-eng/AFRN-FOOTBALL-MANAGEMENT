@@ -192,13 +192,7 @@ document.addEventListener(
         await testConnection();
 
       if (connectionOK) {
-
         await loadDashboard();
-
-        console.log(
-          "AFRN: Mfumo umeanza kikamilifu."
-        );
-
       }
 
     } else {
@@ -215,6 +209,8 @@ document.addEventListener(
 
   }
 );
+
+console.log("AFRN APP.JS IMESOMA.");
 /* =========================================================
    PAGE NAVIGATION
    KIPANDE CHA 3/10
