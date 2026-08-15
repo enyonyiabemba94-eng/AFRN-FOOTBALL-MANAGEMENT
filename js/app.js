@@ -2543,122 +2543,93 @@ window.initContractsPage =
   initContractsPage;
 /* =========================================================
    SAVE CONTRACT
-   ========================================================= */
-
+   ========================================================= *
 document.addEventListener(
-  "DOMContentLoaded",
-  () => {
+  "click",
+  async function (event) {
 
-    const saveContractBtn =
-      $("saveContractBtn");
+    const button =
+      event.target.closest("#saveContractBtn");
 
-    console.log(
-      "SAVE BUTTON:",
-      saveContractBtn
-    );
+    if (!button) return;
 
-    if (!saveContractBtn) {
+    console.log("HIFADHI IMEBONYEZWA");
+
+    if (!db) {
+      alert("Supabase haijaunganishwa.");
+      return;
+    }
+
+    const playerId =
+      $("contractPlayerId")?.value;
+
+    const startDate =
+      $("contractStartDate")?.value;
+
+    const endDate =
+      $("contractEndDate")?.value || null;
+
+    const status =
+      $("contractStatusSelect")?.value || "active";
+
+    if (!playerId) {
+      alert("Tafadhali chagua mchezaji.");
+      return;
+    }
+
+    if (!startDate) {
+      alert("Tafadhali weka tarehe ya kuanza.");
+      return;
+    }
+
+    button.disabled = true;
+    button.textContent = "⏳ Inahifadhi...";
+
+    const result =
+      await db
+        .from("player_contracts")
+        .insert({
+          player_id: playerId,
+          start_date: startDate,
+          end_date: endDate,
+          status: status
+        });
+
+    button.disabled = false;
+    button.textContent = "💾 Hifadhi";
+
+    if (result.error) {
 
       console.error(
-        "saveContractBtn haijapatikana."
+        "Contract Save Error:",
+        result.error
+      );
+
+      alert(
+        "Imeshindikana kuhifadhi mkataba:\n" +
+        result.error.message
       );
 
       return;
     }
 
-    saveContractBtn.addEventListener(
-      "click",
-      async () => {
-
-        console.log(
-          "HIFADHI IMEBONYEZWA"
-        );
-
-        if (!db) {
-
-          alert(
-            "Supabase haijaunganishwa."
-          );
-
-          return;
-        }
-
-        const playerId =
-          $("contractPlayerId")?.value;
-
-        const startDate =
-          $("contractStartDate")?.value;
-
-        const endDate =
-          $("contractEndDate")?.value || null;
-
-        const status =
-          $("contractStatusSelect")?.value ||
-          "active";
-
-        if (!playerId) {
-
-          alert(
-            "Tafadhali chagua mchezaji."
-          );
-
-          return;
-        }
-
-        if (!startDate) {
-
-          alert(
-            "Tafadhali weka tarehe ya kuanza."
-          );
-
-          return;
-        }
-
-        const result =
-          await db
-            .from("player_contracts")
-            .insert({
-              player_id: playerId,
-              start_date: startDate,
-              end_date: endDate,
-              status: status
-            });
-
-        if (result.error) {
-
-          console.error(
-            "Contract Save Error:",
-            result.error
-          );
-
-          alert(
-            "Imeshindikana kuhifadhi mkataba: " +
-            result.error.message
-          );
-
-          return;
-        }
-
-        alert(
-          "Mkataba umehifadhiwa kikamilifu."
-        );
-
-        $("contractModal")
-          ?.classList.remove("show");
-
-        await loadContracts();
-
-        await loadDashboard();
-
-      }
+    alert(
+      "Mkataba umehifadhiwa kikamilifu."
     );
 
-    console.log(
-      "CONTRACT SAVE CODE IMESOMA"
-    );
+    $("contractModal")
+      ?.classList.remove("show");
+
+    await loadContracts();
+    await loadDashboard();
 
   }
 );
+
+console.log(
+  "CONTRACT SAVE LISTENER IMESOMA"
+);
+          
 /* =========================================================
    START APP
    ========================================================= */
