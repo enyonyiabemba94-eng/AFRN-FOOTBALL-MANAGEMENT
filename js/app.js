@@ -160,6 +160,38 @@ async function loadDashboard() {
         head: true
       });
 
+  const contracts =
+    await db
+      .from("player_contracts")
+      .select("id", {
+        count: "exact",
+        head: true
+      });
+
+  const transfers =
+    await db
+      .from("player_transfers")
+      .select("id", {
+        count: "exact",
+        head: true
+      });
+
+  const competitions =
+    await db
+      .from("competitions")
+      .select("id", {
+        count: "exact",
+        head: true
+      });
+
+  const matches =
+    await db
+      .from("matches")
+      .select("id", {
+        count: "exact",
+        head: true
+      });
+
   if ($("dashClubs")) {
     $("dashClubs").textContent =
       clubs.count ?? 0;
@@ -169,17 +201,27 @@ async function loadDashboard() {
     $("dashPlayers").textContent =
       players.count ?? 0;
   }
-}
-document.addEventListener(
-  "DOMContentLoaded",
-  async () => {
 
-    await testConnection();
-
-    await loadDashboard();
-
+  if ($("dashContracts")) {
+    $("dashContracts").textContent =
+      contracts.count ?? 0;
   }
-);
+
+  if ($("dashTransfers")) {
+    $("dashTransfers").textContent =
+      transfers.count ?? 0;
+  }
+
+  if ($("dashCompetitions")) {
+    $("dashCompetitions").textContent =
+      competitions.count ?? 0;
+  }
+
+  if ($("dashMatches")) {
+    $("dashMatches").textContent =
+      matches.count ?? 0;
+  }
+}
 async function loadClubs() {
 
   if (!db) return;
