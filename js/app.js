@@ -2491,7 +2491,7 @@ if (openAddContractBtn) {
         $("contractModal");
 
       if (modal) {
-        modal.classList.add("active");
+        modal.classList.add("show");
       }
 
     }
@@ -2513,13 +2513,14 @@ if (cancelContractBtn) {
         $("contractModal");
 
       if (modal) {
-        modal.classList.remove("active");
+        modal.classList.remove("show");
       }
 
     }
   );
 
 }
+
 console.log("CONTRACT BUTTON CODE IMESOMA");
 /* =========================================================
    CONTRACTS PAGE INITIALIZATION
