@@ -287,109 +287,165 @@ function setupNavigation() {
    KIPANDE CHA 4/10
    ========================================================= */
 
+async function getTableCount(tableName) {
+
+  if (!db) {
+    return 0;
+  }
+
+  try {
+
+    const result =
+      await db
+        .from(tableName)
+        .select("id", {
+          count: "exact",
+          head: true
+        });
+
+    if (result.error) {
+
+      console.error(
+        `AFRN: Tatizo kwenye ${tableName}:`,
+        result.error
+      );
+
+      return 0;
+    }
+
+    return result.count ?? 0;
+
+  } catch (error) {
+
+    console.error(
+      `AFRN: Error kwenye ${tableName}:`,
+      error
+    );
+
+    return 0;
+  }
+}
+
+
+/* =========================================================
+   LOAD DASHBOARD
+   ========================================================= */
+
 async function loadDashboard() {
 
-  if (!db) return;
+  if (!db) {
+
+    showStatus(
+      "connectionStatus",
+      "Supabase haijaunganishwa.",
+      "error"
+    );
+
+    return;
+  }
+
+  console.log(
+    "AFRN: Dashboard inaanza kupakia..."
+  );
+
 
   const [
-    clubs,
-    players,
-    contracts,
-    transfers,
-    competitions,
-    matches
+    clubsCount,
+    playersCount,
+    contractsCount,
+    transfersCount,
+    competitionsCount,
+    matchesCount
   ] = await Promise.all([
 
-    db
-      .from("clubs")
-      .select("id", {
-        count: "exact",
-        head: true
-      }),
+    getTableCount("clubs"),
 
-    db
-      .from("players")
-      .select("id", {
-        count: "exact",
-        head: true
-      }),
+    getTableCount("players"),
 
-    db
-      .from("player_contracts")
-      .select("id", {
-        count: "exact",
-        head: true
-      }),
+    getTableCount("player_contracts"),
 
-    db
-      .from("player_transfers")
-      .select("id", {
-        count: "exact",
-        head: true
-      }),
+    getTableCount("player_transfers"),
 
-    db
-      .from("competitions")
-      .select("id", {
-        count: "exact",
-        head: true
-      }),
+    getTableCount("competitions"),
 
-    db
-      .from("matches")
-      .select("id", {
-        count: "exact",
-        head: true
-      })
+    getTableCount("matches")
 
   ]);
+
+
+  /* =======================================================
+     DASHBOARD COUNTERS
+     ======================================================= */
 
   if ($("dashClubs")) {
 
     $("dashClubs").textContent =
-      clubs.count ?? 0;
+      clubsCount;
 
   }
+
 
   if ($("dashPlayers")) {
 
     $("dashPlayers").textContent =
-      players.count ?? 0;
+      playersCount;
 
   }
+
 
   if ($("dashContracts")) {
 
     $("dashContracts").textContent =
-      contracts.count ?? 0;
+      contractsCount;
 
   }
+
 
   if ($("dashTransfers")) {
 
     $("dashTransfers").textContent =
-      transfers.count ?? 0;
+      transfersCount;
 
   }
+
 
   if ($("dashCompetitions")) {
 
     $("dashCompetitions").textContent =
-      competitions.count ?? 0;
+      competitionsCount;
 
   }
+
 
   if ($("dashMatches")) {
 
     $("dashMatches").textContent =
-      matches.count ?? 0;
+      matchesCount;
 
   }
 
+
   console.log(
-    "AFRN Dashboard imepakiwa."
+    "AFRN Dashboard imepakiwa:",
+    {
+      clubs: clubsCount,
+      players: playersCount,
+      contracts: contractsCount,
+      transfers: transfersCount,
+      competitions: competitionsCount,
+      matches: matchesCount
+    }
   );
 }
+
+
+/* =========================================================
+   DASHBOARD INITIAL LOAD
+   ========================================================= */
+
+window.loadDashboard =
+  loadDashboard;
+  
 /* =========================================================
    CLUBS
    KIPANDE CHA 5/10
