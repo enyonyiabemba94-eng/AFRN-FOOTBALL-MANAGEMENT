@@ -2407,12 +2407,19 @@ window.deleteContract =
 
 async function editContract(id) {
 
-  if (!db) return;
+  if (!db) {
+    alert("Supabase haijaunganishwa.");
+    return;
+  }
 
+  /*
+   * Tafuta mkataba kwenye allContracts
+   */
   const contract =
     allContracts.find(
       item =>
-        String(item.id) === String(id)
+        String(item.id) ===
+        String(id)
     );
 
   if (!contract) {
@@ -2421,9 +2428,22 @@ async function editContract(id) {
       "Mkataba haujapatikana."
     );
 
+    console.error(
+      "Contract haijapatikana. ID:",
+      id
+    );
+
+    console.log(
+      "ALL CONTRACTS:",
+      allContracts
+    );
+
     return;
   }
 
+  /*
+   * Tarehe ya kuanza
+   */
   const startDate =
     prompt(
       "Tarehe ya kuanza:",
@@ -2432,6 +2452,9 @@ async function editContract(id) {
 
   if (startDate === null) return;
 
+  /*
+   * Tarehe ya kumaliza
+   */
   const endDate =
     prompt(
       "Tarehe ya kumaliza:",
@@ -2440,6 +2463,9 @@ async function editContract(id) {
 
   if (endDate === null) return;
 
+  /*
+   * Status
+   */
   const status =
     prompt(
       "Status:",
@@ -2448,6 +2474,9 @@ async function editContract(id) {
 
   if (status === null) return;
 
+  /*
+   * Hifadhi mabadiliko
+   */
   const result =
     await db
       .from("player_contracts")
@@ -2456,6 +2485,49 @@ async function editContract(id) {
         start_date:
           startDate.trim() || null,
 
+        end_date:
+          endDate.trim() || null,
+
+        status:
+          status.trim() || "active"
+
+      })
+      .eq("id", id);
+
+  if (result.error) {
+
+    console.error(
+      "EDIT CONTRACT ERROR:",
+      result.error
+    );
+
+    alert(
+      "Imeshindikana kuhariri mkataba: " +
+      result.error.message
+    );
+
+    return;
+  }
+
+  alert(
+    "Mkataba umehaririwa kikamilifu."
+  );
+
+  /*
+   * Pakia tena mikataba
+   */
+  await loadContracts();
+
+  /*
+   * Sasisha Dashboard
+   */
+  await loadDashboard();
+
+}
+
+
+window.editContract =
+  editContract;
         end_date:
           endDate.trim() || null,
 
