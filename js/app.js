@@ -966,22 +966,22 @@ if (editSelect) {
       select.appendChild(option);
     }
 
-    if (editSelect) {
+  if (editSelect) {
 
   const editOption =
-  document.createElement("option");
+    document.createElement("option");
 
-editOption.value =
-  club.id;
+  editOption.value =
+    club.id;
 
-editOption.textContent =
-  club.name;
+  editOption.textContent =
+    club.name;
 
-if (editSelect) {
   editSelect.appendChild(editOption);
 }
   }
 );
+
 }
 
 loadPlayerClubs();
