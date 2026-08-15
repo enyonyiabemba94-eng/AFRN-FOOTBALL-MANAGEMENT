@@ -742,25 +742,13 @@ if (playersButton) {
   );
 
 }
+
 const playersRefreshBtn =
   $("refreshPlayersBtn");
 
 if (playersRefreshBtn) {
 
   playersRefreshBtn.addEventListener(
-    "click",
-    loadPlayers
-  );
-
-}
-const playersButton =
-  document.querySelector(
-    '[data-page="players"]'
-  );
-
-if (playersButton) {
-
-  playersButton.addEventListener(
     "click",
     loadPlayers
   );
