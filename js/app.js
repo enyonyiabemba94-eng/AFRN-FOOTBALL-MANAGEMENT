@@ -1015,144 +1015,89 @@ async function editPlayer(id) {
     );
 
   if (!player) {
-alert(
-  "Mchezaji hakupatikana."
-);
+    alert(
+      "Mchezaji hakupatikana."
+    );
 
-return;
-}
+    return;
+  }
 
-await loadPlayerClubs();
+  await loadPlayerClubs();
 
-const clubSelect =
-  $("editPlayerClubId");
+  const clubSelect =
+    $("editPlayerClubId");
 
-if (clubSelect) {
-  clubSelect.value =
-    player.club_id || "";
-}
+  if (clubSelect) {
+    clubSelect.value =
+      player.club_id || "";
+  }
 
   const firstName =
-    prompt(
-      "First Name:",
-      player.first_name || ""
-    );
+  $("editFirstName")?.value.trim();
 
-  if (firstName === null) return;
+if (!firstName) {
 
-  if (!firstName.trim()) {
+  alert(
+    "First Name haiwezi kuwa tupu."
+  );
 
-    alert(
-      "First Name haiwezi kuwa tupu."
-    );
+  return;
+}
 
-    return;
-  }
+const middleName =
+  $("editMiddleName")?.value.trim() || "";
 
-  const middleName =
-    prompt(
-      "Middle Name:",
-      player.middle_name || ""
-    );
+const lastName =
+  $("editLastName")?.value.trim();
 
-  if (middleName === null) return;
+if (!lastName) {
 
-  const lastName =
-    prompt(
-      "Last Name:",
-      player.last_name || ""
-    );
+  alert(
+    "Last Name haiwezi kuwa tupu."
+  );
 
-  if (lastName === null) return;
-
-  if (!lastName.trim()) {
-
-    alert(
-      "Last Name haiwezi kuwa tupu."
-    );
-
-    return;
-  }
+  return;
+}
   const selectedClubId =
   $("editPlayerClubId")?.value || "";
 
 if (!selectedClubId) {
-  alert("Tafadhali chagua Klabu.");
+
+  alert(
+    "Tafadhali chagua Klabu."
+  );
+
   return;
 }
 
-  const dateOfBirth =
-    prompt(
-      "Date of Birth (YYYY-MM-DD):",
-      player.date_of_birth || ""
-    );
+const dateOfBirth =
+  $("editDateOfBirth")?.value || "";
 
-  if (dateOfBirth === null) return;
+const nationality =
+  $("editNationality")?.value.trim() || "";
 
-  const nationality =
-    prompt(
-      "Nationality:",
-      player.nationality || ""
-    );
+const position =
+  $("editPosition")?.value.trim() || "";
 
-  if (nationality === null) return;
+const jerseyNumber =
+  $("editJerseyNumber")?.value || "";
 
-  const position =
-    prompt(
-      "Position (GK, DF, MF, FW):",
-      player.position || ""
-    );
+const phone =
+  $("editPlayerPhone")?.value.trim() || "";
 
-  if (position === null) return;
-
-  const jerseyNumber =
-    prompt(
-      "Jersey Number:",
-      player.jersey_number || ""
-    );
-
-  if (jerseyNumber === null) return;
-
-  const phone =
-    prompt(
-      "Phone:",
-      player.phone || ""
-    );
-
-  if (phone === null) return;
-
-  const address =
-    prompt(
-      "Address:",
-      player.address || ""
-    );
+const address =
+  $("editPlayerAddress")?.value.trim() || "";
 
   if (address === null) return;
-
-  const playerIdNumber =
-    prompt(
-      "Player ID Number:",
-      player.player_id_number || ""
-    );
-
-  if (playerIdNumber === null) return;
+const playerIdNumber =
+  player.player_id_number || "";
 
 const photoUrl =
-  prompt(
-    "Photo URL:",
-    player.photo_url || ""
-  );
-
-if (photoUrl === null) return;
+  $("editPhotoUrl")?.value.trim() || "";
 
 const status =
-  prompt(
-    "Status (active, inactive, suspended):",
-    player.status || "active"
-  );
-
-if (status === null) return;
-
+  $("editPlayerStatus")?.value || "active";
+const result =
 const result =
   await db
     .from("players")
@@ -1170,32 +1115,33 @@ const result =
       club_id:
         selectedClubId || null,
 
-        date_of_birth:
-  dateOfBirth || null,
+      date_of_birth:
+        dateOfBirth || null,
 
-nationality:
-  nationality.trim() || null,
+      nationality:
+        nationality || null,
 
-position:
-  position.trim() || null,
+      position:
+        position || null,
 
-jersey_number:
-  jerseyNumber || null,
+      jersey_number:
+        jerseyNumber || null,
 
 phone:
-  phone.trim() || null,
+phone:
+  phone || null,
 
 address:
-  address.trim() || null,
+  address || null,
 
 player_id_number:
-  playerIdNumber.trim() || null,
+  playerIdNumber || null,
 
 photo_url:
-  photoUrl.trim() || null,
+  photoUrl || null,
 
 status:
-  status.trim() || "active"
+  status || "active"
 
 })
 .eq("id", id);
