@@ -1,25 +1,26 @@
-const db = window.supabaseClient;
+/* =========================================================
+   AFRN FOOTBALL MANAGEMENT
+   MAIN APP
+   KIPANDE CHA 1/10
+   ========================================================= */
+
+let db = null;
 
 let allClubs = [];
 let allPlayers = [];
+
+
+/* =========================================================
+   HELPER FUNCTIONS
+   ========================================================= */
 
 function $(id) {
   return document.getElementById(id);
 }
 
-function showStatus(id, message, type = "") {
-  const box = $(id);
 
-  if (!box) return;
-
-  box.textContent = message;
-  box.className = "status";
-
-  if (type) {
-    box.classList.add(type);
-  }
-}
 function escapeHTML(value) {
+
   const div = document.createElement("div");
 
   div.textContent = value ?? "";
@@ -27,13 +28,18 @@ function escapeHTML(value) {
   return div.innerHTML;
 }
 
+
 function normalize(value) {
+
   return String(value ?? "")
     .trim()
     .replace(/\s+/g, " ")
     .toLowerCase();
 }
+
+
 function playerName(player) {
+
   return [
     player.first_name,
     player.middle_name,
@@ -43,67 +49,52 @@ function playerName(player) {
     .join(" ") || "Bila jina";
 }
 
-function clubName(club) {
-  return club.name ||
-    club.club_name ||
-    "Bila jina";
-}
-function showPage(pageName) {
 
-  document
-    .querySelectorAll(".page")
-    .forEach(page => {
-      page.classList.remove("active");
-    });
+function showStatus(id, message, type = "") {
 
-  document
-    .querySelectorAll(".nav-btn")
-    .forEach(button => {
-      button.classList.toggle(
-        "active",
-        button.dataset.page === pageName
-      );
-    });
+  const box = $(id);
 
-  const page = $(pageName);
+  if (!box) return;
 
-  if (page) {
-    page.classList.add("active");
+  box.textContent = message;
+
+  box.className = "status";
+
+  if (type) {
+    box.classList.add(type);
   }
 }
-document
-.querySelectorAll(".nav-btn")
-.forEach(button => {
+/* =========================================================
+   SUPABASE
+   KIPANDE CHA 2/10
+   ========================================================= */
 
-  button.addEventListener(
-    "click",
-    async () => {
+function getDatabase() {
 
-      const pageName =
-        button.dataset.page;
+  if (window.supabaseClient) {
 
-      showPage(pageName);
+    db = window.supabaseClient;
 
-      if (pageName === "players") {
-        await loadPlayers();
-      }
+    return true;
+  }
 
-    }
+  console.error(
+    "Supabase client haijapatikana."
   );
 
-});
-async function testConnection() {
+  return false;
+}
 
-  const status =
-    $("connectionStatus");
+
+async function testConnection() {
 
   if (!db) {
 
-    status.textContent =
-      "Supabase client haijaunganishwa.";
-
-    status.className =
-      "status error";
+    showStatus(
+      "connectionStatus",
+      "Supabase haijaunganishwa.",
+      "error"
+    );
 
     return false;
   }
@@ -120,108 +111,243 @@ async function testConnection() {
       throw result.error;
     }
 
-    status.textContent =
-      "Supabase imeunganishwa tayari.";
+    showStatus(
+      "connectionStatus",
+      "Supabase imeunganishwa tayari.",
+      "success"
+    );
 
-    status.className =
-      "status success";
+    console.log(
+      "AFRN: Supabase connection OK."
+    );
 
     return true;
 
   } catch (error) {
 
-    status.textContent =
+    showStatus(
+      "connectionStatus",
       "Tatizo la Supabase: " +
-      error.message;
+      error.message,
+      "error"
+    );
 
-    status.className =
-      "status error";
+    console.error(
+      "AFRN Supabase Error:",
+      error
+    );
 
     return false;
   }
 }
+
+
+/* =========================================================
+   START APPLICATION
+   ========================================================= */
+
+document.addEventListener(
+  "DOMContentLoaded",
+  async () => {
+
+    console.log(
+      "AFRN Football Management inaanza..."
+    );
+
+    getDatabase();
+
+    await testConnection();
+
+  }
+);
+/* =========================================================
+   PAGE NAVIGATION
+   KIPANDE CHA 3/10
+   ========================================================= */
+
+function showPage(pageName) {
+
+  document
+    .querySelectorAll(".page")
+    .forEach(page => {
+
+      page.classList.remove("active");
+
+    });
+
+
+  document
+    .querySelectorAll(".nav-btn")
+    .forEach(button => {
+
+      button.classList.toggle(
+        "active",
+        button.dataset.page === pageName
+      );
+
+    });
+
+
+  const page = $(pageName);
+
+  if (page) {
+
+    page.classList.add("active");
+
+  }
+}
+
+
+/* =========================================================
+   NAVIGATION EVENTS
+   ========================================================= */
+
+function setupNavigation() {
+
+  document
+    .querySelectorAll(".nav-btn")
+    .forEach(button => {
+
+      button.addEventListener(
+        "click",
+        async () => {
+
+          const pageName =
+            button.dataset.page;
+
+          showPage(pageName);
+
+          if (pageName === "dashboard") {
+            await loadDashboard();
+          }
+
+          if (pageName === "clubs") {
+            await loadClubs();
+          }
+
+          if (pageName === "players") {
+            await loadPlayerClubs();
+            await loadPlayers();
+          }
+
+        }
+      );
+
+    });
+  }
+/* =========================================================
+   DASHBOARD
+   KIPANDE CHA 4/10
+   ========================================================= */
+
 async function loadDashboard() {
 
   if (!db) return;
 
-  const clubs =
-    await db
+  const [
+    clubs,
+    players,
+    contracts,
+    transfers,
+    competitions,
+    matches
+  ] = await Promise.all([
+
+    db
       .from("clubs")
       .select("id", {
         count: "exact",
         head: true
-      });
+      }),
 
-  const players =
-    await db
+    db
       .from("players")
       .select("id", {
         count: "exact",
         head: true
-      });
+      }),
 
-  const contracts =
-    await db
+    db
       .from("player_contracts")
       .select("id", {
         count: "exact",
         head: true
-      });
+      }),
 
-  const transfers =
-    await db
+    db
       .from("player_transfers")
       .select("id", {
         count: "exact",
         head: true
-      });
+      }),
 
-  const competitions =
-    await db
+    db
       .from("competitions")
       .select("id", {
         count: "exact",
         head: true
-      });
+      }),
 
-  const matches =
-    await db
+    db
       .from("matches")
       .select("id", {
         count: "exact",
         head: true
-      });
+      })
+
+  ]);
 
   if ($("dashClubs")) {
+
     $("dashClubs").textContent =
       clubs.count ?? 0;
+
   }
 
   if ($("dashPlayers")) {
+
     $("dashPlayers").textContent =
       players.count ?? 0;
+
   }
 
   if ($("dashContracts")) {
+
     $("dashContracts").textContent =
       contracts.count ?? 0;
+
   }
 
   if ($("dashTransfers")) {
+
     $("dashTransfers").textContent =
       transfers.count ?? 0;
+
   }
 
   if ($("dashCompetitions")) {
+
     $("dashCompetitions").textContent =
       competitions.count ?? 0;
+
   }
 
   if ($("dashMatches")) {
+
     $("dashMatches").textContent =
       matches.count ?? 0;
+
   }
+
+  console.log(
+    "AFRN Dashboard imepakiwa."
+  );
 }
+/* =========================================================
+   CLUBS
+   KIPANDE CHA 5/10
+   ========================================================= */
+
 async function loadClubs() {
 
   if (!db) return;
@@ -242,8 +368,13 @@ async function loadClubs() {
     showStatus(
       "clubStatus",
       "Imeshindikana: " +
-        result.error.message,
+      result.error.message,
       "error"
+    );
+
+    console.error(
+      "Clubs Error:",
+      result.error
     );
 
     return;
@@ -257,13 +388,16 @@ async function loadClubs() {
   showStatus(
     "clubStatus",
     allClubs.length +
-      " klabu zimepatikana.",
+    " klabu zimepatikana.",
     "success"
   );
 }
+
+
 function renderClubs() {
 
-  const table = $("clubsTable");
+  const table =
+    $("clubsTable");
 
   if (!table) return;
 
@@ -280,147 +414,85 @@ function renderClubs() {
     return;
   }
 
-  table.innerHTML = allClubs
-    .map((club, index) => {
+  table.innerHTML =
+    allClubs.map(
+      (club, index) => {
 
-      return `
-        <tr>
+        return `
+          <tr>
 
-          <td>
-            ${index + 1}
-          </td>
+            <td>
+              ${index + 1}
+            </td>
 
-          <td>
-            ${escapeHTML(clubName(club))}
-          </td>
+            <td>
+              ${escapeHTML(
+                club.name || "Bila jina"
+              )}
+            </td>
 
-          <td>
-            ${escapeHTML(club.zone || "—")}
-          </td>
+            <td>
+              ${escapeHTML(
+                club.zone || "—"
+              )}
+            </td>
 
-          <td>
-            ${escapeHTML(club.status || "active")}
-          </td>
+            <td>
+              ${escapeHTML(
+                club.status || "active"
+              )}
+            </td>
 
-          <td>
-
-            <div class="actions">
+            <td>
 
               <button
-                class="btn edit"
+                type="button"
                 onclick="editClub('${club.id}')">
-                ✏️ Hariri
+                ✏️
               </button>
 
               <button
-                class="btn danger"
+                type="button"
                 onclick="deleteClub('${club.id}')">
-                🗑️ Futa
+                🗑️
               </button>
 
-            </div>
+            </td>
 
-          </td>
+          </tr>
+        `;
 
-        </tr>
-      `;
+      }
+    ).join("");
 
-    })
-    .join("");
 
   if ($("clubCount")) {
+
     $("clubCount").textContent =
       allClubs.length;
+
   }
+
 
   if ($("visibleClubCount")) {
+
     $("visibleClubCount").textContent =
       allClubs.length;
-  }
-}
-function searchClubs() {
-
-  const input = $("clubSearch");
-
-  if (!input) return;
-
-  const query =
-    normalize(input.value);
-
-  const filtered =
-    allClubs.filter(club => {
-
-      const name =
-        normalize(clubName(club));
-
-      const zone =
-        normalize(club.zone);
-
-      return (
-        name.includes(query) ||
-        zone.includes(query)
-      );
-
-    });
-
-  const original =
-    allClubs;
-
-  allClubs =
-    filtered;
-
-  renderClubs();
-
-  allClubs =
-    original;
-}
-const clubSearch = $("clubSearch");
-
-if (clubSearch) {
-
-  clubSearch.addEventListener(
-    "input",
-    searchClubs
-  );
-
-}
-const refreshClubsBtn =
-  $("refreshClubsBtn");
-
-if (refreshClubsBtn) {
-
-  refreshClubsBtn.addEventListener(
-    "click",
-    loadClubs
-  );
-
-}
-const clubsButton =
-  document.querySelector(
-    '[data-page="clubs"]'
-  );
-
-if (clubsButton) {
-
-  clubsButton.addEventListener(
-    "click",
-    loadClubs
-  );
-
-}
-document.addEventListener(
-  "DOMContentLoaded",
-  async () => {
-
-    await testConnection();
-
-    await loadDashboard();
-
-    await loadClubs();
 
   }
-);
+}
+
+
+window.loadClubs =
+  loadClubs;
+/* =========================================================
+   CLUB MANAGEMENT
+   KIPANDE CHA 6/10
+   ========================================================= */
+
 async function addClub() {
+
+  if (!db) return;
 
   const name =
     $("clubName")?.value.trim();
@@ -435,49 +507,35 @@ async function addClub() {
   }
 
   const data = {
+
     name: name,
+
     short_name:
-      $("clubShortName")?.value.trim(),
+      $("clubShortName")?.value.trim() || null,
+
     zone:
-      $("clubZone")?.value.trim(),
+      $("clubZone")?.value.trim() || null,
+
     address:
-      $("clubAddress")?.value.trim(),
+      $("clubAddress")?.value.trim() || null,
+
     phone:
-      $("clubPhone")?.value.trim(),
+      $("clubPhone")?.value.trim() || null,
+
     email:
-      $("clubEmail")?.value.trim(),
+      $("clubEmail")?.value.trim() || null,
+
     founded_year:
       $("clubFoundedYear")?.value || null,
+
     logo_url:
       $("clubLogoUrl")?.value.trim() || null,
+
     status:
-      $("clubStatusInput")?.value || "active"
+      $("clubStatusSelect")?.value || "active"
+
   };
-  const exists =
-    await db
-      .from("clubs")
-      .select("id")
-      .eq("name", name)
-      .limit(1);
 
-  if (exists.error) {
-
-    alert(
-      "Imeshindikana kukagua klabu: " +
-      exists.error.message
-    );
-
-    return;
-  }
-
-  if (exists.data?.length) {
-
-    alert(
-      "Klabu yenye jina hili tayari ipo."
-    );
-
-    return;
-    }
   const result =
     await db
       .from("clubs")
@@ -497,8 +555,12 @@ async function addClub() {
     "Klabu imeongezwa kikamilifu."
   );
 
+  $("clubForm")?.reset();
+
   await loadClubs();
-        }
+  await loadDashboard();
+}
+
 
 const clubForm =
   $("clubForm");
@@ -517,22 +579,32 @@ if (clubForm) {
   );
 
 }
+
+
+window.addClub =
+  addClub;
+
+
+/* =========================================================
+   DELETE CLUB
+   ========================================================= */
+
 async function deleteClub(id) {
 
-  if (
-    !confirm(
+  if (!db) return;
+
+  const confirmDelete =
+    confirm(
       "Una uhakika unataka kufuta klabu hii?"
-    )
-  ) {
-    return;
-  }
+    );
+
+  if (!confirmDelete) return;
 
   const result =
-  await db
-    .from("clubs")
-    .delete()
-    .eq("id", id)
-    .select();
+    await db
+      .from("clubs")
+      .delete()
+      .eq("id", id);
 
   if (result.error) {
 
@@ -549,17 +621,33 @@ async function deleteClub(id) {
   );
 
   await loadClubs();
+  await loadDashboard();
 }
+
+
+window.deleteClub =
+  deleteClub;
+
+
+/* =========================================================
+   EDIT CLUB
+   ========================================================= */
+
 async function editClub(id) {
+
+  if (!db) return;
 
   const club =
     allClubs.find(
-      item => String(item.id) === String(id)
+      item =>
+        String(item.id) === String(id)
     );
 
   if (!club) {
 
-    alert("Klabu haijapatikana.");
+    alert(
+      "Klabu haijapatikana."
+    );
 
     return;
   }
@@ -600,32 +688,43 @@ async function editClub(id) {
   }
 
   alert(
-    "Jina la klabu limebadilishwa."
+    "Klabu imehaririwa."
   );
 
   await loadClubs();
+  await loadDashboard();
 }
-window.addClub = addClub;
-window.deleteClub = deleteClub;
-window.editClub = editClub;
-window.loadClubs = loadClubs;
+
+
+window.editClub =
+  editClub;
+/* =========================================================
+   PLAYERS
+   KIPANDE CHA 7/10
+   ========================================================= */
+
 async function loadPlayers() {
 
   if (!db) {
-    alert("Supabase haijaunganishwa.");
+
+    alert(
+      "Supabase haijaunganishwa."
+    );
+
     return;
   }
 
-  const result = await db
-  .from("players")
-  .select(`
-    *,
-    clubs:club_id (
-      id,
-      name
-    )
-  `)
-  .order("first_name");
+  const result =
+    await db
+      .from("players")
+      .select(`
+        *,
+        clubs:club_id (
+          id,
+          name
+        )
+      `)
+      .order("first_name");
 
   if (result.error) {
 
@@ -642,11 +741,13 @@ async function loadPlayers() {
     return;
   }
 
-  window.allPlayers =
+  allPlayers =
     result.data || [];
 
   renderPlayers();
 }
+
+
 function renderPlayers() {
 
   const table =
@@ -654,26 +755,21 @@ function renderPlayers() {
 
   if (!table) return;
 
-  const players =
-    window.allPlayers || [];
+  if ($("playerCount")) {
 
-  const playerCount =
-    document.getElementById("playerCount");
+    $("playerCount").textContent =
+      allPlayers.length;
 
-  const visiblePlayerCount =
-    document.getElementById("visiblePlayerCount");
-
-  if (playerCount) {
-    playerCount.textContent =
-      String(players.length);
   }
 
-  if (visiblePlayerCount) {
-    visiblePlayerCount.textContent =
-      String(players.length);
+  if ($("visiblePlayerCount")) {
+
+    $("visiblePlayerCount").textContent =
+      allPlayers.length;
+
   }
 
-  if (!players.length) {
+  if (!allPlayers.length) {
 
     table.innerHTML = `
       <tr>
@@ -687,27 +783,25 @@ function renderPlayers() {
   }
 
   table.innerHTML =
-    players.map(
+    allPlayers.map(
       (player, index) => {
 
-        const clubName =
-  player.clubs?.name || "—";
-
         const fullName =
-          [
-            player.first_name,
-            player.middle_name,
-            player.last_name
-          ]
-            .filter(Boolean)
-            .join(" ");
+          playerName(player);
+
+        const club =
+          player.clubs?.name || "—";
 
         const photo =
           player.photo_url
             ? `
               <img
-                src="${player.photo_url}"
-                alt="${fullName}"
+                src="${escapeHTML(
+                  player.photo_url
+                )}"
+                alt="${escapeHTML(
+                  fullName
+                )}"
                 style="
                   width:45px;
                   height:45px;
@@ -730,23 +824,33 @@ function renderPlayers() {
             </td>
 
             <td>
-              ${fullName || "—"}
+              ${escapeHTML(
+                fullName
+              )}
             </td>
 
             <td>
-              ${clubName}
+              ${escapeHTML(
+                club
+              )}
             </td>
 
             <td>
-              ${player.position || "—"}
+              ${escapeHTML(
+                player.position || "—"
+              )}
             </td>
 
             <td>
-              ${player.jersey_number || "—"}
+              ${escapeHTML(
+                player.jersey_number || "—"
+              )}
             </td>
 
             <td>
-              ${player.status || "—"}
+              ${escapeHTML(
+                player.status || "—"
+              )}
             </td>
 
             <td>
@@ -754,17 +858,13 @@ function renderPlayers() {
               <button
                 type="button"
                 onclick="editPlayer('${player.id}')">
-
-                ✏️ Hariri
-
+                ✏️
               </button>
 
               <button
                 type="button"
                 onclick="deletePlayer('${player.id}')">
-
-                🗑️ Futa
-
+                🗑️
               </button>
 
             </td>
@@ -772,31 +872,112 @@ function renderPlayers() {
           </tr>
         `;
       }
-    )
-    .join("");
+    ).join("");
 }
 
-if (playersButton) {
 
-  playersButton.addEventListener(
-    "click",
-    loadPlayers
+window.loadPlayers =
+  loadPlayers;
+/* =========================================================
+   PLAYER CLUBS + ADD PLAYER
+   KIPANDE CHA 8/10
+   ========================================================= */
+
+async function loadPlayerClubs() {
+
+  if (!db) return;
+
+  const result =
+    await db
+      .from("clubs")
+      .select("id, name")
+      .order("name");
+
+  if (result.error) {
+
+    console.error(
+      "Imeshindikana kupakia klabu:",
+      result.error.message
+    );
+
+    return;
+  }
+
+  const select =
+    $("playerClubId");
+
+  const editSelect =
+    $("editPlayerClubId");
+
+  if (select) {
+
+    select.innerHTML = `
+      <option value="">
+        Chagua Klabu
+      </option>
+    `;
+
+  }
+
+  if (editSelect) {
+
+    editSelect.innerHTML = `
+      <option value="">
+        Chagua Klabu
+      </option>
+    `;
+
+  }
+
+  (result.data || []).forEach(
+    club => {
+
+      if (select) {
+
+        const option =
+          document.createElement("option");
+
+        option.value =
+          club.id;
+
+        option.textContent =
+          club.name;
+
+        select.appendChild(option);
+
+      }
+
+      if (editSelect) {
+
+        const option =
+          document.createElement("option");
+
+        option.value =
+          club.id;
+
+        option.textContent =
+          club.name;
+
+        editSelect.appendChild(option);
+
+      }
+
+    }
   );
-
 }
 
-const playersRefreshBtn =
-  $("refreshPlayersBtn");
 
-if (playersRefreshBtn) {
+window.loadPlayerClubs =
+  loadPlayerClubs;
 
-  playersRefreshBtn.addEventListener(
-    "click",
-    loadPlayers
-  );
 
-}
+/* =========================================================
+   ADD PLAYER
+   ========================================================= */
+
 async function addPlayer() {
+
+  if (!db) return;
 
   const firstName =
     $("playerFirstName")?.value.trim();
@@ -804,33 +985,14 @@ async function addPlayer() {
   if (!firstName) {
 
     alert(
-      "Tafadhali weka jina la kwanza la mchezaji."
+      "Tafadhali weka First Name."
     );
 
     return;
   }
 
-  const playerIdNumber =
-    $("playerIdNumber")?.value.trim();
-
-  if (playerIdNumber) {
-
-    const exists =
-      await playerExists(
-        playerIdNumber
-      );
-
-    if (exists) {
-
-      alert(
-        "Namba ya mchezaji tayari ipo."
-      );
-
-      return;
-    }
-  }
-
   const data = {
+
     club_id:
       $("playerClubId")?.value || null,
 
@@ -842,6 +1004,7 @@ async function addPlayer() {
 
     last_name:
       $("playerLastName")?.value.trim() || null,
+
     date_of_birth:
       $("playerDateOfBirth")?.value || null,
 
@@ -849,16 +1012,10 @@ async function addPlayer() {
       $("playerNationality")?.value.trim() || null,
 
     position:
-      $("playerPosition")?.value || null,
+      $("playerPosition")?.value.trim() || null,
 
     jersey_number:
       $("playerJerseyNumber")?.value || null,
-
-    photo_url:
-      $("playerPhotoUrl")?.value.trim() || null,
-
-    player_id_number:
-      $("playerIdNumber")?.value.trim() || null,
 
     phone:
       $("playerPhone")?.value.trim() || null,
@@ -867,7 +1024,14 @@ async function addPlayer() {
       $("playerAddress")?.value.trim() || null,
 
     status:
-      $("playerStatus")?.value || "active"
+      $("playerStatus")?.value || "active",
+
+    player_id_number:
+      $("playerIdNumber")?.value.trim() || null,
+
+    photo_url:
+      $("playerPhotoUrl")?.value.trim() || null
+
   };
 
   const result =
@@ -889,34 +1053,17 @@ async function addPlayer() {
     "Mchezaji ameongezwa kikamilifu."
   );
 
+  $("playerForm")?.reset();
+
   await loadPlayers();
+  await loadDashboard();
 }
-async function playerExists(playerIdNumber) {
 
-  if (!playerIdNumber) return false;
 
-  const result =
-    await db
-      .from("players")
-      .select("id")
-      .eq(
-        "player_id_number",
-        playerIdNumber
-      )
-      .limit(1);
+/* =========================================================
+   PLAYER FORM
+   ========================================================= */
 
-  if (result.error) {
-
-    console.error(
-      "Imeshindikana kukagua mchezaji:",
-      result.error.message
-    );
-
-    return false;
-  }
-
-  return result.data?.length > 0;
-}
 const playerForm =
   $("playerForm");
 
@@ -934,96 +1081,30 @@ if (playerForm) {
   );
 
 }
-window.addPlayer = addPlayer;
-window.loadPlayers = loadPlayers;
-async function loadPlayerClubs() {
+
+
+window.addPlayer =
+  addPlayer;
+/* =========================================================
+   PLAYER MANAGEMENT
+   KIPANDE CHA 9/10
+   ========================================================= */
+
+
+/* =========================================================
+   DELETE PLAYER
+   ========================================================= */
+
+async function deletePlayer(id) {
 
   if (!db) return;
 
-  const result =
-    await db
-      .from("clubs")
-      .select("id, name")
-      .order("name");
-
-  if (result.error) {
-
-  console.error(
-    "Imeshindikana kupakia klabu:",
-    result.error.message
-  );
-
-  return;
-}
-
-const select =
-  $("playerClubId");
-
-const editSelect =
-  $("editPlayerClubId");
-
-if (!select && !editSelect) return;
-
-if (select) {
-  select.innerHTML = `
-    <option value="">
-      Chagua Klabu
-    </option>
-  `;
-}
-
-if (editSelect) {
-  editSelect.innerHTML = `
-    <option value="">
-      Chagua Klabu
-    </option>
-  `;
-}
-
- (result.data || []).forEach(
-  club => {
-
-    const option =
-      document.createElement("option");
-
-    option.value =
-      club.id;
-
-    option.textContent =
-      club.name;
-
-    if (select) {
-      select.appendChild(option);
-    }
-
-  if (editSelect) {
-
-  const editOption =
-    document.createElement("option");
-
-  editOption.value =
-    club.id;
-
-  editOption.textContent =
-    club.name;
-
-  editSelect.appendChild(editOption);
-}
-  }
-);
-
-}
-
-loadPlayerClubs();
-async function deletePlayer(id) {
-
-  if (
-    !confirm(
+  const confirmDelete =
+    confirm(
       "Una uhakika unataka kufuta mchezaji huyu?"
-    )
-  ) {
-    return;
-  }
+    );
+
+  if (!confirmDelete) return;
 
   const result =
     await db
@@ -1046,183 +1127,294 @@ async function deletePlayer(id) {
   );
 
   await loadPlayers();
+  await loadDashboard();
 }
 
-window.deletePlayer = deletePlayer;
+
+window.deletePlayer =
+  deletePlayer;
+
+
+/* =========================================================
+   EDIT PLAYER
+   ========================================================= */
 
 async function editPlayer(id) {
 
+  if (!db) return;
+
   const player =
-    (window.allPlayers || []).find(
-      item => String(item.id) === String(id)
+    allPlayers.find(
+      item =>
+        String(item.id) === String(id)
     );
 
   if (!player) {
+
     alert(
-      "Mchezaji hakupatikana."
+      "Mchezaji haijapatikana."
     );
 
     return;
   }
 
-  await loadPlayerClubs();
+  const firstName =
+    prompt(
+      "First Name:",
+      player.first_name || ""
+    );
 
-  $("editPlayerId").value =
-    player.id || "";
+  if (firstName === null) return;
 
-  $("editPlayerClubId").value =
-    player.club_id || "";
+  if (!firstName.trim()) {
 
-  $("editFirstName").value =
-    player.first_name || "";
+    alert(
+      "First Name haiwezi kuwa tupu."
+    );
 
-  $("editMiddleName").value =
-    player.middle_name || "";
+    return;
+  }
 
-  $("editLastName").value =
-    player.last_name || "";
+  const lastName =
+    prompt(
+      "Last Name:",
+      player.last_name || ""
+    );
 
-  $("editDateOfBirth").value =
-    player.date_of_birth || "";
+  if (lastName === null) return;
 
-  $("editNationality").value =
-    player.nationality || "";
+  const position =
+    prompt(
+      "Position:",
+      player.position || ""
+    );
 
-  $("editPosition").value =
-    player.position || "";
+  if (position === null) return;
 
-  $("editJerseyNumber").value =
-    player.jersey_number || "";
+  const jersey =
+    prompt(
+      "Jersey Number:",
+      player.jersey_number || ""
+    );
 
-  $("editPlayerPhone").value =
-    player.phone || "";
+  if (jersey === null) return;
 
-  $("editPlayerAddress").value =
-    player.address || "";
+  const result =
+    await db
+      .from("players")
+      .update({
 
-  $("editPhotoUrl").value =
-    player.photo_url || "";
+        first_name:
+          firstName.trim(),
 
-  $("editPlayerStatus").value =
-    player.status || "active";
+        last_name:
+          lastName.trim() || null,
 
-  const editModal =
-  document.querySelector(
-    "#playerModal"
+        position:
+          position.trim() || null,
+
+        jersey_number:
+          jersey || null
+
+      })
+      .eq("id", id);
+
+  if (result.error) {
+
+    alert(
+      "Imeshindikana kuhariri mchezaji: " +
+      result.error.message
+    );
+
+    return;
+  }
+
+  alert(
+    "Mchezaji amehaririwa."
   );
 
-if (editModal) {
-  editModal.classList.add("active");
+  await loadPlayers();
+  await loadDashboard();
 }
 
-}
 
-window.editPlayer = editPlayer;
+window.editPlayer =
+  editPlayer;
+/* =========================================================
+   SEARCH + REFRESH + APP START
+   KIPANDE CHA 10/10
+   ========================================================= */
 
-const savePlayerEditBtn =
-  $("savePlayerEditBtn");
 
-if (savePlayerEditBtn) {
+/* =========================================================
+   CLUB SEARCH
+   ========================================================= */
 
-  savePlayerEditBtn.addEventListener(
-    "click",
-    async () => {
+function searchClubs() {
 
-      const id =
-        $("editPlayerId")?.value;
+  const input =
+    $("clubSearch");
 
-      if (!id) {
-        alert(
-          "Mchezaji hakupatikana."
-        );
-        return;
-      }
+  if (!input) return;
 
-      const selectedClubId =
-        $("editPlayerClubId")?.value || null;
+  const query =
+    normalize(input.value);
 
-      const firstName =
-        $("editFirstName")?.value.trim();
+  const filtered =
+    allClubs.filter(club => {
 
-      const middleName =
-        $("editMiddleName")?.value.trim() || null;
+      const name =
+        normalize(club.name);
 
-      const lastName =
-        $("editLastName")?.value.trim();
+      const zone =
+        normalize(club.zone);
 
-      if (!firstName || !lastName) {
-        alert(
-          "First Name na Last Name zinahitajika."
-        );
-        return;
-      }
-
-      const result =
-        await db
-          .from("players")
-          .update({
-
-            club_id:
-              selectedClubId,
-
-            first_name:
-              firstName,
-
-            middle_name:
-              middleName,
-
-            last_name:
-              lastName,
-
-            date_of_birth:
-              $("editDateOfBirth")?.value || null,
-
-            nationality:
-              $("editNationality")?.value.trim() || null,
-
-            position:
-              $("editPosition")?.value.trim() || null,
-
-            jersey_number:
-              $("editJerseyNumber")?.value || null,
-
-            phone:
-              $("editPlayerPhone")?.value.trim() || null,
-
-            address:
-              $("editPlayerAddress")?.value.trim() || null,
-
-            photo_url:
-              $("editPhotoUrl")?.value.trim() || null,
-
-            status:
-              $("editPlayerStatus")?.value || "active"
-
-          })
-          .eq("id", id);
-
-      if (result.error) {
-
-        alert(
-          "Imeshindikana kuhifadhi: " +
-          result.error.message
-        );
-
-        return;
-      }
-
-      alert(
-        "Taarifa za mchezaji zimehifadhiwa."
+      return (
+        name.includes(query) ||
+        zone.includes(query)
       );
 
-      const modal =
-        $("playerModal");
+    });
 
-      if (modal) {
-        modal.classList.remove("active");
-      }
 
-      await loadPlayers();
-    }
-  );
+  const table =
+    $("clubsTable");
+
+  if (!table) return;
+
+
+  if (!filtered.length) {
+
+    table.innerHTML = `
+      <tr>
+        <td colspan="5" class="empty">
+          Hakuna klabu iliyopatikana.
+        </td>
+      </tr>
+    `;
+
+  } else {
+
+    table.innerHTML =
+      filtered.map(
+        (club, index) => `
+
+          <tr>
+
+            <td>
+              ${index + 1}
+            </td>
+
+            <td>
+              ${escapeHTML(
+                club.name || "Bila jina"
+              )}
+            </td>
+
+            <td>
+              ${escapeHTML(
+                club.zone || "—"
+              )}
+            </td>
+
+            <td>
+              ${escapeHTML(
+                club.status || "active"
+              )}
+            </td>
+
+            <td>
+
+              <button
+                type="button"
+                onclick="editClub('${club.id}')">
+                ✏️
+              </button>
+
+              <button
+                type="button"
+                onclick="deleteClub('${club.id}')">
+                🗑️
+              </button>
+
+            </td>
+
+          </tr>
+
+        `
+      ).join("");
+
+  }
+
+
+  if ($("visibleClubCount")) {
+
+    $("visibleClubCount").textContent =
+      filtered.length;
+
+  }
 }
+
+
+/* =========================================================
+   SEARCH EVENT
+   ========================================================= */
+
+const clubSearch =
+  $("clubSearch");
+
+if (clubSearch) {
+
+  clubSearch.addEventListener(
+    "input",
+    searchClubs
+  );
+
+}
+
+
+/* =========================================================
+   REFRESH CLUBS
+   ========================================================= */
+
+const refreshClubsBtn =
+  $("refreshClubsBtn");
+
+if (refreshClubsBtn) {
+
+  refreshClubsBtn.addEventListener(
+    "click",
+    loadClubs
+  );
+
+}
+
+
+/* =========================================================
+   START APP
+   ========================================================= */
+
+document.addEventListener(
+  "DOMContentLoaded",
+  async () => {
+
+    getDatabase();
+
+    setupNavigation();
+
+    await testConnection();
+
+    await loadDashboard();
+
+    await loadClubs();
+
+    await loadPlayerClubs();
+
+    await loadPlayers();
+
+    console.log(
+      "AFRN Football Management iko tayari."
+    );
+
+  }
+);
