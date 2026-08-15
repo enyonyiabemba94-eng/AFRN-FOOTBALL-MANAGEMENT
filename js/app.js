@@ -874,7 +874,169 @@ function renderPlayers() {
       }
     ).join("");
 }
+/* =========================================================
+   PLAYER SEARCH
+   Tafuta kwa Jina au Klabu
+   ========================================================= */
 
+function searchPlayers() {
+
+  const input = $("playerSearch");
+
+  if (!input) return;
+
+  const search = normalize(input.value);
+
+  if (!search) {
+    renderPlayers();
+    return;
+  }
+
+  const filteredPlayers =
+    allPlayers.filter(player => {
+
+      const name =
+        normalize(playerName(player));
+
+      const club =
+        normalize(player.clubs?.name || "");
+
+      return (
+        name.includes(search) ||
+        club.includes(search)
+      );
+
+    });
+
+  renderFilteredPlayers(filteredPlayers);
+}
+
+
+function renderFilteredPlayers(players) {
+
+  const table = $("playersTable");
+
+  if (!table) return;
+
+  if (!players.length) {
+
+    table.innerHTML = `
+      <tr>
+        <td colspan="8" class="empty">
+          Hakuna mchezaji aliyepatikana.
+        </td>
+      </tr>
+    `;
+
+    if ($("visiblePlayerCount")) {
+      $("visiblePlayerCount").textContent = 0;
+    }
+
+    return;
+  }
+
+  table.innerHTML =
+    players.map(
+      (player, index) => {
+
+        const fullName =
+          playerName(player);
+
+        const club =
+          player.clubs?.name || "—";
+
+        return `
+          <tr>
+
+            <td>${index + 1}</td>
+
+            <td>
+              ${
+                player.photo_url
+                  ? `
+                    <img
+                      src="${escapeHTML(player.photo_url)}"
+                      alt="${escapeHTML(fullName)}"
+                      style="
+                        width:45px;
+                        height:45px;
+                        object-fit:cover;
+                        border-radius:50%;
+                      "
+                    >
+                  `
+                  : "—"
+              }
+            </td>
+
+            <td>
+              ${escapeHTML(fullName)}
+            </td>
+
+            <td>
+              ${escapeHTML(club)}
+            </td>
+
+            <td>
+              ${escapeHTML(player.position || "—")}
+            </td>
+
+            <td>
+              ${escapeHTML(player.jersey_number || "—")}
+            </td>
+
+            <td>
+              ${escapeHTML(player.status || "—")}
+            </td>
+
+            <td>
+
+              <button
+                type="button"
+                onclick="editPlayer('${player.id}')">
+                ✏️
+              </button>
+
+              <button
+                type="button"
+                onclick="deletePlayer('${player.id}')">
+                🗑️
+              </button>
+
+            </td>
+
+          </tr>
+        `;
+      }
+    ).join("");
+
+  if ($("visiblePlayerCount")) {
+    $("visiblePlayerCount").textContent =
+      players.length;
+  }
+}
+
+
+/* =========================================================
+   SEARCH EVENT
+   ========================================================= */
+
+document.addEventListener(
+  "DOMContentLoaded",
+  () => {
+
+    const searchInput =
+      $("playerSearch");
+
+    if (!searchInput) return;
+
+    searchInput.addEventListener(
+      "input",
+      searchPlayers
+    );
+
+  }
+);
 
 window.loadPlayers =
   loadPlayers;
