@@ -8,6 +8,7 @@ let db = null;
 
 let allClubs = [];
 let allPlayers = [];
+let allContracts = [];
 
 
 /* =========================================================
