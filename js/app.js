@@ -2647,3 +2647,25 @@ document.addEventListener(
 
   }
 );
+console.log("AFRN CONTRACT TEST - APP.JS IMESOMA");
+
+setTimeout(async () => {
+
+  console.log("DB:", db);
+
+  if (!db) {
+    console.error("DB HAIJAPATIKANA");
+    return;
+  }
+
+  const test =
+    await db
+      .from("player_contracts")
+      .select("*");
+
+  console.log(
+    "PLAYER CONTRACTS TEST:",
+    test
+  );
+
+}, 3000);
