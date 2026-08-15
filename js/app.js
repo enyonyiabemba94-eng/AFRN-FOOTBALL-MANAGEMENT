@@ -2087,13 +2087,16 @@ window.contractForm =
   contractForm;
 /* =========================================================
    LOAD CONTRACTS
-   KIPANDE CHA 6/10
    ========================================================= */
 
 async function loadContracts() {
 
   if (!db) {
-    console.error("Supabase haijaunganishwa.");
+
+    console.error(
+      "Supabase haijaunganishwa."
+    );
+
     return;
   }
 
@@ -2105,25 +2108,14 @@ async function loadContracts() {
         player_id,
         start_date,
         end_date,
-        status,
-        players (
-          id,
-          first_name,
-          middle_name,
-          last_name,
-          club_id,
-          clubs (
-            id,
-            name
-          )
-        )
+        status
       `)
       .order("start_date", {
         ascending: false
       });
 
   console.log(
-    "CONTRACTS WITH PLAYER:",
+    "CONTRACTS RAW:",
     result
   );
 
@@ -2147,15 +2139,107 @@ async function loadContracts() {
   const contracts =
     result.data || [];
 
-  renderContracts(contracts);
+  /*
+   * Hifadhi mikataba kwenye allContracts
+   * ili EDIT CONTRACT iweze kuipata kwa ID.
+   */
+  allContracts =
+    contracts;
+
+  /*
+   * Pakia taarifa za mchezaji
+   * kwa kila mkataba.
+   */
+  for (const contract of allContracts) {
+
+    if (!contract.player_id) {
+      contract.players = null;
+      continue;
+    }
+
+    const playerResult =
+      await db
+        .from("players")
+        .select(`
+          id,
+          first_name,
+          middle_name,
+          last_name,
+          club_id
+        `)
+        .eq("id", contract.player_id)
+        .maybeSingle();
+
+    if (playerResult.error) {
+
+      console.error(
+        "PLAYER LOAD ERROR:",
+        playerResult.error
+      );
+
+      contract.players = null;
+
+      continue;
+    }
+
+    contract.players =
+      playerResult.data || null;
+
+    /*
+     * Pakia klabu ya mchezaji
+     */
+    if (
+      contract.players &&
+      contract.players.club_id
+    ) {
+
+      const clubResult =
+        await db
+          .from("clubs")
+          .select(`
+            id,
+            name
+          `)
+          .eq(
+            "id",
+            contract.players.club_id
+          )
+          .maybeSingle();
+
+      if (
+        !clubResult.error &&
+        clubResult.data
+      ) {
+
+        contract.players.clubs =
+          clubResult.data;
+
+      }
+
+    }
+
+  }
+
+  console.log(
+    "CONTRACTS READY:",
+    allContracts
+  );
+
+  /*
+   * Onyesha kwenye jedwali
+   */
+  renderContracts(
+    allContracts
+  );
 
   showStatus(
     "contractStatus",
-    contracts.length +
+    allContracts.length +
     " mikataba imepatikana.",
     "success"
   );
 }
+
 
 window.loadContracts =
   loadContracts;
