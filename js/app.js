@@ -2092,11 +2092,7 @@ window.contractForm =
 async function loadContracts() {
 
   if (!db) {
-
-    console.error(
-      "Supabase haijaunganishwa."
-    );
-
+    console.error("Supabase haijaunganishwa.");
     return;
   }
 
@@ -2109,12 +2105,7 @@ async function loadContracts() {
           id,
           first_name,
           middle_name,
-          last_name,
-          club_id,
-          clubs:club_id (
-            id,
-            name
-          )
+          last_name
         )
       `)
       .order("start_date", {
@@ -2124,7 +2115,7 @@ async function loadContracts() {
   if (result.error) {
 
     console.error(
-      "Imeshindikana kupakia mikataba:",
+      "LOAD CONTRACTS ERROR:",
       result.error
     );
 
@@ -2138,6 +2129,11 @@ async function loadContracts() {
     return;
   }
 
+  console.log(
+    "CONTRACTS DATA:",
+    result.data
+  );
+
   const contracts =
     result.data || [];
 
@@ -2150,7 +2146,6 @@ async function loadContracts() {
     "success"
   );
 }
-
 
 window.loadContracts =
   loadContracts;
