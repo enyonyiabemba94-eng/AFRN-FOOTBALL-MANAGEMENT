@@ -2520,11 +2520,35 @@ console.log(
 
 async function initContractsPage() {
 
-  if (!db) return;
+  console.log("CONTRACT PAGE INAANZA");
 
-  await loadContractPlayers();
+  if (!db) {
+    console.error("DB HAIJAPATIKANA");
+    return;
+  }
 
-  await loadContracts();
+  try {
+
+    await loadContracts();
+
+    console.log(
+      "LOAD CONTRACTS IMEMALIZA"
+    );
+
+    await loadContractPlayers();
+
+    console.log(
+      "LOAD CONTRACT PLAYERS IMEMALIZA"
+    );
+
+  } catch (error) {
+
+    console.error(
+      "CONTRACT PAGE ERROR:",
+      error
+    );
+
+  }
 
 }
 
