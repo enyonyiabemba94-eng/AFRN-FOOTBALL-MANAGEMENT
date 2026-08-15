@@ -2245,7 +2245,6 @@ window.loadContracts =
   loadContracts;
 /* =========================================================
    RENDER CONTRACTS
-   KIPANDE CHA 7/10
    ========================================================= */
 
 function renderContracts(contracts) {
@@ -2273,14 +2272,10 @@ function renderContracts(contracts) {
       (contract, index) => {
 
         /*
-         * Tafuta mchezaji kwa player_id
+         * Mchezaji aliyepakiwa na loadContracts()
          */
         const player =
-          allPlayers.find(
-            item =>
-              String(item.id) ===
-              String(contract.player_id)
-          );
+          contract.players || null;
 
         const playerFullName =
           player
@@ -2288,17 +2283,10 @@ function renderContracts(contracts) {
             : "Bila jina";
 
         /*
-         * Tafuta klabu kwa club_id
+         * Klabu ya mchezaji
          */
-        const club =
-          allClubs.find(
-            item =>
-              String(item.id) ===
-              String(player?.club_id)
-          );
-
         const clubName =
-          club?.name || "—";
+          player?.clubs?.name || "—";
 
         return `
           <tr>
