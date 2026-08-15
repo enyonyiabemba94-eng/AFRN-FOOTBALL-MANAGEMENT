@@ -73,9 +73,11 @@ function getDatabase() {
 
   if (window.supabaseClient) {
 
-    db = window.supabaseClient;
+  db = window.supabaseClient;
 
-    return true;
+  console.log("AFRN: Supabase client FOUND.");
+
+  return true;
   }
 
   console.error(
