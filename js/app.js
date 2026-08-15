@@ -1131,36 +1131,179 @@ phone:
 phone:
   phone || null,
 
-address:
-  address || null,
+async function editPlayer(id) {
 
-player_id_number:
-  playerIdNumber || null,
+  const player =
+    (window.allPlayers || []).find(
+      item => String(item.id) === String(id)
+    );
 
-photo_url:
-  photoUrl || null,
+  if (!player) {
+    alert(
+      "Mchezaji hakupatikana."
+    );
 
-status:
-  status || "active"
+    return;
+  }
 
-})
-.eq("id", id);
+  await loadPlayerClubs();
 
-if (result.error) {
+  $("editPlayerId").value =
+    player.id || "";
 
-  alert(
-    "Imeshindikana kuhariri mchezaji: " +
-    result.error.message
+  $("editPlayerClubId").value =
+    player.club_id || "";
+
+  $("editFirstName").value =
+    player.first_name || "";
+
+  $("editMiddleName").value =
+    player.middle_name || "";
+
+  $("editLastName").value =
+    player.last_name || "";
+
+  $("editDateOfBirth").value =
+    player.date_of_birth || "";
+
+  $("editNationality").value =
+    player.nationality || "";
+
+  $("editPosition").value =
+    player.position || "";
+
+  $("editJerseyNumber").value =
+    player.jersey_number || "";
+
+  $("editPlayerPhone").value =
+    player.phone || "";
+
+  $("editPlayerAddress").value =
+    player.address || "";
+
+  $("editPhotoUrl").value =
+    player.photo_url || "";
+
+  $("editPlayerStatus").value =
+    player.status || "active";
+
+  const editModal =
+  document.querySelector(
+    "#playerModal"
   );
 
-  return;
+if (editModal) {
+  editModal.classList.add("active");
 }
 
-  alert(
-    "Taarifa za mchezaji zimebadilishwa kikamilifu."
-  );
-
-  await loadPlayers();
 }
 
 window.editPlayer = editPlayer;
+
+const savePlayerEditBtn =
+  $("savePlayerEditBtn");
+
+if (savePlayerEditBtn) {
+
+  savePlayerEditBtn.addEventListener(
+    "click",
+    async () => {
+
+      const id =
+        $("editPlayerId")?.value;
+
+      if (!id) {
+        alert(
+          "Mchezaji hakupatikana."
+        );
+        return;
+      }
+
+      const selectedClubId =
+        $("editPlayerClubId")?.value || null;
+
+      const firstName =
+        $("editFirstName")?.value.trim();
+
+      const middleName =
+        $("editMiddleName")?.value.trim() || null;
+
+      const lastName =
+        $("editLastName")?.value.trim();
+
+      if (!firstName || !lastName) {
+        alert(
+          "First Name na Last Name zinahitajika."
+        );
+        return;
+      }
+
+      const result =
+        await db
+          .from("players")
+          .update({
+
+            club_id:
+              selectedClubId,
+
+            first_name:
+              firstName,
+
+            middle_name:
+              middleName,
+
+            last_name:
+              lastName,
+
+            date_of_birth:
+              $("editDateOfBirth")?.value || null,
+
+            nationality:
+              $("editNationality")?.value.trim() || null,
+
+            position:
+              $("editPosition")?.value.trim() || null,
+
+            jersey_number:
+              $("editJerseyNumber")?.value || null,
+
+            phone:
+              $("editPlayerPhone")?.value.trim() || null,
+
+            address:
+              $("editPlayerAddress")?.value.trim() || null,
+
+            photo_url:
+              $("editPhotoUrl")?.value.trim() || null,
+
+            status:
+              $("editPlayerStatus")?.value || "active"
+
+          })
+          .eq("id", id);
+
+      if (result.error) {
+
+        alert(
+          "Imeshindikana kuhifadhi: " +
+          result.error.message
+        );
+
+        return;
+      }
+
+      alert(
+        "Taarifa za mchezaji zimehifadhiwa."
+      );
+
+      const modal =
+        $("playerModal");
+
+      if (modal) {
+        modal.classList.remove("active");
+      }
+
+      await loadPlayers();
+    }
+  );
+}
