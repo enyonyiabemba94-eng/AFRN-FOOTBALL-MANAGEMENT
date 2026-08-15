@@ -2495,12 +2495,12 @@ if (openAddContractBtn) {
 }
 
 
-const cancelContractEditBtn =
-  $("cancelContractEditBtn");
+const cancelContractBtn =
+  $("cancelContractBtn");
 
-if (cancelContractEditBtn) {
+if (cancelContractBtn) {
 
-  cancelContractEditBtn.addEventListener(
+  cancelContractBtn.addEventListener(
     "click",
     () => {
 
