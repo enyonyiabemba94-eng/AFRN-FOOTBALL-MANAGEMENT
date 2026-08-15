@@ -519,10 +519,44 @@ function renderClubs() {
             </td>
 
             <td>
-              ${escapeHTML(
-                club.name || "Bila jina"
-              )}
-            </td>
+
+  ${
+    club.logo_url
+      ? `
+        <img
+          src="${escapeHTML(club.logo_url)}"
+          alt="Logo"
+          style="
+            width:45px;
+            height:45px;
+            object-fit:contain;
+            vertical-align:middle;
+            margin-right:8px;
+            border-radius:8px;
+          "
+        >
+      `
+      : `
+        <span
+          style="
+            display:inline-block;
+            width:45px;
+            height:45px;
+            line-height:45px;
+            text-align:center;
+            border:1px solid #ddd;
+            border-radius:8px;
+            margin-right:8px;
+          "
+        >⚽</span>
+      `
+  }
+
+  ${escapeHTML(
+    club.name || "Bila jina"
+  )}
+
+</td>
 
             <td>
               ${escapeHTML(
