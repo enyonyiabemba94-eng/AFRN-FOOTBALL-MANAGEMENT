@@ -2536,36 +2536,6 @@ async function initContractsPage() {
 
 }
 
-
-/* =========================================================
-   NAVIGATION - CONTRACTS
-   ========================================================= */
-
-document
-  .querySelectorAll(".nav-btn")
-  .forEach(button => {
-
-    button.addEventListener(
-      "click",
-      async () => {
-
-        const pageName =
-          button.dataset.page;
-
-        if (pageName === "contracts") {
-
-          await loadContractPlayers();
-
-          await loadContracts();
-
-        }
-
-      }
-    );
-
-  });
-
-
 window.initContractsPage =
   initContractsPage;
 /* =========================================================
