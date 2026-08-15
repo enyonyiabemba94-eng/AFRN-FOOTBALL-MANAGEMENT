@@ -1,32 +1,33 @@
-window.AFRN_SUPABASE_URL =
+/* =========================================================
+   AFRN FOOTBALL MANAGEMENT
+   SUPABASE CONFIGURATION
+   ========================================================= */
+
+const SUPABASE_URL =
   "https://jjqhvruppafpumcthmwe.supabase.co";
 
-window.AFRN_SUPABASE_ANON_KEY =
+const SUPABASE_PUBLISHABLE_KEY =
   "sb_publishable_02hhRG8bgDOqSFxva8IMvQ_zWTLMa3G";
 
-
 if (
-  window.supabase &&
-  typeof window.supabase.createClient === "function"
+  !window.supabase ||
+  typeof window.supabase.createClient !== "function"
 ) {
 
-  window.supabaseClient =
-    window.supabase.createClient(
-      window.AFRN_SUPABASE_URL,
-      window.AFRN_SUPABASE_ANON_KEY
-    );
-
-  window.db =
-    window.supabaseClient;
-
-  console.log(
-    "AFRN: Supabase client CREATED."
+  console.error(
+    "AFRN: Supabase library haijapakiwa."
   );
 
 } else {
 
-  console.error(
-    "AFRN ERROR: Supabase library haijapakiwa."
+  window.supabaseClient =
+    window.supabase.createClient(
+      SUPABASE_URL,
+      SUPABASE_PUBLISHABLE_KEY
+    );
+
+  console.log(
+    "AFRN: Supabase client CREATED."
   );
 
 }
