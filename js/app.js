@@ -232,11 +232,16 @@ function setupNavigation() {
             await loadPlayers();
           }
 
+          if (pageName === "contracts") {
+            await initContractsPage();
+          }
+
         }
       );
 
     });
-  }
+
+}
 /* =========================================================
    DASHBOARD
    KIPANDE CHA 4/10
