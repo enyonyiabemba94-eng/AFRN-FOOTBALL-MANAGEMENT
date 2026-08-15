@@ -431,3 +431,169 @@ async function testConnection() {
     return false;
   }
 }
+/* =========================================================
+   CLUBS — LOAD
+   ========================================================= */
+
+async function loadClubs() {
+
+  if (!db) return;
+
+  showStatus(
+    "clubStatus",
+    "Inapakia vilabu..."
+  );
+
+  const result =
+    await db
+      .from("clubs")
+      .select("*")
+      .order("name");
+
+  if (result.error) {
+
+    showStatus(
+      "clubStatus",
+      "Tatizo: " +
+      result.error.message,
+      "error"
+    );
+
+    console.error(
+      "AFRN CLUBS ERROR:",
+      result.error
+    );
+
+    return;
+  }
+
+  allClubs =
+    result.data || [];
+
+  renderClubs();
+
+  showStatus(
+    "clubStatus",
+    allClubs.length +
+    " klabu zimepatikana.",
+    "success"
+  );
+
+  console.log(
+    "AFRN CLUBS:",
+    allClubs
+  );
+}
+/* =========================================================
+   CLUBS — RENDER
+   ========================================================= */
+
+function renderClubs() {
+
+  const table = $("clubsTable");
+
+  if (!table) return;
+
+  if (!allClubs.length) {
+
+    table.innerHTML = `
+      <tr>
+        <td colspan="5" class="empty">
+          Hakuna vilabu.
+        </td>
+      </tr>
+    `;
+
+    return;
+  }
+
+  table.innerHTML =
+    allClubs.map(
+      (club, index) => {
+
+        return `
+          <tr>
+
+            <td>
+              ${index + 1}
+            </td>
+
+            <td>
+              ${escapeHTML(
+                club.name || "Bila jina"
+              )}
+            </td>
+
+            <td>
+              ${escapeHTML(
+                club.zone || "—"
+              )}
+            </td>
+
+            <td>
+              ${escapeHTML(
+                club.status || "active"
+              )}
+            </td>
+
+            <td>
+
+              <button
+                type="button">
+                ✏️
+              </button>
+
+              <button
+                type="button">
+                🗑️
+              </button>
+
+            </td>
+
+          </tr>
+        `;
+      }
+    ).join("");
+
+  if ($("clubCount")) {
+
+    $("clubCount").textContent =
+      allClubs.length;
+  }
+
+  if ($("visibleClubCount")) {
+
+    $("visibleClubCount").textContent =
+      allClubs.length;
+  }
+}
+/* =========================================================
+   CLUBS — NAVIGATION
+   ========================================================= */
+
+document.addEventListener(
+  "DOMContentLoaded",
+  () => {
+
+    const clubsButton =
+      document.querySelector(
+        '[data-page="clubs"]'
+      );
+
+    if (!clubsButton) return;
+
+    clubsButton.addEventListener(
+      "click",
+      async () => {
+
+        console.log(
+          "AFRN: Ukurasa wa Vilabu umefunguliwa."
+        );
+
+        await loadClubs();
+
+      }
+    );
+
+  }
+);
