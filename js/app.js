@@ -2109,11 +2109,12 @@ async function loadContracts() {
           id,
           first_name,
           middle_name,
-          last_name
-        ),
-        clubs:club_id (
-          id,
-          name
+          last_name,
+          club_id,
+          clubs:club_id (
+            id,
+            name
+          )
         )
       `)
       .order("start_date", {
@@ -2140,9 +2141,7 @@ async function loadContracts() {
   const contracts =
     result.data || [];
 
-  renderContracts(
-    contracts
-  );
+  renderContracts(contracts);
 
   showStatus(
     "contractStatus",
