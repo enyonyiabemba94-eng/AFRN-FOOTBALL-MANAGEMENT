@@ -544,11 +544,11 @@ function renderClubs() {
     ✏️
   </button>
 
-  <button
-    type="button"
-    onclick="deleteClub('${club.id}')">
-    🗑️
-  </button>
+<button
+  type="button"
+  onclick="deleteClub('${club.id}')">
+  🗑️
+</button>
 
 </td>
 
