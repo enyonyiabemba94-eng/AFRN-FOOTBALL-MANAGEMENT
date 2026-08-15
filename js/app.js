@@ -2560,16 +2560,49 @@ async function initContractsPage() {
 
   try {
 
-    await loadContracts();
+    // 1. Pakia wachezaji kwanza
+    const playersResult =
+      await db
+        .from("players")
+        .select(`
+          *,
+          clubs:club_id (
+            id,
+            name
+          )
+        `)
+        .order("first_name");
+
+    if (playersResult.error) {
+
+      console.error(
+        "PLAYERS ERROR:",
+        playersResult.error
+      );
+
+      return;
+    }
+
+    allPlayers =
+      playersResult.data || [];
 
     console.log(
-      "LOAD CONTRACTS IMEMALIZA"
+      "ALL PLAYERS:",
+      allPlayers
     );
 
+    // 2. Jaza dropdown ya wachezaji
     await loadContractPlayers();
 
     console.log(
       "LOAD CONTRACT PLAYERS IMEMALIZA"
+    );
+
+    // 3. Sasa pakia mikataba
+    await loadContracts();
+
+    console.log(
+      "LOAD CONTRACTS IMEMALIZA"
     );
 
   } catch (error) {
