@@ -918,26 +918,29 @@ async function loadPlayerClubs() {
 
   if (result.error) {
 
-    console.error(
-      "Imeshindikana kupakia klabu:",
-      result.error.message
-    );
+  console.error(
+    "Imeshindikana kupakia klabu:",
+    result.error.message
+  );
 
-    return;
-  }
+  return;
+}
 
-  const select =
-    $("playerClubId");
-  const editSelect =
+const select =
+  $("playerClubId");
+
+const editSelect =
   $("editPlayerClubId");
 
-  if (!select) return;
+if (!select && !editSelect) return;
 
+if (select) {
   select.innerHTML = `
-  <option value="">
-    Chagua Klabu
-  </option>
-`;
+    <option value="">
+      Chagua Klabu
+    </option>
+  `;
+}
 
 if (editSelect) {
   editSelect.innerHTML = `
@@ -947,36 +950,40 @@ if (editSelect) {
   `;
 }
 
-  (result.data || []).forEach(
-    club => {
+ (result.data || []).forEach(
+  club => {
 
-      const option =
-        document.createElement("option");
+    const option =
+      document.createElement("option");
 
-      option.value =
-  club.id;
+    option.value =
+      club.id;
 
-option.textContent =
-  club.name;
+    option.textContent =
+      club.name;
 
-select.appendChild(option);
+    if (select) {
+      select.appendChild(option);
+    }
 
-if (editSelect) {
+    if (editSelect) {
 
   const editOption =
-    document.createElement("option");
+  document.createElement("option");
 
-  editOption.value =
-    club.id;
+editOption.value =
+  club.id;
 
-  editOption.textContent =
-    club.name;
+editOption.textContent =
+  club.name;
 
+if (editSelect) {
   editSelect.appendChild(editOption);
 }
   }
 );
 }
+
 loadPlayerClubs();
 async function deletePlayer(id) {
 
