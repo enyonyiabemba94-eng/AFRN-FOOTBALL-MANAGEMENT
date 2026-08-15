@@ -571,29 +571,37 @@ function renderClubs() {
    CLUBS — NAVIGATION
    ========================================================= */
 
-document.addEventListener(
-  "DOMContentLoaded",
-  () => {
+function setupNavigation() {
 
-    const clubsButton =
-      document.querySelector(
-        '[data-page="clubs"]'
+  document
+    .querySelectorAll(".nav-btn")
+    .forEach(function(button) {
+
+      button.addEventListener(
+        "click",
+        async function() {
+
+          const pageName =
+            button.dataset.page;
+
+          showPage(pageName);
+
+          if (pageName === "dashboard") {
+            await loadDashboard();
+          }
+
+          if (pageName === "clubs") {
+            await loadClubs();
+          }
+
+          if (pageName === "players") {
+            await loadPlayerClubs();
+            await loadPlayers();
+          }
+
+        }
       );
 
-    if (!clubsButton) return;
+    });
 
-    clubsButton.addEventListener(
-      "click",
-      async () => {
-
-        console.log(
-          "AFRN: Ukurasa wa Vilabu umefunguliwa."
-        );
-
-        await loadClubs();
-
-      }
-    );
-
-  }
-);
+}
