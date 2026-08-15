@@ -4,11 +4,29 @@ window.AFRN_SUPABASE_URL =
 window.AFRN_SUPABASE_ANON_KEY =
   "sb_publishable_02hhRG8bgDOqSFxva8IMvQ_zWTLMa3G";
 
-window.supabaseClient =
-  window.supabase.createClient(
-    window.AFRN_SUPABASE_URL,
-    window.AFRN_SUPABASE_ANON_KEY
+
+if (
+  window.supabase &&
+  typeof window.supabase.createClient === "function"
+) {
+
+  window.supabaseClient =
+    window.supabase.createClient(
+      window.AFRN_SUPABASE_URL,
+      window.AFRN_SUPABASE_ANON_KEY
+    );
+
+  window.db =
+    window.supabaseClient;
+
+  console.log(
+    "AFRN: Supabase client CREATED."
   );
 
-window.db =
-  window.supabaseClient;
+} else {
+
+  console.error(
+    "AFRN ERROR: Supabase library haijapakiwa."
+  );
+
+}
