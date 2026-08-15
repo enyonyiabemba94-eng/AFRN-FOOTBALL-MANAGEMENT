@@ -538,17 +538,19 @@ function renderClubs() {
 
             <td>
 
-              <button
-                type="button">
-                ✏️
-              </button>
+  <button
+    type="button"
+    onclick="editClub('${club.id}')">
+    ✏️
+  </button>
 
-              <button
-                type="button">
-                🗑️
-              </button>
+  <button
+    type="button"
+    onclick="deleteClub('${club.id}')">
+    🗑️
+  </button>
 
-            </td>
+</td>
 
           </tr>
         `;
