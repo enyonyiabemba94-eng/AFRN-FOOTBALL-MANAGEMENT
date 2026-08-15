@@ -2521,7 +2521,9 @@ if (cancelContractBtn) {
 
 }
 
-console.log("CONTRACT BUTTON CODE IMESOMA");
+console.log(
+  "CONTRACT BUTTON CODE IMESOMA"
+);
 /* =========================================================
    CONTRACTS PAGE INITIALIZATION
    KIPANDE CHA 10/10
