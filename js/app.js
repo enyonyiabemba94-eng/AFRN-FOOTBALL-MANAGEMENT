@@ -188,7 +188,18 @@ document.addEventListener(
 
     if (connected) {
 
-      await testConnection();
+      const connectionOK =
+        await testConnection();
+
+      if (connectionOK) {
+
+        await loadDashboard();
+
+        console.log(
+          "AFRN: Mfumo umeanza kikamilifu."
+        );
+
+      }
 
     } else {
 
@@ -199,6 +210,8 @@ document.addEventListener(
       );
 
     }
+
+    setupNavigation();
 
   }
 );
