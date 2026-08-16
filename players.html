@@ -927,6 +927,9 @@ async function getPlayerPhotoUrl(path){
           "/storage/v1/object/public/"
         )[1];
 
+      filePath =
+        decodeURIComponent(filePath);
+
       const bucketPrefix =
         STORAGE_BUCKET + "/";
 
@@ -950,7 +953,7 @@ async function getPlayerPhotoUrl(path){
         .from(STORAGE_BUCKET)
         .createSignedUrl(
           filePath,
-          60 * 60
+          3600
         );
 
     if(result.error){
@@ -964,7 +967,7 @@ async function getPlayerPhotoUrl(path){
 
     }
 
-    return result.data.signedUrl || "";
+    return result.data?.signedUrl || "";
 
   }catch(error){
 
@@ -977,7 +980,7 @@ async function getPlayerPhotoUrl(path){
 
   }
 
-}
+        }
 function getClubName(id){
 
   const club =
@@ -1133,16 +1136,16 @@ async function loadData(){
 
   loadClubOptions();
 
-  renderPlayers();
+await renderPlayers();
 
 
-  setStatus(
-    "✅ Supabase imeunganishwa • Wachezaji " +
-    players.length,
-    "ok"
-  );
+setStatus(
+  "✅ Supabase imeunganishwa • Wachezaji " +
+  players.length,
+  "ok"
+);
 
-}
+    }
    async function renderPlayers(){
 
   const container =
