@@ -1,0 +1,1788 @@
+<!DOCTYPE html>
+<html lang="sw">
+<head>
+  <meta charset="UTF-8">
+
+  <meta
+    name="viewport"
+    content="width=device-width, initial-scale=1.0"
+  >
+
+  <title>
+    AFRN Football Management - Uhamisho
+  </title>
+
+  <!-- Supabase -->
+  <script
+    src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2">
+  </script>
+
+  <!-- AFRN Supabase Config -->
+  <script src="supabase-config.js"></script>
+
+  <style>
+
+    :root {
+      --navy: #071a33;
+      --blue: #0d47a1;
+      --green: #198754;
+      --red: #dc3545;
+      --gray: #667085;
+      --light: #f4f7fb;
+      --border: #d9e1ec;
+      --white: #ffffff;
+    }
+
+    * {
+      box-sizing: border-box;
+    }
+
+    body {
+      margin: 0;
+      font-family: Arial, sans-serif;
+      background: var(--light);
+      color: #172033;
+    }
+
+    header {
+      background: var(--navy);
+      color: white;
+      padding: 18px;
+    }
+
+    header h2 {
+      margin: 0;
+    }
+
+    header p {
+      margin: 6px 0 0;
+      opacity: 0.9;
+    }
+
+    main {
+      max-width: 1100px;
+      margin: auto;
+      padding: 18px;
+    }
+
+    .card {
+      background: white;
+      padding: 16px;
+      margin: 12px 0;
+      border-radius: 12px;
+      box-shadow: 0 2px 8px #0000000d;
+    }
+
+    .btn {
+      border: 0;
+      border-radius: 9px;
+      padding: 11px 15px;
+      font-weight: 700;
+      cursor: pointer;
+      margin: 3px;
+    }
+
+    .primary {
+      background: var(--blue);
+      color: white;
+    }
+
+    .secondary {
+      background: #e9eef5;
+      color: #172033;
+    }
+
+    .danger {
+      background: var(--red);
+      color: white;
+    }
+
+    input,
+    select,
+    textarea {
+      width: 100%;
+      padding: 11px;
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      font: inherit;
+      background: white;
+    }
+
+    textarea {
+      min-height: 90px;
+      resize: vertical;
+    }
+
+    label {
+      display: block;
+      font-weight: 700;
+      margin-bottom: 6px;
+    }
+
+    .grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 12px;
+    }
+
+    .notice {
+      display: none;
+      padding: 12px;
+      border-radius: 9px;
+      margin-top: 10px;
+      background: #fff3cd;
+      color: #664d03;
+    }
+
+    .success {
+      background: #d1e7dd;
+      color: #0f5132;
+    }
+
+    .error {
+      background: #f8d7da;
+      color: #842029;
+    }
+
+    .hidden {
+      display: none !important;
+    }
+
+    @media (max-width: 700px) {
+
+      .grid {
+        grid-template-columns: 1fr;
+      }
+
+    }
+
+  </style>
+</head>
+
+<body>
+
+  <header>
+
+    <h2>
+      ⚽ AFRN FOOTBALL MANAGEMENT
+    </h2>
+
+    <p>
+      🔄 Uhamisho wa Wachezaji
+    </p>
+
+  </header>
+
+  <main>
+
+    <h2>
+      🔄 Uhamisho wa Wachezaji
+    </h2>
+
+    <p>
+      Usimamizi wa uhamisho wa kudumu na mikopo ya wachezaji
+    </p>
+
+    <button
+      class="btn primary"
+      id="addTransferBtn"
+    >
+      ＋ Ongeza Uhamisho
+    </button>
+
+    <div
+      id="systemStatus"
+      class="card"
+    >
+      ⏳ Inaanzisha mfumo...
+    </div>
+
+    <div class="card">
+
+      <label>
+        🔎 Tafuta Uhamisho
+      </label>
+
+      <input
+        id="searchTransfer"
+        type="text"
+        placeholder="Jina la mchezaji, Transfer Number au klabu"
+      >
+
+    </div>
+
+    <div
+      id="transfersContainer"
+    ></div>
+
+  </main>
+  <!-- =====================================================
+     TRANSFER FORM
+====================================================== -->
+
+<dialog id="transferDialog">
+
+  <div style="
+    padding:20px;
+    max-height:90vh;
+    overflow-y:auto;
+  ">
+
+    <div style="
+      display:flex;
+      justify-content:space-between;
+      align-items:center;
+      border-bottom:1px solid #d9e1ec;
+      padding-bottom:10px;
+      margin-bottom:15px;
+    ">
+
+      <h3 style="margin:0;">
+        🔄 Ongeza Uhamisho
+      </h3>
+
+      <button
+        type="button"
+        class="btn secondary"
+        id="closeTransferBtn"
+      >
+        ✕
+      </button>
+
+    </div>
+
+
+    <form id="transferForm">
+
+      <!-- PLAYER -->
+
+      <div class="grid">
+
+        <div>
+
+          <label>
+            👤 Mchezaji *
+          </label>
+
+          <select
+            id="transferPlayerId"
+            required
+          >
+
+            <option value="">
+              Chagua Mchezaji
+            </option>
+
+          </select>
+
+        </div>
+
+
+        <!-- TRANSFER TYPE -->
+
+        <div>
+
+          <label>
+            🔄 Aina ya Uhamisho *
+          </label>
+
+          <select
+            id="transferType"
+            required
+          >
+
+            <option value="permanent">
+              🔄 Uhamisho wa Kudumu
+            </option>
+
+            <option value="loan">
+              📋 Mkopo
+            </option>
+
+          </select>
+
+        </div>
+
+
+        <!-- FROM CLUB -->
+
+        <div>
+
+          <label>
+            🏠 Klabu Anayotoka *
+          </label>
+
+          <select
+            id="fromClubId"
+            required
+          >
+
+            <option value="">
+              Chagua Klabu
+            </option>
+
+          </select>
+
+        </div>
+
+
+        <!-- TO CLUB -->
+
+        <div>
+
+          <label>
+            ⚽ Klabu Anayoenda *
+          </label>
+
+          <select
+            id="toClubId"
+            required
+          >
+
+            <option value="">
+              Chagua Klabu
+            </option>
+
+          </select>
+
+        </div>
+
+
+        <!-- TRANSFER DATE -->
+
+        <div>
+
+          <label>
+            📅 Tarehe ya Uhamisho *
+          </label>
+
+          <input
+            id="transferDate"
+            type="date"
+            required
+          >
+
+        </div>
+
+
+        <!-- LOAN END -->
+
+        <div
+          id="loanEndBox"
+          class="hidden"
+        >
+
+          <label>
+            📅 Tarehe ya Mwisho wa Mkopo *
+          </label>
+
+          <input
+            id="loanEndDate"
+            type="date"
+          >
+
+        </div>
+
+
+        <!-- TRANSFER NUMBER -->
+
+        <div>
+
+          <label>
+            📄 Transfer Number
+          </label>
+
+          <input
+            id="transferNumber"
+            type="text"
+            readonly
+            placeholder="Automatic"
+          >
+
+        </div>
+
+
+        <!-- STATUS -->
+
+        <div>
+
+          <label>
+            📌 Status
+          </label>
+
+          <select
+            id="transferStatus"
+          >
+
+            <option value="Pending">
+              Pending
+            </option>
+
+            <option value="Completed">
+              Completed
+            </option>
+
+            <option value="Cancelled">
+              Cancelled
+            </option>
+
+          </select>
+
+        </div>
+
+
+        <!-- DOCUMENT -->
+
+        <div>
+
+          <label>
+            📎 Hati ya Uhamisho
+          </label>
+
+          <input
+            id="transferDocument"
+            type="file"
+            accept=".pdf,.jpg,.jpeg,.png"
+          >
+
+        </div>
+
+      </div>
+
+
+      <!-- PLAYER PREVIEW -->
+
+      <div
+        id="playerTransferPreview"
+        class="card hidden"
+        style="
+          text-align:center;
+          margin-top:15px;
+          background:#f8fafc;
+        "
+      >
+
+        <img
+          id="transferPlayerPhoto"
+          src=""
+          alt="Picha ya Mchezaji"
+          style="
+            width:110px;
+            height:110px;
+            object-fit:cover;
+            border-radius:50%;
+            border:3px solid #0d47a1;
+          "
+        >
+
+        <h3
+          id="transferPlayerName"
+          style="margin-bottom:5px;"
+        >
+          Mchezaji
+        </h3>
+
+        <p
+          id="transferCurrentClub"
+          style="margin:0;color:#667085;"
+        >
+          Klabu ya sasa
+        </p>
+
+      </div>
+
+
+      <!-- CONFLICT NOTICE -->
+
+      <div
+        id="transferConflict"
+        class="notice"
+      ></div>
+
+
+      <!-- NOTES -->
+
+      <div style="margin-top:12px;">
+
+        <label>
+          📝 Maelezo
+        </label>
+
+        <textarea
+          id="transferNotes"
+          placeholder="Maelezo ya uhamisho..."
+        ></textarea>
+
+      </div>
+
+
+      <!-- ACTIONS -->
+
+      <div style="
+        display:flex;
+        justify-content:flex-end;
+        flex-wrap:wrap;
+        margin-top:15px;
+      ">
+
+        <button
+          type="submit"
+          class="btn primary"
+        >
+          💾 Hifadhi Uhamisho
+        </button>
+
+        <button
+          type="button"
+          class="btn secondary"
+          id="cancelTransferBtn"
+        >
+          Funga
+        </button>
+
+      </div>
+
+    </form>
+
+  </div>
+
+  </dialog>
+  <!-- =====================================================
+     TRANSFER JAVASCRIPT
+====================================================== -->
+
+<script>
+
+const TRANSFERS_TABLE = "transfers";
+const PLAYERS_TABLE = "players";
+const CLUBS_TABLE = "clubs";
+const CONTRACTS_TABLE = "player_contracts";
+
+const STORAGE_BUCKET = "AFRN FILES";
+const STORAGE_FOLDER = "transfers";
+
+
+let db = window.supabaseClient;
+
+let players = [];
+let clubs = [];
+let transfers = [];
+let contracts = [];
+
+
+/* =====================================================
+   SHORTCUT
+====================================================== */
+
+const $ = id =>
+  document.getElementById(id);
+
+
+/* =====================================================
+   FALLBACK PLAYER PHOTO
+====================================================== */
+
+const FALLBACK_PHOTO =
+  "data:image/svg+xml;charset=UTF-8," +
+  encodeURIComponent(`
+    <svg
+      xmlns="http://www.w3.org/2000/svg"
+      width="200"
+      height="200"
+    >
+      <rect
+        width="100%"
+        height="100%"
+        fill="#e9eef5"
+      />
+
+      <text
+        x="50%"
+        y="52%"
+        dominant-baseline="middle"
+        text-anchor="middle"
+        font-size="80"
+      >
+        👤
+      </text>
+
+    </svg>
+  `);
+
+
+/* =====================================================
+   PLAYER NAME
+====================================================== */
+
+function getPlayerName(player) {
+
+  return [
+
+    player?.first_name,
+    player?.middle_name,
+    player?.last_name
+
+  ]
+
+  .filter(Boolean)
+
+  .join(" ")
+
+  || "Mchezaji";
+
+}
+
+
+/* =====================================================
+   CLUB NAME
+====================================================== */
+
+function getClubName(clubId) {
+
+  const club =
+    clubs.find(
+      c => c.id === clubId
+    );
+
+  return club?.name ||
+    "Klabu haijawekwa";
+
+}
+
+
+/* =====================================================
+   TODAY
+====================================================== */
+
+function getToday() {
+
+  return new Date()
+    .toISOString()
+    .slice(0, 10);
+
+}
+
+
+/* =====================================================
+   LOAD ALL DATA
+====================================================== */
+
+async function loadTransferData() {
+
+  if (!db) {
+
+    $("systemStatus").textContent =
+      "❌ Supabase haijaunganishwa.";
+
+    return;
+
+  }
+
+
+  $("systemStatus").textContent =
+    "⏳ Inapakia taarifa...";
+
+
+  const [
+
+    playersResult,
+    clubsResult,
+    transfersResult,
+    contractsResult
+
+  ] = await Promise.all([
+
+    db
+      .from(PLAYERS_TABLE)
+      .select("*"),
+
+    db
+      .from(CLUBS_TABLE)
+      .select("*"),
+
+    db
+      .from(TRANSFERS_TABLE)
+      .select("*")
+      .order(
+        "created_at",
+        {
+          ascending: false
+        }
+      ),
+
+    db
+      .from(CONTRACTS_TABLE)
+      .select("*")
+
+  ]);
+
+
+  if (playersResult.error) {
+
+    console.error(
+      playersResult.error
+    );
+
+    $("systemStatus").textContent =
+      "❌ Tatizo kwenye Players: " +
+      playersResult.error.message;
+
+    return;
+
+  }
+
+
+  if (clubsResult.error) {
+
+    console.error(
+      clubsResult.error
+    );
+
+    $("systemStatus").textContent =
+      "❌ Tatizo kwenye Clubs: " +
+      clubsResult.error.message;
+
+    return;
+
+  }
+
+
+  if (transfersResult.error) {
+
+    console.error(
+      transfersResult.error
+    );
+
+    $("systemStatus").textContent =
+      "❌ Tatizo kwenye Transfers: " +
+      transfersResult.error.message;
+
+    return;
+
+  }
+
+
+  players =
+    playersResult.data || [];
+
+
+  clubs =
+    clubsResult.data || [];
+
+
+  transfers =
+    transfersResult.data || [];
+
+
+  contracts =
+    contractsResult.data || [];
+
+
+  loadPlayerOptions();
+
+  loadClubOptions();
+
+  renderTransfers();
+
+
+  $("systemStatus").textContent =
+    "✅ Players: " +
+    players.length +
+    " • Clubs: " +
+    clubs.length +
+    " • Uhamisho: " +
+    transfers.length;
+
+}
+
+
+/* =====================================================
+   LOAD PLAYERS INTO SELECT
+====================================================== */
+
+function loadPlayerOptions() {
+
+  const select =
+    $("transferPlayerId");
+
+
+  select.innerHTML =
+    `
+      <option value="">
+        Chagua Mchezaji
+      </option>
+    `;
+
+
+  players.forEach(player => {
+
+    const option =
+      document.createElement("option");
+
+
+    option.value =
+      player.id;
+
+
+    option.textContent =
+      getPlayerName(player);
+
+
+    select.appendChild(
+      option
+    );
+
+  });
+
+}
+
+
+/* =====================================================
+   LOAD CLUBS INTO SELECTS
+====================================================== */
+
+function loadClubOptions() {
+
+  const from =
+    $("fromClubId");
+
+  const to =
+    $("toClubId");
+
+
+  from.innerHTML =
+    `
+      <option value="">
+        Chagua Klabu
+      </option>
+    `;
+
+
+  to.innerHTML =
+    `
+      <option value="">
+        Chagua Klabu
+      </option>
+    `;
+
+
+  clubs.forEach(club => {
+
+    const optionFrom =
+      document.createElement(
+        "option"
+      );
+
+
+    optionFrom.value =
+      club.id;
+
+
+    optionFrom.textContent =
+      club.name;
+
+
+    from.appendChild(
+      optionFrom
+    );
+
+
+    const optionTo =
+      document.createElement(
+        "option"
+      );
+
+
+    optionTo.value =
+      club.id;
+
+
+    optionTo.textContent =
+      club.name;
+
+
+    to.appendChild(
+      optionTo
+    );
+
+  });
+
+}
+
+
+/* =====================================================
+   PLAYER SELECTED
+====================================================== */
+
+function showSelectedPlayer() {
+
+  const playerId =
+    $("transferPlayerId").value;
+
+
+  const player =
+    players.find(
+      p => p.id === playerId
+    );
+
+
+  if (!player) {
+
+    $("playerTransferPreview")
+      .classList.add("hidden");
+
+    return;
+
+  }
+
+
+  $("transferPlayerName")
+    .textContent =
+    getPlayerName(player);
+
+
+  $("transferPlayerPhoto")
+    .src =
+    player.photo_url ||
+    FALLBACK_PHOTO;
+
+
+  $("transferCurrentClub")
+    .textContent =
+    player.club_id
+
+      ? "⚽ Klabu ya sasa: " +
+        getClubName(
+          player.club_id
+        )
+
+      : "🆓 Free Agent";
+
+
+  $("playerTransferPreview")
+    .classList.remove("hidden");
+
+
+  /* AUTOMATIC FROM CLUB */
+
+  if (player.club_id) {
+
+    $("fromClubId").value =
+      player.club_id;
+
+  }
+
+
+  checkTransferConflict();
+
+}
+
+
+/* =====================================================
+   TRANSFER TYPE
+====================================================== */
+
+function handleTransferType() {
+
+  const type =
+    $("transferType").value;
+
+
+  const loanBox =
+    $("loanEndBox");
+
+
+  if (type === "loan") {
+
+    loanBox.classList.remove(
+      "hidden"
+    );
+
+    $("loanEndDate").required =
+      true;
+
+  }
+
+  else {
+
+    loanBox.classList.add(
+      "hidden"
+    );
+
+    $("loanEndDate").required =
+      false;
+
+    $("loanEndDate").value =
+      "";
+
+  }
+
+
+  checkTransferConflict();
+
+}
+
+
+/* =====================================================
+   AUTOMATIC TRANSFER NUMBER
+====================================================== */
+
+async function generateTransferNumber() {
+
+  const year =
+    new Date()
+      .getFullYear();
+
+
+  const count =
+    transfers.length + 1;
+
+
+  const number =
+    String(count)
+      .padStart(
+        3,
+        "0"
+      );
+
+
+  return (
+    "AFRN-TR-" +
+    year +
+    "-" +
+    number
+  );
+
+}
+
+
+/* =====================================================
+   CONFLICT CHECK
+====================================================== */
+
+function checkTransferConflict() {
+
+  const playerId =
+    $("transferPlayerId").value;
+
+
+  const fromClub =
+    $("fromClubId").value;
+
+
+  const toClub =
+    $("toClubId").value;
+
+
+  const date =
+    $("transferDate").value;
+
+
+  const notice =
+    $("transferConflict");
+
+
+  notice.style.display =
+    "none";
+
+
+  notice.className =
+    "notice";
+
+
+  notice.innerHTML =
+    "";
+
+
+  if (!playerId) {
+    return;
+  }
+
+
+  if (
+    fromClub &&
+    toClub &&
+    fromClub === toClub
+  ) {
+
+    notice.className =
+      "notice error";
+
+
+    notice.style.display =
+      "block";
+
+
+    notice.innerHTML =
+      "⚠️ Klabu anayotoka na " +
+      "klabu anayoenda haziwezi " +
+      "kuwa klabu moja.";
+
+
+    return;
+
+  }
+
+
+  /* CHECK ACTIVE CONTRACT */
+
+  if (!date) {
+    return;
+  }
+
+
+  const activeContract =
+    contracts.find(contract => {
+
+      if (
+        contract.player_id !==
+        playerId
+      ) {
+        return false;
+      }
+
+
+      if (
+        String(
+          contract.status || ""
+        ).toLowerCase() !==
+        "active"
+      ) {
+        return false;
+      }
+
+
+      if (
+        contract.end_date &&
+        contract.end_date <
+        date
+      ) {
+        return false;
+      }
+
+
+      return true;
+
+    });
+
+
+  if (
+    activeContract &&
+    activeContract.club_id &&
+    fromClub &&
+    activeContract.club_id !==
+    fromClub
+  ) {
+
+    notice.className =
+      "notice error";
+
+
+    notice.style.display =
+      "block";
+
+
+    notice.innerHTML =
+
+      "⚠️ <strong>Mkataba unaingiliana.</strong><br>" +
+
+      getPlayerName(
+        players.find(
+          p =>
+            p.id === playerId
+        )
+      ) +
+
+      " ana mkataba Active na " +
+
+      "<strong>" +
+
+      getClubName(
+        activeContract.club_id
+      ) +
+
+      "</strong>." +
+
+      "<br><br>" +
+
+      "Hakikisha huu ni " +
+
+      "<strong>uhamisho/mkopo halali</strong>.";
+
+  }
+
+}
+
+
+/* =====================================================
+   OPEN FORM
+====================================================== */
+
+async function openTransferForm() {
+
+  $("transferForm").reset();
+
+
+  $("playerTransferPreview")
+    .classList.add("hidden");
+
+
+  $("transferConflict")
+    .style.display =
+    "none";
+
+
+  $("transferDate").value =
+    getToday();
+
+
+  $("transferType").value =
+    "permanent";
+
+
+  $("loanEndBox")
+    .classList.add("hidden");
+
+
+  $("loanEndDate").required =
+    false;
+
+
+  $("transferNumber").value =
+    await generateTransferNumber();
+
+
+  $("transferDialog")
+    .showModal();
+
+}
+
+
+/* =====================================================
+   CLOSE FORM
+====================================================== */
+
+function closeTransferForm() {
+
+  $("transferDialog")
+    .close();
+
+}
+
+
+/* =====================================================
+   EVENTS
+====================================================== */
+
+$("addTransferBtn")
+  .addEventListener(
+    "click",
+    openTransferForm
+  );
+
+
+$("closeTransferBtn")
+  .addEventListener(
+    "click",
+    closeTransferForm
+  );
+
+
+$("cancelTransferBtn")
+  .addEventListener(
+    "click",
+    closeTransferForm
+  );
+
+
+$("transferPlayerId")
+  .addEventListener(
+    "change",
+    showSelectedPlayer
+  );
+
+
+$("transferType")
+  .addEventListener(
+    "change",
+    handleTransferType
+  );
+
+
+$("fromClubId")
+  .addEventListener(
+    "change",
+    checkTransferConflict
+  );
+
+
+$("toClubId")
+  .addEventListener(
+    "change",
+    checkTransferConflict
+  );
+
+
+$("transferDate")
+  .addEventListener(
+    "change",
+    checkTransferConflict
+  );
+
+
+/* =====================================================
+   START
+====================================================== */
+
+loadTransferData();
+
+  </script>
+  <!-- =====================================================
+     SAVE TRANSFER
+====================================================== -->
+
+<script>
+
+async function uploadTransferDocument(file) {
+
+  if (!file) {
+    return null;
+  }
+
+  const extension =
+    file.name
+      .split(".")
+      .pop()
+      .toLowerCase();
+
+  const fileName =
+    "transfer-" +
+    Date.now() +
+    "." +
+    extension;
+
+  const filePath =
+    STORAGE_FOLDER +
+    "/" +
+    fileName;
+
+
+  const uploadResult =
+    await db.storage
+      .from(STORAGE_BUCKET)
+      .upload(
+        filePath,
+        file,
+        {
+          upsert: false
+        }
+      );
+
+
+  if (uploadResult.error) {
+
+    throw uploadResult.error;
+
+  }
+
+
+  const publicResult =
+    db.storage
+      .from(STORAGE_BUCKET)
+      .getPublicUrl(
+        filePath
+      );
+
+
+  return publicResult
+    ?.data
+    ?.publicUrl || null;
+
+}
+
+
+/* =====================================================
+   SAVE TRANSFER
+====================================================== */
+
+async function saveTransfer(event) {
+
+  event.preventDefault();
+
+
+  const playerId =
+    $("transferPlayerId").value;
+
+  const fromClubId =
+    $("fromClubId").value;
+
+  const toClubId =
+    $("toClubId").value;
+
+  const transferType =
+    $("transferType").value;
+
+  const transferDate =
+    $("transferDate").value;
+
+  const loanEndDate =
+    $("loanEndDate").value;
+
+  const transferNumber =
+    $("transferNumber").value;
+
+  const transferStatus =
+    $("transferStatus").value;
+
+  const notes =
+    $("transferNotes").value.trim();
+
+  const file =
+    $("transferDocument").files[0];
+
+
+  /* ================================================
+     BASIC VALIDATION
+  ================================================= */
+
+  if (!playerId) {
+
+    alert(
+      "⚠️ Chagua mchezaji kwanza."
+    );
+
+    return;
+
+  }
+
+
+  if (!fromClubId) {
+
+    alert(
+      "⚠️ Chagua klabu anayocheza/anayotoka."
+    );
+
+    return;
+
+  }
+
+
+  if (!toClubId) {
+
+    alert(
+      "⚠️ Chagua klabu anayoenda."
+    );
+
+    return;
+
+  }
+
+
+  if (
+    fromClubId ===
+    toClubId
+  ) {
+
+    alert(
+      "⚠️ Klabu anayotoka na klabu anayoenda haziwezi kuwa moja."
+    );
+
+    return;
+
+  }
+
+
+  if (!transferDate) {
+
+    alert(
+      "⚠️ Weka tarehe ya uhamisho."
+    );
+
+    return;
+
+  }
+
+
+  if (
+    transferType === "loan" &&
+    !loanEndDate
+  ) {
+
+    alert(
+      "⚠️ Weka tarehe ya mwisho wa mkopo."
+    );
+
+    return;
+
+  }
+
+
+  if (
+    transferType === "loan" &&
+    loanEndDate <=
+    transferDate
+  ) {
+
+    alert(
+      "⚠️ Tarehe ya mwisho wa mkopo lazima iwe baada ya tarehe ya kuanza."
+    );
+
+    return;
+
+  }
+
+
+  /* ================================================
+   CHECK EXISTING ACTIVE CONTRACT
+================================================= */
+
+const activeContracts =
+  contracts.filter(contract => {
+
+    /* Mkataba lazima uwe wa huyu mchezaji */
+    if (
+      contract.player_id !==
+      playerId
+    ) {
+
+      return false;
+
+    }
+
+
+    /* Mkataba lazima uwe Active */
+    if (
+      String(
+        contract.status || ""
+      ).toLowerCase() !==
+      "active"
+    ) {
+
+      return false;
+
+    }
+
+
+    /* Kama mkataba uliisha kabla ya
+       tarehe ya uhamisho, hauhesabiki */
+    if (
+      contract.end_date &&
+      contract.end_date <
+      transferDate
+    ) {
+
+      return false;
+
+    }
+
+
+    return true;
+
+  });
+
+
+/* ================================================
+   CHECK WRONG CLUB
+================================================= */
+
+const wrongClubContract =
+  activeContracts.find(
+    contract =>
+
+      contract.club_id &&
+      contract.club_id !==
+      fromClubId
+  );
+
+
+/* ================================================
+   PLAYER HAS ACTIVE CONTRACT
+================================================= */
+
+if (
+  wrongClubContract
+) {
+
+  const player =
+    players.find(
+      p =>
+        p.id ===
+        playerId
+    );
+
+
+  const currentContractClub =
+    getClubName(
+      wrongClubContract.club_id
+    );
+
+
+  const confirmed =
+    confirm(
+
+      "⚠️ MCHEZAJI ANA MKATABA ACTIVE\n\n" +
+
+      getPlayerName(player) +
+
+      " bado ana mkataba na:\n\n" +
+
+      currentContractClub +
+
+      "\n\n" +
+
+      "Uhamisho huu lazima uwe " +
+      "uhamisho/mkopo halali.\n\n" +
+
+      "Je, una uhakika unataka kuendelea?"
+
+    );
+
+
+  /* Kama amesema HAPANA,
+     tunasimamisha kuhifadhi */
+
+  if (!confirmed) {
+    return;
+  }
+
+}
+
+
+/* SAVE TRANSFER */
+
+const transferData = {
+
+  player_id: playerId,
+  from_club_id: fromClubId,
+  to_club_id: toClubId,
+  transfer_date: transferDate,
+  transfer_number: transferNumber,
+  status: transferStatus,
+  document_url: documentUrl,
+  notes: notes,
+  transfer_type: transferType,
+
+  loan_end_date:
+    transferType === "loan"
+      ? loanEndDate
+      : null
+
+};
+
+
+const result =
+  await db
+    .from("transfers")
+    .insert(transferData);
+
+
+if (result.error) {
+
+  alert(
+    "❌ " +
+    result.error.message
+  );
+
+  return;
+
+}
+
+
+alert(
+  "✅ Uhamisho umehifadhiwa."
+);
+
+
+$("transferDialog").close();
+
+$("transferForm").reset();
+
+await loadTransferData();
+}
+
+/* ================================================
+   SEARCH TRANSFERS
+================================================ */
+
+$("searchTransfer").addEventListener(
+  "input",
+  function () {
+
+    const q =
+      this.value
+        .trim()
+        .toLowerCase();
+
+    if (!q) {
+
+      renderTransfers(transfers);
+
+      return;
+
+    }
+
+    const results =
+      transfers.filter(transfer => {
+
+        const player =
+          players.find(
+            p =>
+              p.id ===
+              transfer.player_id
+          );
+
+        const fromClub =
+          clubs.find(
+            c =>
+              c.id ===
+              transfer.from_club_id
+          );
+
+        const toClub =
+          clubs.find(
+            c =>
+              c.id ===
+              transfer.to_club_id
+          );
+
+        const text = [
+
+          getPlayerName(player),
+
+          fromClub?.name,
+
+          toClub?.name,
+
+          transfer.transfer_number,
+
+          transfer.status,
+
+          transfer.transfer_type
+
+        ]
+        .filter(Boolean)
+        .join(" ")
+        .toLowerCase();
+
+
+        return text.includes(q);
+
+      });
+
+
+    renderTransfers(results);
+
+  }
+);
+
+
+/* ================================================
+   INITIAL LOAD
+================================================ */
+
+loadTransferData();
+
+</script>
+
+</body>
+</html>  
