@@ -379,7 +379,15 @@ async function loadData(){
     }).join("");
 }
   loadData()
-  .then(() => loadContracts());
+  .then(() => loadContracts())
+  .catch(error => {
+
+    console.error("SYSTEM ERROR:", error);
+
+    $("status").textContent =
+      "❌ " + error.message;
+
+  });
   $("contractForm").onsubmit =
 async function(e){
 
