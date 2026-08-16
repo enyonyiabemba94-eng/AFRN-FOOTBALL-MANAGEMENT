@@ -1914,84 +1914,72 @@ if (file) {
 }  
 
   /* =====================================================
-     SAVE TRANSFER
-  ====================================================== */
+   SAVE TRANSFER
+===================================================== */
 
-  const transferData = {
+const transferData = {
 
-    player_id:
-      playerId,
+  player_id:
+    playerId,
 
-    from_club_id:
-      fromClubId,
+  from_club_id:
+    fromClubId,
 
-    to_club_id:
-      toClubId,
+  to_club_id:
+    toClubId,
 
-    transfer_date:
-      transferDate,
+  transfer_date:
+    transferDate,
 
-    transfer_number:
-      transferNumber,
+  transfer_number:
+    transferNumber,
 
-    status:
-      transferStatus,
+  status:
+    transferStatus,
 
-    document_url:
-      documentUrl,
+  document_url:
+    documentUrl,
 
-    notes:
-      notes
+  notes:
+    notes,
 
-  };
+  transfer_type:
+    transferType,
 
+  loan_end_date:
+    transferType === "loan"
+      ? loanEndDate
+      : null
 
-  const result =
-    await db
-      .from(TRANSFERS_TABLE)
-      .insert(
-        transferData
-      )
-      .select()
-      .single();
+};
 
 
-  if (result.error) {
+const result =
+  await db
+    .from(TRANSFERS_TABLE)
+    .insert(
+      transferData
+    )
+    .select()
+    .single();
 
-    console.error(
-      "TRANSFER SAVE ERROR:",
-      result.error
-    );
 
+if (result.error) {
 
-    alert(
-      "❌ Uhamisho haukuhifadhiwa:\n" +
-      result.error.message
-    );
+  console.error(
+    "TRANSFER SAVE ERROR:",
+    result.error
+  );
 
-    return;
+  alert(
+    "❌ Uhamisho haukuhifadhiwa:\n" +
+    result.error.message
+  );
+
+  return;
 
   }
 
-
-  /* =====================================================
-     SUCCESS
-  ====================================================== */
-
-  alert(
-    "✅ Uhamisho umehifadhiwa kikamilifu."
-  );
-
-
-  $("transferDialog").close();
-
-
-  $("transferForm").reset();
-
-
-  await loadTransferData();
-
-}
 
   /* ================================================
    BASIC VALIDATION
@@ -2006,6 +1994,26 @@ if (!playerId) {
   return;
 
 }
+
+
+/* ================================================
+   SUCCESS
+================================================= */
+
+alert(
+  "✅ Uhamisho umehifadhiwa kikamilifu."
+);
+
+
+$("transferDialog").close();
+
+
+$("transferForm").reset();
+
+
+await loadTransferData();
+
+  }
 
 
 /* ================================================
@@ -2444,7 +2452,6 @@ function renderTransfers(list = transfers) {
       }
   
 /* ================================================
-/* ================================================
    SEARCH TRANSFERS
 ================================================ */
 
@@ -2456,7 +2463,6 @@ $("searchTransfer").addEventListener(
       this.value
         .trim()
         .toLowerCase();
-
 
     /* ============================================
        KAMA SEARCH NI TUPU
@@ -2512,64 +2518,61 @@ $("searchTransfer").addEventListener(
             );
 
 
-          /* ======================================
-             TAARIFA ZOTE ZA KUTAFUTA
-          ====================================== */
+                /* ======================================
+   TAARIFA ZOTE ZA KUTAFUTA
+====================================== */
 
-          const text = [
+const text = [
 
-            getPlayerName(
-              player
-            ),
+  getPlayerName(
+    player
+  ),
 
-            fromClub?.name,
+  fromClub?.name,
 
-            toClub?.name,
+  toClub?.name,
 
-            transfer.transfer_number,
+  transfer.transfer_number,
 
-            transfer.transfer_date,
+  transfer.transfer_date,
 
-            transfer.status,
+  transfer.status,
 
-            transfer.transfer_type,
+  transfer.transfer_type,
 
-            transfer.loan_end_date
+  transfer.loan_end_date
 
-          ]
+]
 
+.filter(Boolean)
 
-          .filter(Boolean)
+.join(" ")
 
-
-          .join(" ")
-
-
-          .toLowerCase();
+.toLowerCase();
 
 
           /* ======================================
-             ANGALIA KAMA IMEPATIKANA
-          ====================================== */
+   ANGALIA KAMA IMEPATIKANA
+====================================== */
 
-          return text.includes(
-            q
-          );
-
-        }
-      );
-
-
-    /* ============================================
-       ONESHA MATOKEO
-    ============================================ */
-
-    renderTransfers(
-      results
-    );
-
-  }
+return text.includes(
+  q
 );
+
+}
+
+
+/* ============================================
+   ONESHA MATOKEO
+============================================ */
+
+renderTransfers(
+  results
+);
+
+}
+);
+
 
 /* ================================================
    INITIAL LOAD
@@ -2577,9 +2580,14 @@ $("searchTransfer").addEventListener(
 
 loadTransferData()
   .then(() => {
-    console.log("AFRN TRANSFERS DATA LOADED");
+
+    console.log(
+      "AFRN TRANSFERS DATA LOADED"
+    );
+
   })
   .catch(error => {
+
     console.error(
       "AFRN TRANSFERS ERROR:",
       error
@@ -2588,6 +2596,7 @@ loadTransferData()
     $("systemStatus").innerHTML =
       "❌ Kuna tatizo kwenye mfumo:<br>" +
       error.message;
+
   });
 
 </script>
