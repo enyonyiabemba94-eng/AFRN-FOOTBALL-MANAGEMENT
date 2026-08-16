@@ -1780,9 +1780,22 @@ $("searchTransfer").addEventListener(
    INITIAL LOAD
 ================================================ */
 
-loadTransferData();
+loadTransferData()
+  .then(() => {
+    console.log("AFRN TRANSFERS DATA LOADED");
+  })
+  .catch(error => {
+    console.error(
+      "AFRN TRANSFERS ERROR:",
+      error
+    );
+
+    $("systemStatus").innerHTML =
+      "❌ Kuna tatizo kwenye mfumo:<br>" +
+      error.message;
+  });
 
 </script>
 
 </body>
-</html>  
+</html>
