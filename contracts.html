@@ -252,6 +252,9 @@ async function loadData(){
 
   const select = $("playerId");
 
+  select.innerHTML =
+    '<option value="">Chagua Mchezaji</option>';
+
   players.forEach(p => {
 
     const option =
@@ -260,7 +263,13 @@ async function loadData(){
     option.value = p.id;
 
     option.textContent =
-      p.name || p.full_name || p.id;
+      [
+        p.first_name,
+        p.middle_name,
+        p.last_name
+      ]
+      .filter(Boolean)
+      .join(" ");
 
     select.appendChild(option);
 
