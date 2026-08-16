@@ -1699,7 +1699,138 @@ $("transferForm").reset();
 
 await loadTransferData();
 }
+/* ================================================
+   RENDER TRANSFERS
+================================================ */
 
+function renderTransfers(list = transfers) {
+
+  const container =
+    $("transfersContainer");
+
+  if (!list.length) {
+
+    container.innerHTML = `
+      <div class="card" style="text-align:center;">
+        📭 Hakuna uhamisho uliopatikana.
+      </div>
+    `;
+
+    return;
+  }
+
+
+  container.innerHTML = "";
+
+
+  list.forEach(transfer => {
+
+    const player =
+      players.find(
+        p => p.id === transfer.player_id
+      );
+
+    const fromClub =
+      clubs.find(
+        c => c.id === transfer.from_club_id
+      );
+
+    const toClub =
+      clubs.find(
+        c => c.id === transfer.to_club_id
+      );
+
+
+    const name =
+      getPlayerName(player);
+
+    const photo =
+      player?.photo_url ||
+      FALLBACK_PHOTO;
+
+
+    const type =
+      transfer.transfer_type === "loan"
+        ? "📋 Loan"
+        : "🔄 Permanent";
+
+
+    const loanDate =
+      transfer.transfer_type === "loan" &&
+      transfer.loan_end_date
+        ? " → " + transfer.loan_end_date
+        : "";
+
+
+    const card =
+      document.createElement("div");
+
+    card.className = "card";
+
+
+    card.innerHTML = `
+
+      <div style="
+        display:grid;
+        grid-template-columns:70px 1fr;
+        gap:15px;
+        align-items:center;
+      ">
+
+        <img
+          src="${photo}"
+          style="
+            width:70px;
+            height:70px;
+            object-fit:cover;
+            border-radius:50%;
+          "
+          onerror="
+            this.src='${FALLBACK_PHOTO}'
+          "
+        >
+
+        <div>
+
+          <h3 style="margin:0 0 6px;">
+            👤 ${name}
+          </h3>
+
+          <div>
+            🏠 ${fromClub?.name || "-"}
+            →
+            ⚽ ${toClub?.name || "-"}
+          </div>
+
+          <div class="muted">
+            📄 ${transfer.transfer_number || "-"}
+          </div>
+
+          <div class="muted">
+            📅 ${transfer.transfer_date || "-"}
+            ${loanDate}
+          </div>
+
+          <div style="margin-top:6px;">
+            ${type}
+            &nbsp; • &nbsp;
+            📌 ${transfer.status || "-"}
+          </div>
+
+        </div>
+
+      </div>
+
+    `;
+
+
+    container.appendChild(card);
+
+  });
+
+      }
+  
+/* ================================================
 /* ================================================
    SEARCH TRANSFERS
 ================================================ */
@@ -1713,68 +1844,119 @@ $("searchTransfer").addEventListener(
         .trim()
         .toLowerCase();
 
+
+    /* ============================================
+       KAMA SEARCH NI TUPU
+    ============================================ */
+
     if (!q) {
 
-      renderTransfers(transfers);
+      renderTransfers(
+        transfers
+      );
 
       return;
 
     }
 
+
+    /* ============================================
+       SEARCH
+    ============================================ */
+
     const results =
-      transfers.filter(transfer => {
+      transfers.filter(
+        transfer => {
 
-        const player =
-          players.find(
-            p =>
-              p.id ===
-              transfer.player_id
+
+          /* PLAYER */
+
+          const player =
+            players.find(
+              p =>
+                p.id ===
+                transfer.player_id
+            );
+
+
+          /* FROM CLUB */
+
+          const fromClub =
+            clubs.find(
+              c =>
+                c.id ===
+                transfer.from_club_id
+            );
+
+
+          /* TO CLUB */
+
+          const toClub =
+            clubs.find(
+              c =>
+                c.id ===
+                transfer.to_club_id
+            );
+
+
+          /* ======================================
+             TAARIFA ZOTE ZA KUTAFUTA
+          ====================================== */
+
+          const text = [
+
+            getPlayerName(
+              player
+            ),
+
+            fromClub?.name,
+
+            toClub?.name,
+
+            transfer.transfer_number,
+
+            transfer.transfer_date,
+
+            transfer.status,
+
+            transfer.transfer_type,
+
+            transfer.loan_end_date
+
+          ]
+
+
+          .filter(Boolean)
+
+
+          .join(" ")
+
+
+          .toLowerCase();
+
+
+          /* ======================================
+             ANGALIA KAMA IMEPATIKANA
+          ====================================== */
+
+          return text.includes(
+            q
           );
 
-        const fromClub =
-          clubs.find(
-            c =>
-              c.id ===
-              transfer.from_club_id
-          );
-
-        const toClub =
-          clubs.find(
-            c =>
-              c.id ===
-              transfer.to_club_id
-          );
-
-        const text = [
-
-          getPlayerName(player),
-
-          fromClub?.name,
-
-          toClub?.name,
-
-          transfer.transfer_number,
-
-          transfer.status,
-
-          transfer.transfer_type
-
-        ]
-        .filter(Boolean)
-        .join(" ")
-        .toLowerCase();
+        }
+      );
 
 
-        return text.includes(q);
+    /* ============================================
+       ONESHA MATOKEO
+    ============================================ */
 
-      });
-
-
-    renderTransfers(results);
+    renderTransfers(
+      results
+    );
 
   }
 );
-
 
 /* ================================================
    INITIAL LOAD
