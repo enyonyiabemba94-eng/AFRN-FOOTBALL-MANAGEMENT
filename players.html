@@ -847,7 +847,7 @@ window.supabase.createClient(
 const PLAYERS_TABLE = "players";
 const CLUBS_TABLE = "clubs";
 
-const STORAGE_BUCKET = "AFRN FILES";
+const STORAGE_BUCKET = "AFRN PLAYER PHOTOS";
 const STORAGE_FOLDER = "players";
 
 
@@ -1564,18 +1564,22 @@ $("cancelBtn").onclick = function(){
       fileName;
 
 
-    const upload =
-      await db.storage
-        .from(STORAGE_BUCKET)
-        .upload(
-          path,
-          file,
-          {
-            upsert:true,
-            contentType:file.type
-          }
-        );
+    console.log("UPLOAD BUCKET:", STORAGE_BUCKET);
+console.log("UPLOAD PATH:", path);
+console.log("UPLOAD FILE:", file);
+console.log("UPLOAD TYPE:", file?.type);
 
+const upload =
+  await db.storage
+    .from(STORAGE_BUCKET)
+    .upload(
+      path,
+      file,
+      {
+        upsert:true,
+        contentType:file.type
+      }
+    );
 
     if(upload.error){
 
