@@ -364,8 +364,16 @@ async function loadData(){
         <div class="card">
 
           <h3>
-            👤 ${player?.name || "Mchezaji"}
-          </h3>
+  👤 ${
+    [
+      player?.first_name,
+      player?.middle_name,
+      player?.last_name
+    ]
+    .filter(Boolean)
+    .join(" ") || "Mchezaji"
+  }
+</h3>
 
           <p>
             ⚽ ${club?.name || "-"}
