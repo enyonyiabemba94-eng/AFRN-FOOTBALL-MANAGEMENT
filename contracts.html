@@ -1,0 +1,516 @@
+<!DOCTYPE html>
+<html lang="sw">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+  <title>AFRN Football Management - Mikataba</title>
+
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+
+  <style>
+    body{
+      margin:0;
+      font-family:Arial,sans-serif;
+      background:#f4f7fb;
+      color:#172033;
+    }
+
+    header{
+      background:#071a33;
+      color:white;
+      padding:18px;
+    }
+
+    main{
+      max-width:1100px;
+      margin:auto;
+      padding:18px;
+    }
+
+    .btn{
+      border:0;
+      border-radius:8px;
+      padding:10px 14px;
+      font-weight:bold;
+      cursor:pointer;
+    }
+
+    .primary{
+      background:#0d47a1;
+      color:white;
+    }
+
+    .card{
+      background:white;
+      padding:15px;
+      margin-top:12px;
+      border-radius:12px;
+    }
+  </style>
+</head>
+
+<body>
+
+<header>
+  <h2>⚽ AFRN FOOTBALL MANAGEMENT</h2>
+  <p>📄 Mikataba ya Wachezaji</p>
+</header>
+
+<main>
+  <h2>📄 Mikataba ya Wachezaji</h2>
+
+<p>
+  Usajili na kumbukumbu za mikataba ya wachezaji
+</p>
+
+<button class="btn primary" id="addBtn">
+  ＋ Ongeza Mkataba
+</button>
+
+<div id="status" class="card">
+  ⏳ Inaanzisha mfumo...
+</div>
+
+<div class="card">
+  🔎 Tafuta Mkataba
+  <br><br>
+
+  <input
+    id="search"
+    type="text"
+    placeholder="Jina la mchezaji au Contract Number"
+    style="width:100%;padding:10px;box-sizing:border-box;">
+</div>
+
+<div id="contractsContainer"></div>
+<dialog id="contractDialog">
+
+  <h3 id="modalTitle">
+    ＋ Ongeza Mkataba
+  </h3>
+
+  <form id="contractForm">
+
+    <input
+      type="hidden"
+      id="editId">
+
+    <label>Mchezaji *</label>
+    <select id="playerId" required>
+      <option value="">Chagua Mchezaji</option>
+    </select>
+
+    <br><br>
+
+    <label>Klabu</label>
+    <select id="clubId">
+      <option value="">Chagua Klabu</option>
+    </select>
+
+    <br><br>
+
+    <label>Contract Number</label>
+    <input
+      id="contractNumber"
+      type="text"
+      placeholder="AFRN-2026-001">
+
+    <br><br>
+
+    <label>Start Date</label>
+    <input
+      id="startDate"
+      type="date">
+
+    <br><br>
+
+    <label>End Date</label>
+    <input
+      id="endDate"
+      type="date">
+
+    <br><br>
+
+    <label>Status</label>
+    <select id="contractStatus">
+      <option value="Active">Active</option>
+      <option value="Expiring Soon">Expiring Soon</option>
+      <option value="Expired">Expired</option>
+      <option value="Terminated">Terminated</option>
+    </select>
+
+    <br><br>
+
+    <label>Upload Mkataba</label>
+    <input
+      id="contractFile"
+      type="file"
+      accept=".pdf,.jpg,.jpeg,.png">
+
+    <br><br>
+
+    <label>Maelezo</label>
+    <textarea
+      id="notes"
+      placeholder="Maelezo ya mkataba...">
+    </textarea>
+
+    <br><br>
+
+    <button
+  type="submit"
+  class="btn primary">
+  💾 Hifadhi
+</button>
+
+<button
+  type="button"
+  class="btn"
+  id="closeContract">
+  Funga
+</button>
+
+</form>
+
+</dialog>
+
+  <script src="supabase-config.js"></script>
+
+<script>
+
+const TABLE = "player_contracts";
+
+const STORAGE_BUCKET = "AFRN FILES";
+
+const STORAGE_FOLDER = "contracts";
+
+let contracts = [];
+let players = [];
+let clubs = [];
+
+const $ = id =>
+  document.getElementById(id);
+
+  </script>
+  async function loadData(){
+
+  const p =
+    await db
+      .from("players")
+      .select("*")
+      .order("name");
+
+  const c =
+    await db
+      .from("clubs")
+      .select("*")
+      .order("name");
+
+  if(p.error || c.error){
+
+    $("status").textContent =
+      "❌ Imeshindikana kupakia data.";
+
+    return;
+  }
+
+  players = p.data || [];
+  clubs = c.data || [];
+
+  loadPlayers();
+  loadClubs();
+
+  $("status").textContent =
+    "✅ Supabase imeunganishwa";
+}
+  function loadPlayers(){
+
+  const select = $("playerId");
+
+  players.forEach(p => {
+
+    const option =
+      document.createElement("option");
+
+    option.value = p.id;
+
+    option.textContent =
+      p.name || p.full_name || p.id;
+
+    select.appendChild(option);
+
+  });
+}
+  function loadClubs(){
+
+  const select = $("clubId");
+
+  clubs.forEach(c => {
+
+    const option =
+      document.createElement("option");
+
+    option.value = c.id;
+
+    option.textContent =
+      c.name;
+
+    select.appendChild(option);
+
+  });
+}
+  $("addBtn").onclick = function(){
+
+  $("contractForm").reset();
+
+  $("editId").value = "";
+
+  $("modalTitle").textContent =
+    "＋ Ongeza Mkataba";
+
+  $("contractDialog").showModal();
+
+};
+  $("closeContract").onclick = function(){
+
+  $("contractDialog").close();
+
+};
+  async function loadContracts(){
+
+  const {data,error} =
+    await db
+      .from(TABLE)
+      .select("*")
+      .order("created_at",{
+        ascending:false
+      });
+
+  if(error){
+
+    $("status").textContent =
+      "❌ " + error.message;
+
+    return;
+  }
+
+  contracts = data || [];
+
+  renderContracts();
+}
+  function renderContracts(){
+
+  const box =
+    $("contractsContainer");
+
+  if(!contracts.length){
+
+    box.innerHTML =
+      `<div class="card">
+        Hakuna mikataba bado.
+      </div>`;
+
+    return;
+  }
+
+  box.innerHTML =
+    contracts.map(c => {
+
+      const player =
+        players.find(
+          p => p.id === c.player_id
+        );
+
+      const club =
+        clubs.find(
+          x => x.id === c.club_id
+        );
+
+      return `
+        <div class="card">
+
+          <h3>
+            👤 ${player?.name || "Mchezaji"}
+          </h3>
+
+          <p>
+            ⚽ ${club?.name || "-"}
+          </p>
+
+          <p>
+            📄 ${c.contract_number || "-"}
+          </p>
+
+          <p>
+            📅 ${c.start_date || "-"}
+            → ${c.end_date || "-"}
+          </p>
+
+          <p>
+            📌 ${c.status || "-"}
+          </p>
+
+        </div>
+      `;
+
+    }).join("");
+}
+  loadData()
+  .then(() => loadContracts());
+  $("contractForm").onsubmit =
+async function(e){
+
+  e.preventDefault();
+
+  const playerId =
+    $("playerId").value;
+
+  const clubId =
+    $("clubId").value || null;
+
+  const contractNumber =
+    $("contractNumber").value.trim();
+
+  const startDate =
+    $("startDate").value || null;
+
+  const endDate =
+    $("endDate").value || null;
+
+  const status =
+    $("contractStatus").value;
+
+  const notes =
+    $("notes").value.trim();
+
+  if(!playerId){
+
+    alert("Chagua mchezaji.");
+
+    return;
+  }
+    let contractFileUrl = null;
+
+  const file =
+    $("contractFile").files[0];
+
+  if(file){
+
+    $("status").textContent =
+      "⏳ Inapakia mkataba...";
+
+    const ext =
+      file.name
+        .split(".")
+        .pop()
+        .toLowerCase();
+
+    const fileName =
+      "contract_" +
+      Date.now() +
+      "." +
+      ext;
+
+    const path =
+      STORAGE_FOLDER +
+      "/" +
+      fileName;
+
+    const upload =
+      await db.storage
+        .from(STORAGE_BUCKET)
+        .upload(
+          path,
+          file,
+          {
+            upsert:true,
+            contentType:file.type
+          }
+        );
+
+    if(upload.error){
+
+      $("status").textContent =
+        "❌ " +
+        upload.error.message;
+
+      return;
+    }
+
+    contractFileUrl =
+      db.storage
+        .from(STORAGE_BUCKET)
+        .getPublicUrl(path)
+        .data.publicUrl;
+  }
+    const payload = {
+
+    player_id: playerId,
+
+    club_id: clubId,
+
+    contract_number:
+      contractNumber || null,
+
+    start_date:
+      startDate,
+
+    end_date:
+      endDate,
+
+    contract_file_url:
+      contractFileUrl,
+
+    status:
+      status,
+
+    notes:
+      notes || null
+
+  };
+    const result =
+    await db
+      .from(TABLE)
+      .insert(payload);
+
+  if(result.error){
+
+    $("status").textContent =
+      "❌ " +
+      result.error.message;
+
+    return;
+  }
+
+  $("contractDialog").close();
+
+  $("status").textContent =
+    "✅ Mkataba umehifadhiwa.";
+
+  await loadContracts();
+
+};
+  $("search").oninput =
+function(){
+
+  const q =
+    this.value.toLowerCase();
+
+  const old = contracts;
+
+  contracts =
+    old.filter(c =>
+      String(c.contract_number || "")
+        .toLowerCase()
+        .includes(q)
+    );
+
+  renderContracts();
+
+};
+  </script>
+
+</body>
+</html>
+      
