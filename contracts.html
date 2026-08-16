@@ -289,6 +289,41 @@ async function loadData(){
 
   });
 }
+  $("playerId").onchange = function(){
+
+  const player =
+    players.find(p => p.id === this.value);
+
+  if(!player){
+    $("playerPreview").style.display = "none";
+    return;
+  }
+
+  const name =
+    [
+      player.first_name,
+      player.middle_name,
+      player.last_name
+    ]
+    .filter(Boolean)
+    .join(" ");
+
+  const club =
+    clubs.find(c => c.id === player.club_id);
+
+  $("playerName").textContent =
+    name || "Mchezaji";
+
+  $("playerClub").textContent =
+    "⚽ " + (club?.name || "Klabu haijawekwa");
+
+  $("playerPhoto").src =
+    player.photo_url ||
+    "https://via.placeholder.com/90";
+
+  $("playerPreview").style.display =
+    "block";
+};
   function loadClubs(){
 
   const select = $("clubId");
