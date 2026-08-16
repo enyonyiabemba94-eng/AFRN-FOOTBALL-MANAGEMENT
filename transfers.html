@@ -805,28 +805,22 @@ function loadPlayerOptions() {
   const select =
     $("transferPlayerId");
 
-
-  select.innerHTML =
-    `
-      <option value="">
-        Chagua Mchezaji
-      </option>
-    `;
-
+  select.innerHTML = `
+    <option value="">
+      Chagua Mchezaji
+    </option>
+  `;
 
   players.forEach(player => {
 
     const option =
       document.createElement("option");
 
-
     option.value =
       player.id;
 
-
     option.textContent =
       getPlayerName(player);
-
 
     select.appendChild(
       option
@@ -835,6 +829,113 @@ function loadPlayerOptions() {
   });
 
 }
+  /* ================================================
+   PLAYER SELECTED
+================================================ */
+
+$("transferPlayerId")
+.addEventListener(
+  "change",
+  function () {
+
+    const player =
+      players.find(
+        p =>
+          p.id ===
+          this.value
+      );
+
+
+    if (!player) {
+
+      return;
+
+    }
+
+
+    /* Klabu ya sasa ya mchezaji */
+
+    const currentClub =
+      clubs.find(
+        club =>
+          club.id ===
+          player.club_id
+      );
+
+
+    /* Jaza klabu anayopokea */
+
+    const fromSelect =
+      $("transferFromClubId");
+
+    fromSelect.innerHTML = `
+
+      <option value="${player.club_id}">
+        ${
+          currentClub?.name ||
+          "Klabu haijawekwa"
+        }
+      </option>
+
+    `;
+
+
+    fromSelect.value =
+      player.club_id;
+
+
+    /* ============================================
+       KLUBU ANAYOENDA
+    ============================================ */
+
+    const toSelect =
+      $("transferToClubId");
+
+    toSelect.innerHTML = `
+
+      <option value="">
+        Chagua Klabu Anayoenda
+      </option>
+
+    `;
+
+
+    clubs.forEach(club => {
+
+      /* Usionyeshe klabu yake ya sasa */
+
+      if (
+        club.id ===
+        player.club_id
+      ) {
+
+        return;
+
+      }
+
+
+      const option =
+        document.createElement(
+          "option"
+        );
+
+
+      option.value =
+        club.id;
+
+
+      option.textContent =
+        club.name;
+
+
+      toSelect.appendChild(
+        option
+      );
+
+    });
+
+  }
+);
 
 
 /* =====================================================
@@ -1220,6 +1321,12 @@ function checkTransferConflict() {
 
 async function openTransferForm() {
 
+  /* PAKIA DATA MPYA */
+  await loadTransferData();
+
+
+  /* SAFISHA FORM */
+
   $("transferForm").reset();
 
 
@@ -1232,9 +1339,13 @@ async function openTransferForm() {
     "none";
 
 
+  /* TAREHE YA LEO */
+
   $("transferDate").value =
     getToday();
 
+
+  /* DEFAULT: PERMANENT */
 
   $("transferType").value =
     "permanent";
@@ -1248,15 +1359,18 @@ async function openTransferForm() {
     false;
 
 
+  /* TRANSFER NUMBER */
+
   $("transferNumber").value =
     await generateTransferNumber();
 
+
+  /* FUNGUA FORM */
 
   $("transferDialog")
     .showModal();
 
 }
-
 
 /* =====================================================
    CLOSE FORM
