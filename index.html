@@ -3,657 +3,493 @@
 
 <head>
 
-<meta charset="UTF-8">
+  <meta charset="UTF-8">
 
-<meta
-  name="viewport"
-  content="width=device-width, initial-scale=1.0"
->
+  <meta
+    name="viewport"
+    content="width=device-width, initial-scale=1.0">
 
-<title>AFRN Football Management</title>
+  <title>
+    AFRN Football Management
+  </title>
 
-<link
-  rel="stylesheet"
-  href="./css/style.css"
->
-
-<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
-
-<script src="./supabase-config.js"></script>
-
-<style>
-
-.division-section{
-  margin-top:20px;
-}
-
-.division-title{
-  background:#071a33;
-  color:white;
-  padding:12px;
-  border-radius:10px;
-  margin-bottom:10px;
-}
-
-.club-card{
-  background:white;
-  border:1px solid #ddd;
-  border-radius:12px;
-  padding:12px;
-  margin-bottom:10px;
-}
-
-.club-id{
-  color:#0d47a1;
-  font-weight:bold;
-  font-size:14px;
-}
-
-.club-name{
-  font-size:18px;
-  font-weight:bold;
-}
-
-.club-logo{
-  width:55px;
-  height:55px;
-  object-fit:contain;
-  border-radius:10px;
-  border:1px solid #ddd;
-}
-
-.club-row{
-  display:flex;
-  align-items:center;
-  gap:12px;
-}
-
-.club-actions{
-  margin-top:10px;
-  display:flex;
-  gap:8px;
-}
-
-.btn-small{
-  padding:8px 12px;
-  border:0;
-  border-radius:7px;
-  cursor:pointer;
-}
-
-.edit-btn{
-  background:#0d47a1;
-  color:white;
-}
-
-.view-btn{
-  background:#eee;
-}
-
-#clubModal{
-  display:none;
-  position:fixed;
-  inset:0;
-  background:rgba(0,0,0,.6);
-  z-index:999;
-  padding:20px;
-}
-
-.modal-box{
-  background:white;
-  max-width:500px;
-  margin:30px auto;
-  padding:20px;
-  border-radius:14px;
-}
-
-.modal-box input,
-.modal-box select{
-  width:100%;
-  padding:10px;
-  margin:6px 0 14px;
-  box-sizing:border-box;
-}
-
-.modal-actions{
-  display:flex;
-  gap:10px;
-}
-
-.modal-actions button{
-  flex:1;
-  padding:11px;
-  border:0;
-  border-radius:8px;
-}
-
-.save-btn{
-  background:#0d47a1;
-  color:white;
-}
-
-.cancel-btn{
-  background:#ddd;
-}
-
-</style>
+  <link
+    rel="stylesheet"
+    href="./css/style.css">
 
 </head>
 
+
 <body>
+
 
 <header class="top-header">
 
-<h1>
-AFRN FOOTBALL MANAGEMENT
-</h1>
+  <h1>
+    AFRN FOOTBALL MANAGEMENT
+  </h1>
 
-<p>
-Association/Football Federation for Refugees in Nyarugusu
-</p>
+  <p>
+    Association/Football Federation for Refugees in Nyarugusu
+  </p>
 
 </header>
 
+
+
 <nav class="main-nav">
 
-<button
-class="nav-btn active"
-data-page="dashboard">
 
-🏠 Dashboard
+  <a
+    href="./index.html"
+    class="nav-btn active">
 
-</button>
+    🏠 Dashboard
 
-<button
-class="nav-btn"
-data-page="clubs">
+  </a>
 
-⚽ Vilabu
 
-</button>
+  <a
+    href="./clubs.html"
+    class="nav-btn">
 
-<button
-class="nav-btn"
-data-page="players">
+    ⚽ Vilabu
 
-👤 Wachezaji
+  </a>
 
-</button>
 
-<button
-class="nav-btn"
-data-page="contracts">
+  <a
+    href="./players.html"
+    class="nav-btn">
 
-📄 Mikataba
+    👤 Wachezaji
 
-</button>
+  </a>
 
-<button
-class="nav-btn"
-data-page="transfers">
 
-🔄 Uhamisho
+  <a
+    href="./contracts.html"
+    class="nav-btn">
 
-</button>
+    📄 Mikataba
 
-<button
-class="nav-btn"
-data-page="competitions">
+  </a>
 
-🏆 Mashindano
 
-</button>
+  <a
+    href="./transfers.html"
+    class="nav-btn">
 
-<button
-class="nav-btn"
-data-page="matches">
+    🔄 Uhamisho
 
-🏟️ Mechi
+  </a>
 
-</button>
 
-<button
-class="nav-btn"
-data-page="reports">
+  <a
+    href="./competitions.html"
+    class="nav-btn">
 
-📊 Ripoti
+    🏆 Mashindano
 
-</button>
+  </a>
+
+
+  <a
+    href="./matches.html"
+    class="nav-btn">
+
+    🏟️ Mechi
+
+  </a>
+
+
+  <a
+    href="./reports.html"
+    class="nav-btn">
+
+    📊 Ripoti
+
+  </a>
+
 
 </nav>
 
+
+
 <main class="container">
 
-<section
-id="dashboard"
-class="page active">
 
-<div class="card">
+  <section class="page active">
 
-<h2>
-Karibu AFRN
-</h2>
 
-<div
-id="connectionStatus"
-class="status">
+    <!-- =========================
+         WELCOME
+    ========================== -->
 
-Inaunganisha na Supabase...
+    <div class="card">
 
-</div>
 
-<p>
-Mfumo wa usimamizi wa soka wa AFRN.
-</p>
+      <h2>
+        Karibu AFRN
+      </h2>
 
-</div>
 
-<div class="stats-grid">
+      <div
+        id="connectionStatus"
+        class="status">
 
-<div class="stat-card">
+        Inaunganisha na Supabase...
 
-<strong id="dashClubs">
-0
-</strong>
+      </div>
 
-<span>
-Vilabu
-</span>
 
-</div>
-
-<div class="stat-card">
-
-<strong>
-0
-</strong>
-
-<span>
-Wachezaji
-</span>
-
-</div>
-
-<div class="stat-card">
-
-<strong>
-0
-</strong>
-
-<span>
-Mikataba
-</span>
-
-</div>
-
-<div class="stat-card">
-
-<strong>
-0
-</strong>
-
-<span>
-Uhamisho
-</span>
-
-</div>
-
-<div class="stat-card">
-
-<strong>
-0
-</strong>
-
-<span>
-Mashindano
-</span>
-
-</div>
-
-<div class="stat-card">
-
-<strong>
-0
-</strong>
-
-<span>
-Mechi
-</span>
-
-</div>
-
-</div>
-
-</section>
-<section id="clubs" class="page">
-
-  <div class="page-header">
-
-    <div>
-      <h2>⚽ Vilabu</h2>
-      <p class="muted">
-        Vilabu vya AFRN — Daraja 1 hadi 4.
+      <p>
+        Mfumo wa usimamizi wa soka wa AFRN.
       </p>
-    </div>
 
-    <button
-      id="openAddClubBtn"
-      class="btn">
-      + Ongeza Klabu
-    </button>
 
-  </div>
+      <p class="muted">
 
-  <div
-    id="clubStatus"
-    class="status">
-    Tayari.
-  </div>
+        Chagua sehemu yoyote kwenye menu
+        kusimamia taarifa za AFRN.
 
-  <div class="card">
+      </p>
 
-    <div class="tools">
-
-      <input
-        id="clubSearch"
-        type="search"
-        placeholder="Tafuta Club ID au jina...">
-
-      <button
-        id="refreshClubsBtn"
-        class="btn secondary">
-        ↻ Refresh
-      </button>
 
     </div>
 
-    <div id="clubsContainer">
-      Inapakia vilabu...
-    </div>
 
-  </div>
 
-</section>
+    <!-- =========================
+         STATISTICS
+    ========================== -->
 
+    <div class="stats-grid">
 
-<section id="players" class="page">
 
-  <div class="card">
+      <!-- CLUBS -->
 
-    <h2>👤 Wachezaji</h2>
+      <div class="stat-card">
 
-    <p class="muted">
-      Usimamizi wa wachezaji.
-    </p>
+        <strong id="dashClubs">
+          0
+        </strong>
 
-  </div>
+        <span>
+          Vilabu
+        </span>
 
-</section>
+      </div>
 
 
-<section id="contracts" class="page">
 
-  <div class="card">
+      <!-- PLAYERS -->
 
-    <h2>📄 Mikataba</h2>
+      <div class="stat-card">
 
-    <p class="muted">
-      Usimamizi wa mikataba.
-    </p>
+        <strong id="dashPlayers">
+          0
+        </strong>
 
-  </div>
+        <span>
+          Wachezaji
+        </span>
 
-</section>
+      </div>
 
 
-<section id="transfers" class="page">
 
-  <div class="card">
+      <!-- CONTRACTS -->
 
-    <h2>🔄 Uhamisho</h2>
+      <div class="stat-card">
 
-    <p class="muted">
-      Usimamizi wa uhamisho.
-    </p>
+        <strong id="dashContracts">
+          0
+        </strong>
 
-  </div>
+        <span>
+          Mikataba
+        </span>
 
-</section>
+      </div>
 
 
-<section id="competitions" class="page">
 
-  <div class="card">
+      <!-- TRANSFERS -->
 
-    <h2>🏆 Mashindano</h2>
+      <div class="stat-card">
 
-    <p class="muted">
-      Usimamizi wa mashindano.
-    </p>
+        <strong id="dashTransfers">
+          0
+        </strong>
 
-  </div>
+        <span>
+          Uhamisho
+        </span>
 
-</section>
+      </div>
 
 
-<section id="matches" class="page">
 
-  <div class="card">
+      <!-- COMPETITIONS -->
 
-    <h2>🏟️ Mechi</h2>
+      <div class="stat-card">
 
-    <p class="muted">
-      Ratiba na matokeo ya mechi.
-    </p>
+        <strong id="dashCompetitions">
+          0
+        </strong>
 
-  </div>
+        <span>
+          Mashindano
+        </span>
 
-</section>
+      </div>
 
 
-<section id="reports" class="page">
 
-  <div class="card">
+      <!-- MATCHES -->
 
-    <h2>📊 Ripoti</h2>
+      <div class="stat-card">
 
-    <p class="muted">
-      Ripoti za AFRN.
-    </p>
+        <strong id="dashMatches">
+          0
+        </strong>
 
-  </div>
+        <span>
+          Mechi
+        </span>
 
-</section>
+      </div>
 
-
-<div id="clubModal">
-
-  <div class="modal-box">
-
-    <h2 id="clubModalTitle">
-      ⚽ Ongeza Klabu
-    </h2>
-
-    <input
-      type="hidden"
-      id="editClubId">
-
-    <label>Jina la Klabu</label>
-
-    <input
-      id="clubName"
-      type="text"
-      placeholder="Mfano: AFRN FC">
-
-
-    <label>Daraja</label>
-
-    <select id="clubDivision">
-
-      <option value="">
-        Chagua Daraja
-      </option>
-
-      <option value="Daraja la 1">
-        Daraja la 1
-      </option>
-
-      <option value="Daraja la 2">
-        Daraja la 2
-      </option>
-
-      <option value="Daraja la 3">
-        Daraja la 3
-      </option>
-
-      <option value="Daraja la 4">
-        Daraja la 4
-      </option>
-
-    </select>
-
-
-    <label>Logo URL</label>
-
-    <input
-      id="clubLogoUrl"
-      type="url"
-      placeholder="https://...">
-
-
-    <label>Zone</label>
-
-    <input
-      id="clubZone"
-      type="text">
-
-
-    <label>Anwani</label>
-
-    <input
-      id="clubAddress"
-      type="text">
-
-
-    <label>Simu</label>
-
-    <input
-      id="clubPhone"
-      type="text">
-
-
-    <label>Email</label>
-
-    <input
-      id="clubEmail"
-      type="email">
-
-
-    <label>Mwaka</label>
-
-    <input
-      id="clubFoundedYear"
-      type="number">
-
-
-    <label>Status</label>
-
-    <select id="clubStatusSelect">
-
-      <option value="active">
-        Active
-      </option>
-
-      <option value="inactive">
-        Inactive
-      </option>
-
-    </select>
-
-
-    <div class="modal-actions">
-
-      <button
-        id="cancelClubBtn"
-        class="cancel-btn"
-        type="button">
-        Ghairi
-      </button>
-
-      <button
-        id="saveClubBtn"
-        class="save-btn"
-        type="button">
-        💾 Hifadhi
-      </button>
 
     </div>
 
-  </div>
 
-        </div>
-        <script>
 
-const db = window.supabaseClient;
+    <!-- =========================
+         SYSTEM MENU
+    ========================== -->
+
+    <div class="card">
+
+
+      <h2>
+        Mfumo wa AFRN
+      </h2>
+
+
+      <p class="muted">
+
+        Tumia menu hapo juu kufungua
+        sehemu mbalimbali za mfumo.
+
+      </p>
+
+
+
+      <div class="dashboard-links">
+
+
+        <!-- CLUBS -->
+
+        <a
+          href="./clubs.html"
+          class="dashboard-link">
+
+          ⚽
+
+          <strong>
+            Vilabu
+          </strong>
+
+          <span>
+            Dhibiti Daraja 1–4
+          </span>
+
+        </a>
+
+
+
+        <!-- PLAYERS -->
+
+        <a
+          href="./players.html"
+          class="dashboard-link">
+
+          👤
+
+          <strong>
+            Wachezaji
+          </strong>
+
+          <span>
+            Sajili na simamia wachezaji
+          </span>
+
+        </a>
+
+
+
+        <!-- CONTRACTS -->
+
+        <a
+          href="./contracts.html"
+          class="dashboard-link">
+
+          📄
+
+          <strong>
+            Mikataba
+          </strong>
+
+          <span>
+            Simamia mikataba ya wachezaji
+          </span>
+
+        </a>
+
+
+
+        <!-- TRANSFERS -->
+
+        <a
+          href="./transfers.html"
+          class="dashboard-link">
+
+          🔄
+
+          <strong>
+            Uhamisho
+          </strong>
+
+          <span>
+            Simamia uhamisho wa wachezaji
+          </span>
+
+        </a>
+
+
+
+        <!-- COMPETITIONS -->
+
+        <a
+          href="./competitions.html"
+          class="dashboard-link">
+
+          🏆
+
+          <strong>
+            Mashindano
+          </strong>
+
+          <span>
+            Simamia mashindano
+          </span>
+
+        </a>
+
+
+
+        <!-- MATCHES -->
+
+        <a
+          href="./matches.html"
+          class="dashboard-link">
+
+          🏟️
+
+          <strong>
+            Mechi
+          </strong>
+
+          <span>
+            Ratiba na matokeo
+          </span>
+
+        </a>
+
+
+
+        <!-- REPORTS -->
+
+        <a
+          href="./reports.html"
+          class="dashboard-link">
+
+          📊
+
+          <strong>
+            Ripoti
+          </strong>
+
+          <span>
+            Ripoti na takwimu za AFRN
+          </span>
+
+        </a>
+
+
+      </div>
+
+
+    </div>
+
+
+  </section>
+
+
+</main>
+
+
+
+<!-- =========================
+     SUPABASE
+========================= -->
+
+<script
+  src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2">
+</script>
+
+
+<script
+  src="./supabase-config.js">
+</script>
+
+
+
+<script>
+
+
+const db =
+  window.supabaseClient;
+
 
 
 /* =========================
-   NAVIGATION
-========================= */
-
-document
-  .querySelectorAll(".nav-btn")
-  .forEach(button => {
-
-    button.addEventListener("click", () => {
-
-      document
-        .querySelectorAll(".nav-btn")
-        .forEach(btn =>
-          btn.classList.remove("active")
-        );
-
-      document
-        .querySelectorAll(".page")
-        .forEach(page =>
-          page.classList.remove("active")
-        );
-
-      button.classList.add("active");
-
-      const page =
-        document.getElementById(
-          button.dataset.page
-        );
-
-      if (page) {
-        page.classList.add("active");
-      }
-
-    });
-
-  });
-
-
-/* =========================
-   TEST SUPABASE
+   SUPABASE CONNECTION
 ========================= */
 
 async function testConnection() {
+
 
   const status =
     document.getElementById(
       "connectionStatus"
     );
 
+
   if (!db) {
+
 
     status.textContent =
       "❌ Supabase haijaunganishwa.";
 
+
     return;
 
   }
+
+
 
   const { error } =
     await db
@@ -661,727 +497,139 @@ async function testConnection() {
       .select("id")
       .limit(1);
 
+
+
   if (error) {
 
+
     status.textContent =
-      "❌ Supabase error: " +
+      "❌ Supabase Error: " +
       error.message;
 
+
   } else {
+
 
     status.textContent =
       "✅ Supabase imeunganishwa vizuri.";
 
+
   }
 
 }
 
 
+
 /* =========================
-   LOAD CLUBS
+   DASHBOARD COUNTS
 ========================= */
 
-let allClubs = [];
+async function loadDashboard() {
 
 
-async function loadClubs() {
-
-  const container =
-    document.getElementById(
-      "clubsContainer"
-    );
-
-  container.innerHTML =
-    "⏳ Inapakia vilabu...";
+  if (!db) return;
 
 
-  const { data, error } =
-    await db
-      .from("clubs")
-      .select(`
-        id,
-        name,
-        logo_url,
-        zone,
-        phone,
-        email,
-        founded_year,
-        status,
-        club_code,
-        division,
-        founded
-      `)
-      .order(
-        "club_code",
-        { ascending: true }
-      );
+
+  const tables = [
 
 
-  if (error) {
-
-    container.innerHTML =
-      "❌ Error: " +
-      error.message;
-
-    return;
-
-  }
-
-
-  allClubs = data || [];
-
-
-  const dashClubs =
-    document.getElementById(
+    [
+      "clubs",
       "dashClubs"
-    );
-
-  if (dashClubs) {
-
-    dashClubs.textContent =
-      allClubs.length;
-
-  }
+    ],
 
 
-  renderClubs();
-
-}
-
-/* =========================
-   RENDER CLUBS
-========================= */
-
-function renderClubs() {
-
-  const container =
-    document.getElementById(
-      "clubsContainer"
-    );
-
-  const search =
-    document
-      .getElementById("clubSearch")
-      .value
-      .toLowerCase()
-      .trim();
+    [
+      "players",
+      "dashPlayers"
+    ],
 
 
-  const divisions = [
-    "Daraja la 1",
-    "Daraja la 2",
-    "Daraja la 3",
-    "Daraja la 4"
+    [
+      "player_contracts",
+      "dashContracts"
+    ],
+
+
+    [
+      "transfers",
+      "dashTransfers"
+    ],
+
+
+    [
+      "competitions",
+      "dashCompetitions"
+    ],
+
+
+    [
+      "matches",
+      "dashMatches"
+    ]
+
+
   ];
 
 
-  let html = "";
+
+  for (
+    const [table, elementId]
+    of tables
+  ) {
 
 
-  divisions.forEach(
-    division => {
-
-      const clubs =
-        allClubs.filter(
-          club => {
-
-            const text =
-              (
-                club.club_code || ""
-              ) +
-              " " +
-              (
-                club.name || ""
-              );
-
-            return (
-              club.division ===
-                division &&
-              text
-                .toLowerCase()
-                .includes(search)
-            );
-
+    const { count, error } =
+      await db
+        .from(table)
+        .select(
+          "id",
+          {
+            count: "exact",
+            head: true
           }
         );
 
 
-      html += `
 
-        <div class="division-section">
-
-          <h3 class="division-title">
-            ⚽ ${division}
-          </h3>
-
-      `;
+    if (!error) {
 
 
-      if (clubs.length === 0) {
+      const element =
+        document.getElementById(
+          elementId
+        );
 
-        html += `
 
-          <div class="card">
+      if (element) {
 
-            <p class="muted">
-              Hakuna klabu katika
-              ${division}.
-            </p>
 
-          </div>
+        element.textContent =
+          count || 0;
 
-        `;
 
       }
 
-
-      clubs.forEach(
-        club => {
-
-          const logo =
-            club.logo_url
-              ? `
-                <img
-                  class="club-logo"
-                  src="${club.logo_url}"
-                  alt="Logo">
-              `
-              : `
-                <div class="club-logo">
-                  ⚽
-                </div>
-              `;
-
-
-          html += `
-
-            <div class="club-card">
-
-              <div class="club-row">
-
-                ${logo}
-
-                <div>
-
-                  <div class="club-id">
-                    ${club.club_code || ""}
-                  </div>
-
-                  <div class="club-name">
-                    ${club.name || ""}
-                  </div>
-
-                  <div class="muted">
-                    ${club.zone || "Zone haijawekwa"}
-                  </div>
-
-                </div>
-
-              </div>
-
-
-              <div style="margin-top:10px">
-
-                <div>
-                  📍 ${club.address || "—"}
-                </div>
-
-                <div>
-                  📞 ${club.phone || "—"}
-                </div>
-
-                <div>
-                  ✉️ ${club.email || "—"}
-                </div>
-
-                <div>
-                  📅 ${club.founded_year || "—"}
-                </div>
-
-                <div>
-                  🟢 ${club.status || "—"}
-                </div>
-
-              </div>
-
-
-              <div class="club-actions">
-
-                <button
-                  class="btn-small edit-btn"
-                  onclick="editClub('${club.id}')">
-
-                  ✏️ Edit
-
-                </button>
-
-
-                <button
-                  class="btn-small view-btn"
-                  onclick="viewClub('${club.id}')">
-
-                  👁️ View
-
-                </button>
-
-              </div>
-
-            </div>
-
-          `;
-
-        }
-      );
-
-
-      html += `
-        </div>
-      `;
-
     }
-  );
 
-
-  container.innerHTML = html;
+  }
 
 }
 
 
-/* =========================
-   OPEN ADD CLUB
-========================= */
-
-document
-  .getElementById(
-    "openAddClubBtn"
-  )
-  .addEventListener(
-    "click",
-    () => {
-
-      document
-        .getElementById(
-          "clubModal"
-        )
-        .style.display =
-        "block";
-
-
-      document
-        .getElementById(
-          "clubModalTitle"
-        )
-        .textContent =
-        "⚽ Ongeza Klabu";
-
-
-      document
-        .getElementById(
-          "editClubId"
-        )
-        .value = "";
-
-
-      document
-        .getElementById(
-          "clubName"
-        )
-        .value = "";
-
-
-      document
-        .getElementById(
-          "clubDivision"
-        )
-        .value = "";
-
-
-      document
-        .getElementById(
-          "clubLogoUrl"
-        )
-        .value = "";
-
-
-      document
-        .getElementById(
-          "clubZone"
-        )
-        .value = "";
-
-
-      document
-        .getElementById(
-          "clubAddress"
-        )
-        .value = "";
-
-
-      document
-        .getElementById(
-          "clubPhone"
-        )
-        .value = "";
-
-
-      document
-        .getElementById(
-          "clubEmail"
-        )
-        .value = "";
-
-
-      document
-        .getElementById(
-          "clubFoundedYear"
-        )
-        .value = "";
-
-
-      document
-        .getElementById(
-          "clubStatusSelect"
-        )
-        .value =
-        "active";
-
-    }
-  );
-
 
 /* =========================
-   CLOSE MODAL
-========================= */
-
-document
-  .getElementById(
-    "cancelClubBtn"
-  )
-  .addEventListener(
-    "click",
-    () => {
-
-      document
-        .getElementById(
-          "clubModal"
-        )
-        .style.display =
-        "none";
-
-    }
-  );
-
-
-/* =========================
-   SAVE CLUB
-========================= */
-
-document
-  .getElementById(
-    "saveClubBtn"
-  )
-  .addEventListener(
-    "click",
-    async () => {
-
-      const id =
-        document
-          .getElementById(
-            "editClubId"
-          )
-          .value;
-
-
-      const name =
-        document
-          .getElementById(
-            "clubName"
-          )
-          .value
-          .trim();
-
-
-      const division =
-        document
-          .getElementById(
-            "clubDivision"
-          )
-          .value;
-
-
-      if (!name) {
-
-        alert(
-          "Tafadhali weka jina la klabu."
-        );
-
-        return;
-
-      }
-
-
-      if (!division) {
-
-        alert(
-          "Tafadhali chagua daraja."
-        );
-
-        return;
-
-      }
-
-
-      const club = {
-
-        name: name,
-
-        division: division,
-
-        logo_url:
-          document
-            .getElementById(
-              "clubLogoUrl"
-            )
-            .value
-            .trim() || null,
-
-        zone:
-          document
-            .getElementById(
-              "clubZone"
-            )
-            .value
-            .trim() || null,
-
-        address:
-          document
-            .getElementById(
-              "clubAddress"
-            )
-            .value
-            .trim() || null,
-
-        phone:
-          document
-            .getElementById(
-              "clubPhone"
-            )
-            .value
-            .trim() || null,
-
-        email:
-          document
-            .getElementById(
-              "clubEmail"
-            )
-            .value
-            .trim() || null,
-
-        founded_year:
-          document
-            .getElementById(
-              "clubFoundedYear"
-            )
-            .value
-            ? Number(
-                document
-                  .getElementById(
-                    "clubFoundedYear"
-                  )
-                  .value
-              )
-            : null,
-
-        status:
-          document
-            .getElementById(
-              "clubStatusSelect"
-            )
-            .value
-
-      };
-
-
-      let result;
-
-
-      if (id) {
-
-        result =
-          await db
-            .from("clubs")
-            .update(club)
-            .eq("id", id);
-
-      } else {
-
-        result =
-          await db
-            .from("clubs")
-            .insert(club);
-
-      }
-
-
-      if (result.error) {
-
-        alert(
-          "❌ Imeshindikana:\n" +
-          result.error.message
-        );
-
-        return;
-
-      }
-
-
-      document
-        .getElementById(
-          "clubModal"
-        )
-        .style.display =
-        "none";
-
-
-      await loadClubs();
-
-
-      alert(
-        "✅ Klabu imehifadhiwa vizuri."
-      );
-
-    }
-  );
-          /* =========================
-   EDIT CLUB
-========================= */
-
-window.editClub = async function(id) {
-
-  const { data, error } =
-    await db
-      .from("clubs")
-      .select("*")
-      .eq("id", id)
-      .single();
-
-  if (error) {
-    alert("❌ " + error.message);
-    return;
-  }
-
-  document.getElementById("editClubId").value =
-    data.id;
-
-  document.getElementById("clubModalTitle").textContent =
-    "✏️ Hariri Klabu";
-
-  document.getElementById("clubName").value =
-    data.name || "";
-
-  document.getElementById("clubDivision").value =
-    data.division || "";
-
-  document.getElementById("clubLogoUrl").value =
-    data.logo_url || "";
-
-  document.getElementById("clubZone").value =
-    data.zone || "";
-
-  document.getElementById("clubAddress").value =
-    data.address || "";
-
-  document.getElementById("clubPhone").value =
-    data.phone || "";
-
-    document.getElementById("clubAddress").value =
-    data.address || "";
-
-  document.getElementById("clubPhone").value =
-    data.phone || "";
-
-  document.getElementById("clubEmail").value =
-    data.email || "";
-
-  document.getElementById("clubFoundedYear").value =
-    data.founded_year || "";
-
-  document.getElementById("clubStatusSelect").value =
-    data.status || "active";
-
-  document.getElementById("clubModal").style.display =
-    "block";
-};
-
-
-/* =========================
-   VIEW CLUB
-========================= */
-
-window.viewClub = async function(id) {
-
-  const { data, error } =
-    await db
-      .from("clubs")
-      .select("*")
-      .eq("id", id)
-      .single();
-
-  if (error) {
-    alert("❌ " + error.message);
-    return;
-  }
-
-  alert(
-    "CLUB ID: " + (data.club_code || "—") +
-    "\n\nJina: " + (data.name || "—") +
-    "\nDaraja: " + (data.division || "—") +
-    "\nZone: " + (data.zone || "—") +
-    "\nAnwani: " + (data.address || "—") +
-    "\nSimu: " + (data.phone || "—") +
-    "\nEmail: " + (data.email || "—") +
-    "\nMwaka: " + (data.founded_year || "—") +
-    "\nStatus: " + (data.status || "—")
-  );
-
-};
-
-
-/* =========================
-   SEARCH
-========================= */
-
-document
-  .getElementById("clubSearch")
-  .addEventListener(
-    "input",
-    renderClubs
-  );
-
-
-/* =========================
-   REFRESH
-========================= */
-
-document
-  .getElementById("refreshClubsBtn")
-  .addEventListener(
-    "click",
-    loadClubs
-  );
-
-
-/* =========================
-   START SYSTEM
+   START DASHBOARD
 ========================= */
 
 testConnection();
 
-loadClubs();
+loadDashboard();
+
 
 </script>
 
-</main>
 
 </body>
 
