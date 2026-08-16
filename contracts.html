@@ -196,6 +196,8 @@ const $ = id =>
 
 async function loadData(){
 
+  console.log("LOAD DATA INAANZA");
+
   const p =
     await db
       .from("players")
@@ -210,15 +212,39 @@ async function loadData(){
 
   console.log("CLUBS:", c);
 
+  if(p.error){
+
+    $("status").textContent =
+      "❌ Players: " + p.error.message;
+
+    console.error(p.error);
+
+    return;
+  }
+
+  if(c.error){
+
+    $("status").textContent =
+      "❌ Clubs: " + c.error.message;
+
+    console.error(c.error);
+
+    return;
+  }
+
   players = p.data || [];
+
   clubs = c.data || [];
 
   loadPlayers();
+
   loadClubs();
 
   $("status").textContent =
-    "✅ Players: " + players.length +
-    " • Clubs: " + clubs.length;
+    "✅ Players: " +
+    players.length +
+    " • Clubs: " +
+    clubs.length;
 }
   function loadPlayers(){
 
