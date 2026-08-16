@@ -853,89 +853,84 @@ $("transferPlayerId")
     }
 
 
-    /* Klabu ya sasa ya mchezaji */
+    /* =====================================================
+   KLUBU YA SASA YA MCHEZAJI - AUTOMATIC
+===================================================== */
 
-    const currentClub =
-      clubs.find(
-        club =>
-          club.id ===
-          player.club_id
-      );
-
-
-    /* Jaza klabu anayopokea */
-
-    const fromSelect =
-      $("transferFromClubId");
-
-    fromSelect.innerHTML = `
-
-      <option value="${player.club_id}">
-        ${
-          currentClub?.name ||
-          "Klabu haijawekwa"
-        }
-      </option>
-
-    `;
+const currentClub =
+  clubs.find(
+    club =>
+      club.id ===
+      player.club_id
+  );
 
 
-    fromSelect.value =
-      player.club_id;
+$("fromClubId").value =
+  player.club_id || "";
+
+
+$("fromClubName").textContent =
+  player.club_id
+
+    ? "⚽ " +
+      (
+        currentClub?.name ||
+        "Klabu haijawekwa"
+      )
+
+    : "🆓 Free Agent";
 
 
     /* ============================================
-       KLUBU ANAYOENDA
-    ============================================ */
+   KLUBU ANAYOENDA
+============================================ */
 
-    const toSelect =
-      $("transferToClubId");
-
-    toSelect.innerHTML = `
-
-      <option value="">
-        Chagua Klabu Anayoenda
-      </option>
-
-    `;
+const toSelect =
+  $("toClubId");
 
 
-    clubs.forEach(club => {
+toSelect.innerHTML = `
 
-      /* Usionyeshe klabu yake ya sasa */
+  <option value="">
+    Chagua Klabu Anayoenda
+  </option>
 
-      if (
-        club.id ===
-        player.club_id
-      ) {
-
-        return;
-
-      }
+`;
 
 
-      const option =
-        document.createElement(
-          "option"
-        );
+clubs.forEach(club => {
 
+  /* Usionyeshe klabu yake ya sasa */
 
-      option.value =
-        club.id;
+  if (
+    club.id ===
+    player.club_id
+  ) {
 
-
-      option.textContent =
-        club.name;
-
-
-      toSelect.appendChild(
-        option
-      );
-
-    });
+    return;
 
   }
-);
+
+
+  const option =
+    document.createElement(
+      "option"
+    );
+
+
+  option.value =
+    club.id;
+
+
+  option.textContent =
+    club.name;
+
+
+  toSelect.appendChild(
+    option
+  );
+
+});
 
 
 /* =====================================================
@@ -1032,10 +1027,25 @@ function showSelectedPlayer() {
     $("playerTransferPreview")
       .classList.add("hidden");
 
+    $("fromClubId").value = "";
+
+    $("fromClubName").textContent =
+      "Chagua Mchezaji Kwanza";
+
+    $("toClubId").innerHTML = `
+      <option value="">
+        Chagua Klabu Anayoenda
+      </option>
+    `;
+
     return;
 
   }
 
+
+  /* ============================================
+     PLAYER PREVIEW
+  ============================================ */
 
   $("transferPlayerName")
     .textContent =
@@ -1064,14 +1074,82 @@ function showSelectedPlayer() {
     .classList.remove("hidden");
 
 
-  /* AUTOMATIC FROM CLUB */
+  /* ============================================
+     KLUBU YA SASA - AUTOMATIC
+  ============================================ */
 
-  if (player.club_id) {
+  const currentClub =
+    clubs.find(
+      club =>
+        club.id ===
+        player.club_id
+    );
 
-    $("fromClubId").value =
-      player.club_id;
 
-  }
+  $("fromClubId").value =
+    player.club_id || "";
+
+
+  $("fromClubName").textContent =
+    player.club_id
+
+      ? "⚽ " +
+        (
+          currentClub?.name ||
+          "Klabu haijawekwa"
+        )
+
+      : "🆓 Free Agent";
+
+
+  /* ============================================
+     KLUBU ANAYOENDA - CHAGUA
+  ============================================ */
+
+  const toSelect =
+    $("toClubId");
+
+
+  toSelect.innerHTML = `
+    <option value="">
+      Chagua Klabu Anayoenda
+    </option>
+  `;
+
+
+  clubs.forEach(club => {
+
+    /* Ondoa klabu yake ya sasa */
+
+    if (
+      club.id ===
+      player.club_id
+    ) {
+
+      return;
+
+    }
+
+
+    const option =
+      document.createElement(
+        "option"
+      );
+
+
+    option.value =
+      club.id;
+
+
+    option.textContent =
+      club.name;
+
+
+    toSelect.appendChild(
+      option
+    );
+
+  });
 
 
   checkTransferConflict();
@@ -1225,92 +1303,119 @@ function checkTransferConflict() {
   }
 
 
-  /* CHECK ACTIVE CONTRACT */
+  /* =====================================================
+   CHECK ACTIVE CONTRACT
+====================================================== */
 
-  if (!date) {
-    return;
-  }
-
-
-  const activeContract =
-    contracts.find(contract => {
-
-      if (
-        contract.player_id !==
-        playerId
-      ) {
-        return false;
-      }
+const playerId =
+  $("transferPlayerId").value;
 
 
-      if (
-        String(
-          contract.status || ""
-        ).toLowerCase() !==
-        "active"
-      ) {
-        return false;
-      }
+const fromClubId =
+  $("fromClubId").value;
 
 
-      if (
-        contract.end_date &&
-        contract.end_date <
-        date
-      ) {
-        return false;
-      }
+const date =
+  $("transferDate").value;
 
 
-      return true;
-
-    });
-
-
-  if (
-    activeContract &&
-    activeContract.club_id &&
-    fromClub &&
-    activeContract.club_id !==
-    fromClub
-  ) {
-
-    notice.className =
-      "notice error";
+const notice =
+  $("transferConflict");
 
 
-    notice.style.display =
-      "block";
+/* CHECK ACTIVE CONTRACT */
+
+if (!date) {
+
+  return;
+
+}
 
 
-    notice.innerHTML =
+const activeContract =
+  contracts.find(contract => {
 
-      "⚠️ <strong>Mkataba unaingiliana.</strong><br>" +
+    if (
+      contract.player_id !==
+      playerId
+    ) {
 
-      getPlayerName(
-        players.find(
-          p =>
-            p.id === playerId
-        )
-      ) +
+      return false;
 
-      " ana mkataba Active na " +
+    }
 
-      "<strong>" +
 
-      getClubName(
-        activeContract.club_id
-      ) +
+    if (
+      String(
+        contract.status || ""
+      ).toLowerCase() !==
+      "active"
+    ) {
 
-      "</strong>." +
+      return false;
 
-      "<br><br>" +
+    }
 
-      "Hakikisha huu ni " +
 
-      "<strong>uhamisho/mkopo halali</strong>.";
+    if (
+      contract.end_date &&
+      contract.end_date <
+      date
+    ) {
 
-  }
+      return false;
+
+    }
+
+
+    return true;
+
+  });
+
+
+if (
+  activeContract &&
+  activeContract.club_id &&
+  fromClubId &&
+  activeContract.club_id !==
+  fromClubId
+) {
+
+  notice.className =
+    "notice error";
+
+
+  notice.style.display =
+    "block";
+
+
+  notice.innerHTML =
+
+    "⚠️ <strong>Mkataba unaingiliana.</strong><br>" +
+
+    getPlayerName(
+      players.find(
+        p =>
+          p.id ===
+          playerId
+      )
+    ) +
+
+    " ana mkataba Active na " +
+
+    "<strong>" +
+
+    getClubName(
+      activeContract.club_id
+    ) +
+
+    "</strong>." +
+
+    "<br><br>" +
+
+    "Hakikisha huu ni " +
+
+    "<strong>uhamisho/mkopo halali</strong>.";
 
 }
 
@@ -1337,6 +1442,26 @@ async function openTransferForm() {
   $("transferConflict")
     .style.display =
     "none";
+
+
+  /* KLUBU YA SASA */
+
+  $("fromClubId").value =
+    "";
+
+  $("fromClubName").textContent =
+    "Chagua Mchezaji Kwanza";
+
+
+  /* KLUBU ANAYOENDA */
+
+  $("toClubId").innerHTML = `
+
+    <option value="">
+      Chagua Klabu Anayoenda
+    </option>
+
+  `;
 
 
   /* TAREHE YA LEO */
@@ -1369,11 +1494,9 @@ async function openTransferForm() {
     await generateTransferNumber();
 
 
-  /* LOAD OPTIONS */
+  /* LOAD PLAYERS */
 
   loadPlayerOptions();
-
-  loadClubOptions();
 
 
   /* FUNGUA FORM */
@@ -1431,13 +1554,6 @@ $("transferType")
   .addEventListener(
     "change",
     handleTransferType
-  );
-
-
-$("fromClubId")
-  .addEventListener(
-    "change",
-    checkTransferConflict
   );
 
 
@@ -2077,19 +2193,38 @@ if (
 }
 
 
-/* SAVE TRANSFER */
+/* =====================================================
+   SAVE TRANSFER
+===================================================== */
 
 const transferData = {
 
-  player_id: playerId,
-  from_club_id: fromClubId,
-  to_club_id: toClubId,
-  transfer_date: transferDate,
-  transfer_number: transferNumber,
-  status: transferStatus,
-  document_url: documentUrl,
-  notes: notes,
-  transfer_type: transferType,
+  player_id:
+    playerId,
+
+  from_club_id:
+    fromClubId,
+
+  to_club_id:
+    toClubId,
+
+  transfer_date:
+    transferDate,
+
+  transfer_number:
+    transferNumber,
+
+  status:
+    transferStatus,
+
+  document_url:
+    documentUrl,
+
+  notes:
+    notes,
+
+  transfer_type:
+    transferType,
 
   loan_end_date:
     transferType === "loan"
@@ -2102,13 +2237,20 @@ const transferData = {
 const result =
   await db
     .from("transfers")
-    .insert(transferData);
+    .insert(
+      transferData
+    );
 
 
 if (result.error) {
 
+  console.error(
+    "TRANSFER SAVE ERROR:",
+    result.error
+  );
+
   alert(
-    "❌ " +
+    "❌ Uhamisho haukuhifadhiwa:\n" +
     result.error.message
   );
 
@@ -2117,17 +2259,59 @@ if (result.error) {
 }
 
 
+/* =====================================================
+   UPDATE PLAYER CLUB
+===================================================== */
+
+const playerUpdate =
+  await db
+    .from("players")
+    .update({
+      club_id:
+        toClubId
+    })
+    .eq(
+      "id",
+      playerId
+    );
+
+
+if (playerUpdate.error) {
+
+  console.error(
+    "PLAYER CLUB UPDATE ERROR:",
+    playerUpdate.error
+  );
+
+  alert(
+    "⚠️ Uhamisho umehifadhiwa, " +
+    "lakini klabu ya mchezaji " +
+    "haikuweza kusasishwa:\n" +
+    playerUpdate.error.message
+  );
+
+  return;
+
+}
+
+
+/* =====================================================
+   SUCCESS
+===================================================== */
+
 alert(
-  "✅ Uhamisho umehifadhiwa."
+  "✅ Uhamisho umehifadhiwa " +
+  "na klabu ya mchezaji imesasishwa."
 );
 
 
 $("transferDialog").close();
 
+
 $("transferForm").reset();
 
+
 await loadTransferData();
-}
 /* ================================================
    RENDER TRANSFERS
 ================================================ */
