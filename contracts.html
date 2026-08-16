@@ -412,7 +412,7 @@ async function loadData(){
       return `
         <div class="card">
 
-          <h3>
+<h3>
   👤 ${
     [
       player?.first_name,
@@ -423,6 +423,10 @@ async function loadData(){
     .join(" ") || "Mchezaji"
   }
 </h3>
+
+<img
+  src="${player?.photo_url || ''}"
+  style="width:80px;height:80px;border-radius:50%;object-fit:cover;">
 
           <p>
             ⚽ ${club?.name || "-"}
