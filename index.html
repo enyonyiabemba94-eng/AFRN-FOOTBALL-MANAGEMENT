@@ -677,7 +677,7 @@ async function testConnection() {
 }
 
 
-/* =========================
+//* =========================
    LOAD CLUBS
 ========================= */
 
@@ -701,15 +701,16 @@ async function loadClubs() {
       .select(`
         id,
         name,
+        short_name,
         logo_url,
         zone,
-        address,
         phone,
         email,
         founded_year,
         status,
         club_code,
-        division
+        division,
+        founded
       `)
       .order(
         "club_code",
@@ -731,16 +732,22 @@ async function loadClubs() {
   allClubs = data || [];
 
 
-  document.getElementById(
-    "dashClubs"
-  ).textContent =
-    allClubs.length;
+  const dashClubs =
+    document.getElementById(
+      "dashClubs"
+    );
+
+  if (dashClubs) {
+
+    dashClubs.textContent =
+      allClubs.length;
+
+  }
 
 
   renderClubs();
 
 }
-
 
 /* =========================
    RENDER CLUBS
