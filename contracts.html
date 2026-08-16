@@ -199,22 +199,16 @@ async function loadData(){
   const p =
     await db
       .from("players")
-      .select("*")
-      .order("name");
+      .select("*");
+
+  console.log("PLAYERS:", p);
 
   const c =
     await db
       .from("clubs")
-      .select("*")
-      .order("name");
+      .select("*");
 
-  if(p.error || c.error){
-
-    $("status").textContent =
-      "❌ Imeshindikana kupakia data.";
-
-    return;
-  }
+  console.log("CLUBS:", c);
 
   players = p.data || [];
   clubs = c.data || [];
@@ -223,7 +217,8 @@ async function loadData(){
   loadClubs();
 
   $("status").textContent =
-    "✅ Supabase imeunganishwa";
+    "✅ Players: " + players.length +
+    " • Clubs: " + clubs.length;
 }
   function loadPlayers(){
 
