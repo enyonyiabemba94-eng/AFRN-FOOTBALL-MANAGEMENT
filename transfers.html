@@ -1554,16 +1554,13 @@ async function saveTransfer(event) {
   const file =
     $("transferDocument").files[0];
 
-
-  /* ================================================
-     BASIC VALIDATION
-  ================================================= */
+    /* =====================================================
+     VALIDATE
+  ====================================================== */
 
   if (!playerId) {
 
-    alert(
-      "⚠️ Chagua mchezaji kwanza."
-    );
+    alert("⚠️ Chagua mchezaji.");
 
     return;
 
@@ -1573,7 +1570,7 @@ async function saveTransfer(event) {
   if (!fromClubId) {
 
     alert(
-      "⚠️ Chagua klabu anayocheza/anayotoka."
+      "⚠️ Klabu anayocheza sasa haijapatikana."
     );
 
     return;
@@ -1592,13 +1589,10 @@ async function saveTransfer(event) {
   }
 
 
-  if (
-    fromClubId ===
-    toClubId
-  ) {
+  if (fromClubId === toClubId) {
 
     alert(
-      "⚠️ Klabu anayotoka na klabu anayoenda haziwezi kuwa moja."
+      "⚠️ Mchezaji hawezi kuhamishwa kwenda klabu ileile."
     );
 
     return;
@@ -1631,20 +1625,330 @@ async function saveTransfer(event) {
   }
 
 
-  if (
-    transferType === "loan" &&
-    loanEndDate <=
-    transferDate
-  ) {
+  /* ================================================
+   CHECK EXISTING ACTIVE CONTRACT
+================================================= */
+
+const activeContracts =
+  contracts.filter(contract => {
+
+    if (
+      contract.player_id !==
+      playerId
+    ) {
+
+      return false;
+
+    }
+
+    if (
+      String(
+        contract.status || ""
+      ).toLowerCase() !==
+      "active"
+    ) {
+
+      return false;
+
+    }
+
+    if (
+      contract.end_date &&
+      contract.end_date <
+      transferDate
+    ) {
+
+      return false;
+
+    }
+
+    return true;
+
+  });
+
+
+/* ================================================
+   CHECK ACTIVE CONTRACT RESULT
+================================================= */
+
+if (
+  activeContracts.length > 0
+) {
+
+  const activeContract =
+    activeContracts[0];
+
+
+  const player =
+    players.find(
+      p =>
+        p.id ===
+        playerId
+    );
+
+
+  const confirmed =
+    confirm(
+
+      "⚠️ Mkataba unaingiliana.\n\n" +
+
+      getPlayerName(
+        player
+      ) +
+
+      " ana mkataba Active na " +
+
+      getClubName(
+        activeContract.club_id
+      ) +
+
+      ".\n\n" +
+
+      "Hakikisha huu ni " +
+      "uhamisho/mkopo halali.\n\n" +
+
+      "Bonyeza OK kuendelea."
+
+    );
+
+
+  if (!confirmed) {
+
+    return;
+
+  }
+
+    }
+
+  /* =====================================================
+   UPLOAD TRANSFER DOCUMENT
+===================================================== */
+
+let documentUrl = null;
+
+
+if (file) {
+
+  const extension =
+    file.name
+      .split(".")
+      .pop()
+      .toLowerCase();
+
+
+  const fileName =
+    "transfer-" +
+    Date.now() +
+    "." +
+    extension;
+
+
+  const filePath =
+    STORAGE_FOLDER +
+    "/" +
+    fileName;
+
+
+  const uploadResult =
+    await db.storage
+      .from(STORAGE_BUCKET)
+      .upload(
+        filePath,
+        file,
+        {
+          upsert: false
+        }
+      );
+
+
+  if (uploadResult.error) {
 
     alert(
-      "⚠️ Tarehe ya mwisho wa mkopo lazima iwe baada ya tarehe ya kuanza."
+      "❌ Hati haikuweza kupakiwa:\n" +
+      uploadResult.error.message
     );
 
     return;
 
   }
 
+
+  const publicResult =
+    db.storage
+      .from(STORAGE_BUCKET)
+      .getPublicUrl(
+        filePath
+      );
+
+
+  documentUrl =
+    publicResult.data.publicUrl;
+
+}  
+
+  /* =====================================================
+     SAVE TRANSFER
+  ====================================================== */
+
+  const transferData = {
+
+    player_id:
+      playerId,
+
+    from_club_id:
+      fromClubId,
+
+    to_club_id:
+      toClubId,
+
+    transfer_date:
+      transferDate,
+
+    transfer_number:
+      transferNumber,
+
+    status:
+      transferStatus,
+
+    document_url:
+      documentUrl,
+
+    notes:
+      notes
+
+  };
+
+
+  const result =
+    await db
+      .from(TRANSFERS_TABLE)
+      .insert(
+        transferData
+      )
+      .select()
+      .single();
+
+
+  if (result.error) {
+
+    console.error(
+      "TRANSFER SAVE ERROR:",
+      result.error
+    );
+
+
+    alert(
+      "❌ Uhamisho haukuhifadhiwa:\n" +
+      result.error.message
+    );
+
+    return;
+
+  }
+
+
+  /* =====================================================
+     SUCCESS
+  ====================================================== */
+
+  alert(
+    "✅ Uhamisho umehifadhiwa kikamilifu."
+  );
+
+
+  $("transferDialog").close();
+
+
+  $("transferForm").reset();
+
+
+  await loadTransferData();
+
+}
+
+  /* ================================================
+   BASIC VALIDATION
+================================================ */
+
+if (!playerId) {
+
+  alert(
+    "⚠️ Chagua mchezaji kwanza."
+  );
+
+  return;
+
+}
+
+
+/* ================================================
+   VALIDATE CLUBS
+================================================ */
+
+if (!fromClubId) {
+
+  alert(
+    "⚠️ Klabu anayocheza sasa haijapatikana."
+  );
+
+  return;
+
+}
+
+
+if (!toClubId) {
+
+  alert(
+    "⚠️ Chagua klabu anayoenda."
+  );
+
+  return;
+
+}
+
+
+if (fromClubId === toClubId) {
+
+  alert(
+    "⚠️ Mchezaji hawezi kuhamishwa kwenda klabu ileile."
+  );
+
+  return;
+
+}
+
+
+/* ================================================
+   VALIDATE TRANSFER DATE
+================================================ */
+
+if (!transferDate) {
+
+  alert(
+    "⚠️ Weka tarehe ya uhamisho."
+  );
+
+  return;
+
+}
+
+
+/* ================================================
+   VALIDATE LOAN
+================================================ */
+
+if (
+  transferType === "loan" &&
+  !loanEndDate
+) {
+
+  alert(
+    "⚠️ Weka tarehe ya mwisho wa mkopo."
+  );
+
+  return;
+
+}
 
   /* ================================================
    CHECK EXISTING ACTIVE CONTRACT
