@@ -574,13 +574,14 @@ Itahifadhiwa kwenye Supabase Storage.
 <div>
 
 <label>
-Player ID Number *
+Player ID Number
 </label>
 
 <input
 class="field"
 id="playerIdNumber"
-required>
+readonly
+placeholder="Itatengenezwa automatic">
 
 </div>
 
@@ -1414,9 +1415,7 @@ $("cancelBtn").onclick = function(){
   const lastName =
     $("lastName").value.trim();
 
-  const playerIdNumber =
-    $("playerIdNumber").value.trim();
-
+  const playerIdNumber = null;
   const clubId =
     $("clubId").value;
 
@@ -1448,12 +1447,11 @@ $("cancelBtn").onclick = function(){
 
 
   if(
-    !firstName ||
-    !lastName ||
-    !playerIdNumber ||
-    !clubId ||
-    !position
-  ){
+  !firstName ||
+  !lastName ||
+  !clubId ||
+  !position
+){
 
     alert(
       "Jina, Player ID, Klabu na Nafasi ni lazima."
@@ -1558,10 +1556,7 @@ $("cancelBtn").onclick = function(){
       jerseyNumber,
 
     photo_url:
-      photoUrl || null,
-
-    player_id_number:
-      playerIdNumber,
+      photoUrl || null,  
 
     phone:
       phone || null,
