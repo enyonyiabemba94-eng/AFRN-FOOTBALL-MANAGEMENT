@@ -1321,18 +1321,18 @@ function checkTransferConflict() {
 
 async function openTransferForm() {
 
-  /* PAKIA DATA MPYA */
-  await loadTransferData();
-
-
   /* SAFISHA FORM */
 
   $("transferForm").reset();
 
 
+  /* FICHA PREVIEW */
+
   $("playerTransferPreview")
     .classList.add("hidden");
 
+
+  /* FICHA CONFLICT */
 
   $("transferConflict")
     .style.display =
@@ -1359,10 +1359,21 @@ async function openTransferForm() {
     false;
 
 
+  $("loanEndDate").value =
+    "";
+
+
   /* TRANSFER NUMBER */
 
   $("transferNumber").value =
     await generateTransferNumber();
+
+
+  /* LOAD OPTIONS */
+
+  loadPlayerOptions();
+
+  loadClubOptions();
 
 
   /* FUNGUA FORM */
