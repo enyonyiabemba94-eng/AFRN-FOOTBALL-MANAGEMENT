@@ -1824,58 +1824,109 @@ const activeContracts =
   });
 
 
-/* ================================================
-   CHECK ACTIVE CONTRACT RESULT
-================================================= */
+/* =====================================================
+   CHECK ACTIVE CONTRACT
+====================================================== */
 
-if (
-  activeContracts.length > 0
-) {
-
-  const activeContract =
-    activeContracts[0];
+const fromClubId =
+  $("fromClubId").value;
 
 
-  const player =
-    players.find(
-      p =>
-        p.id ===
-        playerId
-    );
+/* CHECK ACTIVE CONTRACT */
+
+if (!date) {
+
+  return;
+
+}
 
 
-  const confirmed =
-    confirm(
+const activeContract =
+  contracts.find(contract => {
 
-      "⚠️ Mkataba unaingiliana.\n\n" +
+    if (
+      contract.player_id !==
+      playerId
+    ) {
 
-      getPlayerName(
-        player
-      ) +
-
-      " ana mkataba Active na " +
-
-      getClubName(
-        activeContract.club_id
-      ) +
-
-      ".\n\n" +
-
-      "Hakikisha huu ni " +
-      "uhamisho/mkopo halali.\n\n" +
-
-      "Bonyeza OK kuendelea."
-
-    );
-
-
-  if (!confirmed) {
-
-    return;
-
-  }
+      return false;
 
     }
+
+
+    if (
+      String(
+        contract.status || ""
+      ).toLowerCase() !==
+      "active"
+    ) {
+
+      return false;
+
+    }
+
+
+    if (
+      contract.end_date &&
+      contract.end_date <
+      date
+    ) {
+
+      return false;
+
+    }
+
+
+    return true;
+
+  });
+
+
+if (
+  activeContract &&
+  activeContract.club_id &&
+  fromClubId &&
+  activeContract.club_id !==
+  fromClubId
+) {
+
+  notice.className =
+    "notice error";
+
+
+  notice.style.display =
+    "block";
+
+
+  notice.innerHTML =
+
+    "⚠️ <strong>Mkataba unaingiliana.</strong><br>" +
+
+    getPlayerName(
+      players.find(
+        p =>
+          p.id ===
+          playerId
+      )
+    ) +
+
+    " ana mkataba Active na " +
+
+    "<strong>" +
+
+    getClubName(
+      activeContract.club_id
+    ) +
+
+    "</strong>." +
+
+    "<br><br>" +
+
+    "Hakikisha huu ni " +
+
+    "<strong>uhamisho/mkopo halali</strong>.";
+
+}
 
   /* =====================================================
    UPLOAD TRANSFER DOCUMENT
