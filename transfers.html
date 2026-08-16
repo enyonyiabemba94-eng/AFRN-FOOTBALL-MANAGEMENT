@@ -854,7 +854,7 @@ $("transferPlayerId")
 
 
     /* =====================================================
-   KLUBU YA SASA YA MCHEZAJI - AUTOMATIC
+   KLABU YA SASA YA MCHEZAJI - AUTOMATIC
 ===================================================== */
 
 const currentClub =
@@ -1075,7 +1075,7 @@ function showSelectedPlayer() {
 
 
   /* ============================================
-     KLUBU YA SASA - AUTOMATIC
+     KLABU YA SASA - AUTOMATIC
   ============================================ */
 
   const currentClub =
@@ -1103,7 +1103,7 @@ function showSelectedPlayer() {
 
 
   /* ============================================
-     KLUBU ANAYOENDA - CHAGUA
+     KLABU ANAYOENDA - CHAGUA
   ============================================ */
 
   const toSelect =
@@ -1444,7 +1444,7 @@ async function openTransferForm() {
     "none";
 
 
-  /* KLUBU YA SASA */
+  /* KLABU YA SASA */
 
   $("fromClubId").value =
     "";
@@ -1453,7 +1453,7 @@ async function openTransferForm() {
     "Chagua Mchezaji Kwanza";
 
 
-  /* KLUBU ANAYOENDA */
+  /* KLABU ANAYOENDA */
 
   $("toClubId").innerHTML = `
 
@@ -1519,42 +1519,72 @@ function closeTransferForm() {
 
 
 /* =====================================================
-   EVENTS
-====================================================== */
+   TRANSFER EVENTS
+===================================================== */
 
-$("addTransferBtn")
-  .addEventListener(
+const addTransferBtn =
+  $("addTransferBtn");
+
+if (addTransferBtn) {
+
+  addTransferBtn.addEventListener(
     "click",
     openTransferForm
   );
 
+}
 
-$("closeTransferBtn")
-  .addEventListener(
+
+const closeTransferBtn =
+  $("closeTransferBtn");
+
+if (closeTransferBtn) {
+
+  closeTransferBtn.addEventListener(
     "click",
     closeTransferForm
   );
 
+}
 
-$("cancelTransferBtn")
-  .addEventListener(
+
+const cancelTransferBtn =
+  $("cancelTransferBtn");
+
+if (cancelTransferBtn) {
+
+  cancelTransferBtn.addEventListener(
     "click",
     closeTransferForm
   );
 
+}
 
-$("transferPlayerId")
-  .addEventListener(
+
+const transferPlayerId =
+  $("transferPlayerId");
+
+if (transferPlayerId) {
+
+  transferPlayerId.addEventListener(
     "change",
     showSelectedPlayer
   );
 
+}
 
-$("transferType")
-  .addEventListener(
+
+const transferType =
+  $("transferType");
+
+if (transferType) {
+
+  transferType.addEventListener(
     "change",
     handleTransferType
   );
+
+}
 
 
 $("toClubId")
