@@ -1420,8 +1420,23 @@ const CONTRACTS_TABLE = "player_contracts";
 const STORAGE_BUCKET = "AFRN FILES";
 const STORAGE_FOLDER = "transfers";
 
-
 let db = window.supabaseClient;
+
+db.auth.getSession().then(
+  ({ data, error }) => {
+
+    console.log(
+      "AFRN SESSION:",
+      data.session
+    );
+
+    console.log(
+      "AFRN SESSION ERROR:",
+      error
+    );
+
+  }
+);
 
 let players = [];
 let clubs = [];
