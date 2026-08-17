@@ -2635,41 +2635,6 @@ const transferData = {
 
 };
 
-
-/* =====================================================
-   CHECK AUTHENTICATION
-====================================================== */
-
-const {
-  data: {
-    user
-  },
-  error: authError
-} = await db.auth.getUser();
-
-
-if (authError || !user) {
-
-  console.error(
-    "AUTH ERROR:",
-    authError
-  );
-
-  alert(
-    "❌ Hujalogin. Tafadhali login kwanza."
-  );
-
-  return;
-
-}
-
-
-console.log(
-  "AUTHENTICATED USER:",
-  user.id
-);
-
-
 /* =====================================================
    SAVE TO SUPABASE
 ====================================================== */
