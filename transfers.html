@@ -2688,7 +2688,10 @@ function renderTransfers() {
   const searchInput =
   $("searchTransfer");
 
-const search = "";
+const search =
+  (searchInput?.value || "")
+    .trim()
+    .toLowerCase();
 
 
   container.innerHTML = "";
@@ -3008,6 +3011,63 @@ container.appendChild(card);
 
 });
 
+  }
+  function openTransferCertificateById(transferId) {
+
+  const transfer =
+    transfers.find(
+      t =>
+        String(t.id) ===
+        String(transferId)
+    );
+
+  if (!transfer) {
+    alert("❌ Uhamisho haujapatikana.");
+    return;
+  }
+
+  const player =
+    players.find(
+      p =>
+        String(p.id) ===
+        String(transfer.player_id)
+    );
+
+  if (!player) {
+    alert("❌ Mchezaji wa uhamisho hakupatikana.");
+    return;
+  }
+
+  const fromClub =
+    clubs.find(
+      c =>
+        String(c.id) ===
+        String(transfer.from_club_id)
+    );
+
+  const toClub =
+    clubs.find(
+      c =>
+        String(c.id) ===
+        String(transfer.to_club_id)
+    );
+
+  const dialog =
+    $("certificateDialog");
+
+  if (!dialog) {
+    alert("❌ Certificate haijapatikana kwenye ukurasa.");
+    return;
+  }
+
+  fillTransferCertificate(
+    transfer,
+    player,
+    fromClub,
+    toClub
+  );
+
+  dialog.showModal();
   }
   /* =====================================================
    START TRANSFER SYSTEM
