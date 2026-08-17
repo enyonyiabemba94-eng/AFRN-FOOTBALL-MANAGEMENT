@@ -2765,11 +2765,17 @@ const search = "";
     transfer => {
 
       const player =
-        players.find(
-          p =>
-            String(p.id) ===
-            String(transfer.player_id)
-        );
+  players.find(
+    p =>
+      String(p.id) ===
+      String(transfer.player_id)
+  );
+
+const playerPhoto =
+  player?.photo_url ||
+  player?.photo ||
+  player?.image_url ||
+  "";
 
 
       const playerName =
@@ -2820,19 +2826,62 @@ const search = "";
           "
         >
 
-          <div>
+          <div
+  style="
+    display:flex;
+    align-items:center;
+    gap:12px;
+  "
+>
 
-            <h3 style="margin:0 0 6px;">
-              👤 ${playerName}
-            </h3>
+  ${
+    playerPhoto
+      ? `
+        <img
+          src="${playerPhoto}"
+          alt="${playerName}"
+          style="
+            width:55px;
+            height:55px;
+            border-radius:50%;
+            object-fit:cover;
+            border:2px solid #d9e1ec;
+          "
+        >
+      `
+      : `
+        <div
+          style="
+            width:55px;
+            height:55px;
+            border-radius:50%;
+            background:#eef2f7;
+            display:flex;
+            align-items:center;
+            justify-content:center;
+            font-size:26px;
+          "
+        >
+          👤
+        </div>
+      `
+  }
 
-            <div>
-              🏠 ${fromClub}
-              →
-              ⚽ ${toClub}
-            </div>
+  <div>
 
-          </div>
+    <h3 style="margin:0 0 6px;">
+      ${playerName}
+    </h3>
+
+    <div>
+      🏠 ${fromClub}
+      →
+      ⚽ ${toClub}
+    </div>
+
+  </div>
+
+</div>
 
 
           <div>
