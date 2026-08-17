@@ -1422,22 +1422,6 @@ const STORAGE_FOLDER = "transfers";
 
 let db = window.supabaseClient;
 
-db.auth.getSession().then(
-  ({ data, error }) => {
-
-    console.log(
-      "AFRN SESSION:",
-      data.session
-    );
-
-    console.log(
-      "AFRN SESSION ERROR:",
-      error
-    );
-
-  }
-);
-
 let players = [];
 let clubs = [];
 let transfers = [];
