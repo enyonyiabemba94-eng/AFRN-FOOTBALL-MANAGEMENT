@@ -21,9 +21,7 @@
   --orange:#b54708;
 }
 
-*{
-  box-sizing:border-box;
-}
+*{box-sizing:border-box}
 
 body{
   margin:0;
@@ -131,21 +129,10 @@ button:hover{
   background:var(--blue-dark);
 }
 
-.btn-green{
-  background:var(--green);
-}
-
-.btn-red{
-  background:var(--red);
-}
-
-.btn-gray{
-  background:#667085;
-}
-
-.btn-orange{
-  background:var(--orange);
-}
+.btn-green{background:var(--green)}
+.btn-red{background:var(--red)}
+.btn-gray{background:#667085}
+.btn-orange{background:var(--orange)}
 
 .actions{
   display:flex;
@@ -216,7 +203,7 @@ button:hover{
 table{
   width:100%;
   border-collapse:collapse;
-  min-width:750px;
+  min-width:850px;
 }
 
 th,
@@ -254,13 +241,8 @@ th{
   font-size:13px;
 }
 
-.msg.ok{
-  color:var(--green);
-}
-
-.msg.error{
-  color:var(--red);
-}
+.msg.ok{color:var(--green)}
+.msg.error{color:var(--red)}
 
 .small{
   color:var(--muted);
@@ -291,19 +273,22 @@ th{
   width:auto;
 }
 
+.kpi{
+  padding:10px;
+  background:#f7f9fc;
+  border-radius:10px;
+}
+
+.kpi b{
+  display:block;
+  font-size:20px;
+  color:var(--navy);
+}
+
 @media(max-width:600px){
-
-  main{
-    padding:9px;
-  }
-
-  .card{
-    padding:12px;
-  }
-
-  header h1{
-    font-size:18px;
-  }
+  main{padding:9px}
+  .card{padding:12px}
+  header h1{font-size:18px}
 }
 </style>
 </head>
@@ -330,58 +315,58 @@ th{
 
 <div class="card">
 
-  <h2>🏆 Usimamizi wa Mashindano</h2>
+<h2>🏆 Usimamizi wa Mashindano</h2>
 
-  <div id="message" class="msg"></div>
+<div id="message" class="msg"></div>
 
-  <div class="tabs">
+<div class="tabs">
 
-    <button class="tab active" data-panel="competitionPanel">
-      🏆 Mashindano
-    </button>
+<button class="tab active" data-panel="competitionPanel">
+🏆 Mashindano
+</button>
 
-    <button class="tab" data-panel="teamsPanel">
-      👥 Timu
-    </button>
+<button class="tab" data-panel="teamsPanel">
+👥 Timu
+</button>
 
-    <button class="tab" data-panel="groupsPanel">
-      🅰️ Makundi
-    </button>
+<button class="tab" data-panel="groupsPanel">
+🅰️ Makundi
+</button>
 
-    <button class="tab" data-panel="fixturesPanel">
-      📅 Ratiba
-    </button>
+<button class="tab" data-panel="fixturesPanel">
+📅 Ratiba
+</button>
 
-    <button class="tab" data-panel="lineupPanel">
-      📝 Kikosi
-    </button>
+<button class="tab" data-panel="lineupPanel">
+📝 Kikosi
+</button>
 
-    <button class="tab" data-panel="eventsPanel">
-      ⚽ Matukio
-    </button>
+<button class="tab" data-panel="eventsPanel">
+⚽ Matukio
+</button>
 
-    <button class="tab" data-panel="standingsPanel">
-      📊 Msimamo
-    </button>
+<button class="tab" data-panel="standingsPanel">
+📊 Msimamo
+</button>
 
-    <button class="tab" data-panel="knockoutPanel">
-      🏆 Mtoano
-    </button>
+<button class="tab" data-panel="knockoutPanel">
+🏆 Mtoano
+</button>
 
-    <button class="tab" data-panel="statsPanel">
-      📈 Takwimu
-    </button>
+<button class="tab" data-panel="statsPanel">
+📈 Takwimu
+</button>
 
-    <button class="tab" data-panel="reportPanel">
-      📄 Ripoti
-    </button>
+<button class="tab" data-panel="reportPanel">
+📄 Ripoti
+</button>
 
-  </div>
+</div>
 </div>
 
 
 <!-- =====================================================
-     1. MASHINDANO
+     MASHINDANO
 ===================================================== -->
 
 <section id="competitionPanel" class="panel active">
@@ -406,26 +391,20 @@ placeholder="UPENDO WA WAKIMBIZI CUP 2026">
 
 <div>
 <label>Aina ya Mashindano</label>
-
 <select id="competitionType">
-
 <option value="League">Ligi</option>
 <option value="Cup">Kombe</option>
 <option value="Tournament">Mashindano</option>
-
 </select>
 </div>
 
 <div>
 <label>Daraja</label>
-
 <select id="competitionLevel">
-
 <option>Daraja la Kwanza</option>
 <option>Daraja la Pili</option>
 <option>Daraja la Tatu</option>
 <option>Daraja la Nne</option>
-
 </select>
 </div>
 
@@ -436,26 +415,20 @@ placeholder="UPENDO WA WAKIMBIZI CUP 2026">
 
 <div>
 <label>Muundo</label>
-
 <select id="competitionFormat">
-
 <option value="League">Ligi</option>
 <option value="Group Stage">Hatua ya Makundi</option>
 <option value="Knockout">Mtoano</option>
 <option value="Group + Knockout">Makundi + Mtoano</option>
-
 </select>
 </div>
 
 <div>
 <label>Hali</label>
-
 <select id="competitionStatus">
-
 <option value="Planned">Inajiandaa</option>
 <option value="Ongoing">Inaendelea</option>
 <option value="Completed">Imemalizika</option>
-
 </select>
 </div>
 
@@ -490,17 +463,17 @@ placeholder="Maelezo ya mashindano..."></textarea>
 
 <div>
 <label>Ushindi</label>
-<input id="winPoints" type="number" value="3">
+<input id="winPoints" type="number" min="0" value="3">
 </div>
 
 <div>
 <label>Sare</label>
-<input id="drawPoints" type="number" value="1">
+<input id="drawPoints" type="number" min="0" value="1">
 </div>
 
 <div>
 <label>Kufungwa</label>
-<input id="lossPoints" type="number" value="0">
+<input id="lossPoints" type="number" min="0" value="0">
 </div>
 
 </div>
@@ -508,14 +481,14 @@ placeholder="Maelezo ya mashindano..."></textarea>
 
 <div class="notice" style="margin-top:15px">
 
-<strong>Vigezo vya kupanga timu zikiwa na pointi sawa:</strong>
+<strong>Vigezo rasmi vya kupanga timu zikiwa na pointi sawa:</strong>
 
-<br>1. Pointi
-<br>2. Magoli ya Kufunga
-<br>3. Magoli ya Kufungwa
-<br>4. Kadi Nyekundu
-<br>5. Kadi za Njano
-<br>6. Sarafu
+<br>1. Pointi — nyingi zaidi
+<br>2. Magoli ya Kufunga — mengi zaidi
+<br>3. Magoli ya Kufungwa — machache zaidi
+<br>4. Kadi Nyekundu — chache zaidi
+<br>5. Kadi za Njano — chache zaidi
+<br>6. Sarafu — uamuzi wa mwisho wa kamati/waamuzi wa mashindano
 
 </div>
 
@@ -585,7 +558,6 @@ placeholder="Tafuta kwa jina la mashindano...">
 <table>
 
 <thead>
-
 <tr>
 <th>#</th>
 <th>Jina</th>
@@ -596,7 +568,6 @@ placeholder="Tafuta kwa jina la mashindano...">
 <th>Hali</th>
 <th>Vitendo</th>
 </tr>
-
 </thead>
 
 <tbody id="competitionTable"></tbody>
@@ -604,14 +575,13 @@ placeholder="Tafuta kwa jina la mashindano...">
 </table>
 
 </div>
-
 </div>
 
 </section>
 
 
 <!-- =====================================================
-     2. TIMU
+     TIMU
 ===================================================== -->
 
 <section id="teamsPanel" class="panel">
@@ -623,39 +593,13 @@ placeholder="Tafuta kwa jina la mashindano...">
 <div class="grid">
 
 <div>
-
 <label>Mashindano</label>
-
 <select id="teamCompetition"></select>
-
 </div>
 
 <div>
-
 <label>Klabu</label>
-
 <select id="teamClub"></select>
-
-</div>
-
-<div>
-
-<label>Kundi</label>
-
-<select id="teamGroup">
-
-<option value="">Bila Kundi</option>
-<option value="A">Kundi A</option>
-<option value="B">Kundi B</option>
-<option value="C">Kundi C</option>
-<option value="D">Kundi D</option>
-<option value="E">Kundi E</option>
-<option value="F">Kundi F</option>
-<option value="G">Kundi G</option>
-<option value="H">Kundi H</option>
-
-</select>
-
 </div>
 
 </div>
@@ -682,15 +626,12 @@ onclick="saveCompetitionTeam()">
 <table>
 
 <thead>
-
 <tr>
 <th>#</th>
 <th>Mashindano</th>
 <th>Klabu</th>
-<th>Kundi</th>
 <th>Vitendo</th>
 </tr>
-
 </thead>
 
 <tbody id="teamTable"></tbody>
@@ -705,7 +646,7 @@ onclick="saveCompetitionTeam()">
 
 
 <!-- =====================================================
-     3. MAKUNDI
+     MAKUNDI
 ===================================================== -->
 
 <section id="groupsPanel" class="panel">
@@ -714,29 +655,16 @@ onclick="saveCompetitionTeam()">
 
 <h3>🅰️ Makundi ya Mashindano</h3>
 
-<div class="notice">
-
-Makundi yatachukua timu kutoka kwenye
-<strong>competition_teams</strong>.
-
-</div>
-
 <div class="grid">
 
 <div>
-
 <label>Mashindano</label>
-
 <select id="groupCompetition"></select>
-
 </div>
 
 <div>
-
 <label>Kundi</label>
-
 <select id="groupSelect">
-
 <option>A</option>
 <option>B</option>
 <option>C</option>
@@ -745,9 +673,7 @@ Makundi yatachukua timu kutoka kwenye
 <option>F</option>
 <option>G</option>
 <option>H</option>
-
 </select>
-
 </div>
 
 </div>
@@ -762,12 +688,13 @@ Makundi yatachukua timu kutoka kwenye
 
 </div>
 
-
 <div class="card">
 
 <h3>📋 Timu za Kundi</h3>
 
-<div id="groupTeamsResult"></div>
+<div id="groupTeamsResult">
+Chagua mashindano na kundi.
+</div>
 
 </div>
 
@@ -775,7 +702,7 @@ Makundi yatachukua timu kutoka kwenye
 
 
 <!-- =====================================================
-     4. RATIBA
+     RATIBA
 ===================================================== -->
 
 <section id="fixturesPanel" class="panel">
@@ -787,73 +714,42 @@ Makundi yatachukua timu kutoka kwenye
 <div class="grid">
 
 <div>
-
 <label>Mashindano</label>
-
 <select id="fixtureCompetition"></select>
-
 </div>
 
 <div>
-
 <label>Hatua</label>
 
 <select id="fixtureStage">
-
-<option value="Group Stage">
-Hatua ya Makundi
-</option>
-
-<option value="Round of 16">
-Raundi ya 16
-</option>
-
-<option value="Quarter Final">
-Robo Fainali
-</option>
-
-<option value="Semi Final">
-Nusu Fainali
-</option>
-
-<option value="Final">
-Fainali
-</option>
-
-<option value="Third Place">
-Mshindi wa Tatu
-</option>
-
+<option value="Group Stage">Hatua ya Makundi</option>
+<option value="Round of 16">Raundi ya 16</option>
+<option value="Quarter Final">Robo Fainali</option>
+<option value="Semi Final">Nusu Fainali</option>
+<option value="Final">Fainali</option>
+<option value="Third Place">Mshindi wa Tatu</option>
 </select>
 
 </div>
 
 <div>
-
 <label>Tarehe</label>
 <input id="fixtureDate" type="date">
-
 </div>
 
 <div>
-
 <label>Saa</label>
 <input id="fixtureTime" type="time">
-
 </div>
 
 <div>
-
 <label>Uwanja</label>
 <input id="fixtureVenue">
-
 </div>
 
 <div>
-
 <label>Mwamuzi</label>
 <input id="fixtureReferee">
-
 </div>
 
 </div>
@@ -862,19 +758,13 @@ Mshindi wa Tatu
 <div class="grid" style="margin-top:12px">
 
 <div>
-
 <label>Timu Mwenyeji</label>
-
 <select id="homeTeam"></select>
-
 </div>
 
 <div>
-
 <label>Timu Mgeni</label>
-
 <select id="awayTeam"></select>
-
 </div>
 
 </div>
@@ -902,17 +792,17 @@ onclick="saveMatch()">
 <table>
 
 <thead>
-
 <tr>
 <th>#</th>
 <th>Tarehe</th>
+<th>Saa</th>
 <th>Hatua</th>
 <th>Mwenyeji</th>
 <th>Matokeo</th>
 <th>Mgeni</th>
 <th>Uwanja</th>
+<th>Vitendo</th>
 </tr>
-
 </thead>
 
 <tbody id="fixtureTable"></tbody>
@@ -927,7 +817,7 @@ onclick="saveMatch()">
 
 
 <!-- =====================================================
-     5. KIKOSI
+     KIKOSI
 ===================================================== -->
 
 <section id="lineupPanel" class="panel">
@@ -938,27 +828,21 @@ onclick="saveMatch()">
 
 <div class="notice">
 
-Hapa tunaweka kikosi halisi cha siku hiyo:
-<strong>kikosi cha kuanza + wachezaji wa akiba.</strong>
+Hapa unaweka kikosi halisi cha siku hiyo:
+<strong>kikosi cha kuanza na wachezaji wa akiba.</strong>
 
 </div>
 
 <div class="grid">
 
 <div>
-
 <label>Mechi</label>
-
 <select id="lineupMatch"></select>
-
 </div>
 
 <div>
-
 <label>Timu</label>
-
 <select id="lineupTeam"></select>
-
 </div>
 
 </div>
@@ -988,13 +872,18 @@ onclick="saveLineup()">
 
 </div>
 
+<div class="small" style="margin-top:10px">
+Kumbuka: kuhifadhi kikosi kunahitaji table ya kikosi kwenye database.
+Mfumo huu hautengenezi table mpya wala kubadilisha schema yako.
+</div>
+
 </div>
 
 </section>
 
 
 <!-- =====================================================
-     6. MATUKIO
+     MATUKIO
 ===================================================== -->
 
 <section id="eventsPanel" class="panel">
@@ -1006,73 +895,37 @@ onclick="saveLineup()">
 <div class="grid">
 
 <div>
-
 <label>Mechi</label>
-
 <select id="eventMatch"></select>
-
 </div>
 
 <div>
-
 <label>Timu</label>
-
 <select id="eventTeam"></select>
-
 </div>
 
 <div>
-
 <label>Mchezaji</label>
-
 <select id="eventPlayer"></select>
-
 </div>
 
 <div>
-
 <label>Tukio</label>
 
 <select id="eventType">
-
-<option value="goal">
-⚽ Goli
-</option>
-
-<option value="assist">
-🅰️ Assist
-</option>
-
-<option value="yellow">
-🟨 Kadi ya Njano
-</option>
-
-<option value="red">
-🟥 Kadi Nyekundu
-</option>
-
-<option value="substitution_in">
-🔄 Kuingia
-</option>
-
-<option value="substitution_out">
-↩️ Kutoka
-</option>
-
+<option value="goal">⚽ Goli</option>
+<option value="assist">🅰️ Assist</option>
+<option value="yellow">🟨 Kadi ya Njano</option>
+<option value="red">🟥 Kadi Nyekundu</option>
+<option value="substitution_in">🔄 Kuingia</option>
+<option value="substitution_out">↩️ Kutoka</option>
 </select>
 
 </div>
 
 <div>
-
 <label>Dakika</label>
-
-<input
-id="eventMinute"
-type="number"
-min="1"
-max="130">
-
+<input id="eventMinute" type="number" min="1" max="130">
 </div>
 
 </div>
@@ -1094,7 +947,7 @@ onclick="saveMatchEvent()">
 
 
 <!-- =====================================================
-     7. MSIMAMO
+     MSIMAMO
 ===================================================== -->
 
 <section id="standingsPanel" class="panel">
@@ -1106,19 +959,13 @@ onclick="saveMatchEvent()">
 <div class="grid">
 
 <div>
-
 <label>Mashindano</label>
-
 <select id="standingCompetition"></select>
-
 </div>
 
 <div>
-
 <label>Kundi</label>
-
 <select id="standingGroup">
-
 <option value="">Mashindano yote</option>
 <option>A</option>
 <option>B</option>
@@ -1126,9 +973,9 @@ onclick="saveMatchEvent()">
 <option>D</option>
 <option>E</option>
 <option>F</option>
-
+<option>G</option>
+<option>H</option>
 </select>
-
 </div>
 
 </div>
@@ -1161,9 +1008,11 @@ onclick="saveMatchEvent()">
 <th>K</th>
 <th>Magoli ya Kufunga</th>
 <th>Magoli ya Kufungwa</th>
+<th>Tofauti</th>
 <th>🟥</th>
 <th>🟨</th>
 <th>Pointi</th>
+<th>🪙 Sarafu</th>
 </tr>
 
 </thead>
@@ -1179,13 +1028,13 @@ onclick="saveMatchEvent()">
 
 <div class="notice">
 
-<strong>Mpangilio wa kupanga:</strong>
+<strong>Mpangilio rasmi:</strong>
 
 <br>1. Pointi
-<br>2. Magoli ya Kufunga
-<br>3. Magoli ya Kufungwa
-<br>4. Kadi Nyekundu
-<br>5. Kadi za Njano
+<br>2. Magoli ya Kufunga — mengi
+<br>3. Magoli ya Kufungwa — machache
+<br>4. Kadi Nyekundu — chache
+<br>5. Kadi za Njano — chache
 <br>6. Sarafu
 
 </div>
@@ -1194,7 +1043,7 @@ onclick="saveMatchEvent()">
 
 
 <!-- =====================================================
-     8. MTOANO
+     MTOANO
 ===================================================== -->
 
 <section id="knockoutPanel" class="panel">
@@ -1206,35 +1055,41 @@ onclick="saveMatchEvent()">
 <div class="grid">
 
 <div>
-
 <label>Mashindano</label>
-
 <select id="knockoutCompetition"></select>
-
 </div>
 
 <div>
-
 <label>Hatua</label>
 
 <select id="knockoutStage">
-
 <option>Raundi ya 16</option>
 <option>Robo Fainali</option>
 <option>Nusu Fainali</option>
 <option>Fainali</option>
 <option>Mechi ya Mshindi wa Tatu</option>
-
 </select>
 
 </div>
 
 </div>
 
-<div class="notice" style="margin-top:12px">
+<div class="actions">
 
-Timu zitakazofuzu zitatokana na msimamo wa mashindano.
+<button onclick="generateKnockout()">
+🏆 Tengeneza Mtoano
+</button>
 
+</div>
+
+</div>
+
+<div class="card">
+
+<h3>📋 Timu za Mtoano</h3>
+
+<div id="knockoutResult">
+Chagua mashindano kisha bonyeza Tengeneza Mtoano.
 </div>
 
 </div>
@@ -1243,7 +1098,7 @@ Timu zitakazofuzu zitatokana na msimamo wa mashindano.
 
 
 <!-- =====================================================
-     9. TAKWIMU
+     TAKWIMU
 ===================================================== -->
 
 <section id="statsPanel" class="panel">
@@ -1285,7 +1140,7 @@ Timu zitakazofuzu zitatokana na msimamo wa mashindano.
 
 
 <!-- =====================================================
-     10. RIPOTI
+     RIPOTI
 ===================================================== -->
 
 <section id="reportPanel" class="panel">
@@ -1297,11 +1152,8 @@ Timu zitakazofuzu zitatokana na msimamo wa mashindano.
 <div class="grid">
 
 <div>
-
 <label>Mashindano</label>
-
 <select id="reportCompetition"></select>
-
 </div>
 
 </div>
@@ -1351,8 +1203,8 @@ const SUPABASE_ANON_KEY =
 
 const db =
 supabase.createClient(
-  SUPABASE_URL,
-  SUPABASE_ANON_KEY
+SUPABASE_URL,
+SUPABASE_ANON_KEY
 );
 
 
@@ -1360,12 +1212,12 @@ supabase.createClient(
    DATA
 ===================================================== */
 
-let competitions = [];
-let clubs = [];
-let competitionTeams = [];
-let matches = [];
-let players = [];
-let matchEvents = [];
+let competitions=[];
+let clubs=[];
+let competitionTeams=[];
+let matches=[];
+let players=[];
+let matchEvents=[];
 
 
 /* =====================================================
@@ -1375,32 +1227,29 @@ let matchEvents = [];
 const $ = id =>
 document.getElementById(id);
 
+
 function escapeHTML(value){
 
 return String(value ?? "")
-.replace(/[&<>"']/g, function(char){
-
-return {
+.replace(/[&<>"']/g,char=>({
 "&":"&amp;",
 "<":"&lt;",
 ">":"&gt;",
 '"':"&quot;",
 "'":"&#039;"
-}[char];
-
-});
+}[char]));
 
 }
 
 
 function showMessage(text,error=false){
 
-const box = $("message");
+const box=$("message");
 
-box.textContent = text;
+box.textContent=text;
 
-box.className =
-"msg " + (error ? "error" : "ok");
+box.className=
+"msg "+(error?"error":"ok");
 
 setTimeout(()=>{
 
@@ -1412,14 +1261,26 @@ box.className="msg";
 }
 
 
-function clubName(id){
+function getClubId(team){
 
-const club =
-clubs.find(c =>
-String(c.id) === String(id)
+return (
+team.club_id ??
+team.clubId ??
+team.team_id ??
+team.team ??
+null
 );
 
-if(!club) return "-";
+}
+
+
+function clubName(id){
+
+const club=clubs.find(c=>
+String(c.id)===String(id)
+);
+
+if(!club)return "-";
 
 return (
 club.name ||
@@ -1433,18 +1294,20 @@ club.title ||
 
 function playerName(id){
 
-const p =
-players.find(x =>
-String(x.id) === String(id)
+const p=players.find(x=>
+String(x.id)===String(id)
 );
 
-if(!p) return "-";
+if(!p)return "-";
 
 return (
 p.full_name ||
 p.name ||
 p.player_name ||
-[p.first_name,p.last_name]
+[
+p.first_name,
+p.last_name
+]
 .filter(Boolean)
 .join(" ") ||
 "-"
@@ -1453,22 +1316,62 @@ p.player_name ||
 }
 
 
+function matchHomeId(m){
+
+return (
+m.home_team_id ??
+m.home_club_id ??
+m.home_id ??
+null
+);
+
+}
+
+
+function matchAwayId(m){
+
+return (
+m.away_team_id ??
+m.away_club_id ??
+m.away_id ??
+null
+);
+
+}
+
+
+function matchHomeScore(m){
+
+return Number(
+m.home_score ??
+m.home_goals ??
+0
+);
+
+}
+
+
+function matchAwayScore(m){
+
+return Number(
+m.away_score ??
+m.away_goals ??
+0
+);
+
+}
+
+
 /* =====================================================
-   LOAD DATA
+   SUPABASE READ
 ===================================================== */
 
 async function loadData(){
 
 try{
 
-const [
-competitionResult,
-clubResult,
-competitionTeamResult,
-matchResult,
-playerResult,
-eventResult
-] = await Promise.all([
+const results=
+await Promise.all([
 
 db.from("competitions").select("*"),
 
@@ -1485,51 +1388,55 @@ db.from("match_events").select("*")
 ]);
 
 
-if(competitionResult.error)
-throw competitionResult.error;
-
-if(clubResult.error)
-throw clubResult.error;
-
-if(competitionTeamResult.error)
-throw competitionTeamResult.error;
-
-if(matchResult.error)
-throw matchResult.error;
-
-if(playerResult.error)
-throw playerResult.error;
-
-if(eventResult.error)
-throw eventResult.error;
+const names=[
+"competitions",
+"clubs",
+"competition_teams",
+"matches",
+"players",
+"match_events"
+];
 
 
-competitions =
-competitionResult.data || [];
+for(let i=0;i<results.length;i++){
 
-clubs =
-clubResult.data || [];
+if(results[i].error){
 
-competitionTeams =
-competitionTeamResult.data || [];
+throw new Error(
+names[i]+": "+
+results[i].error.message
+);
 
-matches =
-matchResult.data || [];
+}
 
-players =
-playerResult.data || [];
+}
 
-matchEvents =
-eventResult.data || [];
+
+competitions=
+results[0].data || [];
+
+clubs=
+results[1].data || [];
+
+competitionTeams=
+results[2].data || [];
+
+matches=
+results[3].data || [];
+
+players=
+results[4].data || [];
+
+matchEvents=
+results[5].data || [];
 
 
 renderEverything();
 
-
 }catch(error){
 
 showMessage(
-"Imeshindikana kusoma Supabase: " +
+"Imeshindikana kusoma Supabase: "+
 error.message,
 true
 );
@@ -1540,24 +1447,27 @@ true
 
 
 /* =====================================================
-   RENDER EVERYTHING
+   RENDER
 ===================================================== */
 
 function renderEverything(){
 
-$("competitionCount").textContent =
+$("competitionCount").textContent=
 competitions.length;
 
-$("teamCount").textContent =
+$("teamCount").textContent=
 competitionTeams.length;
 
-$("matchCount").textContent =
+$("matchCount").textContent=
 matches.length;
 
-$("goalCount").textContent =
-matchEvents.filter(e =>
-String(e.event_type || e.type || "")
-.toLowerCase() === "goal"
+$("goalCount").textContent=
+matchEvents.filter(e=>
+String(
+e.event_type ||
+e.type ||
+""
+).toLowerCase()==="goal"
 ).length;
 
 renderCompetitions();
@@ -1578,20 +1488,19 @@ renderStats();
 
 
 /* =====================================================
-   COMPETITION
+   COMPETITION SAVE
 ===================================================== */
 
 $("competitionForm").addEventListener(
 "submit",
-async function(event){
+async function(e){
 
-event.preventDefault();
+e.preventDefault();
 
-const id =
+const id=
 $("competitionId").value.trim();
 
-
-const data = {
+const data={
 
 name:
 $("competitionName").value.trim(),
@@ -1603,7 +1512,7 @@ level:
 $("competitionLevel").value,
 
 season:
-$("competitionSeason").value,
+$("competitionSeason").value.trim(),
 
 format:
 $("competitionFormat").value,
@@ -1628,7 +1537,6 @@ true
 );
 
 return;
-
 }
 
 
@@ -1636,10 +1544,9 @@ try{
 
 let result;
 
-
 if(id){
 
-result =
+result=
 await db
 .from("competitions")
 .update(data)
@@ -1647,7 +1554,7 @@ await db
 
 }else{
 
-result =
+result=
 await db
 .from("competitions")
 .insert([data]);
@@ -1661,20 +1568,18 @@ throw result.error;
 
 showMessage(
 id
-? "Mashindano yamehaririwa."
-: "Mashindano yamehifadhiwa."
+?"Mashindano yamehaririwa."
+:"Mashindano yamehifadhiwa."
 );
-
 
 resetCompetitionForm();
 
 await loadData();
 
-
 }catch(error){
 
 showMessage(
-"Hifadhi imekataa: " +
+"Hifadhi ya mashindano imekataa: "+
 error.message,
 true
 );
@@ -1684,17 +1589,20 @@ true
 });
 
 
+/* =====================================================
+   COMPETITION LIST
+===================================================== */
+
 function renderCompetitions(){
 
-const search =
+const search=
 $("competitionSearch")
 .value
 .toLowerCase()
 .trim();
 
-
-const list =
-competitions.filter(c =>
+const list=
+competitions.filter(c=>
 String(
 c.name ||
 c.title ||
@@ -1706,14 +1614,12 @@ c.competition_name ||
 );
 
 
-$("competitionTable").innerHTML =
-list.map((c,index)=>{
-
-return `
+$("competitionTable").innerHTML=
+list.map((c,i)=>`
 
 <tr>
 
-<td>${index+1}</td>
+<td>${i+1}</td>
 
 <td>
 <strong>
@@ -1743,9 +1649,7 @@ c.division ||
 </td>
 
 <td>
-${escapeHTML(
-c.season || "-"
-)}
+${escapeHTML(c.season||"-")}
 </td>
 
 <td>
@@ -1758,9 +1662,7 @@ c.competition_format ||
 
 <td>
 <span class="badge">
-${escapeHTML(
-c.status || "-"
-)}
+${escapeHTML(c.status||"-")}
 </span>
 </td>
 
@@ -1785,9 +1687,7 @@ onclick="deleteCompetition('${c.id}')">
 
 </tr>
 
-`;
-
-}).join("")
+`).join("")
 ||
 `
 <tr>
@@ -1807,46 +1707,47 @@ renderCompetitions
 );
 
 
+/* =====================================================
+   EDIT COMPETITION
+===================================================== */
+
 function editCompetition(id){
 
-const c =
-competitions.find(x =>
-String(x.id) === String(id)
+const c=
+competitions.find(x=>
+String(x.id)===String(id)
 );
 
 if(!c)return;
 
+$("competitionId").value=c.id||"";
 
-$("competitionId").value =
-c.id || "";
+$("competitionName").value=
+c.name||"";
 
-$("competitionName").value =
-c.name || "";
+$("competitionType").value=
+c.type||"League";
 
-$("competitionType").value =
-c.type || "League";
+$("competitionLevel").value=
+c.level||"Daraja la Kwanza";
 
-$("competitionLevel").value =
-c.level || "Daraja la Kwanza";
+$("competitionSeason").value=
+c.season||"2026";
 
-$("competitionSeason").value =
-c.season || "2026";
+$("competitionFormat").value=
+c.format||"League";
 
-$("competitionFormat").value =
-c.format || "League";
+$("competitionStatus").value=
+c.status||"Planned";
 
-$("competitionStatus").value =
-c.status || "Planned";
+$("competitionStart").value=
+c.start_date||"";
 
-$("competitionStart").value =
-c.start_date || "";
-
-$("competitionEnd").value =
-c.end_date || "";
-
+$("competitionEnd").value=
+c.end_date||"";
 
 showMessage(
-"Una-edit mashindano. Bonyeza Hifadhi baada ya kurekebisha."
+"Una-edit mashindano. Rekebisha kisha bonyeza Hifadhi."
 );
 
 window.scrollTo({
@@ -1857,25 +1758,26 @@ behavior:"smooth"
 }
 
 
+/* =====================================================
+   DELETE COMPETITION
+===================================================== */
+
 async function deleteCompetition(id){
 
 if(!confirm(
 "Una uhakika unataka kufuta mashindano haya?"
 ))return;
 
-
 try{
 
-const {error} =
+const {error}=
 await db
 .from("competitions")
 .delete()
 .eq("id",id);
 
-
 if(error)
 throw error;
-
 
 showMessage(
 "Mashindano yamefutwa."
@@ -1883,11 +1785,10 @@ showMessage(
 
 await loadData();
 
-
 }catch(error){
 
 showMessage(
-"Ufutaji umekataa: " +
+"Ufutaji umekataa: "+
 error.message,
 true
 );
@@ -1896,6 +1797,10 @@ true
 
 }
 
+
+/* =====================================================
+   RESET
+===================================================== */
 
 function resetCompetitionForm(){
 
@@ -1909,12 +1814,12 @@ $("competitionSeason").value="2026";
 
 
 /* =====================================================
-   COMPETITION SELECTS
+   SELECTS
 ===================================================== */
 
 function fillCompetitionSelects(){
 
-const selectIds = [
+const ids=[
 
 "teamCompetition",
 "groupCompetition",
@@ -1925,21 +1830,18 @@ const selectIds = [
 
 ];
 
+ids.forEach(id=>{
 
-selectIds.forEach(id=>{
-
-const select = $(id);
+const select=$(id);
 
 if(!select)return;
 
-
-select.innerHTML =
+select.innerHTML=
 `
 <option value="">
 Chagua Mashindano
 </option>
-` +
-
+`+
 competitions.map(c=>`
 
 <option value="${c.id}">
@@ -1956,13 +1858,12 @@ c.competition_name ||
 });
 
 
-$("teamClub").innerHTML =
+$("teamClub").innerHTML=
 `
 <option value="">
 Chagua Klabu
 </option>
-` +
-
+`+
 clubs.map(c=>`
 
 <option value="${c.id}">
@@ -1980,22 +1881,19 @@ c.title ||
 
 
 /* =====================================================
-   COMPETITION TEAMS
+   TIMU ZA MASHINDANO
 ===================================================== */
 
 async function saveCompetitionTeam(){
 
-const competitionId =
+const competitionId=
 $("teamCompetition").value;
 
-const clubId =
+const clubId=
 $("teamClub").value;
 
-const group =
-$("teamGroup").value || null;
 
-
-if(!competitionId || !clubId){
+if(!competitionId||!clubId){
 
 showMessage(
 "Chagua mashindano na klabu.",
@@ -2003,77 +1901,57 @@ true
 );
 
 return;
-
 }
 
 
-/* Zuia timu ile ile kusajiliwa mara mbili */
-
-const exists =
-competitionTeams.some(t =>
-String(t.competition_id) === String(competitionId) &&
-String(
-t.club_id ||
-t.team_id ||
-t.club
-) === String(clubId)
+const exists=
+competitionTeams.some(t=>
+String(t.competition_id)===
+String(competitionId)&&
+String(getClubId(t))===
+String(clubId)
 );
 
 
 if(exists){
 
 showMessage(
-"Timu hii tayari ipo kwenye mashindano.",
+"Timu hii tayari imesajiliwa kwenye mashindano.",
 true
 );
 
 return;
-
 }
-
-
-/*
-  Kumbuka:
-  group_name inaweza kutokuwepo kwenye schema yako.
-  Kwa hiyo tunahifadhi kwanza competition_id
-  na club_id ambazo ndizo msingi wa table.
-*/
-
-const data = {
-
-competition_id: competitionId,
-
-club_id: clubId
-
-};
 
 
 try{
 
-const {error} =
+const {error}=
 await db
 .from("competition_teams")
-.insert([data]);
+.insert([{
+
+competition_id:competitionId,
+club_id:clubId
+
+}]);
 
 
 if(error)
 throw error;
 
-
 showMessage(
 "Timu imehifadhiwa kwenye mashindano."
 );
-
 
 $("teamClub").value="";
 
 await loadData();
 
-
 }catch(error){
 
 showMessage(
-"Hifadhi ya timu imekataa: " +
+"Hifadhi ya timu imekataa: "+
 error.message,
 true
 );
@@ -2083,33 +1961,29 @@ true
 }
 
 
+/* =====================================================
+   TEAM LIST
+===================================================== */
+
 function renderTeams(){
 
-const body =
-$("teamTable");
+$("teamTable").innerHTML=
+competitionTeams.map((t,i)=>{
 
-
-body.innerHTML =
-competitionTeams.map((team,index)=>{
-
-const competition =
-competitions.find(c =>
-String(c.id) ===
-String(team.competition_id)
+const competition=
+competitions.find(c=>
+String(c.id)===
+String(t.competition_id)
 );
 
+const clubId=
+getClubId(t);
 
-const clubId =
-team.club_id ||
-team.team_id ||
-team.club;
-
-
-return `
+return`
 
 <tr>
 
-<td>${index+1}</td>
+<td>${i+1}</td>
 
 <td>
 ${escapeHTML(
@@ -2120,20 +1994,14 @@ competition?.title ||
 </td>
 
 <td>
-${escapeHTML(
-clubName(clubId)
-)}
-</td>
-
-<td>
--
+${escapeHTML(clubName(clubId))}
 </td>
 
 <td>
 
 <button
 class="btn-red"
-onclick="deleteCompetitionTeam('${team.id}')">
+onclick="deleteCompetitionTeam('${t.id}')">
 🗑️ Futa
 </button>
 
@@ -2147,7 +2015,7 @@ onclick="deleteCompetitionTeam('${team.id}')">
 ||
 `
 <tr>
-<td colspan="5">
+<td colspan="4">
 Hakuna timu zilizosajiliwa.
 </td>
 </tr>
@@ -2162,31 +2030,27 @@ if(!confirm(
 "Una uhakika unataka kuondoa timu hii?"
 ))return;
 
-
 try{
 
-const {error} =
+const {error}=
 await db
 .from("competition_teams")
 .delete()
 .eq("id",id);
 
-
 if(error)
 throw error;
 
-
 showMessage(
-"Timu imeondolewa kwenye mashindano."
+"Timu imeondolewa."
 );
 
 await loadData();
 
-
 }catch(error){
 
 showMessage(
-"Imeshindikana kuondoa timu: " +
+"Imeshindikana kuondoa timu: "+
 error.message,
 true
 );
@@ -2197,46 +2061,43 @@ true
 
 
 /* =====================================================
-   GROUPS
+   MAKUNDI
 ===================================================== */
 
 function showGroupTeams(){
 
-const competition =
+const competitionId=
 $("groupCompetition").value;
 
-const group =
+const group=
 $("groupSelect").value;
 
+if(!competitionId){
 
-if(!competition){
-
-$("groupTeamsResult").innerHTML =
+$("groupTeamsResult").innerHTML=
 "Chagua mashindano.";
 
 return;
-
 }
 
 
-const teams =
-competitionTeams.filter(t =>
-String(t.competition_id) ===
-String(competition)
+const teams=
+competitionTeams.filter(t=>
+String(t.competition_id)===
+String(competitionId)
 );
 
 
 if(!teams.length){
 
-$("groupTeamsResult").innerHTML =
+$("groupTeamsResult").innerHTML=
 "Hakuna timu kwenye mashindano haya.";
 
 return;
-
 }
 
 
-$("groupTeamsResult").innerHTML = `
+$("groupTeamsResult").innerHTML=`
 
 <div class="notice">
 
@@ -2244,29 +2105,22 @@ $("groupTeamsResult").innerHTML = `
 
 <br><br>
 
-Kumbuka: mgawanyo wa kundi utahifadhiwa
-kwenye mfumo mara tu column ya kundi
-itakapothibitishwa kwenye
-<strong>competition_teams</strong>.
+Timu zilizopo kwenye mashindano:
 
 </div>
 
-` +
-
-teams.map((t,index)=>`
+`+
+teams.map((t,i)=>`
 
 <div class="player-row">
 
-<strong>
-${index+1}.
-</strong>
+<strong>${i+1}.</strong>
 
+<span>
 ${escapeHTML(
-clubName(
-t.club_id ||
-t.team_id
-)
+clubName(getClubId(t))
 )}
+</span>
 
 </div>
 
@@ -2276,7 +2130,7 @@ t.team_id
 
 
 /* =====================================================
-   FIXTURES
+   RATIBA
 ===================================================== */
 
 $("fixtureCompetition")
@@ -2288,62 +2142,51 @@ loadFixtureTeams
 
 function loadFixtureTeams(){
 
-const competition =
+const competitionId=
 $("fixtureCompetition").value;
 
-
-const teams =
-competitionTeams.filter(t =>
-String(t.competition_id) ===
-String(competition)
+const teams=
+competitionTeams.filter(t=>
+String(t.competition_id)===
+String(competitionId)
 );
 
-
-const options =
+const options=
 `
 <option value="">
 Chagua Timu
 </option>
-` +
-
+`+
 teams.map(t=>`
 
-<option value="${
-t.club_id || t.team_id
-}">
+<option value="${getClubId(t)}">
 ${escapeHTML(
-clubName(
-t.club_id ||
-t.team_id
-)
+clubName(getClubId(t))
 )}
 </option>
 
 `).join("");
 
+$("homeTeam").innerHTML=options;
 
-$("homeTeam").innerHTML =
-options;
-
-$("awayTeam").innerHTML =
-options;
+$("awayTeam").innerHTML=options;
 
 }
 
 
 async function saveMatch(){
 
-const competitionId =
+const competitionId=
 $("fixtureCompetition").value;
 
-const home =
+const home=
 $("homeTeam").value;
 
-const away =
+const away=
 $("awayTeam").value;
 
 
-if(!competitionId || !home || !away){
+if(!competitionId||!home||!away){
 
 showMessage(
 "Chagua mashindano na timu zote mbili.",
@@ -2351,11 +2194,10 @@ true
 );
 
 return;
-
 }
 
 
-if(home === away){
+if(home===away){
 
 showMessage(
 "Timu mwenyeji na timu mgeni haziwezi kuwa moja.",
@@ -2363,49 +2205,36 @@ true
 );
 
 return;
-
 }
 
 
-/*
-  Tunatumia columns za msingi
-  za matches ambazo mfumo wako
-  unapaswa kuwa nazo.
-*/
+const data={
 
-const data = {
+competition_id:competitionId,
 
-competition_id:
-competitionId,
+home_team_id:home,
 
-home_team_id:
-home,
-
-away_team_id:
-away,
+away_team_id:away,
 
 match_date:
-$("fixtureDate").value || null
+$("fixtureDate").value||null
 
 };
 
 
 try{
 
-const {error} =
+const {error}=
 await db
 .from("matches")
 .insert([data]);
 
-
 if(error)
 throw error;
-
 
 showMessage(
 "Mechi imehifadhiwa."
 );
-
 
 $("fixtureDate").value="";
 $("fixtureTime").value="";
@@ -2414,11 +2243,10 @@ $("fixtureReferee").value="";
 
 await loadData();
 
-
 }catch(error){
 
 showMessage(
-"Hifadhi ya mechi imekataa: " +
+"Hifadhi ya mechi imekataa: "+
 error.message,
 true
 );
@@ -2428,16 +2256,18 @@ true
 }
 
 
+/* =====================================================
+   MECHI LIST
+===================================================== */
+
 function renderFixtures(){
 
-$("fixtureTable").innerHTML =
-matches.map((m,index)=>{
-
-return `
+$("fixtureTable").innerHTML=
+matches.map((m,i)=>`
 
 <tr>
 
-<td>${index+1}</td>
+<td>${i+1}</td>
 
 <td>
 ${escapeHTML(
@@ -2449,54 +2279,60 @@ m.date ||
 
 <td>
 ${escapeHTML(
-m.stage ||
-"Mechi"
+m.match_time ||
+m.time ||
+"-"
 )}
 </td>
 
 <td>
 ${escapeHTML(
-clubName(
-m.home_team_id ||
-m.home_club_id
-)
+m.stage ||
+"-"
+)}
+</td>
+
+<td>
+${escapeHTML(
+clubName(matchHomeId(m))
 )}
 </td>
 
 <td>
 
 <strong>
-${m.home_score ?? "-"}
+${matchHomeScore(m)}
 -
-${m.away_score ?? "-"}
+${matchAwayScore(m)}
 </strong>
 
 </td>
 
 <td>
 ${escapeHTML(
-clubName(
-m.away_team_id ||
-m.away_club_id
-)
+clubName(matchAwayId(m))
 )}
 </td>
 
 <td>
-${escapeHTML(
-m.venue || "-"
-)}
+${escapeHTML(m.venue||"-")}
+</td>
+
+<td>
+<button
+class="btn-orange"
+onclick="openMatch('${m.id}')">
+👁️
+</button>
 </td>
 
 </tr>
 
-`;
-
-}).join("")
+`).join("")
 ||
 `
 <tr>
-<td colspan="7">
+<td colspan="9">
 Hakuna mechi zilizohifadhiwa.
 </td>
 </tr>
@@ -2505,34 +2341,46 @@ Hakuna mechi zilizohifadhiwa.
 }
 
 
+function openMatch(id){
+
+const m=
+matches.find(x=>
+String(x.id)===String(id)
+);
+
+if(!m)return;
+
+alert(
+"Mechi: "+
+clubName(matchHomeId(m))+
+" vs "+
+clubName(matchAwayId(m))
+);
+
+}
+
+
 /* =====================================================
-   LINEUP
+   KIKOSI
 ===================================================== */
 
 function fillLineupMatches(){
 
-$("lineupMatch").innerHTML =
+$("lineupMatch").innerHTML=
 `
 <option value="">
 Chagua Mechi
 </option>
-` +
-
+`+
 matches.map(m=>`
 
 <option value="${m.id}">
 ${escapeHTML(
-clubName(
-m.home_team_id ||
-m.home_club_id
-)
+clubName(matchHomeId(m))
 )}
  vs
 ${escapeHTML(
-clubName(
-m.away_team_id ||
-m.away_club_id
-)
+clubName(matchAwayId(m))
 )}
 </option>
 
@@ -2546,15 +2394,15 @@ $("lineupMatch")
 "change",
 function(){
 
-const match =
-matches.find(m =>
-String(m.id) ===
+const m=
+matches.find(x=>
+String(x.id)===
 String(this.value)
 );
 
-if(!match){
+if(!m){
 
-$("lineupTeam").innerHTML =
+$("lineupTeam").innerHTML=
 `
 <option value="">
 Chagua Timu
@@ -2562,37 +2410,24 @@ Chagua Timu
 `;
 
 return;
-
 }
 
 
-$("lineupTeam").innerHTML = `
+$("lineupTeam").innerHTML=`
 
 <option value="">
 Chagua Timu
 </option>
 
-<option value="${
-match.home_team_id ||
-match.home_club_id
-}">
+<option value="${matchHomeId(m)}">
 ${escapeHTML(
-clubName(
-match.home_team_id ||
-match.home_club_id
-)
+clubName(matchHomeId(m))
 )}
 </option>
 
-<option value="${
-match.away_team_id ||
-match.away_club_id
-}">
+<option value="${matchAwayId(m)}">
 ${escapeHTML(
-clubName(
-match.away_team_id ||
-match.away_club_id
-)
+clubName(matchAwayId(m))
 )}
 </option>
 
@@ -2610,25 +2445,22 @@ loadLineupPlayers
 
 function loadLineupPlayers(){
 
-const teamId =
+const teamId=
 $("lineupTeam").value;
 
-
-const teamPlayers =
-players.filter(p => {
-
-const playerClub =
-p.club_id ||
-p.current_club_id ||
-p.team_id;
-
-return String(playerClub) ===
-String(teamId);
-
-});
+const teamPlayers=
+players.filter(p=>
+String(
+p.club_id ??
+p.current_club_id ??
+p.team_id ??
+""
+)===
+String(teamId)
+);
 
 
-const html =
+$("startingPlayers").innerHTML=
 teamPlayers.map(p=>`
 
 <div class="player-row">
@@ -2639,11 +2471,7 @@ class="startingPlayer"
 value="${p.id}">
 
 <span>
-
-${escapeHTML(
-playerName(p.id)
-)}
-
+${escapeHTML(playerName(p.id))}
 </span>
 
 </div>
@@ -2652,15 +2480,12 @@ playerName(p.id)
 ||
 `
 <p class="small">
-Hakuna wachezaji wa klabu hii waliopatikana.
+Hakuna wachezaji waliopatikana.
 </p>
 `;
 
 
-$("startingPlayers").innerHTML =
-html;
-
-$("substitutePlayers").innerHTML =
+$("substitutePlayers").innerHTML=
 teamPlayers.map(p=>`
 
 <div class="player-row">
@@ -2671,9 +2496,7 @@ class="substitutePlayer"
 value="${p.id}">
 
 <span>
-${escapeHTML(
-playerName(p.id)
-)}
+${escapeHTML(playerName(p.id))}
 </span>
 
 </div>
@@ -2682,7 +2505,7 @@ playerName(p.id)
 ||
 `
 <p class="small">
-Hakuna wachezaji wa akiba waliopatikana.
+Hakuna wachezaji waliopatikana.
 </p>
 `;
 
@@ -2690,49 +2513,86 @@ Hakuna wachezaji wa akiba waliopatikana.
 
 
 /*
-  Kikosi cha mechi kinahitaji table/columns
-  maalum kwenye database.
-  Hatuta-create table bila kuthibitisha
-  schema yako.
+  Hatutadanganya hapa:
+  database yako ya sasa haina table iliyothibitishwa
+  ya match_lineups.
+
+  Kwa hiyo hatutengenezi table mpya
+  kutoka kwenye HTML.
 */
 
-function saveLineup(){
+async function saveLineup(){
+
+const matchId=
+$("lineupMatch").value;
+
+const teamId=
+$("lineupTeam").value;
+
+const starters=[
+...document.querySelectorAll(
+".startingPlayer:checked"
+)
+].map(x=>x.value);
+
+const substitutes=[
+...document.querySelectorAll(
+".substitutePlayer:checked"
+)
+].map(x=>x.value);
+
+
+if(!matchId||!teamId){
 
 showMessage(
-"Kikosi kiko tayari kwa kuhifadhiwa. Hatua hii itafungwa moja kwa moja kwenye table ya kikosi cha mechi baada ya schema yake kuthibitishwa."
+"Chagua mechi na timu.",
+true
+);
+
+return;
+}
+
+
+if(!starters.length&&!substitutes.length){
+
+showMessage(
+"Chagua angalau mchezaji mmoja.",
+true
+);
+
+return;
+}
+
+
+showMessage(
+"Kikosi kimechaguliwa, lakini database yako ya sasa haina table iliyothibitishwa ya kuhifadhi kikosi. Sitaunda table mpya bila ruhusa yako.",
+true
 );
 
 }
 
 
 /* =====================================================
-   MATCH EVENTS
+   MATUKIO
 ===================================================== */
 
 function fillEventMatches(){
 
-$("eventMatch").innerHTML =
+$("eventMatch").innerHTML=
 `
 <option value="">
 Chagua Mechi
 </option>
-` +
-
+`+
 matches.map(m=>`
 
 <option value="${m.id}">
 ${escapeHTML(
-clubName(
-m.home_team_id ||
-m.home_club_id
-)
+clubName(matchHomeId(m))
 )}
  vs
 ${escapeHTML(
-clubName(
-m.away_team_id ||
-m.away_club_id
-)
+clubName(matchAwayId(m))
 )}
 </option>
 
@@ -2746,42 +2606,29 @@ $("eventMatch")
 "change",
 function(){
 
-const match =
-matches.find(m =>
-String(m.id) ===
+const m=
+matches.find(x=>
+String(x.id)===
 String(this.value)
 );
 
-if(!match)return;
+if(!m)return;
 
-
-$("eventTeam").innerHTML = `
+$("eventTeam").innerHTML=`
 
 <option value="">
 Chagua Timu
 </option>
 
-<option value="${
-match.home_team_id ||
-match.home_club_id
-}">
+<option value="${matchHomeId(m)}">
 ${escapeHTML(
-clubName(
-match.home_team_id ||
-match.home_club_id
-)
+clubName(matchHomeId(m))
 )}
 </option>
 
-<option value="${
-match.away_team_id ||
-match.away_club_id
-}">
+<option value="${matchAwayId(m)}">
 ${escapeHTML(
-clubName(
-match.away_team_id ||
-match.away_club_id
-)
+clubName(matchAwayId(m))
 )}
 </option>
 
@@ -2799,37 +2646,31 @@ loadEventPlayers
 
 function loadEventPlayers(){
 
-const team =
+const teamId=
 $("eventTeam").value;
 
-
-const list =
-players.filter(p=>{
-
-const club =
-p.club_id ||
-p.current_club_id ||
-p.team_id;
-
-return String(club) ===
-String(team);
-
-});
+const list=
+players.filter(p=>
+String(
+p.club_id ??
+p.current_club_id ??
+p.team_id ??
+""
+)===
+String(teamId)
+);
 
 
-$("eventPlayer").innerHTML =
+$("eventPlayer").innerHTML=
 `
 <option value="">
 Chagua Mchezaji
 </option>
-` +
-
+`+
 list.map(p=>`
 
 <option value="${p.id}">
-${escapeHTML(
-playerName(p.id)
-)}
+${escapeHTML(playerName(p.id))}
 </option>
 
 `).join("");
@@ -2839,23 +2680,23 @@ playerName(p.id)
 
 async function saveMatchEvent(){
 
-const matchId =
+const matchId=
 $("eventMatch").value;
 
-const teamId =
+const teamId=
 $("eventTeam").value;
 
-const playerId =
+const playerId=
 $("eventPlayer").value;
 
-const type =
+const type=
 $("eventType").value;
 
-const minute =
-$("eventMinute").value || null;
+const minute=
+$("eventMinute").value||null;
 
 
-if(!matchId || !teamId || !type){
+if(!matchId||!teamId||!type){
 
 showMessage(
 "Jaza taarifa za tukio.",
@@ -2863,53 +2704,48 @@ true
 );
 
 return;
-
 }
 
 
-const data = {
+const data={
 
-match_id:
-matchId,
+match_id:matchId,
 
-team_id:
-teamId,
+team_id:teamId,
 
 player_id:
-playerId || null,
+playerId||null,
 
-event_type:
-type,
+event_type:type,
 
-minute:
-minute
+minute:minute
 
 };
 
 
 try{
 
-const {error} =
+const {error}=
 await db
 .from("match_events")
 .insert([data]);
 
-
 if(error)
 throw error;
-
 
 showMessage(
 "Tukio limehifadhiwa."
 );
 
-await loadData();
+$("eventPlayer").value="";
+$("eventMinute").value="";
 
+await loadData();
 
 }catch(error){
 
 showMessage(
-"Hifadhi ya tukio imekataa: " +
+"Hifadhi ya tukio imekataa: "+
 error.message,
 true
 );
@@ -2920,13 +2756,16 @@ true
 
 
 /* =====================================================
-   STANDINGS
+   MSIMAMO
 ===================================================== */
 
 function calculateStandings(){
 
-const competitionId =
+const competitionId=
 $("standingCompetition").value;
+
+const group=
+$("standingGroup").value;
 
 
 if(!competitionId){
@@ -2937,30 +2776,47 @@ true
 );
 
 return;
-
 }
 
 
-const teams =
-competitionTeams.filter(t =>
-String(t.competition_id) ===
+let teams=
+competitionTeams.filter(t=>
+String(t.competition_id)===
 String(competitionId)
 );
 
 
-const table = {};
+/*
+  Kama group column ipo kwenye competition_teams,
+  tumia group hiyo.
+*/
+
+if(group){
+
+teams=
+teams.filter(t=>
+String(
+t.group_name ??
+t.group ??
+t.group_id ??
+""
+)===String(group)
+);
+
+}
+
+
+const table={};
 
 
 teams.forEach(t=>{
 
-const clubId =
-t.club_id ||
-t.team_id;
+const clubId=
+getClubId(t);
 
 if(!clubId)return;
 
-
-table[clubId] = {
+table[clubId]={
 
 club_id:clubId,
 
@@ -2980,82 +2836,69 @@ red:0,
 
 yellow:0,
 
-points:0
+points:0,
+
+coin:0
 
 };
 
 });
 
 
-const competitionMatches =
-matches.filter(m =>
-String(m.competition_id) ===
+const competitionMatches=
+matches.filter(m=>
+String(m.competition_id)===
 String(competitionId)
 );
 
 
 competitionMatches.forEach(m=>{
 
-const homeId =
-m.home_team_id ||
-m.home_club_id;
+const homeId=
+matchHomeId(m);
 
-const awayId =
-m.away_team_id ||
-m.away_club_id;
+const awayId=
+matchAwayId(m);
 
+const home=table[homeId];
 
-const home =
-table[homeId];
+const away=table[awayId];
 
-const away =
-table[awayId];
+if(!home||!away)return;
 
 
-if(!home || !away)return;
+const hg=
+matchHomeScore(m);
 
-
-const homeGoals =
-Number(
-m.home_score ??
-m.home_goals ??
-0
-);
-
-
-const awayGoals =
-Number(
-m.away_score ??
-m.away_goals ??
-0
-);
+const ag=
+matchAwayScore(m);
 
 
 home.matches++;
 away.matches++;
 
-home.gf += homeGoals;
-home.ga += awayGoals;
+home.gf+=hg;
+home.ga+=ag;
 
-away.gf += awayGoals;
-away.ga += homeGoals;
+away.gf+=ag;
+away.ga+=hg;
 
 
-if(homeGoals > awayGoals){
+if(hg>ag){
 
 home.wins++;
 away.losses++;
 
-home.points += 3;
+home.points+=3;
 
 }
 
-else if(homeGoals < awayGoals){
+else if(hg<ag){
 
 away.wins++;
 home.losses++;
 
-away.points += 3;
+away.points+=3;
 
 }
 
@@ -3072,71 +2915,66 @@ away.points++;
 });
 
 
-matchEvents.forEach(event=>{
+/* KADI */
 
-const teamId =
-event.team_id ||
-event.club_id;
+matchEvents.forEach(e=>{
 
+const type=
+String(
+e.event_type ||
+e.type ||
+""
+).toLowerCase();
+
+const teamId=
+e.team_id ||
+e.club_id;
 
 if(!table[teamId])return;
 
 
-const type =
-String(
-event.event_type ||
-event.type ||
-""
-).toLowerCase();
-
-
-if(type === "red"){
-
+if(type==="red")
 table[teamId].red++;
 
-}
-
-if(type === "yellow"){
-
+if(type==="yellow")
 table[teamId].yellow++;
-
-}
 
 });
 
 
-const list =
+const list=
 Object.values(table);
 
 
 /*
-  MPANGILIO RASMI:
-  1. Pointi
-  2. Magoli ya Kufunga - mengi
-  3. Magoli ya Kufungwa - machache
-  4. Kadi Nyekundu - chache
-  5. Kadi za Njano - chache
+  MPANGILIO RASMI
+
+  1. Pointi — nyingi
+  2. Magoli ya Kufunga — mengi
+  3. Magoli ya Kufungwa — machache
+  4. Kadi Nyekundu — chache
+  5. Kadi za Njano — chache
   6. Sarafu
 
-  Sarafu haiwezi kuamua automatically
-  bila Admin kufanya uamuzi.
+  Sarafu haiwezi kutengenezwa
+  kwa bahati nasibu.
 */
 
 list.sort((a,b)=>{
 
-if(b.points !== a.points)
+if(b.points!==a.points)
 return b.points-a.points;
 
-if(b.gf !== a.gf)
+if(b.gf!==a.gf)
 return b.gf-a.gf;
 
-if(a.ga !== b.ga)
+if(a.ga!==b.ga)
 return a.ga-b.ga;
 
-if(a.red !== b.red)
+if(a.red!==b.red)
 return a.red-b.red;
 
-if(a.yellow !== b.yellow)
+if(a.yellow!==b.yellow)
 return a.yellow-b.yellow;
 
 return 0;
@@ -3144,13 +2982,13 @@ return 0;
 });
 
 
-$("standingsTable").innerHTML =
-list.map((x,index)=>`
+$("standingsTable").innerHTML=
+list.map((x,i)=>`
 
 <tr>
 
 <td>
-<strong>${index+1}</strong>
+<strong>${i+1}</strong>
 </td>
 
 <td>
@@ -3173,6 +3011,8 @@ clubName(x.club_id)
 
 <td>${x.ga}</td>
 
+<td>${x.gf-x.ga}</td>
+
 <td>${x.red}</td>
 
 <td>${x.yellow}</td>
@@ -3181,13 +3021,17 @@ clubName(x.club_id)
 <strong>${x.points}</strong>
 </td>
 
+<td>
+🪙 -
+</td>
+
 </tr>
 
 `).join("")
 ||
 `
 <tr>
-<td colspan="11">
+<td colspan="13">
 Hakuna data ya msimamo.
 </td>
 </tr>
@@ -3197,111 +3041,210 @@ Hakuna data ya msimamo.
 
 
 /* =====================================================
-   STATS
+   MTOANO
+===================================================== */
+
+function generateKnockout(){
+
+const competitionId=
+$("knockoutCompetition").value;
+
+const stage=
+$("knockoutStage").value;
+
+
+if(!competitionId){
+
+showMessage(
+"Chagua mashindano.",
+true
+);
+
+return;
+}
+
+
+const teams=
+competitionTeams.filter(t=>
+String(t.competition_id)===
+String(competitionId)
+);
+
+
+if(teams.length<2){
+
+$("knockoutResult").innerHTML=
+"Hakuna timu za kutosha kwa mtoano.";
+
+return;
+}
+
+
+/*
+  Mtoano huu ni preview.
+  Hatuingizi mechi moja kwa moja kwenye database
+  kwa sababu hatua hii inahitaji uamuzi wa
+  namna ya pairing.
+*/
+
+const names=
+teams.map(t=>
+clubName(getClubId(t))
+);
+
+
+let html=`
+
+<div class="notice">
+
+<strong>
+${escapeHTML(stage)}
+</strong>
+
+<br>
+Pairing ya timu:
+
+</div>
+`;
+
+
+for(let i=0;i<names.length;i+=2){
+
+html+=`
+
+<div class="player-row">
+
+<strong>
+${Math.floor(i/2)+1}.
+</strong>
+
+<span>
+${escapeHTML(names[i]||"-")}
+</span>
+
+<strong>VS</strong>
+
+<span>
+${escapeHTML(names[i+1]||"BYE")}
+</span>
+
+</div>
+
+`;
+
+}
+
+
+$("knockoutResult").innerHTML=html;
+
+}
+
+
+/* =====================================================
+   TAKWIMU
 ===================================================== */
 
 function renderStats(){
 
-const goals =
-matchEvents.filter(e =>
+const goals=
+matchEvents.filter(e=>
 String(
 e.event_type ||
 e.type ||
 ""
-).toLowerCase() === "goal"
+).toLowerCase()==="goal"
 );
 
-const yellow =
-matchEvents.filter(e =>
+const yellow=
+matchEvents.filter(e=>
 String(
 e.event_type ||
 e.type ||
 ""
-).toLowerCase() === "yellow"
+).toLowerCase()==="yellow"
 );
 
-const red =
-matchEvents.filter(e =>
+const red=
+matchEvents.filter(e=>
 String(
 e.event_type ||
 e.type ||
 ""
-).toLowerCase() === "red"
+).toLowerCase()==="red"
 );
 
 
-$("statMatches").textContent =
+$("statMatches").textContent=
 matches.length;
 
-$("statGoals").textContent =
+$("statGoals").textContent=
 goals.length;
 
-$("statYellow").textContent =
+$("statYellow").textContent=
 yellow.length;
 
-$("statRed").textContent =
+$("statRed").textContent=
 red.length;
 
 
-const scorerCount = {};
+const scorerCount={};
 
 
 goals.forEach(g=>{
 
 if(!g.player_id)return;
 
-scorerCount[g.player_id] =
-(scorerCount[g.player_id] || 0) + 1;
+scorerCount[g.player_id]=
+(scorerCount[g.player_id]||0)+1;
 
 });
 
 
-const scorers =
+const scorers=
 Object.entries(scorerCount)
 .sort((a,b)=>b[1]-a[1]);
 
 
-$("scorers").innerHTML =
-scorers.map((item,index)=>`
+$("scorers").innerHTML=
+scorers.map((x,i)=>`
 
 <div class="player-row">
 
-<strong>
-${index+1}.
-</strong>
+<strong>${i+1}.</strong>
 
 <span>
-${escapeHTML(
-playerName(item[0])
-)}
+${escapeHTML(playerName(x[0]))}
 </span>
 
 <strong>
-${item[1]}
+${x[1]}
 </strong>
 
 </div>
 
 `).join("")
 ||
-"<p class='small'>Hakuna magoli yaliyorekodiwa.</p>";
+`
+<p class="small">
+Hakuna magoli yaliyorekodiwa.
+</p>
+`;
 
 }
 
 
 /* =====================================================
-   REPORT
+   RIPOTI
 ===================================================== */
 
 function generateReport(){
 
-const competitionId =
+const competitionId=
 $("reportCompetition").value;
 
-
-const competition =
-competitions.find(c =>
-String(c.id) ===
+const competition=
+competitions.find(c=>
+String(c.id)===
 String(competitionId)
 );
 
@@ -3314,49 +3257,64 @@ true
 );
 
 return;
-
 }
 
 
-const teamCount =
-competitionTeams.filter(t =>
-String(t.competition_id) ===
+const teams=
+competitionTeams.filter(t=>
+String(t.competition_id)===
 String(competitionId)
-).length;
+);
 
-
-const matchCount =
-matches.filter(m =>
-String(m.competition_id) ===
+const competitionMatches=
+matches.filter(m=>
+String(m.competition_id)===
 String(competitionId)
-).length;
+);
 
-
-const competitionMatchIds =
+const matchIds=
 new Set(
-matches
-.filter(m =>
-String(m.competition_id) ===
-String(competitionId)
-)
-.map(m=>String(m.id))
+competitionMatches.map(m=>String(m.id))
 );
 
 
-const goalCount =
-matchEvents.filter(e =>
-competitionMatchIds.has(
-String(e.match_id)
-) &&
+const events=
+matchEvents.filter(e=>
+matchIds.has(String(e.match_id))
+);
+
+
+const goals=
+events.filter(e=>
 String(
 e.event_type ||
 e.type ||
 ""
-).toLowerCase() === "goal"
-).length;
+).toLowerCase()==="goal"
+);
 
 
-$("reportArea").innerHTML = `
+const yellow=
+events.filter(e=>
+String(
+e.event_type ||
+e.type ||
+""
+).toLowerCase()==="yellow"
+);
+
+
+const red=
+events.filter(e=>
+String(
+e.event_type ||
+e.type ||
+""
+).toLowerCase()==="red"
+);
+
+
+$("reportArea").innerHTML=`
 
 <h2>
 🏆 ${escapeHTML(
@@ -3368,30 +3326,34 @@ competition.title ||
 
 <p>
 <strong>Msimu:</strong>
-${escapeHTML(competition.season || "-")}
+${escapeHTML(competition.season||"-")}
 </p>
 
 <p>
 <strong>Aina:</strong>
 ${escapeHTML(
-competition.type ||
-"-"
+competition.type||"-"
 )}
 </p>
 
 <p>
 <strong>Daraja:</strong>
 ${escapeHTML(
-competition.level ||
-"-"
+competition.level||"-"
+)}
+</p>
+
+<p>
+<strong>Muundo:</strong>
+${escapeHTML(
+competition.format||"-"
 )}
 </p>
 
 <p>
 <strong>Hali:</strong>
 ${escapeHTML(
-competition.status ||
-"-"
+competition.status||"-"
 )}
 </p>
 
@@ -3400,24 +3362,34 @@ competition.status ||
 <div class="stat-grid">
 
 <div class="stat">
-<strong>${teamCount}</strong>
+<strong>${teams.length}</strong>
 <span>Timu</span>
 </div>
 
 <div class="stat">
-<strong>${matchCount}</strong>
+<strong>${competitionMatches.length}</strong>
 <span>Mechi</span>
 </div>
 
 <div class="stat">
-<strong>${goalCount}</strong>
+<strong>${goals.length}</strong>
 <span>Magoli</span>
+</div>
+
+<div class="stat">
+<strong>${yellow.length}</strong>
+<span>Kadi za Njano</span>
+</div>
+
+<div class="stat">
+<strong>${red.length}</strong>
+<span>Kadi Nyekundu</span>
 </div>
 
 </div>
 
 <h3>
-⚖️ Vigezo vya Kupanga
+⚖️ Mfumo wa Kupanga
 </h3>
 
 <p>
@@ -3429,8 +3401,10 @@ competition.status ||
 6. Sarafu
 </p>
 
-<p style="margin-top:30px">
-AFRN FOOTBALL MANAGEMENT
+<hr>
+
+<p>
+<strong>AFRN FOOTBALL MANAGEMENT</strong>
 </p>
 
 `;
@@ -3442,28 +3416,33 @@ AFRN FOOTBALL MANAGEMENT
    TABS
 ===================================================== */
 
-document.querySelectorAll(".tab")
+document
+.querySelectorAll(".tab")
 .forEach(button=>{
 
 button.addEventListener(
 "click",
 function(){
 
-document.querySelectorAll(".tab")
-.forEach(x =>
+document
+.querySelectorAll(".tab")
+.forEach(x=>
 x.classList.remove("active")
 );
 
-document.querySelectorAll(".panel")
-.forEach(x =>
+document
+.querySelectorAll(".panel")
+.forEach(x=>
 x.classList.remove("active")
 );
-
 
 this.classList.add("active");
 
-$(this.dataset.panel)
-.classList.add("active");
+const panel=
+$(this.dataset.panel);
+
+if(panel)
+panel.classList.add("active");
 
 });
 
