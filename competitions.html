@@ -1,19 +1,15 @@
+```html
 <!DOCTYPE html>
 <html lang="sw">
 <head>
-
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
-<title>AFRN Football Management - Mashindano</title>
+<title>AFRN Football Management - Competitions</title>
 
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 
-<!-- CONNECTION YA MFUMO WAKO ILIYOKUWEPO -->
-<script src="supabase-config.js"></script>
-
 <style>
-
 *{
   box-sizing:border-box;
   margin:0;
@@ -141,7 +137,8 @@ label{
 }
 
 input,
-select{
+select,
+textarea{
   width:100%;
   padding:11px 12px;
   border:1px solid #d0d5dd;
@@ -152,9 +149,15 @@ select{
 }
 
 input:focus,
-select:focus{
+select:focus,
+textarea:focus{
   border-color:#08783e;
   box-shadow:0 0 0 3px rgba(8,120,62,.1);
+}
+
+textarea{
+  min-height:80px;
+  resize:vertical;
 }
 
 .two-cols{
@@ -175,6 +178,11 @@ button{
   padding:11px 14px;
   cursor:pointer;
   font-weight:bold;
+}
+
+button:disabled{
+  opacity:.5;
+  cursor:not-allowed;
 }
 
 .primary{
@@ -206,14 +214,14 @@ button{
   color:white;
 }
 
-.full{
-  width:100%;
-}
-
 .small-btn{
   padding:7px 9px;
   font-size:12px;
   margin:2px;
+}
+
+.full{
+  width:100%;
 }
 
 .toolbar{
@@ -253,6 +261,10 @@ th{
   color:#475467;
   font-size:11px;
   text-transform:uppercase;
+}
+
+tr:hover td{
+  background:#fafafa;
 }
 
 .badge{
@@ -345,15 +357,6 @@ th{
   width:100%;
 }
 
-.notice{
-  padding:12px;
-  border-radius:8px;
-  background:#fff7e6;
-  color:#9a6700;
-  margin-bottom:12px;
-  font-size:13px;
-}
-
 .match-card{
   border:1px solid #eaecf0;
   border-radius:10px;
@@ -385,6 +388,31 @@ th{
   font-size:12px;
 }
 
+.stage-box{
+  background:#f8fafc;
+  border:1px solid #eaecf0;
+  border-radius:10px;
+  padding:13px;
+  margin-bottom:10px;
+}
+
+.notice{
+  padding:12px;
+  border-radius:8px;
+  background:#fff7e6;
+  color:#9a6700;
+  margin-bottom:12px;
+  font-size:13px;
+}
+
+.success-box{
+  padding:12px;
+  border-radius:8px;
+  background:#e8f5e9;
+  color:#176b35;
+  margin-bottom:12px;
+}
+
 .modal{
   display:none;
   position:fixed;
@@ -397,7 +425,7 @@ th{
 
 .modal-content{
   background:white;
-  max-width:900px;
+  max-width:1000px;
   margin:30px auto;
   border-radius:12px;
   padding:22px;
@@ -412,45 +440,52 @@ th{
   cursor:pointer;
 }
 
-.success-box{
-  padding:12px;
+.small-note{
+  display:block;
+  margin-top:5px;
+  color:#667085;
+  font-size:11px;
+}
+
+.empty-clubs{
+  padding:10px;
+  background:#f8fafc;
   border-radius:8px;
-  background:#e8f5e9;
-  color:#176b35;
-  margin-bottom:12px;
+  color:#667085;
+  font-size:12px;
+  margin-top:8px;
 }
 
 @media(max-width:1100px){
 
-.layout{
-  grid-template-columns:1fr;
-}
+  .layout{
+    grid-template-columns:1fr;
+  }
 
-.stats{
-  grid-template-columns:repeat(3,1fr);
-}
+  .stats{
+    grid-template-columns:repeat(3,1fr);
+  }
 
 }
 
 @media(max-width:700px){
 
-.stats{
-  grid-template-columns:1fr 1fr;
-}
+  .stats{
+    grid-template-columns:1fr 1fr;
+  }
 
-.two-cols,
-.group-grid,
-.generator{
-  grid-template-columns:1fr;
-}
+  .two-cols,
+  .group-grid,
+  .generator{
+    grid-template-columns:1fr;
+  }
 
-.header-inner{
-  flex-direction:column;
-  align-items:flex-start;
-}
+  .header-inner{
+    flex-direction:column;
+    align-items:flex-start;
+  }
 
 }
-
 </style>
 </head>
 
@@ -484,91 +519,48 @@ Association / Football Federation for Refugees in Nyarugusu
 <div id="status"></div>
 
 
-<!-- =====================================================
-STATS
-===================================================== -->
+<!-- STATS -->
 
 <div class="stats">
 
 <div class="stat">
-
 <small>🏆 Mashindano</small>
-
-<div
-class="stat-number"
-id="totalCompetitions">
-0
+<div class="stat-number" id="totalCompetitions">0</div>
 </div>
-
-</div>
-
 
 <div class="stat">
-
 <small>⚽ Vilabu</small>
-
-<div
-class="stat-number"
-id="totalClubs">
-0
+<div class="stat-number" id="totalClubs">0</div>
 </div>
-
-</div>
-
 
 <div class="stat">
-
 <small>📅 Mechi</small>
-
-<div
-class="stat-number"
-id="totalMatches">
-0
+<div class="stat-number" id="totalMatches">0</div>
 </div>
-
-</div>
-
 
 <div class="stat">
-
 <small>🟢 Active</small>
-
-<div
-class="stat-number"
-id="activeCompetitions">
-0
+<div class="stat-number" id="activeCompetitions">0</div>
 </div>
-
-</div>
-
 
 <div class="stat">
-
 <small>🏆 Hatua</small>
-
-<div
-class="stat-number"
-id="currentStage">
--
+<div class="stat-number" id="currentStage">-</div>
 </div>
 
 </div>
-
-</div>
-
 
 
 <div class="layout">
 
 
-<!-- =====================================================
-LEFT
-===================================================== -->
+<!-- LEFT COLUMN -->
 
 <div>
 
 
-<!-- COMPETITION -->
+<!-- REGISTER COMPETITION -->
+
 <div class="panel">
 
 <h2>🏆 Sajili Mashindano</h2>
@@ -579,7 +571,6 @@ LEFT
 type="hidden"
 id="competitionId"
 >
-
 
 <div class="form-group">
 
@@ -679,9 +670,9 @@ type="date"
 id="endDate"
 >
 
-<small>
+<span class="small-note">
 Acha tupu hadi siku ya Final.
-</small>
+</span>
 
 </div>
 
@@ -723,15 +714,20 @@ Cancelled
 class="primary"
 type="submit"
 >
+
 💾 Hifadhi
+
 </button>
+
 
 <button
 type="button"
 class="secondary"
 onclick="resetCompetitionForm()"
 >
+
 Futa
+
 </button>
 
 </div>
@@ -741,10 +737,7 @@ Futa
 </div>
 
 
-
-<!-- =====================================================
-ADD TEAMS
-===================================================== -->
+<!-- ADD CLUB -->
 
 <div class="panel">
 
@@ -775,13 +768,12 @@ Chagua Competition
 <div
 id="selectedCompetitionBox"
 class="selected-box"
-style="display:none;"
+style="display:none"
 >
 
 Competition:
 
-<strong
-id="selectedCompetitionName">
+<strong id="selectedCompetitionName">
 -
 </strong>
 
@@ -851,10 +843,10 @@ Chagua Klabu
 
 </select>
 
-<small>
+<span class="small-note">
 Klabu iliyokwishawekwa kwenye competition
 haitaonekana tena hapa.
-</small>
+</span>
 
 </div>
 
@@ -871,10 +863,7 @@ onclick="addCompetitionTeam()"
 </div>
 
 
-
-<!-- =====================================================
-GROUPS
-===================================================== -->
+<!-- GROUPS -->
 
 <div class="panel">
 
@@ -882,8 +871,7 @@ GROUPS
 👥 Makundi ya Competition
 </h2>
 
-<div
-id="groupsContainer">
+<div id="groupsContainer">
 
 <div class="empty">
 Chagua competition.
@@ -894,10 +882,7 @@ Chagua competition.
 </div>
 
 
-
-<!-- =====================================================
-GENERATOR
-===================================================== -->
+<!-- GENERATOR -->
 
 <div class="panel">
 
@@ -910,7 +895,13 @@ GENERATOR
 Mfumo utatumia vilabu na Groups zilizopo
 kutengeneza ratiba.
 
+<br><br>
+
+<strong>
 Tarehe za mechi hazitawekwa automatically.
+</strong>
+
+<br>
 
 <strong>
 Namba za mechi zitatengenezwa automatically
@@ -926,7 +917,9 @@ kuanzia 1 hadi mechi ya mwisho.
 class="primary"
 onclick="generateGroupStage()"
 >
+
 📅 Tengeneza Ratiba ya Group Stage
+
 </button>
 
 
@@ -934,7 +927,9 @@ onclick="generateGroupStage()"
 class="info"
 onclick="generateRound16()"
 >
+
 🏆 Tengeneza 16 Bora
+
 </button>
 
 
@@ -942,7 +937,9 @@ onclick="generateRound16()"
 class="warning"
 onclick="generateQuarterFinals()"
 >
+
 🏆 Tengeneza Robo Fainali
+
 </button>
 
 
@@ -950,7 +947,9 @@ onclick="generateQuarterFinals()"
 class="primary"
 onclick="generateSemiFinals()"
 >
+
 🏆 Tengeneza Nusu Fainali
+
 </button>
 
 
@@ -958,7 +957,9 @@ onclick="generateSemiFinals()"
 class="info"
 onclick="generateClassification()"
 >
+
 🏆 Tengeneza Classification
+
 </button>
 
 
@@ -966,7 +967,9 @@ onclick="generateClassification()"
 class="danger"
 onclick="generateFinal()"
 >
+
 🏆 Tengeneza Final
+
 </button>
 
 </div>
@@ -976,15 +979,12 @@ onclick="generateFinal()"
 </div>
 
 
-
-<!-- =====================================================
-RIGHT
-===================================================== -->
+<!-- RIGHT COLUMN -->
 
 <div>
 
 
-<!-- COMPETITIONS -->
+<!-- COMPETITIONS LIST -->
 
 <div class="panel">
 
@@ -1036,21 +1036,13 @@ Cancelled
 <tr>
 
 <th>#</th>
-
 <th>Competition</th>
-
 <th>Type</th>
-
 <th>Season</th>
-
 <th>Start</th>
-
 <th>End</th>
-
 <th>Status</th>
-
 <th>Clubs</th>
-
 <th>Actions</th>
 
 </tr>
@@ -1077,10 +1069,7 @@ Hakuna competition.
 </div>
 
 
-
-<!-- =====================================================
-STANDINGS
-===================================================== -->
+<!-- STANDINGS -->
 
 <div class="panel">
 
@@ -1095,9 +1084,7 @@ STANDINGS
 Competition
 </label>
 
-<select
-id="standingCompetitionSelect"
->
+<select id="standingCompetitionSelect">
 
 <option value="">
 Chagua Competition
@@ -1139,36 +1126,23 @@ Makundi yote
 <tr>
 
 <th>#</th>
-
 <th>Klabu</th>
-
 <th>P</th>
-
 <th>W</th>
-
 <th>D</th>
-
 <th>L</th>
-
 <th>GF</th>
-
 <th>GA</th>
-
 <th>Pts</th>
-
 <th>🟥</th>
-
 <th>🟨</th>
-
 <th>💰</th>
 
 </tr>
 
 </thead>
 
-<tbody
-id="standingsTable">
-</tbody>
+<tbody id="standingsTable"></tbody>
 
 </table>
 
@@ -1177,10 +1151,7 @@ id="standingsTable">
 </div>
 
 
-
-<!-- =====================================================
-MATCHES
-===================================================== -->
+<!-- MATCHES -->
 
 <div class="panel">
 
@@ -1191,9 +1162,7 @@ MATCHES
 
 <div class="toolbar">
 
-<select
-id="matchCompetitionSelect"
->
+<select id="matchCompetitionSelect">
 
 <option value="">
 Chagua Competition
@@ -1202,9 +1171,7 @@ Chagua Competition
 </select>
 
 
-<select
-id="matchStageSelect"
->
+<select id="matchStageSelect">
 
 <option value="">
 Hatua zote
@@ -1256,10 +1223,7 @@ Chagua competition.
 </div>
 
 
-
-<!-- =====================================================
-MATCH MODAL
-===================================================== -->
+<!-- MATCH MODAL -->
 
 <div
 class="modal"
@@ -1270,7 +1234,8 @@ id="matchModal"
 
 <span
 class="close"
-onclick="closeMatchModal()">
+onclick="closeMatchModal()"
+>
 ×
 </span>
 
@@ -1278,86 +1243,53 @@ onclick="closeMatchModal()">
 ⚽ Matokeo ya Mechi
 </h2>
 
-<div
-id="matchModalBody">
-</div>
+<div id="matchModalBody"></div>
 
 </div>
 
 </div>
-
 
 
 <script>
 
 /* =========================================================
-AFRN SUPABASE CONNECTION
+SUPABASE
 ========================================================= */
 
-let db = null;
-
-
 /*
-Tunatumia connection iliyopo kwenye
-supabase-config.js.
+IMPORTANT:
 
-Mfumo huu unakubali majina haya:
-
-window.supabaseClient
-window.supabase
+WEKA HAPA SUPABASE URL NA ANON KEY
+ZINAZOTUMIKA KWENYE index.html YAKO.
 */
 
-if(
-window.supabaseClient &&
-typeof window.supabaseClient.from === "function"
-){
+const SUPABASE_URL =
+"WEKA_SUPABASE_URL_YAKO_HAPA";
 
-db = window.supabaseClient;
-
-}
-
-else if(
-window.supabase &&
-typeof window.supabase.from === "function"
-){
-
-db = window.supabase;
-
-}
+const SUPABASE_ANON_KEY =
+"WEKA_SUPABASE_ANON_KEY_YAKO_HAPA";
 
 
-/*
-Kama supabase-config.js inatumia
-window.supabaseClient
-hii ndiyo itatumika.
-*/
-
-if(!db){
-
-document.getElementById("status").textContent =
-"❌ Supabase connection haipatikani. Hakikisha supabase-config.js ipo kwenye repository.";
-
-document.getElementById("status").className="error";
-
-document.getElementById("status").style.display="block";
-
-throw new Error(
-"Supabase client haipatikani."
+const supabaseClient =
+window.supabase.createClient(
+SUPABASE_URL,
+SUPABASE_ANON_KEY
 );
-
-}
-
 
 
 /* =========================================================
 GLOBAL DATA
 ========================================================= */
 
-let competitions=[];
-let clubs=[];
-let competitionTeams=[];
-let matches=[];
+let competitions = [];
 
+let clubs = [];
+
+let competitionTeams = [];
+
+let matches = [];
+
+let matchEvents = [];
 
 
 /* =========================================================
@@ -1366,115 +1298,124 @@ HELPERS
 
 function showStatus(message,error=false){
 
-const el=
-document.getElementById("status");
+  const el =
+    document.getElementById("status");
 
-el.textContent=message;
+  el.textContent = message;
 
-el.className=
-error
-?"error"
-:"";
+  el.className =
+    error ? "error" : "";
 
-el.style.display="block";
+  el.style.display = "block";
 
-clearTimeout(window.statusTimer);
-
-window.statusTimer=
-setTimeout(()=>{
-
-el.style.display="none";
-
-},6000);
+  setTimeout(()=>{
+    el.style.display = "none";
+  },6000);
 
 }
-
 
 
 function escapeHTML(value){
 
-if(
-value===null ||
-value===undefined
-){
+  if(
+    value === null ||
+    value === undefined
+  ){
+    return "";
+  }
 
-return "";
-
-}
-
-return String(value)
-.replace(/&/g,"&amp;")
-.replace(/</g,"&lt;")
-.replace(/>/g,"&gt;")
-.replace(/"/g,"&quot;")
-.replace(/'/g,"&#039;");
-
+  return String(value)
+    .replace(/&/g,"&amp;")
+    .replace(/</g,"&lt;")
+    .replace(/>/g,"&gt;")
+    .replace(/"/g,"&quot;")
+    .replace(/'/g,"&#039;");
 }
 
 
+function getField(row,fields,fallback=""){
 
-function getClubId(club){
+  for(const field of fields){
 
-return club?.id;
+    if(
+      row &&
+      row[field] !== undefined &&
+      row[field] !== null &&
+      row[field] !== ""
+    ){
+      return row[field];
+    }
+
+  }
+
+  return fallback;
 }
-
-
-
-function getClubName(club){
-
-return (
-club?.name ||
-club?.club_name ||
-club?.clubName ||
-"Unknown Club"
-);
-
-}
-
-
-
-function getClubNameById(id){
-
-const club=
-clubs.find(
-c=>String(c.id)===String(id)
-);
-
-return club
-?getClubName(club)
-:"Unknown Club";
-
-}
-
 
 
 function formatDate(value){
 
-if(!value){
+  if(!value){
+    return "—";
+  }
 
-return "—";
+  const d = new Date(value);
 
+  if(isNaN(d)){
+    return value;
+  }
+
+  return d.toLocaleDateString(
+    "sw-TZ",
+    {
+      day:"2-digit",
+      month:"2-digit",
+      year:"numeric"
+    }
+  );
 }
 
-const d=new Date(value);
 
-if(isNaN(d)){
+function getClubId(row){
 
-return value;
-
+  return getField(
+    row,
+    ["id"]
+  );
 }
 
-return d.toLocaleDateString(
-"sw-TZ",
-{
-day:"2-digit",
-month:"2-digit",
-year:"numeric"
-}
-);
 
+function getClubNameById(id){
+
+  const club =
+    clubs.find(
+      c =>
+      String(getClubId(c)) ===
+      String(id)
+    );
+
+  return club
+    ? getField(
+        club,
+        ["name","club_name"],
+        "Unknown Club"
+      )
+    : "Unknown Club";
 }
 
+
+function getCompetitionNameById(id){
+
+  const c =
+    competitions.find(
+      x =>
+      String(x.id) ===
+      String(id)
+    );
+
+  return c
+    ? c.name
+    : "Unknown Competition";
+}
 
 
 /* =========================================================
@@ -1483,40 +1424,37 @@ LOAD CLUBS
 
 async function loadClubs(){
 
-const result=
-await db
-.from("clubs")
-.select("*");
+  const result =
+    await supabaseClient
+      .from("clubs")
+      .select("*")
+      .order("name",{ascending:true});
 
-if(result.error){
+  if(result.error){
 
-console.error(
-"CLUB ERROR:",
-result.error
-);
+    console.error(result.error);
 
-showStatus(
-"❌ Clubs hazijasomeka: "+
-result.error.message,
-true
-);
+    showStatus(
+      "❌ Clubs hazijapakiwa: " +
+      result.error.message,
+      true
+    );
 
-return false;
+    return false;
+  }
 
+  clubs =
+    result.data || [];
+
+  document.getElementById(
+    "totalClubs"
+  ).textContent =
+    clubs.length;
+
+  populateClubSelect();
+
+  return true;
 }
-
-clubs=
-result.data || [];
-
-document.getElementById(
-"totalClubs"
-).textContent=
-clubs.length;
-
-return true;
-
-}
-
 
 
 /* =========================================================
@@ -1525,86 +1463,46 @@ LOAD COMPETITIONS
 
 async function loadCompetitions(){
 
-const result=
-await db
-.from("competitions")
-.select("*");
+  const result =
+    await supabaseClient
+      .from("competitions")
+      .select("*")
+      .order("created_at",{ascending:false});
 
-if(result.error){
+  if(result.error){
 
-console.error(
-"COMPETITION ERROR:",
-result.error
-);
+    console.error(result.error);
 
-showStatus(
-"❌ Mashindano hayajasomeka: "+
-result.error.message,
-true
-);
+    showStatus(
+      "❌ Competitions hazijapakiwa: " +
+      result.error.message,
+      true
+    );
 
-return false;
+    return false;
+  }
 
+  competitions =
+    result.data || [];
+
+  document.getElementById(
+    "totalCompetitions"
+  ).textContent =
+    competitions.length;
+
+  document.getElementById(
+    "activeCompetitions"
+  ).textContent =
+    competitions.filter(
+      c => c.status === "Active"
+    ).length;
+
+  populateCompetitionSelects();
+
+  renderCompetitions();
+
+  return true;
 }
-
-competitions=
-result.data || [];
-
-
-/*
-Sort manually ili tusitegemee
-created_at/created_at column.
-*/
-
-competitions.sort(
-(a,b)=>{
-
-const da=
-new Date(
-a.created_at ||
-a["created at"] ||
-a.createdAt ||
-0
-);
-
-const dbb=
-new Date(
-b.created_at ||
-b["created at"] ||
-b.createdAt ||
-0
-);
-
-return dbb-da;
-
-}
-);
-
-
-document.getElementById(
-"totalCompetitions"
-).textContent=
-competitions.length;
-
-
-document.getElementById(
-"activeCompetitions"
-).textContent=
-competitions.filter(
-c=>
-String(c.status||"")
-.toLowerCase()==="active"
-).length;
-
-
-populateCompetitionSelects();
-
-renderCompetitions();
-
-return true;
-
-}
-
 
 
 /* =========================================================
@@ -1613,42 +1511,36 @@ LOAD COMPETITION TEAMS
 
 async function loadCompetitionTeams(){
 
-const result=
-await db
-.from("competition_teams")
-.select("*");
+  const result =
+    await supabaseClient
+      .from("competition_teams")
+      .select("*")
+      .order("created_at",{ascending:true});
 
-if(result.error){
+  if(result.error){
 
-console.error(
-"COMPETITION TEAMS ERROR:",
-result.error
-);
+    console.error(result.error);
 
-showStatus(
-"❌ Vilabu vya competition havijasomeka: "+
-result.error.message,
-true
-);
+    showStatus(
+      "❌ Competition teams hazijapakiwa: " +
+      result.error.message,
+      true
+    );
 
-return false;
+    return false;
+  }
 
+  competitionTeams =
+    result.data || [];
+
+  populateClubSelect();
+
+  renderGroups();
+
+  renderCompetitions();
+
+  return true;
 }
-
-competitionTeams=
-result.data || [];
-
-
-populateClubSelect();
-
-renderGroups();
-
-renderCompetitions();
-
-return true;
-
-}
-
 
 
 /* =========================================================
@@ -1657,205 +1549,231 @@ LOAD MATCHES
 
 async function loadMatches(){
 
-const result=
-await db
-.from("matches")
-.select("*");
+  const result =
+    await supabaseClient
+      .from("matches")
+      .select("*")
+      .order("match_number",{ascending:true});
 
-if(result.error){
+  if(result.error){
 
-console.error(
-"MATCH ERROR:",
-result.error
-);
+    console.error(result.error);
 
-matches=[];
+    matches = [];
 
-showStatus(
-"⚠️ Mechi hazijasomeka: "+
-result.error.message,
-true
-);
+    showStatus(
+      "⚠️ Matches hazijapakiwa: " +
+      result.error.message,
+      true
+    );
 
-return false;
+  }else{
 
+    matches =
+      result.data || [];
+
+  }
+
+  document.getElementById(
+    "totalMatches"
+  ).textContent =
+    matches.length;
+
+  updateCurrentStage();
+
+  renderMatches();
 }
-
-matches=
-result.data || [];
-
-
-/*
-Sort kwa match number.
-*/
-
-matches.sort(
-(a,b)=>
-Number(a.match_number||0)-
-Number(b.match_number||0)
-);
-
-
-document.getElementById(
-"totalMatches"
-).textContent=
-matches.length;
-
-
-renderMatches();
-
-return true;
-
-}
-
 
 
 /* =========================================================
-COMPETITION SELECTS
+LOAD MATCH EVENTS
+========================================================= */
+
+async function loadMatchEvents(){
+
+  const result =
+    await supabaseClient
+      .from("match_events")
+      .select("*");
+
+  if(result.error){
+
+    console.warn(
+      "Match events:",
+      result.error.message
+    );
+
+    matchEvents = [];
+
+  }else{
+
+    matchEvents =
+      result.data || [];
+
+  }
+
+}
+
+
+/* =========================================================
+POPULATE COMPETITION SELECTS
 ========================================================= */
 
 function populateCompetitionSelects(){
 
-const ids=[
-"teamCompetitionSelect",
-"standingCompetitionSelect",
-"matchCompetitionSelect"
-];
+  const ids = [
+    "teamCompetitionSelect",
+    "standingCompetitionSelect",
+    "matchCompetitionSelect"
+  ];
 
+  ids.forEach(id=>{
 
-ids.forEach(id=>{
+    const select =
+      document.getElementById(id);
 
-const select=
-document.getElementById(id);
+    if(!select){
+      return;
+    }
 
-if(!select)return;
+    const current =
+      select.value;
 
-const current=
-select.value;
+    select.innerHTML =
+      `<option value="">
+      Chagua Competition
+      </option>`;
 
-select.innerHTML=
-`
-<option value="">
-Chagua Competition
-</option>
-`;
+    competitions.forEach(c=>{
 
+      const option =
+        document.createElement("option");
 
-competitions.forEach(c=>{
+      option.value =
+        c.id;
 
-const option=
-document.createElement("option");
+      option.textContent =
+        c.name;
 
-option.value=
-c.id;
+      select.appendChild(option);
 
-option.textContent=
-c.name ||
-"Unknown Competition";
+    });
 
-select.appendChild(option);
+    if(current){
+      select.value = current;
+    }
 
-});
-
-
-if(current){
-
-select.value=current;
+  });
 
 }
-
-});
-
-}
-
 
 
 /* =========================================================
-CLUB SELECT
-ALREADY REGISTERED CLUBS DISAPPEAR
+POPULATE CLUB SELECT
+KLUBU ILIYO KWENYE COMPETITION
+HAIONEKANI TENA
 ========================================================= */
 
 function populateClubSelect(){
 
-const select=
-document.getElementById(
-"teamClubSelect"
-);
+  const select =
+    document.getElementById(
+      "teamClubSelect"
+    );
 
-if(!select)return;
+  const competitionSelect =
+    document.getElementById(
+      "teamCompetitionSelect"
+    );
+
+  if(!select || !competitionSelect){
+    return;
+  }
+
+  const competitionIdValue =
+    competitionSelect.value;
+
+  select.innerHTML =
+    `<option value="">
+    Chagua Klabu
+    </option>`;
+
+  if(!competitionIdValue){
+
+    select.innerHTML +=
+      `<option disabled>
+      Kwanza chagua Competition
+      </option>`;
+
+    return;
+  }
 
 
-const competitionId=
-document.getElementById(
-"teamCompetitionSelect"
-).value;
+  /*
+   * Pata clubs ambazo tayari
+   * zipo kwenye competition
+   */
+
+  const registeredClubIds =
+    competitionTeams
+      .filter(team =>
+        String(team.competition_id) ===
+        String(competitionIdValue)
+      )
+      .map(team =>
+        String(team.club_id)
+      );
 
 
-select.innerHTML=
-`
-<option value="">
-Chagua Klabu
-</option>
-`;
+  let available = 0;
 
 
-if(!competitionId){
+  clubs.forEach(club=>{
 
-return;
+    const id =
+      String(getClubId(club));
+
+    /*
+     * Hii ndiyo inayozuia
+     * duplicate ya club kwenye
+     * groups nyingine.
+     */
+
+    if(
+      registeredClubIds.includes(id)
+    ){
+      return;
+    }
+
+    const option =
+      document.createElement("option");
+
+    option.value = id;
+
+    option.textContent =
+      getField(
+        club,
+        ["name","club_name"],
+        "Unknown Club"
+      );
+
+    select.appendChild(option);
+
+    available++;
+
+  });
+
+
+  if(available === 0){
+
+    select.innerHTML =
+      `<option value="">
+      Hakuna klabu inayopatikana
+      </option>`;
+
+  }
 
 }
-
-
-/*
-Clubs ambazo tayari zipo
-kwenye competition hii.
-*/
-
-const usedClubIds=
-competitionTeams
-.filter(
-t=>
-String(
-t.competition_id
-)===String(
-competitionId
-)
-)
-.map(
-t=>String(t.club_id)
-);
-
-
-clubs.forEach(club=>{
-
-const id=
-String(club.id);
-
-
-if(
-usedClubIds.includes(id)
-){
-
-return;
-
-}
-
-
-const option=
-document.createElement("option");
-
-option.value=
-club.id;
-
-option.textContent=
-getClubName(club);
-
-select.appendChild(option);
-
-});
-
-}
-
 
 
 /* =========================================================
@@ -1863,60 +1781,66 @@ COMPETITION CHANGE
 ========================================================= */
 
 document
-.getElementById(
-"teamCompetitionSelect"
-)
-.addEventListener(
-"change",
-function(){
+  .getElementById(
+    "teamCompetitionSelect"
+  )
+  .addEventListener(
+    "change",
+    function(){
 
-const id=this.value;
+      const id =
+        this.value;
 
-const box=
-document.getElementById(
-"selectedCompetitionBox"
-);
+      const box =
+        document.getElementById(
+          "selectedCompetitionBox"
+        );
 
+      if(!id){
 
-if(!id){
+        box.style.display =
+          "none";
 
-box.style.display="none";
+        document.getElementById(
+          "groupsContainer"
+        ).innerHTML =
+          `<div class="empty">
+          Chagua competition.
+          </div>`;
 
-populateClubSelect();
+        populateClubSelect();
 
-renderGroups();
-
-return;
-
-}
-
-
-const competition=
-competitions.find(
-c=>
-String(c.id)===String(id)
-);
+        return;
+      }
 
 
-if(competition){
-
-document.getElementById(
-"selectedCompetitionName"
-).textContent=
-competition.name;
-
-box.style.display=
-"block";
-
-}
+      const competition =
+        competitions.find(
+          c =>
+          String(c.id) ===
+          String(id)
+        );
 
 
-populateClubSelect();
+      if(competition){
 
-renderGroups();
+        document.getElementById(
+          "selectedCompetitionName"
+        ).textContent =
+          competition.name;
 
-});
+        box.style.display =
+          "block";
 
+      }
+
+
+      populateClubSelect();
+
+      renderGroups();
+
+    }
+  );
 
 
 /* =========================================================
@@ -1924,202 +1848,180 @@ SAVE COMPETITION
 ========================================================= */
 
 document
-.getElementById(
-"competitionForm"
-)
-.addEventListener(
-"submit",
-saveCompetition
-);
+  .getElementById(
+    "competitionForm"
+  )
+  .addEventListener(
+    "submit",
+    saveCompetition
+  );
 
 
 async function saveCompetition(e){
 
-e.preventDefault();
+  e.preventDefault();
 
 
-const id=
-document.getElementById(
-"competitionId"
-).value;
+  const id =
+    document.getElementById(
+      "competitionId"
+    ).value;
 
 
-const name=
-document.getElementById(
-"competitionName"
-).value.trim();
+  const name =
+    document.getElementById(
+      "competitionName"
+    ).value.trim();
 
 
-const type=
-document.getElementById(
-"competitionType"
-).value;
+  const type =
+    document.getElementById(
+      "competitionType"
+    ).value;
 
 
-const season=
-document.getElementById(
-"season"
-).value.trim();
+  const season =
+    document.getElementById(
+      "season"
+    ).value.trim();
 
 
-const start=
-document.getElementById(
-"startDate"
-).value;
+  const start =
+    document.getElementById(
+      "startDate"
+    ).value;
 
 
-const end=
-document.getElementById(
-"endDate"
-).value || null;
+  const end =
+    document.getElementById(
+      "endDate"
+    ).value || null;
 
 
-const status=
-document.getElementById(
-"statusSelect"
-).value;
+  const status =
+    document.getElementById(
+      "statusSelect"
+    ).value;
 
 
-if(
-!name ||
-!type ||
-!season ||
-!start
-){
+  if(
+    !name ||
+    !type ||
+    !season ||
+    !start
+  ){
 
-showStatus(
-"❌ Jaza Name, Type, Season na Start Date.",
-true
-);
+    showStatus(
+      "❌ Jaza Name, Type, Season na Start Date.",
+      true
+    );
 
-return;
-
-}
-
-
-if(
-end &&
-new Date(end)<new Date(start)
-){
-
-showStatus(
-"❌ End Date haiwezi kuwa kabla ya Start Date.",
-true
-);
-
-return;
-
-}
+    return;
+  }
 
 
-/*
-Hizi ndizo fields zako:
-id
-name
-competition_type
-season
-start_date
-end_date
-status
-created_at
-*/
+  if(
+    end &&
+    new Date(end) <
+    new Date(start)
+  ){
+
+    showStatus(
+      "❌ End Date haiwezi kuwa kabla ya Start Date.",
+      true
+    );
+
+    return;
+  }
 
 
-const payload={
+  const payload = {
 
-name:name,
+    name:name,
 
-competition_type:type,
+    competition_type:type,
 
-season:season,
+    season:season,
 
-start_date:start,
+    start_date:start,
 
-end_date:end,
+    end_date:end,
 
-status:status
+    status:status
 
-};
-
-
-let result;
+  };
 
 
-if(id){
-
-result=
-await db
-.from("competitions")
-.update(payload)
-.eq("id",id);
-
-}else{
-
-result=
-await db
-.from("competitions")
-.insert(payload);
-
-}
+  let result;
 
 
-if(result.error){
+  if(id){
 
-console.error(
-"SAVE COMPETITION ERROR:",
-result.error
-);
+    result =
+      await supabaseClient
+        .from("competitions")
+        .update(payload)
+        .eq("id",id);
 
-showStatus(
-"❌ Imeshindikana kuhifadhi: "+
-result.error.message,
-true
-);
+  }else{
 
-return;
+    result =
+      await supabaseClient
+        .from("competitions")
+        .insert([payload]);
+
+  }
+
+
+  if(result.error){
+
+    console.error(result.error);
+
+    showStatus(
+      "❌ Imeshindikana kuhifadhi: " +
+      result.error.message,
+      true
+    );
+
+    return;
+  }
+
+
+  showStatus(
+    id
+    ? "✅ Competition imebadilishwa."
+    : "✅ Competition imehifadhiwa."
+  );
+
+
+  resetCompetitionForm();
+
+  await loadCompetitions();
 
 }
-
-
-showStatus(
-id
-?"✅ Competition imebadilishwa."
-:"✅ Competition imehifadhiwa."
-);
-
-
-resetCompetitionForm();
-
-await loadCompetitions();
-
-}
-
 
 
 /* =========================================================
-RESET
+RESET FORM
 ========================================================= */
 
 function resetCompetitionForm(){
 
-document
-.getElementById(
-"competitionForm"
-)
-.reset();
+  document
+    .getElementById(
+      "competitionForm"
+    )
+    .reset();
 
+  document.getElementById(
+    "competitionId"
+  ).value = "";
 
-document.getElementById(
-"competitionId"
-).value="";
-
-
-document.getElementById(
-"season"
-).value="2026";
+  document.getElementById(
+    "season"
+  ).value = "2026";
 
 }
-
 
 
 /* =========================================================
@@ -2128,226 +2030,227 @@ RENDER COMPETITIONS
 
 function renderCompetitions(){
 
-const tbody=
-document.getElementById(
-"competitionsTable"
-);
+  const tbody =
+    document.getElementById(
+      "competitionsTable"
+    );
 
 
-const search=
-document.getElementById(
-"searchCompetition"
-).value
-.trim()
-.toLowerCase();
+  const search =
+    document.getElementById(
+      "searchCompetition"
+    ).value
+    .trim()
+    .toLowerCase();
 
 
-const status=
-document.getElementById(
-"filterStatus"
-).value;
+  const status =
+    document.getElementById(
+      "filterStatus"
+    ).value;
 
 
-const filtered=
-competitions.filter(c=>{
+  const filtered =
+    competitions.filter(c=>{
 
-const name=
-String(c.name||"")
-.toLowerCase();
+      const name =
+        String(c.name || "")
+        .toLowerCase();
 
-return(
-(!search ||
-name.includes(search))
-&&
-(!status ||
-c.status===status)
-);
+      return (
+        (!search ||
+         name.includes(search))
+        &&
+        (!status ||
+         c.status === status)
+      );
 
-});
-
-
-tbody.innerHTML="";
+    });
 
 
-document.getElementById(
-"emptyCompetitions"
-).style.display=
-filtered.length
-?"none"
-:"block";
+  tbody.innerHTML = "";
 
 
-filtered.forEach(
-(c,index)=>{
-
-const count=
-competitionTeams.filter(
-t=>
-String(t.competition_id)
-===
-String(c.id)
-).length;
+  document.getElementById(
+    "emptyCompetitions"
+  ).style.display =
+    filtered.length
+    ? "none"
+    : "block";
 
 
-let badge="upcoming";
+  filtered.forEach((c,index)=>{
+
+    const count =
+      competitionTeams.filter(
+        t =>
+        String(t.competition_id) ===
+        String(c.id)
+      ).length;
 
 
-if(c.status==="Active")
-badge="active";
+    const tr =
+      document.createElement("tr");
 
 
-if(c.status==="Completed")
-badge="completed";
+    let badge =
+      "upcoming";
 
 
-if(c.status==="Cancelled")
-badge="cancelled";
+    if(c.status === "Active"){
+      badge = "active";
+    }
+
+    if(c.status === "Completed"){
+      badge = "completed";
+    }
+
+    if(c.status === "Cancelled"){
+      badge = "cancelled";
+    }
 
 
-const tr=
-document.createElement("tr");
+    tr.innerHTML = `
+
+      <td>
+        ${index+1}
+      </td>
+
+      <td>
+        <strong>
+          ${escapeHTML(c.name)}
+        </strong>
+      </td>
+
+      <td>
+        ${escapeHTML(
+          c.competition_type || "-"
+        )}
+      </td>
+
+      <td>
+        ${escapeHTML(
+          c.season || "-"
+        )}
+      </td>
+
+      <td>
+        ${formatDate(c.start_date)}
+      </td>
+
+      <td>
+        ${formatDate(c.end_date)}
+      </td>
+
+      <td>
+        <span class="badge ${badge}">
+          ${escapeHTML(
+            c.status || "-"
+          )}
+        </span>
+      </td>
+
+      <td>
+        <strong>
+          ${count}
+        </strong>
+      </td>
+
+      <td>
+
+        <button
+          class="warning small-btn"
+          onclick="editCompetition('${c.id}')"
+        >
+          ✏️
+        </button>
+
+        <button
+          class="danger small-btn"
+          onclick="deleteCompetition('${c.id}')"
+        >
+          🗑
+        </button>
+
+      </td>
+
+    `;
 
 
-tr.innerHTML=`
+    tbody.appendChild(tr);
 
-<td>
-${index+1}
-</td>
-
-<td>
-<strong>
-${escapeHTML(c.name)}
-</strong>
-</td>
-
-<td>
-${escapeHTML(
-c.competition_type||"-"
-)}
-</td>
-
-<td>
-${escapeHTML(
-c.season||"-"
-)}
-</td>
-
-<td>
-${formatDate(c.start_date)}
-</td>
-
-<td>
-${formatDate(c.end_date)}
-</td>
-
-<td>
-
-<span
-class="badge ${badge}">
-${escapeHTML(
-c.status||"-"
-)}
-</span>
-
-</td>
-
-<td>
-<strong>
-${count}
-</strong>
-</td>
-
-<td>
-
-<button
-class="warning small-btn"
-onclick="editCompetition('${c.id}')">
-✏️
-</button>
-
-<button
-class="danger small-btn"
-onclick="deleteCompetition('${c.id}')">
-🗑
-</button>
-
-</td>
-
-`;
-
-
-tbody.appendChild(tr);
-
-});
+  });
 
 }
 
 
-
 /* =========================================================
-EDIT
+EDIT COMPETITION
 ========================================================= */
 
 function editCompetition(id){
 
-const c=
-competitions.find(
-x=>
-String(x.id)===String(id)
-);
-
-if(!c)return;
-
-
-document.getElementById(
-"competitionId"
-).value=
-c.id;
+  const c =
+    competitions.find(
+      x =>
+      String(x.id) ===
+      String(id)
+    );
 
 
-document.getElementById(
-"competitionName"
-).value=
-c.name||"";
+  if(!c){
+    return;
+  }
 
 
-document.getElementById(
-"competitionType"
-).value=
-c.competition_type||"";
+  document.getElementById(
+    "competitionId"
+  ).value =
+    c.id;
 
 
-document.getElementById(
-"season"
-).value=
-c.season||"";
+  document.getElementById(
+    "competitionName"
+  ).value =
+    c.name || "";
 
 
-document.getElementById(
-"startDate"
-).value=
-c.start_date||"";
+  document.getElementById(
+    "competitionType"
+  ).value =
+    c.competition_type || "";
 
 
-document.getElementById(
-"endDate"
-).value=
-c.end_date||"";
+  document.getElementById(
+    "season"
+  ).value =
+    c.season || "";
 
 
-document.getElementById(
-"statusSelect"
-).value=
-c.status||"Upcoming";
+  document.getElementById(
+    "startDate"
+  ).value =
+    c.start_date || "";
 
 
-window.scrollTo({
-top:0,
-behavior:"smooth"
-});
+  document.getElementById(
+    "endDate"
+  ).value =
+    c.end_date || "";
+
+
+  document.getElementById(
+    "statusSelect"
+  ).value =
+    c.status || "Upcoming";
+
+
+  window.scrollTo({
+    top:0,
+    behavior:"smooth"
+  });
 
 }
-
 
 
 /* =========================================================
@@ -2356,284 +2259,367 @@ DELETE COMPETITION
 
 async function deleteCompetition(id){
 
-const c=
-competitions.find(
-x=>
-String(x.id)===String(id)
-);
+  const c =
+    competitions.find(
+      x =>
+      String(x.id) ===
+      String(id)
+    );
 
-if(!c)return;
+
+  if(!c){
+    return;
+  }
 
 
-if(
-!confirm(
-`Futa "${c.name}" kabisa?`
-)
-){
+  if(
+    !confirm(
+      `Futa "${c.name}" kabisa?`
+    )
+  ){
+    return;
+  }
 
-return;
+
+  /*
+   * DELETE MATCHES
+   */
+
+  const matchDelete =
+    await supabaseClient
+      .from("matches")
+      .delete()
+      .eq(
+        "competition_id",
+        id
+      );
+
+
+  if(matchDelete.error){
+
+    console.warn(
+      matchDelete.error
+    );
+
+  }
+
+
+  /*
+   * DELETE TEAMS
+   */
+
+  const teamDelete =
+    await supabaseClient
+      .from("competition_teams")
+      .delete()
+      .eq(
+        "competition_id",
+        id
+      );
+
+
+  if(teamDelete.error){
+
+    showStatus(
+      "❌ Vilabu vya competition havikufutika: " +
+      teamDelete.error.message,
+      true
+    );
+
+    return;
+  }
+
+
+  /*
+   * DELETE COMPETITION
+   */
+
+  const result =
+    await supabaseClient
+      .from("competitions")
+      .delete()
+      .eq("id",id);
+
+
+  if(result.error){
+
+    showStatus(
+      "❌ Competition haikufutwa: " +
+      result.error.message,
+      true
+    );
+
+    return;
+  }
+
+
+  showStatus(
+    "🗑 Competition imefutwa kabisa."
+  );
+
+
+  await loadCompetitionTeams();
+
+  await loadCompetitions();
+
+  await loadMatches();
 
 }
-
-
-/*
-DELETE COMPETITION TEAMS
-*/
-
-const teamsDelete=
-await db
-.from("competition_teams")
-.delete()
-.eq("competition_id",id);
-
-
-if(teamsDelete.error){
-
-showStatus(
-"❌ Vilabu vya competition havikufutika: "+
-teamsDelete.error.message,
-true
-);
-
-return;
-
-}
-
-
-/*
-DELETE MATCHES
-*/
-
-const matchDelete=
-await db
-.from("matches")
-.delete()
-.eq("competition_id",id);
-
-
-if(matchDelete.error){
-
-console.warn(
-"Match delete:",
-matchDelete.error.message
-);
-
-}
-
-
-/*
-DELETE COMPETITION
-*/
-
-const result=
-await db
-.from("competitions")
-.delete()
-.eq("id",id);
-
-
-if(result.error){
-
-showStatus(
-"❌ Competition haikufutwa: "+
-result.error.message,
-true
-);
-
-return;
-
-}
-
-
-showStatus(
-"🗑 Competition imefutwa."
-);
-
-
-await loadCompetitionTeams();
-
-await loadCompetitions();
-
-await loadMatches();
-
-}
-
 
 
 /* =========================================================
-ADD CLUB
+ADD COMPETITION TEAM
+DUPLICATE PROTECTION
 ========================================================= */
 
 async function addCompetitionTeam(){
 
-const competitionId=
-document.getElementById(
-"teamCompetitionSelect"
-).value;
+  const competitionIdValue =
+    document.getElementById(
+      "teamCompetitionSelect"
+    ).value;
 
 
-const clubId=
-document.getElementById(
-"teamClubSelect"
-).value;
+  const clubIdValue =
+    document.getElementById(
+      "teamClubSelect"
+    ).value;
 
 
-const group=
-document.getElementById(
-"groupName"
-).value;
+  const group =
+    document.getElementById(
+      "groupName"
+    ).value;
 
 
-if(!competitionId){
+  if(!competitionIdValue){
 
-showStatus(
-"❌ Chagua Competition.",
-true
-);
+    showStatus(
+      "❌ Chagua Competition.",
+      true
+    );
 
-return;
+    return;
+  }
+
+
+  if(!group){
+
+    showStatus(
+      "❌ Chagua Group.",
+      true
+    );
+
+    return;
+  }
+
+
+  if(!clubIdValue){
+
+    showStatus(
+      "❌ Chagua Klabu.",
+      true
+    );
+
+    return;
+  }
+
+
+  /*
+   * CHECK DATABASE DIRECTLY
+   */
+
+  const check =
+    await supabaseClient
+      .from("competition_teams")
+      .select(
+        "id, competition_id, club_id, group_name"
+      )
+      .eq(
+        "competition_id",
+        competitionIdValue
+      )
+      .eq(
+        "club_id",
+        clubIdValue
+      )
+      .maybeSingle();
+
+
+  if(check.error){
+
+    console.error(check.error);
+
+    showStatus(
+      "❌ Imeshindikana kuangalia klabu: " +
+      check.error.message,
+      true
+    );
+
+    return;
+  }
+
+
+  /*
+   * KLUBU TAYARI IPO
+   */
+
+  if(check.data){
+
+    const existingGroup =
+      check.data.group_name ||
+      "Group nyingine";
+
+
+    showStatus(
+      `⚠️ Klabu hii tayari ipo kwenye ${existingGroup}. Haiwezi kuongezwa tena kwenye competition hii.`,
+      true
+    );
+
+
+    await loadCompetitionTeams();
+
+    return;
+  }
+
+
+  /*
+   * CHECK GROUP
+   */
+
+  const groupCheck =
+    await supabaseClient
+      .from("competition_teams")
+      .select(
+        "id",
+        {
+          count:"exact",
+          head:true
+        }
+      )
+      .eq(
+        "competition_id",
+        competitionIdValue
+      )
+      .eq(
+        "group_name",
+        group
+      );
+
+
+  if(groupCheck.error){
+
+    showStatus(
+      "❌ Imeshindikana kuangalia Group: " +
+      groupCheck.error.message,
+      true
+    );
+
+    return;
+  }
+
+
+  /*
+   * GROUP MAXIMUM 4
+   */
+
+  if(
+    (groupCheck.count || 0) >= 4
+  ){
+
+    showStatus(
+      `⚠️ Group ${group} tayari ina vilabu 4.`,
+      true
+    );
+
+    return;
+  }
+
+
+  /*
+   * INSERT
+   */
+
+  const payload = {
+
+    competition_id:
+      competitionIdValue,
+
+    club_id:
+      clubIdValue,
+
+    group_name:
+      group
+
+  };
+
+
+  const result =
+    await supabaseClient
+      .from("competition_teams")
+      .insert([payload])
+      .select()
+      .single();
+
+
+  if(result.error){
+
+    /*
+     * PostgreSQL duplicate
+     */
+
+    if(
+      result.error.code === "23505" ||
+      result.error.message.includes(
+        "duplicate key"
+      )
+    ){
+
+      showStatus(
+        "⚠️ Klabu hii tayari ipo kwenye competition hii.",
+        true
+      );
+
+
+      await loadCompetitionTeams();
+
+      return;
+    }
+
+
+    console.error(
+      result.error
+    );
+
+
+    showStatus(
+      "❌ Klabu haikuongezwa: " +
+      result.error.message,
+      true
+    );
+
+    return;
+  }
+
+
+  showStatus(
+    `✅ ${getClubNameById(clubIdValue)} imeongezwa Group ${group}.`
+  );
+
+
+  document.getElementById(
+    "teamClubSelect"
+  ).value = "";
+
+
+  document.getElementById(
+    "groupName"
+  ).value = "";
+
+
+  await loadCompetitionTeams();
 
 }
-
-
-if(!group){
-
-showStatus(
-"❌ Chagua Group.",
-true
-);
-
-return;
-
-}
-
-
-if(!clubId){
-
-showStatus(
-"❌ Chagua Klabu.",
-true
-);
-
-return;
-
-}
-
-
-/*
-CHECK DUPLICATE
-*/
-
-const existing=
-competitionTeams.find(
-t=>
-String(t.competition_id)
-===
-String(competitionId)
-&&
-String(t.club_id)
-===
-String(clubId)
-);
-
-
-if(existing){
-
-showStatus(
-"⚠️ Klabu hii tayari ipo kwenye competition.",
-true
-);
-
-populateClubSelect();
-
-return;
-
-}
-
-
-/*
-MAX 4 PER GROUP
-*/
-
-const groupTeams=
-competitionTeams.filter(
-t=>
-String(t.competition_id)
-===
-String(competitionId)
-&&
-String(t.group_name)
-===
-String(group)
-);
-
-
-if(groupTeams.length>=4){
-
-showStatus(
-`⚠️ Group ${group} tayari ina vilabu 4.`,
-true
-);
-
-return;
-
-}
-
-
-const payload={
-
-competition_id:competitionId,
-
-club_id:clubId,
-
-group_name:group
-
-};
-
-
-const result=
-await db
-.from("competition_teams")
-.insert(payload);
-
-
-if(result.error){
-
-console.error(
-"ADD TEAM ERROR:",
-result.error
-);
-
-showStatus(
-"❌ Klabu haikuongezwa: "+
-result.error.message,
-true
-);
-
-return;
-
-}
-
-
-showStatus(
-`✅ Klabu imeongezwa Group ${group}.`
-);
-
-
-document.getElementById(
-"teamClubSelect"
-).value="";
-
-
-document.getElementById(
-"groupName"
-).value="";
-
-
-await loadCompetitionTeams();
-
-}
-
 
 
 /* =========================================================
@@ -2642,178 +2628,182 @@ RENDER GROUPS
 
 function renderGroups(){
 
-const container=
-document.getElementById(
-"groupsContainer"
-);
+  const container =
+    document.getElementById(
+      "groupsContainer"
+    );
 
 
-const competitionId=
-document.getElementById(
-"teamCompetitionSelect"
-).value;
+  const competitionIdValue =
+    document.getElementById(
+      "teamCompetitionSelect"
+    ).value;
 
 
-if(!competitionId){
+  if(!competitionIdValue){
 
-container.innerHTML=
-`
-<div class="empty">
-Chagua competition.
-</div>
-`;
+    container.innerHTML =
+      `<div class="empty">
+      Chagua competition.
+      </div>`;
 
-return;
+    return;
+  }
+
+
+  const teams =
+    competitionTeams.filter(
+      t =>
+      String(t.competition_id) ===
+      String(competitionIdValue)
+    );
+
+
+  if(!teams.length){
+
+    container.innerHTML =
+      `<div class="empty">
+      Hakuna klabu kwenye competition.
+      </div>`;
+
+    return;
+  }
+
+
+  const groups = [
+    "A",
+    "B",
+    "C",
+    "D",
+    "E",
+    "F",
+    "G",
+    "H"
+  ];
+
+
+  container.innerHTML =
+    `<div class="group-grid"></div>`;
+
+
+  const grid =
+    container.querySelector(
+      ".group-grid"
+    );
+
+
+  groups.forEach(group=>{
+
+    const groupTeams =
+      teams.filter(
+        t =>
+        String(t.group_name) ===
+        String(group)
+      );
+
+
+    const card =
+      document.createElement(
+        "div"
+      );
+
+
+    card.className =
+      "group-card";
+
+
+    let html = `
+
+      <div class="group-header">
+
+        GROUP ${group}
+
+        <span
+          style="float:right"
+        >
+          ${groupTeams.length}/4
+        </span>
+
+      </div>
+
+      <div class="group-body">
+
+    `;
+
+
+    if(!groupTeams.length){
+
+      html += `
+
+        <div
+          class="empty"
+          style="padding:15px"
+        >
+          Hakuna klabu
+        </div>
+
+      `;
+
+    }else{
+
+      groupTeams.forEach(
+        (team,index)=>{
+
+          html += `
+
+            <div class="club-row">
+
+              <div>
+
+                <strong>
+
+                  ${index+1}.
+
+                  ${escapeHTML(
+                    getClubNameById(
+                      team.club_id
+                    )
+                  )}
+
+                </strong>
+
+              </div>
+
+              <button
+                class="danger small-btn"
+                onclick="removeCompetitionTeam('${team.id}')"
+              >
+                🗑
+              </button>
+
+            </div>
+
+          `;
+
+        }
+      );
+
+    }
+
+
+    html += `
+
+      </div>
+
+    `;
+
+
+    card.innerHTML =
+      html;
+
+
+    grid.appendChild(
+      card
+    );
+
+  });
 
 }
-
-
-const teams=
-competitionTeams.filter(
-t=>
-String(t.competition_id)
-===
-String(competitionId)
-);
-
-
-if(!teams.length){
-
-container.innerHTML=
-`
-<div class="empty">
-Hakuna klabu kwenye competition.
-</div>
-`;
-
-return;
-
-}
-
-
-const groups=[
-"A","B","C","D",
-"E","F","G","H"
-];
-
-
-container.innerHTML="";
-
-
-const grid=
-document.createElement("div");
-
-grid.className=
-"group-grid";
-
-
-groups.forEach(group=>{
-
-const groupTeams=
-teams.filter(
-t=>
-String(t.group_name)
-===
-String(group)
-);
-
-
-const card=
-document.createElement("div");
-
-card.className=
-"group-card";
-
-
-let html=`
-
-<div class="group-header">
-
-GROUP ${group}
-
-<span
-style="float:right">
-
-${groupTeams.length}
-
-</span>
-
-</div>
-
-<div class="group-body">
-`;
-
-
-if(!groupTeams.length){
-
-html+=`
-<div
-class="empty"
-style="padding:15px">
-
-Hakuna klabu
-
-</div>
-`;
-
-}else{
-
-groupTeams.forEach(
-(team,index)=>{
-
-html+=`
-
-<div class="club-row">
-
-<div>
-
-<strong>
-
-${index+1}.
-${escapeHTML(
-getClubNameById(
-team.club_id
-)
-)}
-
-</strong>
-
-</div>
-
-
-<button
-class="danger small-btn"
-onclick="removeCompetitionTeam('${team.id}')">
-
-🗑
-
-</button>
-
-</div>
-
-`;
-
-});
-
-}
-
-
-html+=`
-</div>
-`;
-
-
-card.innerHTML=html;
-
-grid.appendChild(card);
-
-});
-
-
-container.appendChild(grid);
-
-}
-
 
 
 /* =========================================================
@@ -2822,46 +2812,42 @@ REMOVE TEAM
 
 async function removeCompetitionTeam(id){
 
-if(
-!confirm(
-"Ondoa klabu hii kwenye competition?"
-)
-){
-
-return;
-
-}
+  if(
+    !confirm(
+      "Ondoa klabu hii kwenye competition?"
+    )
+  ){
+    return;
+  }
 
 
-const result=
-await db
-.from("competition_teams")
-.delete()
-.eq("id",id);
+  const result =
+    await supabaseClient
+      .from("competition_teams")
+      .delete()
+      .eq("id",id);
 
 
-if(result.error){
+  if(result.error){
 
-showStatus(
-"❌ Klabu haijaondolewa: "+
-result.error.message,
-true
-);
+    showStatus(
+      "❌ Klabu haijaondolewa: " +
+      result.error.message,
+      true
+    );
 
-return;
-
-}
-
-
-showStatus(
-"✅ Klabu imeondolewa."
-);
+    return;
+  }
 
 
-await loadCompetitionTeams();
+  showStatus(
+    "✅ Klabu imeondolewa."
+  );
+
+
+  await loadCompetitionTeams();
 
 }
-
 
 
 /* =========================================================
@@ -2869,405 +2855,621 @@ GET NEXT MATCH NUMBER
 ========================================================= */
 
 function getNextMatchNumber(
-competitionId
+  competitionIdValue
 ){
 
-let max=0;
+  const numbers =
+    matches
+      .filter(
+        m =>
+        String(m.competition_id) ===
+        String(competitionIdValue)
+      )
+      .map(
+        m =>
+        Number(m.match_number)
+      )
+      .filter(
+        n =>
+        Number.isFinite(n)
+      );
 
 
-matches
-.filter(
-m=>
-String(m.competition_id)
-===
-String(competitionId)
-)
-.forEach(m=>{
-
-const n=
-Number(m.match_number);
+  if(!numbers.length){
+    return 1;
+  }
 
 
-if(!isNaN(n) && n>max){
-
-max=n;
-
-}
-
-});
-
-
-return max+1;
+  return Math.max(...numbers) + 1;
 
 }
-
 
 
 /* =========================================================
 INSERT MATCHES
+MATCH NUMBER AUTOMATIC
 ========================================================= */
 
 async function insertMatches(
-competitionId,
-stage,
-pairs
+  competitionIdValue,
+  stage,
+  pairs
 ){
 
-if(!pairs.length){
+  if(!pairs || !pairs.length){
 
-showStatus(
-"❌ Hakuna mechi za kutengeneza.",
-true
-);
+    showStatus(
+      "❌ Hakuna mechi za kutengeneza.",
+      true
+    );
 
-return;
+    return false;
+  }
+
+
+  /*
+   * CHECK EXISTING SAME STAGE
+   */
+
+  const existingStage =
+    matches.filter(
+      m =>
+      String(m.competition_id) ===
+      String(competitionIdValue)
+      &&
+      String(m.stage) ===
+      String(stage)
+    );
+
+
+  if(existingStage.length){
+
+    const again =
+      confirm(
+        `Hatua ya ${stage} tayari ina ${existingStage.length} mechi. Unataka kuunda tena?`
+      );
+
+    if(!again){
+      return false;
+    }
+
+  }
+
+
+  let nextNumber =
+    getNextMatchNumber(
+      competitionIdValue
+    );
+
+
+  const payloads =
+    pairs.map(p=>{
+
+      const payload = {
+
+        competition_id:
+          competitionIdValue,
+
+        match_number:
+          nextNumber,
+
+        stage:
+          stage,
+
+        home_club_id:
+          p.home,
+
+        away_club_id:
+          p.away,
+
+        group_name:
+          p.group || null,
+
+        match_date:
+          null,
+
+        status:
+          "Scheduled"
+
+      };
+
+
+      nextNumber++;
+
+      return payload;
+
+    });
+
+
+  const result =
+    await supabaseClient
+      .from("matches")
+      .insert(
+        payloads
+      );
+
+
+  if(result.error){
+
+    console.error(
+      result.error
+    );
+
+
+    showStatus(
+      "❌ Ratiba haikuundwa: " +
+      result.error.message,
+      true
+    );
+
+    return false;
+  }
+
+
+  showStatus(
+    `✅ ${payloads.length} mechi za ${stage} zimetengenezwa.`
+  );
+
+
+  await loadMatches();
+
+
+  return true;
 
 }
-
-
-let next=
-getNextMatchNumber(
-competitionId
-);
-
-
-const payloads=
-pairs.map(p=>{
-
-const item={
-
-competition_id:
-competitionId,
-
-match_number:
-next++,
-
-stage:
-stage,
-
-home_club_id:
-p.home,
-
-away_club_id:
-p.away,
-
-group_name:
-p.group||null,
-
-match_date:null,
-
-status:"Scheduled"
-
-};
-
-return item;
-
-});
-
-
-const result=
-await db
-.from("matches")
-.insert(payloads);
-
-
-if(result.error){
-
-console.error(
-"INSERT MATCH ERROR:",
-result.error
-);
-
-showStatus(
-"❌ Ratiba haikuundwa: "+
-result.error.message,
-true
-);
-
-return;
-
-}
-
-
-showStatus(
-`✅ ${payloads.length} mechi zimetengenezwa.`
-);
-
-
-await loadMatches();
-
-}
-
 
 
 /* =========================================================
 GROUP STAGE
+ROUND ROBIN KILA GROUP
 ========================================================= */
 
 async function generateGroupStage(){
 
-const competitionId=
-document.getElementById(
-"teamCompetitionSelect"
-).value;
+  const competitionIdValue =
+    document.getElementById(
+      "teamCompetitionSelect"
+    ).value;
 
 
-if(!competitionId){
+  if(!competitionIdValue){
 
-showStatus(
-"❌ Chagua competition kwanza.",
-true
-);
+    showStatus(
+      "❌ Chagua competition kwanza.",
+      true
+    );
 
-return;
-
-}
-
-
-const teams=
-competitionTeams.filter(
-t=>
-String(t.competition_id)
-===
-String(competitionId)
-);
+    return;
+  }
 
 
-if(teams.length<2){
-
-showStatus(
-"❌ Competition inahitaji angalau vilabu 2.",
-true
-);
-
-return;
-
-}
+  const teams =
+    competitionTeams.filter(
+      t =>
+      String(t.competition_id) ===
+      String(competitionIdValue)
+    );
 
 
-const pairs=[];
+  const groups = [
+    "A","B","C","D",
+    "E","F","G","H"
+  ];
 
 
-[
-"A","B","C","D",
-"E","F","G","H"
-].forEach(group=>{
-
-const gt=
-teams.filter(
-t=>
-String(t.group_name)
-===
-String(group)
-);
+  let pairs = [];
 
 
-for(
-let i=0;
-i<gt.length;
-i++
-){
+  groups.forEach(group=>{
 
-for(
-let j=i+1;
-j<gt.length;
-j++
-){
-
-pairs.push({
-
-group:group,
-
-home:gt[i].club_id,
-
-away:gt[j].club_id
-
-});
-
-}
-
-}
-
-});
+    const gt =
+      teams.filter(
+        t =>
+        String(t.group_name) ===
+        String(group)
+      );
 
 
-if(!pairs.length){
+    /*
+     * Kila timu inacheza
+     * na timu nyingine
+     * ndani ya group.
+     */
 
-showStatus(
-"❌ Hakuna teams zenye Group.",
-true
-);
+    for(
+      let i=0;
+      i<gt.length;
+      i++
+    ){
 
-return;
+      for(
+        let j=i+1;
+        j<gt.length;
+        j++
+      ){
 
-}
+        pairs.push({
+
+          group:
+            group,
+
+          home:
+            gt[i].club_id,
+
+          away:
+            gt[j].club_id
+
+        });
+
+      }
+
+    }
+
+  });
 
 
-await insertMatches(
-competitionId,
-"Group Stage",
-pairs
-);
+  if(!pairs.length){
+
+    showStatus(
+      "❌ Hakuna teams zenye Group.",
+      true
+    );
+
+    return;
+  }
+
+
+  await insertMatches(
+    competitionIdValue,
+    "Group Stage",
+    pairs
+  );
 
 }
-
 
 
 /* =========================================================
-CALCULATE STANDINGS
+STANDINGS
 ========================================================= */
 
-function calculateStandings(
-competitionId
+async function calculateStandings(
+  competitionIdValue
 ){
 
-const teams=
-competitionTeams.filter(
-t=>
-String(t.competition_id)
-===
-String(competitionId)
-);
+  const teams =
+    competitionTeams.filter(
+      t =>
+      String(t.competition_id) ===
+      String(competitionIdValue)
+    );
 
 
-const result={};
+  if(!teams.length){
+
+    showStatus(
+      "❌ Hakuna vilabu kwenye competition.",
+      true
+    );
+
+    return null;
+  }
 
 
-teams.forEach(team=>{
-
-result[
-String(team.club_id)
-]={
-
-club_id:team.club_id,
-
-group:team.group_name,
-
-played:0,
-
-wins:0,
-
-draws:0,
-
-losses:0,
-
-gf:0,
-
-ga:0,
-
-points:0,
-
-red:0,
-
-yellow:0,
-
-coins:0
-
-};
-
-});
+  const result = {};
 
 
-matches
-.filter(
-m=>
-String(m.competition_id)
-===
-String(competitionId)
-&&
-m.stage==="Group Stage"
-)
-.forEach(m=>{
+  teams.forEach(team=>{
 
-if(
-m.home_score===null ||
-m.home_score===undefined ||
-m.away_score===null ||
-m.away_score===undefined
-){
+    result[
+      String(team.club_id)
+    ] = {
 
-return;
+      club_id:
+        team.club_id,
+
+      group:
+        team.group_name,
+
+      played:0,
+
+      wins:0,
+
+      draws:0,
+
+      losses:0,
+
+      gf:0,
+
+      ga:0,
+
+      points:0,
+
+      red:0,
+
+      yellow:0,
+
+      coins:0
+
+    };
+
+  });
+
+
+  /*
+   * GROUP MATCH RESULTS
+   */
+
+  matches
+    .filter(
+      m =>
+      String(m.competition_id) ===
+      String(competitionIdValue)
+      &&
+      String(m.stage) ===
+      "Group Stage"
+    )
+    .forEach(m=>{
+
+      if(
+        m.home_score === null ||
+        m.home_score === undefined ||
+        m.away_score === null ||
+        m.away_score === undefined
+      ){
+        return;
+      }
+
+
+      const h =
+        result[
+          String(m.home_club_id)
+        ];
+
+
+      const a =
+        result[
+          String(m.away_club_id)
+        ];
+
+
+      if(!h || !a){
+        return;
+      }
+
+
+      const hs =
+        Number(m.home_score);
+
+
+      const as =
+        Number(m.away_score);
+
+
+      h.played++;
+
+      a.played++;
+
+
+      h.gf += hs;
+
+      h.ga += as;
+
+
+      a.gf += as;
+
+      a.ga += hs;
+
+
+      if(hs > as){
+
+        h.wins++;
+
+        h.points += 3;
+
+        a.losses++;
+
+      }
+
+      else if(as > hs){
+
+        a.wins++;
+
+        a.points += 3;
+
+        h.losses++;
+
+      }
+
+      else{
+
+        h.draws++;
+
+        a.draws++;
+
+        h.points++;
+
+        a.points++;
+
+      }
+
+    });
+
+
+  /*
+   * EVENTS
+   */
+
+  await calculateEventStatistics(
+    competitionIdValue,
+    result
+  );
+
+
+  return Object.values(
+    result
+  );
 
 }
-
-
-const h=
-result[
-String(m.home_club_id)
-];
-
-const a=
-result[
-String(m.away_club_id)
-];
-
-
-if(!h||!a){
-
-return;
-
-}
-
-
-const hs=
-Number(m.home_score);
-
-const as=
-Number(m.away_score);
-
-
-h.played++;
-a.played++;
-
-
-h.gf+=hs;
-h.ga+=as;
-
-
-a.gf+=as;
-a.ga+=hs;
-
-
-if(hs>as){
-
-h.wins++;
-h.points+=3;
-
-a.losses++;
-
-}
-
-else if(as>hs){
-
-a.wins++;
-a.points+=3;
-
-h.losses++;
-
-}
-
-else{
-
-h.draws++;
-a.draws++;
-
-h.points++;
-a.points++;
-
-}
-
-});
-
-
-return Object.values(result);
-
-}
-
 
 
 /* =========================================================
-STANDINGS SORT
-POINTS FIRST
+EVENT STATISTICS
+RED CARD
+YELLOW CARD
+COINS
+========================================================= */
+
+async function calculateEventStatistics(
+  competitionIdValue,
+  result
+){
+
+  if(!matchEvents.length){
+    return;
+  }
+
+
+  for(
+    const event of matchEvents
+  ){
+
+    const match =
+      matches.find(
+        m =>
+        String(m.id) ===
+        String(event.match_id)
+      );
+
+
+    if(!match){
+      continue;
+    }
+
+
+    if(
+      String(match.competition_id) !==
+      String(competitionIdValue)
+    ){
+      continue;
+    }
+
+
+    /*
+     * Tunatumia player_id
+     * na players table kupata club.
+     */
+
+    const playerId =
+      getField(
+        event,
+        ["player_id"]
+      );
+
+
+    if(!playerId){
+      continue;
+    }
+
+
+    const playerResult =
+      await supabaseClient
+        .from("players")
+        .select("*")
+        .eq("id",playerId)
+        .maybeSingle();
+
+
+    if(
+      playerResult.error ||
+      !playerResult.data
+    ){
+      continue;
+    }
+
+
+    const player =
+      playerResult.data;
+
+
+    const clubId =
+      getField(
+        player,
+        [
+          "club_id",
+          "current_club_id"
+        ]
+      );
+
+
+    if(!clubId){
+      continue;
+    }
+
+
+    const row =
+      result[
+        String(clubId)
+      ];
+
+
+    if(!row){
+      continue;
+    }
+
+
+    const eventType =
+      String(
+        getField(
+          event,
+          ["event_type","type"],
+          ""
+        )
+      ).toLowerCase();
+
+
+    if(
+      eventType.includes(
+        "red"
+      )
+    ){
+
+      row.red++;
+
+    }
+
+
+    if(
+      eventType.includes(
+        "yellow"
+      )
+    ){
+
+      row.yellow++;
+
+    }
+
+
+    if(
+      eventType.includes(
+        "coin"
+      ) ||
+      eventType.includes(
+        "sarafu"
+      )
+    ){
+
+      row.coins++;
+
+    }
+
+  }
+
+}
+
+
+/* =========================================================
+SORT STANDINGS
+POINTS
 GF
 GA
 RED
@@ -3277,560 +3479,578 @@ COINS
 
 function sortStandings(a,b){
 
-if(
-b.points!==a.points
-){
+  if(
+    b.points !==
+    a.points
+  ){
 
-return b.points-a.points;
+    return (
+      b.points -
+      a.points
+    );
+
+  }
+
+
+  if(
+    b.gf !==
+    a.gf
+  ){
+
+    return (
+      b.gf -
+      a.gf
+    );
+
+  }
+
+
+  /*
+   * GA:
+   * Magoli machache ya kufungwa
+   * yanakuwa bora.
+   */
+
+  if(
+    a.ga !==
+    b.ga
+  ){
+
+    return (
+      a.ga -
+      b.ga
+    );
+
+  }
+
+
+  /*
+   * Red Card:
+   * chache ni bora.
+   */
+
+  if(
+    a.red !==
+    b.red
+  ){
+
+    return (
+      a.red -
+      b.red
+    );
+
+  }
+
+
+  /*
+   * Yellow Card:
+   * chache ni bora.
+   */
+
+  if(
+    a.yellow !==
+    b.yellow
+  ){
+
+    return (
+      a.yellow -
+      b.yellow
+    );
+
+  }
+
+
+  /*
+   * Sarafu:
+   * nyingi ni bora.
+   */
+
+  if(
+    b.coins !==
+    a.coins
+  ){
+
+    return (
+      b.coins -
+      a.coins
+    );
+
+  }
+
+
+  return 0;
 
 }
-
-
-if(
-b.gf!==a.gf
-){
-
-return b.gf-a.gf;
-
-}
-
-
-if(
-a.ga!==b.ga
-){
-
-return a.ga-b.ga;
-
-}
-
-
-if(
-a.red!==b.red
-){
-
-return a.red-b.red;
-
-}
-
-
-if(
-a.yellow!==b.yellow
-){
-
-return a.yellow-b.yellow;
-
-}
-
-
-if(
-b.coins!==a.coins
-){
-
-return b.coins-a.coins;
-
-}
-
-
-return 0;
-
-}
-
 
 
 /* =========================================================
-RENDER STANDINGS
+GET POSITION
 ========================================================= */
 
-function renderStandings(){
+function getStandingPosition(
+  standings,
+  group,
+  position
+){
 
-const competitionId=
-document.getElementById(
-"standingCompetitionSelect"
-).value;
-
-
-const group=
-document.getElementById(
-"standingGroup"
-).value;
-
-
-const tbody=
-document.getElementById(
-"standingsTable"
-);
+  const rows =
+    standings
+      .filter(
+        x =>
+        String(x.group) ===
+        String(group)
+      )
+      .sort(sortStandings);
 
 
-tbody.innerHTML="";
-
-
-if(!competitionId){
-
-return;
+  return rows[position-1] || null;
 
 }
-
-
-let rows=
-calculateStandings(
-competitionId
-);
-
-
-if(group){
-
-rows=
-rows.filter(
-r=>
-String(r.group)===String(group)
-);
-
-}
-
-
-rows.sort(
-sortStandings
-);
-
-
-rows.forEach(
-(r,index)=>{
-
-const tr=
-document.createElement("tr");
-
-
-tr.innerHTML=`
-
-<td>
-<strong>
-${index+1}
-</strong>
-</td>
-
-<td>
-<strong>
-${escapeHTML(
-getClubNameById(
-r.club_id
-)
-)}
-</strong>
-</td>
-
-<td>${r.played}</td>
-
-<td>${r.wins}</td>
-
-<td>${r.draws}</td>
-
-<td>${r.losses}</td>
-
-<td>${r.gf}</td>
-
-<td>${r.ga}</td>
-
-<td>
-<strong>
-${r.points}
-</strong>
-</td>
-
-<td>${r.red}</td>
-
-<td>${r.yellow}</td>
-
-<td>${r.coins}</td>
-
-`;
-
-
-tbody.appendChild(tr);
-
-});
-
-}
-
 
 
 /* =========================================================
 ROUND OF 16
+1A vs 2B
+1B vs 2A
+1C vs 2D
+1D vs 2C
+1E vs 2F
+1F vs 2E
+1G vs 2H
+1H vs 2G
 ========================================================= */
 
 async function generateRound16(){
 
-const competitionId=
-document.getElementById(
-"teamCompetitionSelect"
-).value;
+  const competitionIdValue =
+    document.getElementById(
+      "teamCompetitionSelect"
+    ).value;
 
 
-if(!competitionId){
+  if(!competitionIdValue){
 
-showStatus(
-"❌ Chagua competition.",
-true
-);
+    showStatus(
+      "❌ Chagua competition.",
+      true
+    );
 
-return;
-
-}
-
-
-const standings=
-calculateStandings(
-competitionId
-);
+    return;
+  }
 
 
-const getTeam=
-(group,pos)=>{
-
-const rows=
-standings
-.filter(
-x=>
-String(x.group)===String(group)
-)
-.sort(sortStandings);
-
-return rows[pos-1];
-
-};
+  const standings =
+    await calculateStandings(
+      competitionIdValue
+    );
 
 
-const pattern=[
-
-["A",1,"B",2],
-
-["B",1,"A",2],
-
-["C",1,"D",2],
-
-["D",1,"C",2],
-
-["E",1,"F",2],
-
-["F",1,"E",2],
-
-["G",1,"H",2],
-
-["H",1,"G",2]
-
-];
+  if(!standings){
+    return;
+  }
 
 
-const games=[];
+  const rules = [
+
+    ["A",1,"B",2],
+
+    ["B",1,"A",2],
+
+    ["C",1,"D",2],
+
+    ["D",1,"C",2],
+
+    ["E",1,"F",2],
+
+    ["F",1,"E",2],
+
+    ["G",1,"H",2],
+
+    ["H",1,"G",2]
+
+  ];
 
 
-pattern.forEach(p=>{
-
-const a=
-getTeam(p[0],p[1]);
-
-const b=
-getTeam(p[2],p[3]);
+  const games = [];
 
 
-if(a&&b){
+  rules.forEach(rule=>{
 
-games.push({
-
-home:a.club_id,
-
-away:b.club_id
-
-});
-
-}
-
-});
+    const home =
+      getStandingPosition(
+        standings,
+        rule[0],
+        rule[1]
+      );
 
 
-if(!games.length){
-
-showStatus(
-"❌ Haijapata teams za 16 Bora.",
-true
-);
-
-return;
-
-}
+    const away =
+      getStandingPosition(
+        standings,
+        rule[2],
+        rule[3]
+      );
 
 
-await insertMatches(
-competitionId,
-"Round of 16",
-games
-);
+    if(home && away){
+
+      games.push({
+
+        home:
+          home.club_id,
+
+        away:
+          away.club_id
+
+      });
+
+    }
+
+  });
+
+
+  if(!games.length){
+
+    showStatus(
+      "❌ Haijapata teams za 16 Bora. Hakikisha Group Stage na classement vimekamilika.",
+      true
+    );
+
+    return;
+  }
+
+
+  await insertMatches(
+    competitionIdValue,
+    "Round of 16",
+    games
+  );
 
 }
-
 
 
 /* =========================================================
-WINNER
+GET WINNER
+PENALTIES INCLUDED
 ========================================================= */
 
 function getWinner(match){
 
-if(
-match.home_score===null ||
-match.home_score===undefined ||
-match.away_score===null ||
-match.away_score===undefined
-){
+  if(!match){
+    return null;
+  }
 
-return null;
+
+  if(
+    match.home_score === null ||
+    match.home_score === undefined ||
+    match.away_score === null ||
+    match.away_score === undefined
+  ){
+
+    return null;
+
+  }
+
+
+  const homeScore =
+    Number(match.home_score);
+
+
+  const awayScore =
+    Number(match.away_score);
+
+
+  if(
+    homeScore >
+    awayScore
+  ){
+
+    return match.home_club_id;
+
+  }
+
+
+  if(
+    awayScore >
+    homeScore
+  ){
+
+    return match.away_club_id;
+
+  }
+
+
+  /*
+   * DRAW
+   * TUMIA PENALTY
+   */
+
+  if(
+    match.home_penalty_score !== null &&
+    match.home_penalty_score !== undefined &&
+    match.away_penalty_score !== null &&
+    match.away_penalty_score !== undefined
+  ){
+
+    const hp =
+      Number(
+        match.home_penalty_score
+      );
+
+
+    const ap =
+      Number(
+        match.away_penalty_score
+      );
+
+
+    if(hp > ap){
+
+      return match.home_club_id;
+
+    }
+
+
+    if(ap > hp){
+
+      return match.away_club_id;
+
+    }
+
+  }
+
+
+  return null;
 
 }
-
-
-const home=
-Number(match.home_score);
-
-const away=
-Number(match.away_score);
-
-
-if(home>away){
-
-return match.home_club_id;
-
-}
-
-
-if(away>home){
-
-return match.away_club_id;
-
-}
-
-
-/*
-DRAW:
-PENALTY
-*/
-
-if(
-match.home_penalty_score!==null &&
-match.home_penalty_score!==undefined &&
-match.away_penalty_score!==null &&
-match.away_penalty_score!==undefined
-){
-
-if(
-Number(match.home_penalty_score)
->
-Number(match.away_penalty_score)
-){
-
-return match.home_club_id;
-
-}
-
-
-if(
-Number(match.away_penalty_score)
->
-Number(match.home_penalty_score)
-){
-
-return match.away_club_id;
-
-}
-
-}
-
-
-return null;
-
-}
-
 
 
 /* =========================================================
-QUARTER FINAL
+QUARTER FINALS
+AB vs CD
+BA vs DC
+EF vs GH
+FE vs HG
 ========================================================= */
 
 async function generateQuarterFinals(){
 
-const competitionId=
-document.getElementById(
-"teamCompetitionSelect"
-).value;
+  const competitionIdValue =
+    document.getElementById(
+      "teamCompetitionSelect"
+    ).value;
 
 
-const r16=
-matches
-.filter(
-m=>
-String(m.competition_id)
-===
-String(competitionId)
-&&
-m.stage==="Round of 16"
-)
-.sort(
-(a,b)=>
-Number(a.match_number)-
-Number(b.match_number)
-);
+  if(!competitionIdValue){
+
+    showStatus(
+      "❌ Chagua competition.",
+      true
+    );
+
+    return;
+  }
 
 
-if(r16.length<8){
+  const r16 =
+    matches
+      .filter(
+        m =>
+        String(m.competition_id) ===
+        String(competitionIdValue)
+        &&
+        String(m.stage) ===
+        "Round of 16"
+      )
+      .sort(
+        (a,b)=>
+        Number(a.match_number) -
+        Number(b.match_number)
+      );
 
-showStatus(
-"❌ Kamilisha 16 Bora kwanza.",
-true
-);
 
-return;
+  if(r16.length < 8){
+
+    showStatus(
+      "❌ Kwanza tengeneza 16 Bora.",
+      true
+    );
+
+    return;
+  }
+
+
+  const games = [];
+
+
+  const pairs = [
+
+    [r16[0],r16[2]],
+
+    [r16[1],r16[3]],
+
+    [r16[4],r16[6]],
+
+    [r16[5],r16[7]]
+
+  ];
+
+
+  pairs.forEach(pair=>{
+
+    const home =
+      getWinner(pair[0]);
+
+
+    const away =
+      getWinner(pair[1]);
+
+
+    if(home && away){
+
+      games.push({
+
+        home:home,
+
+        away:away
+
+      });
+
+    }
+
+  });
+
+
+  if(
+    games.length < 4
+  ){
+
+    showStatus(
+      "❌ Weka kwanza matokeo ya 16 Bora yote.",
+      true
+    );
+
+    return;
+  }
+
+
+  await insertMatches(
+    competitionIdValue,
+    "Quarter Final",
+    games
+  );
 
 }
-
-
-const winners=
-r16.map(
-getWinner
-);
-
-
-if(
-winners.some(
-x=>!x
-)
-){
-
-showStatus(
-"❌ Kamilisha matokeo ya 16 Bora kwanza.",
-true
-);
-
-return;
-
-}
-
-
-const games=[
-
-{
-home:winners[0],
-away:winners[2]
-},
-
-{
-home:winners[1],
-away:winners[3]
-},
-
-{
-home:winners[4],
-away:winners[6]
-},
-
-{
-home:winners[5],
-away:winners[7]
-}
-
-];
-
-
-await insertMatches(
-competitionId,
-"Quarter Final",
-games
-);
-
-}
-
 
 
 /* =========================================================
 SEMI FINAL
+ABCD vs EFGH
+BADC vs FEHG
 ========================================================= */
 
 async function generateSemiFinals(){
 
-const competitionId=
-document.getElementById(
-"teamCompetitionSelect"
-).value;
+  const competitionIdValue =
+    document.getElementById(
+      "teamCompetitionSelect"
+    ).value;
 
 
-const qf=
-matches
-.filter(
-m=>
-String(m.competition_id)
-===
-String(competitionId)
-&&
-m.stage==="Quarter Final"
-)
-.sort(
-(a,b)=>
-Number(a.match_number)-
-Number(b.match_number)
-);
+  if(!competitionIdValue){
+
+    showStatus(
+      "❌ Chagua competition.",
+      true
+    );
+
+    return;
+  }
 
 
-if(qf.length<4){
+  const qf =
+    matches
+      .filter(
+        m =>
+        String(m.competition_id) ===
+        String(competitionIdValue)
+        &&
+        String(m.stage) ===
+        "Quarter Final"
+      )
+      .sort(
+        (a,b)=>
+        Number(a.match_number) -
+        Number(b.match_number)
+      );
 
-showStatus(
-"❌ Kamilisha Robo Fainali kwanza.",
-true
-);
 
-return;
+  if(qf.length < 4){
+
+    showStatus(
+      "❌ Kwanza tengeneza Robo Fainali.",
+      true
+    );
+
+    return;
+  }
+
+
+  const w1 =
+    getWinner(qf[0]);
+
+
+  const w2 =
+    getWinner(qf[1]);
+
+
+  const w3 =
+    getWinner(qf[2]);
+
+
+  const w4 =
+    getWinner(qf[3]);
+
+
+  if(
+    !w1 ||
+    !w2 ||
+    !w3 ||
+    !w4
+  ){
+
+    showStatus(
+      "❌ Weka matokeo ya Robo Fainali yote kwanza.",
+      true
+    );
+
+    return;
+  }
+
+
+  const games = [
+
+    {
+      home:w1,
+      away:w2
+    },
+
+    {
+      home:w3,
+      away:w4
+    }
+
+  ];
+
+
+  await insertMatches(
+    competitionIdValue,
+    "Semi Final",
+    games
+  );
 
 }
-
-
-const winners=
-qf.map(
-getWinner
-);
-
-
-if(
-winners.some(
-x=>!x
-)
-){
-
-showStatus(
-"❌ Kamilisha matokeo ya Robo Fainali kwanza.",
-true
-);
-
-return;
-
-}
-
-
-await insertMatches(
-competitionId,
-"Semi Final",
-[
-
-{
-home:winners[0],
-away:winners[1]
-},
-
-{
-home:winners[2],
-away:winners[3]
-}
-
-]
-);
-
-}
-
 
 
 /* =========================================================
@@ -3839,103 +4059,179 @@ CLASSIFICATION
 
 async function generateClassification(){
 
-const competitionId=
-document.getElementById(
-"teamCompetitionSelect"
-).value;
+  const competitionIdValue =
+    document.getElementById(
+      "teamCompetitionSelect"
+    ).value;
 
 
-const sf=
-matches
-.filter(
-m=>
-String(m.competition_id)
-===
-String(competitionId)
-&&
-m.stage==="Semi Final"
-)
-.sort(
-(a,b)=>
-Number(a.match_number)-
-Number(b.match_number)
-);
+  if(!competitionIdValue){
+
+    showStatus(
+      "❌ Chagua competition.",
+      true
+    );
+
+    return;
+  }
 
 
-if(sf.length<2){
+  /*
+   * Classification inafuata
+   * washindi wa nusu fainali
+   * kulingana na mfumo wako.
+   */
 
-showStatus(
-"❌ Kamilisha Nusu Fainali kwanza.",
-true
-);
-
-return;
-
-}
-
-
-const losers=[];
-
-
-sf.forEach(m=>{
-
-const winner=
-getWinner(m);
-
-
-if(!winner){
-
-return;
-
-}
+  const sf =
+    matches
+      .filter(
+        m =>
+        String(m.competition_id) ===
+        String(competitionIdValue)
+        &&
+        String(m.stage) ===
+        "Semi Final"
+      )
+      .sort(
+        (a,b)=>
+        Number(a.match_number) -
+        Number(b.match_number)
+      );
 
 
-if(
-winner===m.home_club_id
-){
+  if(sf.length < 2){
 
-losers.push(
-m.away_club_id
-);
+    showStatus(
+      "❌ Kwanza tengeneza Nusu Fainali.",
+      true
+    );
 
-}else{
-
-losers.push(
-m.home_club_id
-);
-
-}
-
-});
+    return;
+  }
 
 
-if(losers.length<2){
-
-showStatus(
-"❌ Haijapata timu za Classification.",
-true
-);
-
-return;
-
-}
+  const loser1 =
+    getLoser(sf[0]);
 
 
-await insertMatches(
-competitionId,
-"Classification",
-[
+  const loser2 =
+    getLoser(sf[1]);
 
-{
-home:losers[0],
-away:losers[1]
-}
 
-]
-);
+  if(
+    !loser1 ||
+    !loser2
+  ){
+
+    showStatus(
+      "❌ Weka matokeo ya Nusu Fainali kwanza.",
+      true
+    );
+
+    return;
+  }
+
+
+  await insertMatches(
+    competitionIdValue,
+    "Classification",
+    [
+      {
+        home:loser1,
+        away:loser2
+      }
+    ]
+  );
 
 }
 
+
+/* =========================================================
+GET LOSER
+========================================================= */
+
+function getLoser(match){
+
+  if(!match){
+    return null;
+  }
+
+
+  if(
+    match.home_score === null ||
+    match.home_score === undefined ||
+    match.away_score === null ||
+    match.away_score === undefined
+  ){
+
+    return null;
+  }
+
+
+  const hs =
+    Number(match.home_score);
+
+
+  const as =
+    Number(match.away_score);
+
+
+  if(hs > as){
+
+    return match.away_club_id;
+
+  }
+
+
+  if(as > hs){
+
+    return match.home_club_id;
+
+  }
+
+
+  /*
+   * PENALTIES
+   */
+
+  if(
+    match.home_penalty_score !== null &&
+    match.home_penalty_score !== undefined &&
+    match.away_penalty_score !== null &&
+    match.away_penalty_score !== undefined
+  ){
+
+    const hp =
+      Number(
+        match.home_penalty_score
+      );
+
+
+    const ap =
+      Number(
+        match.away_penalty_score
+      );
+
+
+    if(hp > ap){
+
+      return match.away_club_id;
+
+    }
+
+
+    if(ap > hp){
+
+      return match.home_club_id;
+
+    }
+
+  }
+
+
+  return null;
+
+}
 
 
 /* =========================================================
@@ -3944,75 +4240,209 @@ FINAL
 
 async function generateFinal(){
 
-const competitionId=
-document.getElementById(
-"teamCompetitionSelect"
-).value;
+  const competitionIdValue =
+    document.getElementById(
+      "teamCompetitionSelect"
+    ).value;
 
 
-const sf=
-matches
-.filter(
-m=>
-String(m.competition_id)
-===
-String(competitionId)
-&&
-m.stage==="Semi Final"
-)
-.sort(
-(a,b)=>
-Number(a.match_number)-
-Number(b.match_number)
-);
+  if(!competitionIdValue){
+
+    showStatus(
+      "❌ Chagua competition.",
+      true
+    );
+
+    return;
+  }
 
 
-if(sf.length<2){
+  const sf =
+    matches
+      .filter(
+        m =>
+        String(m.competition_id) ===
+        String(competitionIdValue)
+        &&
+        String(m.stage) ===
+        "Semi Final"
+      )
+      .sort(
+        (a,b)=>
+        Number(a.match_number) -
+        Number(b.match_number)
+      );
 
-showStatus(
-"❌ Kamilisha Nusu Fainali kwanza.",
-true
-);
 
-return;
+  if(sf.length < 2){
+
+    showStatus(
+      "❌ Kwanza tengeneza Nusu Fainali.",
+      true
+    );
+
+    return;
+  }
+
+
+  const w1 =
+    getWinner(sf[0]);
+
+
+  const w2 =
+    getWinner(sf[1]);
+
+
+  if(
+    !w1 ||
+    !w2
+  ){
+
+    showStatus(
+      "❌ Weka matokeo ya Nusu Fainali kwanza.",
+      true
+    );
+
+    return;
+  }
+
+
+  await insertMatches(
+    competitionIdValue,
+    "Final",
+    [
+      {
+        home:w1,
+        away:w2
+      }
+    ]
+  );
 
 }
 
 
-const w1=
-getWinner(sf[0]);
+/* =========================================================
+RENDER STANDINGS
+========================================================= */
 
-const w2=
-getWinner(sf[1]);
+async function renderStandings(){
+
+  const competitionIdValue =
+    document.getElementById(
+      "standingCompetitionSelect"
+    ).value;
 
 
-if(!w1||!w2){
+  const group =
+    document.getElementById(
+      "standingGroup"
+    ).value;
 
-showStatus(
-"❌ Weka matokeo ya Nusu Fainali kwanza.",
-true
-);
 
-return;
+  const tbody =
+    document.getElementById(
+      "standingsTable"
+    );
+
+
+  tbody.innerHTML = "";
+
+
+  if(!competitionIdValue){
+    return;
+  }
+
+
+  let rows =
+    await calculateStandings(
+      competitionIdValue
+    );
+
+
+  if(!rows){
+    return;
+  }
+
+
+  if(group){
+
+    rows =
+      rows.filter(
+        r =>
+        String(r.group) ===
+        String(group)
+      );
+
+  }
+
+
+  rows.sort(
+    sortStandings
+  );
+
+
+  rows.forEach(
+    (r,index)=>{
+
+      const tr =
+        document.createElement(
+          "tr"
+        );
+
+
+      tr.innerHTML = `
+
+        <td>
+          <strong>
+            ${index+1}
+          </strong>
+        </td>
+
+        <td>
+          <strong>
+            ${escapeHTML(
+              getClubNameById(
+                r.club_id
+              )
+            )}
+          </strong>
+        </td>
+
+        <td>${r.played}</td>
+
+        <td>${r.wins}</td>
+
+        <td>${r.draws}</td>
+
+        <td>${r.losses}</td>
+
+        <td>${r.gf}</td>
+
+        <td>${r.ga}</td>
+
+        <td>
+          <strong>
+            ${r.points}
+          </strong>
+        </td>
+
+        <td>${r.red}</td>
+
+        <td>${r.yellow}</td>
+
+        <td>${r.coins}</td>
+
+      `;
+
+
+      tbody.appendChild(
+        tr
+      );
+
+    }
+  );
 
 }
-
-
-await insertMatches(
-competitionId,
-"Final",
-[
-
-{
-home:w1,
-away:w2
-}
-
-]
-);
-
-}
-
 
 
 /* =========================================================
@@ -4021,174 +4451,205 @@ MATCH RENDER
 
 function renderMatches(){
 
-const container=
-document.getElementById(
-"matchesContainer"
-);
+  const container =
+    document.getElementById(
+      "matchesContainer"
+    );
 
 
-const competitionId=
-document.getElementById(
-"matchCompetitionSelect"
-).value;
+  const competitionIdValue =
+    document.getElementById(
+      "matchCompetitionSelect"
+    ).value;
 
 
-const stage=
-document.getElementById(
-"matchStageSelect"
-).value;
+  const stage =
+    document.getElementById(
+      "matchStageSelect"
+    ).value;
 
 
-if(!competitionId){
+  if(!competitionIdValue){
 
-container.innerHTML=
-`
-<div class="empty">
-Chagua competition.
-</div>
-`;
+    container.innerHTML =
+      `<div class="empty">
+      Chagua competition.
+      </div>`;
 
-return;
+    return;
+  }
+
+
+  let list =
+    matches.filter(
+      m =>
+      String(m.competition_id) ===
+      String(competitionIdValue)
+    );
+
+
+  if(stage){
+
+    list =
+      list.filter(
+        m =>
+        String(m.stage) ===
+        String(stage)
+      );
+
+  }
+
+
+  list.sort(
+    (a,b)=>
+    Number(a.match_number) -
+    Number(b.match_number)
+  );
+
+
+  if(!list.length){
+
+    container.innerHTML =
+      `<div class="empty">
+      Hakuna mechi.
+      </div>`;
+
+    return;
+  }
+
+
+  container.innerHTML =
+    "";
+
+
+  list.forEach(m=>{
+
+    const div =
+      document.createElement(
+        "div"
+      );
+
+
+    div.className =
+      "match-card";
+
+
+    const home =
+      getClubNameById(
+        m.home_club_id
+      );
+
+
+    const away =
+      getClubNameById(
+        m.away_club_id
+      );
+
+
+    const hs =
+      m.home_score ??
+      "-";
+
+
+    const as =
+      m.away_score ??
+      "-";
+
+
+    const penalties =
+      (
+        m.home_penalty_score !== null &&
+        m.home_penalty_score !== undefined
+        &&
+        m.away_penalty_score !== null &&
+        m.away_penalty_score !== undefined
+      )
+      ?
+      ` (Pen ${m.home_penalty_score}-${m.away_penalty_score})`
+      :
+      "";
+
+
+    div.innerHTML = `
+
+      <div class="match-top">
+
+        <span class="match-number">
+
+          MECHI #${m.match_number || "-"}
+
+        </span>
+
+        <strong>
+
+          ${escapeHTML(
+            m.stage || "-"
+          )}
+
+        </strong>
+
+      </div>
+
+
+      <div class="match-teams">
+
+        ${escapeHTML(home)}
+
+        &nbsp;
+
+        ${hs}
+
+        &nbsp;–&nbsp;
+
+        ${as}
+
+        &nbsp;
+
+        ${escapeHTML(away)}
+
+        ${penalties}
+
+      </div>
+
+
+      <div class="match-date">
+
+        📅
+
+        ${
+          m.match_date
+          ? formatDate(
+              m.match_date
+            )
+          : "Tarehe haijawekwa"
+        }
+
+      </div>
+
+
+      <div>
+
+        <button
+          class="info small-btn"
+          onclick="editMatch('${m.id}')"
+        >
+
+          ✏️ Weka Matokeo
+
+        </button>
+
+      </div>
+
+    `;
+
+
+    container.appendChild(
+      div
+    );
+
+  });
 
 }
-
-
-let list=
-matches.filter(
-m=>
-String(m.competition_id)
-===
-String(competitionId)
-);
-
-
-if(stage){
-
-list=
-list.filter(
-m=>
-m.stage===stage
-);
-
-}
-
-
-if(!list.length){
-
-container.innerHTML=
-`
-<div class="empty">
-Hakuna mechi.
-</div>
-`;
-
-return;
-
-}
-
-
-container.innerHTML="";
-
-
-list.sort(
-(a,b)=>
-Number(a.match_number||0)-
-Number(b.match_number||0)
-);
-
-
-list.forEach(m=>{
-
-const div=
-document.createElement("div");
-
-div.className=
-"match-card";
-
-
-const home=
-getClubNameById(
-m.home_club_id
-);
-
-
-const away=
-getClubNameById(
-m.away_club_id
-);
-
-
-div.innerHTML=`
-
-<div class="match-top">
-
-<span class="match-number">
-
-MECHI #${m.match_number||"-"}
-
-</span>
-
-<strong>
-${escapeHTML(
-m.stage||"-"
-)}
-</strong>
-
-</div>
-
-
-<div class="match-teams">
-
-${escapeHTML(home)}
-
-&nbsp;
-
-${m.home_score??"-"}
-
-&nbsp;–&nbsp;
-
-${m.away_score??"-"}
-
-&nbsp;
-
-${escapeHTML(away)}
-
-</div>
-
-
-<div class="match-date">
-
-📅
-
-${
-m.match_date
-?
-formatDate(m.match_date)
-:
-"Tarehe haijawekwa"
-}
-
-</div>
-
-
-<button
-class="info small-btn"
-onclick="editMatch('${m.id}')"
->
-
-✏️ Weka Matokeo
-
-</button>
-
-`;
-
-
-container.appendChild(div);
-
-});
-
-}
-
 
 
 /* =========================================================
@@ -4197,161 +4658,202 @@ EDIT MATCH
 
 function editMatch(id){
 
-const match=
-matches.find(
-m=>
-String(m.id)===String(id)
-);
+  const match =
+    matches.find(
+      m =>
+      String(m.id) ===
+      String(id)
+    );
 
 
-if(!match)return;
+  if(!match){
+    return;
+  }
 
 
-const home=
-getClubNameById(
-match.home_club_id
-);
+  const body =
+    document.getElementById(
+      "matchModalBody"
+    );
 
 
-const away=
-getClubNameById(
-match.away_club_id
-);
+  body.innerHTML = `
+
+    <div class="success-box">
+
+      <strong>
+        MECHI #${match.match_number}
+      </strong>
+
+      <br><br>
+
+      ${escapeHTML(
+        getClubNameById(
+          match.home_club_id
+        )
+      )}
+
+      vs
+
+      ${escapeHTML(
+        getClubNameById(
+          match.away_club_id
+        )
+      )}
+
+    </div>
 
 
-document.getElementById(
-"matchModalBody"
-).innerHTML=`
+    <div class="two-cols">
 
-<div class="success-box">
+      <div class="form-group">
 
-<strong>
-MECHI #${match.match_number}
-</strong>
+        <label>
 
-<br>
+          ${escapeHTML(
+            getClubNameById(
+              match.home_club_id
+            )
+          )}
 
-${escapeHTML(home)}
-vs
-${escapeHTML(away)}
+          - Magoli
 
-</div>
+        </label>
 
+        <input
+          type="number"
+          id="homeScore"
+          min="0"
+          value="${match.home_score ?? ""}"
+        >
 
-<div class="two-cols">
-
-<div class="form-group">
-
-<label>
-${escapeHTML(home)}
-- Magoli
-</label>
-
-<input
-type="number"
-min="0"
-id="homeScore"
-value="${match.home_score??""}"
->
-
-</div>
+      </div>
 
 
-<div class="form-group">
+      <div class="form-group">
 
-<label>
-${escapeHTML(away)}
-- Magoli
-</label>
+        <label>
 
-<input
-type="number"
-min="0"
-id="awayScore"
-value="${match.away_score??""}"
->
+          ${escapeHTML(
+            getClubNameById(
+              match.away_club_id
+            )
+          )}
 
-</div>
+          - Magoli
 
-</div>
+        </label>
 
+        <input
+          type="number"
+          id="awayScore"
+          min="0"
+          value="${match.away_score ?? ""}"
+        >
 
-<div class="two-cols">
+      </div>
 
-<div class="form-group">
-
-<label>
-Penalty - ${escapeHTML(home)}
-</label>
-
-<input
-type="number"
-min="0"
-id="homePenalty"
-value="${match.home_penalty_score??""}"
->
-
-</div>
+    </div>
 
 
-<div class="form-group">
+    <div class="two-cols">
 
-<label>
-Penalty - ${escapeHTML(away)}
-</label>
+      <div class="form-group">
 
-<input
-type="number"
-min="0"
-id="awayPenalty"
-value="${match.away_penalty_score??""}"
->
+        <label>
 
-</div>
+          Penalty -
 
-</div>
+          ${escapeHTML(
+            getClubNameById(
+              match.home_club_id
+            )
+          )}
 
+        </label>
 
-<div class="form-group">
+        <input
+          type="number"
+          id="homePenalty"
+          min="0"
+          value="${
+            match.home_penalty_score ??
+            ""
+          }"
+        >
 
-<label>
-Tarehe ya Mechi
-</label>
-
-<input
-type="date"
-id="matchDate"
-value="${
-match.match_date
-?
-String(match.match_date).substring(0,10)
-:
-""
-}"
->
-
-</div>
+      </div>
 
 
-<button
-class="primary full"
-onclick="saveMatchResult('${match.id}')"
->
+      <div class="form-group">
 
-💾 Hifadhi Matokeo
+        <label>
 
-</button>
+          Penalty -
 
-`;
+          ${escapeHTML(
+            getClubNameById(
+              match.away_club_id
+            )
+          )}
+
+        </label>
+
+        <input
+          type="number"
+          id="awayPenalty"
+          min="0"
+          value="${
+            match.away_penalty_score ??
+            ""
+          }"
+        >
+
+      </div>
+
+    </div>
 
 
-document.getElementById(
-"matchModal"
-).style.display=
-"block";
+    <div class="form-group">
+
+      <label>
+        Tarehe ya Mechi
+      </label>
+
+      <input
+        type="date"
+        id="matchDate"
+        value="${
+          match.match_date
+          ? match.match_date.substring(
+              0,
+              10
+            )
+          : ""
+        }"
+      >
+
+    </div>
+
+
+    <button
+      class="primary full"
+      onclick="saveMatchResult('${match.id}')"
+    >
+
+      💾 Hifadhi Matokeo
+
+    </button>
+
+  `;
+
+
+  document.getElementById(
+    "matchModal"
+  ).style.display =
+    "block";
 
 }
-
 
 
 /* =========================================================
@@ -4360,129 +4862,223 @@ CLOSE MODAL
 
 function closeMatchModal(){
 
-document.getElementById(
-"matchModal"
-).style.display=
-"none";
+  document.getElementById(
+    "matchModal"
+  ).style.display =
+    "none";
 
 }
 
 
-
 /* =========================================================
-SAVE RESULT
+SAVE MATCH RESULT
 ========================================================= */
 
 async function saveMatchResult(id){
 
-const homeScore=
-document.getElementById(
-"homeScore"
-).value;
+  const homeScore =
+    document.getElementById(
+      "homeScore"
+    ).value;
 
 
-const awayScore=
-document.getElementById(
-"awayScore"
-).value;
+  const awayScore =
+    document.getElementById(
+      "awayScore"
+    ).value;
 
 
-const homePenalty=
-document.getElementById(
-"homePenalty"
-).value;
+  const homePenalty =
+    document.getElementById(
+      "homePenalty"
+    ).value;
 
 
-const awayPenalty=
-document.getElementById(
-"awayPenalty"
-).value;
+  const awayPenalty =
+    document.getElementById(
+      "awayPenalty"
+    ).value;
 
 
-const matchDate=
-document.getElementById(
-"matchDate"
-).value;
+  const matchDate =
+    document.getElementById(
+      "matchDate"
+    ).value;
 
 
-if(
-homeScore==="" ||
-awayScore===""
-){
+  if(
+    homeScore === "" ||
+    awayScore === ""
+  ){
 
-showStatus(
-"❌ Weka magoli ya timu zote mbili.",
-true
-);
+    showStatus(
+      "❌ Weka magoli ya timu zote mbili.",
+      true
+    );
 
-return;
+    return;
+  }
+
+
+  /*
+   * Penalty zinafaa pale
+   * score ya kawaida ni draw.
+   */
+
+  if(
+    Number(homeScore) !==
+    Number(awayScore)
+  ){
+
+    /*
+     * Kama si draw,
+     * penalty inaweza kuachwa tupu.
+     */
+
+  }
+
+
+  const payload = {
+
+    home_score:
+      Number(homeScore),
+
+    away_score:
+      Number(awayScore),
+
+    home_penalty_score:
+      homePenalty === ""
+      ? null
+      : Number(homePenalty),
+
+    away_penalty_score:
+      awayPenalty === ""
+      ? null
+      : Number(awayPenalty),
+
+    match_date:
+      matchDate || null,
+
+    status:
+      "Completed"
+
+  };
+
+
+  const result =
+    await supabaseClient
+      .from("matches")
+      .update(payload)
+      .eq("id",id);
+
+
+  if(result.error){
+
+    showStatus(
+      "❌ Matokeo hayajahifadhiwa: " +
+      result.error.message,
+      true
+    );
+
+    return;
+  }
+
+
+  showStatus(
+    "✅ Matokeo yamehifadhiwa."
+  );
+
+
+  closeMatchModal();
+
+
+  await loadMatches();
+
+  await loadMatchEvents();
+
+  await renderStandings();
 
 }
 
 
-const payload={
+/* =========================================================
+CURRENT STAGE
+========================================================= */
 
-home_score:
-Number(homeScore),
+function updateCurrentStage(){
 
-away_score:
-Number(awayScore),
+  const order = [
 
-home_penalty_score:
-homePenalty===""
-?
-null
-:
-Number(homePenalty),
+    "Final",
 
-away_penalty_score:
-awayPenalty===""
-?
-null
-:
-Number(awayPenalty),
+    "Classification",
 
-match_date:
-matchDate||null,
+    "Semi Final",
 
-status:"Completed"
+    "Quarter Final",
 
-};
+    "Round of 16",
+
+    "Group Stage"
+
+  ];
 
 
-const result=
-await db
-.from("matches")
-.update(payload)
-.eq("id",id);
+  const competitionIdValue =
+    document.getElementById(
+      "teamCompetitionSelect"
+    ).value;
 
 
-if(result.error){
+  if(!competitionIdValue){
 
-showStatus(
-"❌ Matokeo hayajahifadhiwa: "+
-result.error.message,
-true
-);
+    document.getElementById(
+      "currentStage"
+    ).textContent =
+      "-";
 
-return;
+    return;
+  }
+
+
+  const competitionMatches =
+    matches.filter(
+      m =>
+      String(m.competition_id) ===
+      String(competitionIdValue)
+    );
+
+
+  for(
+    const stage of order
+  ){
+
+    if(
+      competitionMatches.some(
+        m =>
+        String(m.stage) ===
+        String(stage)
+      )
+    ){
+
+      document.getElementById(
+        "currentStage"
+      ).textContent =
+        stage;
+
+      return;
+
+    }
+
+  }
+
+
+  document.getElementById(
+    "currentStage"
+  ).textContent =
+    "-";
 
 }
-
-
-showStatus(
-"✅ Matokeo yamehifadhiwa."
-);
-
-
-closeMatchModal();
-
-await loadMatches();
-
-renderStandings();
-
-}
-
 
 
 /* =========================================================
@@ -4490,84 +5086,111 @@ EVENT LISTENERS
 ========================================================= */
 
 document
-.getElementById(
-"searchCompetition"
-)
-.addEventListener(
-"input",
-renderCompetitions
-);
+  .getElementById(
+    "searchCompetition"
+  )
+  .addEventListener(
+    "input",
+    renderCompetitions
+  );
 
 
 document
-.getElementById(
-"filterStatus"
-)
-.addEventListener(
-"change",
-renderCompetitions
-);
+  .getElementById(
+    "filterStatus"
+  )
+  .addEventListener(
+    "change",
+    renderCompetitions
+  );
 
 
 document
-.getElementById(
-"standingCompetitionSelect"
-)
-.addEventListener(
-"change",
-function(){
+  .getElementById(
+    "standingCompetitionSelect"
+  )
+  .addEventListener(
+    "change",
+    async function(){
 
-renderStandings();
-
-document.getElementById(
-"matchCompetitionSelect"
-).value=this.value;
-
-renderMatches();
-
-}
-);
+      document.getElementById(
+        "matchCompetitionSelect"
+      ).value =
+        this.value;
 
 
-document
-.getElementById(
-"standingGroup"
-)
-.addEventListener(
-"change",
-renderStandings
-);
+      document.getElementById(
+        "teamCompetitionSelect"
+      ).value =
+        this.value;
 
 
-document
-.getElementById(
-"matchCompetitionSelect"
-)
-.addEventListener(
-"change",
-function(){
+      populateClubSelect();
 
-renderMatches();
+      renderGroups();
 
-document.getElementById(
-"standingCompetitionSelect"
-).value=this.value;
+      await renderStandings();
 
-renderStandings();
+      renderMatches();
 
-}
-);
+      updateCurrentStage();
+
+    }
+  );
 
 
 document
-.getElementById(
-"matchStageSelect"
-)
-.addEventListener(
-"change",
-renderMatches
-);
+  .getElementById(
+    "standingGroup"
+  )
+  .addEventListener(
+    "change",
+    renderStandings
+  );
 
+
+document
+  .getElementById(
+    "matchCompetitionSelect"
+  )
+  .addEventListener(
+    "change",
+    async function(){
+
+      document.getElementById(
+        "standingCompetitionSelect"
+      ).value =
+        this.value;
+
+
+      document.getElementById(
+        "teamCompetitionSelect"
+      ).value =
+        this.value;
+
+
+      populateClubSelect();
+
+      renderGroups();
+
+      await renderStandings();
+
+      renderMatches();
+
+      updateCurrentStage();
+
+    }
+  );
+
+
+document
+  .getElementById(
+    "matchStageSelect"
+  )
+  .addEventListener(
+    "change",
+    renderMatches
+  );
 
 
 /* =========================================================
@@ -4576,44 +5199,61 @@ INITIALIZE
 
 async function init(){
 
-showStatus(
-"⏳ Inapakia AFRN Competition System..."
-);
+  try{
+
+    showStatus(
+      "⏳ Inapakia AFRN Competition System..."
+    );
 
 
-const clubsOK=
-await loadClubs();
+    const clubsOK =
+      await loadClubs();
 
 
-const competitionsOK=
-await loadCompetitions();
+    const competitionsOK =
+      await loadCompetitions();
 
 
-const teamsOK=
-await loadCompetitionTeams();
+    const teamsOK =
+      await loadCompetitionTeams();
 
 
-await loadMatches();
+    await loadMatches();
 
 
-if(
-clubsOK &&
-competitionsOK &&
-teamsOK
-){
+    await loadMatchEvents();
 
-showStatus(
-"✅ AFRN Competition System iko tayari."
-);
 
-}else{
+    if(
+      clubsOK &&
+      competitionsOK &&
+      teamsOK
+    ){
 
-showStatus(
-"⚠️ Kuna data ambayo haikupakiwa. Angalia error.",
-true
-);
+      showStatus(
+        "✅ AFRN Competition System iko tayari."
+      );
 
-}
+    }else{
+
+      showStatus(
+        "⚠️ Mfumo umefunguka lakini kuna data ambayo haikupakiwa. Angalia error.",
+        true
+      );
+
+    }
+
+  }catch(error){
+
+    console.error(error);
+
+    showStatus(
+      "❌ Mfumo umepata error: " +
+      error.message,
+      true
+    );
+
+  }
 
 }
 
@@ -4624,3 +5264,4 @@ init();
 
 </body>
 </html>
+```
