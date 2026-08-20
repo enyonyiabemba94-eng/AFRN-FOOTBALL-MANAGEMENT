@@ -1,3 +1,4 @@
+```html
 <!DOCTYPE html>
 <html lang="sw">
 
@@ -154,27 +155,6 @@
     .status.err{
       border-left-color:var(--danger);
       color:var(--danger);
-    }
-
-    .division{
-      margin:22px 0;
-    }
-
-    .division-title{
-      display:flex;
-      align-items:center;
-      justify-content:space-between;
-      margin-bottom:10px;
-    }
-
-    .division-title h2{
-      font-size:17px;
-      margin:0;
-    }
-
-    .count{
-      font-size:12px;
-      color:var(--muted);
     }
 
     .grid{
@@ -354,6 +334,18 @@
       margin-top:5px;
     }
 
+    .duplicate-warning{
+      display:none;
+      margin-top:8px;
+      padding:10px;
+      border-radius:9px;
+      background:#fff1f1;
+      color:var(--danger);
+      font-size:12px;
+      font-weight:700;
+      border:1px solid #ffcaca;
+    }
+
     @media(max-width:600px){
 
       form{
@@ -373,7 +365,9 @@
   </style>
 
 </head>
+
 <body>
+
 
 <header>
 
@@ -390,44 +384,35 @@
 
 <nav>
 
-  <a
-    href="./index.html">
+  <a href="./index.html">
     🏠 Dashboard
   </a>
 
-  <a
-    href="./clubs.html"
-    class="active">
+  <a href="./clubs.html" class="active">
     ⚽ Vilabu
   </a>
 
-  <a
-    href="./players.html">
+  <a href="./players.html">
     👤 Wachezaji
   </a>
 
-  <a
-    href="./contracts.html">
+  <a href="./contracts.html">
     📄 Mikataba
   </a>
 
-  <a
-    href="./transfers.html">
+  <a href="./transfers.html">
     🔄 Uhamisho
   </a>
 
-  <a
-    href="./competitions.html">
+  <a href="./competitions.html">
     🏆 Mashindano
   </a>
 
-  <a
-    href="./matches.html">
+  <a href="./matches.html">
     🏟️ Mechi
   </a>
 
-  <a
-    href="./reports.html">
+  <a href="./reports.html">
     📊 Ripoti
   </a>
 
@@ -435,6 +420,7 @@
 
 
 <main>
+
 
   <div
     id="status"
@@ -446,6 +432,7 @@
 
 
   <div class="toolbar">
+
 
     <input
       id="search"
@@ -496,11 +483,11 @@
 
     </button>
 
+
   </div>
 
 
-  <div
-    id="clubsContainer">
+  <div id="clubsContainer">
 
     <div class="empty">
 
@@ -516,7 +503,9 @@
 
 <dialog id="clubDialog">
 
+
   <div class="modal">
+
 
     <h2 id="modalTitle">
       ＋ Ongeza Klabu
@@ -524,6 +513,7 @@
 
 
     <form id="clubForm">
+
 
       <input
         type="hidden"
@@ -541,7 +531,17 @@
           id="name"
           type="text"
           maxlength="150"
-          required>
+          required
+          autocomplete="off">
+
+
+        <div
+          id="duplicateWarning"
+          class="duplicate-warning">
+
+          ⚠️ Timu hii tayari ipo kwenye mfumo.
+
+        </div>
 
       </div>
 
@@ -588,7 +588,7 @@
           class="field"
           id="zone"
           type="text"
-          placeholder="Mfano: Zone A"
+          placeholder="Mfano: ZONE 1"
           required>
 
       </div>
@@ -713,9 +713,9 @@
 
         <div class="hint">
 
-          Chagua logo moja kwa moja kutoka
-          kwenye simu yako. Mfumo utaiweka
-          kwenye Supabase Storage.
+          Chagua logo kutoka kwenye simu au
+          kompyuta yako. Mfumo utaiweka kwenye
+          Supabase Storage.
 
         </div>
 
@@ -736,8 +736,8 @@
 
         <div class="hint">
 
-          Hii ni optional. Uki-upload logo
-          kutoka kwenye simu, URL itawekwa
+          Optional. Uki-upload logo kutoka
+          kwenye kifaa chako, URL itawekwa
           yenyewe.
 
         </div>
@@ -746,6 +746,7 @@
 
 
       <div class="full form-actions">
+
 
         <button
           type="button"
@@ -759,11 +760,13 @@
 
         <button
           class="primary"
-          type="submit">
+          type="submit"
+          id="saveBtn">
 
           💾 Hifadhi Klabu
 
         </button>
+
 
       </div>
 
@@ -772,18 +775,25 @@
 
   </div>
 
-          </dialog>
-          <script>
+
+</dialog>
+
+
+<script>
+
 
 /* =========================
    SUPABASE
 ========================= */
 
+
 const SUPABASE_URL =
   "https://jjqhvruppafpumcthmwe.supabase.co";
 
+
 const SUPABASE_PUBLISHABLE_KEY =
   "sb_publishable_02hhRG8bgDOqSFxva8IMvQ_zWTLMa3G";
+
 
 const db =
   window.supabase.createClient(
@@ -796,22 +806,28 @@ const db =
    SETTINGS
 ========================= */
 
+
 const TABLE = "clubs";
 
-const STORAGE_BUCKET = "AFRN CLUB PHOTOS";
-const STORAGE_FOLDER = "clubs";
+const STORAGE_BUCKET =
+  "AFRN CLUB PHOTOS";
+
+const STORAGE_FOLDER =
+  "clubs";
 
 
 /* =========================
    DATA
 ========================= */
 
+
 let clubs = [];
 
 
 /* =========================
-   SHORT SELECTOR
+   SELECTOR
 ========================= */
+
 
 const $ =
   id => document.getElementById(id);
@@ -821,15 +837,16 @@ const $ =
    STATUS
 ========================= */
 
+
 function setStatus(
   message,
   type = ""
-) {
+){
 
   const box =
     $("status");
 
-  if (!box) return;
+  if(!box) return;
 
   box.textContent =
     message;
@@ -844,7 +861,8 @@ function setStatus(
    ESCAPE HTML
 ========================= */
 
-function esc(value) {
+
+function esc(value){
 
   return String(
     value ?? ""
@@ -865,14 +883,128 @@ function esc(value) {
 
 
 /* =========================
+   NORMALIZE CLUB NAME
+========================= */
+
+
+function normalizeClubName(name){
+
+  return String(name || "")
+    .trim()
+    .replace(/\s+/g," ")
+    .toLowerCase();
+
+}
+
+
+/* =========================
+   CHECK DUPLICATE
+========================= */
+
+
+function findDuplicateClub(
+  name,
+  editId = ""
+){
+
+  const normalized =
+    normalizeClubName(name);
+
+
+  if(!normalized){
+    return null;
+  }
+
+
+  return clubs.find(club => {
+
+    /*
+      Wakati wa EDIT,
+      usijilinganishe na club yenyewe.
+    */
+
+    if(
+      editId &&
+      String(club.id) ===
+      String(editId)
+    ){
+
+      return false;
+
+    }
+
+
+    return (
+      normalizeClubName(
+        club.name
+      ) === normalized
+    );
+
+  }) || null;
+
+}
+
+
+/* =========================
+   LIVE DUPLICATE WARNING
+========================= */
+
+
+$("name").addEventListener(
+  "input",
+  function(){
+
+    const editId =
+      $("editId").value.trim();
+
+    const duplicate =
+      findDuplicateClub(
+        this.value,
+        editId
+      );
+
+
+    const warning =
+      $("duplicateWarning");
+
+
+    if(duplicate){
+
+      warning.style.display =
+        "block";
+
+      warning.textContent =
+        "⚠️ Timu hii tayari ipo: " +
+        duplicate.name;
+
+      $("saveBtn").disabled =
+        true;
+
+    }else{
+
+      warning.style.display =
+        "none";
+
+      $("saveBtn").disabled =
+        false;
+
+    }
+
+  }
+);
+
+
+/* =========================
    LOAD CLUBS
 ========================= */
 
-async function loadClubs() {
+
+async function loadClubs(){
 
   setStatus(
     "⏳ Inapakia vilabu..."
   );
+
 
   const {
     data,
@@ -889,7 +1021,7 @@ async function loadClubs() {
       );
 
 
-  if (error) {
+  if(error){
 
     console.error(error);
 
@@ -899,6 +1031,7 @@ async function loadClubs() {
       "err"
     );
 
+
     $("clubsContainer").innerHTML = `
 
       <div class="empty">
@@ -907,15 +1040,14 @@ async function loadClubs() {
 
         <br><br>
 
-        ${esc(
-          error.message
-        )}
+        ${esc(error.message)}
 
       </div>
 
     `;
 
     return;
+
   }
 
 
@@ -941,12 +1073,14 @@ async function loadClubs() {
    ZONE FILTER
 ========================= */
 
-function buildZoneFilter() {
+
+function buildZoneFilter(){
 
   const select =
     $("filterZone");
 
-  if (!select) return;
+  const current =
+    select.value;
 
 
   const zones =
@@ -958,7 +1092,14 @@ function buildZoneFilter() {
           )
           .filter(Boolean)
       )
-    ];
+    ]
+    .sort(
+      (a,b) =>
+        String(a)
+          .localeCompare(
+            String(b)
+          )
+    );
 
 
   select.innerHTML = `
@@ -973,51 +1114,121 @@ function buildZoneFilter() {
   zones.forEach(
     zone => {
 
-      select.innerHTML += `
+      const option =
+        document.createElement(
+          "option"
+        );
 
-        <option
-          value="${esc(zone)}">
+      option.value =
+        zone;
 
-          ${esc(zone)}
+      option.textContent =
+        zone;
 
-        </option>
-
-      `;
+      select.appendChild(
+        option
+      );
 
     }
   );
 
+
+  if(
+    zones.includes(current)
+  ){
+
+    select.value =
+      current;
+
+  }
+
 }
-     /* =========================
+
+
+/* =========================
    RENDER CLUBS
 ========================= */
 
+
 function renderClubs(){
 
-  const q=$("search").value.toLowerCase();
-  const d=$("filterDivision").value;
-  const z=$("filterZone").value;
+  const q =
+    $("search")
+      .value
+      .trim()
+      .toLowerCase();
 
-  const list=clubs.filter(c=>
-    (!q ||
-      String(c.name||"").toLowerCase().includes(q) ||
-      String(c.id||"").toLowerCase().includes(q))
-    &&
-    (!d || String(c.division)==d)
-    &&
-    (!z || String(c.zone)==z)
-  );
+
+  const d =
+    $("filterDivision")
+      .value;
+
+
+  const z =
+    $("filterZone")
+      .value;
+
+
+  const list =
+    clubs.filter(c =>
+
+      (
+        !q ||
+        String(c.name || "")
+          .toLowerCase()
+          .includes(q) ||
+
+        String(c.id || "")
+          .toLowerCase()
+          .includes(q)
+      )
+
+      &&
+
+      (
+        !d ||
+        String(c.division) === d
+      )
+
+      &&
+
+      (
+        !z ||
+        String(c.zone) === z
+      )
+
+    );
+
 
   if(!list.length){
-    $("clubsContainer").innerHTML=
-      `<div class="empty">
+
+    $("clubsContainer").innerHTML = `
+
+      <div class="empty">
+
         Hakuna klabu inayopatikana.
-      </div>`;
+
+      </div>
+
+    `;
+
     return;
+
   }
 
-  $("clubsContainer").innerHTML=
-    list.map(clubCard).join("");
+
+  $("clubsContainer").innerHTML = `
+
+    <div class="grid">
+
+      ${list
+        .map(clubCard)
+        .join("")}
+
+    </div>
+
+  `;
+
 }
 
 
@@ -1025,191 +1236,382 @@ function renderClubs(){
    CLUB CARD
 ========================= */
 
+
 function clubCard(c){
 
+  const logo =
+    c.logo_url ||
+    "";
+
+
   return `
-  <article class="card">
 
-    <div class="club-top">
+    <article class="card">
 
-      <img
-        class="logo"
-        src="${esc(c.logo_url||"")}"
-        onerror="this.src='';">
+      <div class="club-top">
 
-      <div>
-        <h3 class="club-name">
-          ${esc(c.name||"-")}
-        </h3>
+        <img
+          class="logo"
+          src="${esc(logo)}"
+          alt="Logo ya ${esc(c.name)}"
+          onerror="
+            this.style.display='none';
+          ">
 
-        <div class="club-id">
-          ID: ${esc(c.id)}
+        <div>
+
+          <h3 class="club-name">
+            ${esc(c.name || "-")}
+          </h3>
+
+          <div class="club-id">
+            ID: ${esc(c.id)}
+          </div>
+
         </div>
+
       </div>
 
-    </div>
 
-    <div class="chips">
+      <div class="chips">
 
-      <span class="chip">
-        Daraja ${esc(c.division||"-")}
-      </span>
+        <span class="chip">
+          Daraja ${esc(c.division || "-")}
+        </span>
 
-      <span class="chip">
-        Zone: ${esc(c.zone||"-")}
-      </span>
+        <span class="chip">
+          Zone: ${esc(c.zone || "-")}
+        </span>
 
-      <span class="chip">
-        🏆 ${esc(c.trophies||0)}
-      </span>
+        <span class="chip">
+          🏆 ${esc(c.trophies || 0)}
+        </span>
 
-    </div>
-
-    <div class="details">
-
-      <div class="detail">
-        <b>📅 MWAKA</b>
-        ${esc(c.founded_year||c.founded||"-")}
       </div>
 
-      <div class="detail">
-        <b>📞 SIMU</b>
-        ${esc(c.phone||"-")}
+
+      <div class="details">
+
+
+        <div class="detail">
+
+          <b>📅 MWAKA</b>
+
+          ${esc(
+            c.founded_year ||
+            c.founded ||
+            "-"
+          )}
+
+        </div>
+
+
+        <div class="detail">
+
+          <b>📞 SIMU</b>
+
+          ${esc(
+            c.phone ||
+            "-"
+          )}
+
+        </div>
+
+
+        <div class="detail">
+
+          <b>✉️ EMAIL</b>
+
+          ${esc(
+            c.mail ||
+            c.email ||
+            "-"
+          )}
+
+        </div>
+
+
       </div>
 
-      <div class="detail">
-        <b>✉️ EMAIL</b>
-        ${esc(c.mail||c.email||"-")}
+
+      <div class="actions">
+
+
+        <button
+          class="gold"
+          onclick="
+            editClub('${esc(c.id)}')
+          ">
+
+          ✏️ Hariri
+
+        </button>
+
+
+        <button
+          class="danger"
+          onclick="
+            deleteClub('${esc(c.id)}')
+          ">
+
+          🗑️ Futa
+
+        </button>
+
+
       </div>
 
-    </div>
 
-    <div class="actions">
+    </article>
 
-      <button
-        class="gold"
-        onclick="editClub('${esc(c.id)}')">
-        ✏️ Hariri
-      </button>
+  `;
 
-      <button
-        class="danger"
-        onclick="deleteClub('${esc(c.id)}')">
-        🗑️ Futa
-      </button>
-
-    </div>
-
-  </article>`;
 }
 
 
 /* =========================
-   EDIT
+   EDIT CLUB
 ========================= */
 
-window.editClub=async function(id){
 
-  const c=clubs.find(
-    x=>String(x.id)==String(id)
-  );
+window.editClub =
+async function(id){
 
-  if(!c)return;
+  const c =
+    clubs.find(
+      x =>
+        String(x.id) ===
+        String(id)
+    );
 
-  $("editId").value=c.id;
-  $("name").value=c.name||"";
-  $("division").value=c.division||"1";
-  $("zone").value=c.zone||"";
-  $("trophies").value=c.trophies||0;
-  $("founded").value=c.founded_year||c.founded||"";
-  $("homeKit").value=c.home_kit||"";
-  $("awayKit").value=c.away_kit||"";
-  $("phone").value=c.phone||"";
-  $("email").value=c.mail||c.email||"";
-  $("logoUrl").value=c.logo_url||"";
 
-  $("modalTitle").textContent=
+  if(!c) return;
+
+
+  $("editId").value =
+    c.id;
+
+
+  $("name").value =
+    c.name || "";
+
+
+  $("division").value =
+    c.division || "1";
+
+
+  $("zone").value =
+    c.zone || "";
+
+
+  $("trophies").value =
+    c.trophies || 0;
+
+
+  $("founded").value =
+    c.founded_year ||
+    c.founded ||
+    "";
+
+
+  $("homeKit").value =
+    c.home_kit || "";
+
+
+  $("awayKit").value =
+    c.away_kit || "";
+
+
+  $("phone").value =
+    c.phone || "";
+
+
+  $("email").value =
+    c.mail ||
+    c.email ||
+    "";
+
+
+  $("logoUrl").value =
+    c.logo_url || "";
+
+
+  $("logoFile").value =
+    "";
+
+
+  $("duplicateWarning")
+    .style.display =
+    "none";
+
+
+  $("saveBtn").disabled =
+    false;
+
+
+  $("modalTitle").textContent =
     "✏️ Hariri Klabu";
 
+
   $("clubDialog").showModal();
+
 };
 
 
 /* =========================
-   DELETE
+   DELETE CLUB
 ========================= */
 
-window.deleteClub=async function(id){
 
-  const c=clubs.find(
-    x=>String(x.id)==String(id)
+window.deleteClub =
+async function(id){
+
+  const c =
+    clubs.find(
+      x =>
+        String(x.id) ===
+        String(id)
+    );
+
+
+  if(!c) return;
+
+
+  const confirmed =
+    confirm(
+      "Futa klabu " +
+      c.name +
+      "?"
+    );
+
+
+  if(!confirmed) return;
+
+
+  setStatus(
+    "⏳ Inafuta klabu..."
   );
 
-  if(!c)return;
 
-  if(!confirm(
-    "Futa klabu "+c.name+"?"
-  ))return;
+  const {
+    error
+  } =
+    await db
+      .from(TABLE)
+      .delete()
+      .eq("id",id);
 
-  const {error}=await db
-    .from(TABLE)
-    .delete()
-    .eq("id",id);
 
   if(error){
 
+    console.error(error);
+
     setStatus(
-      "❌ "+error.message,
+      "❌ Imeshindikana kufuta: " +
+      error.message,
       "err"
     );
 
+    alert(
+      "Imeshindikana kufuta klabu.\n\n" +
+      error.message
+    );
+
     return;
+
   }
 
-  loadClubs();
+
+  await loadClubs();
+
 };
-            /* =========================
+
+
+/* =========================
    LOGO PREVIEW
 ========================= */
 
-$("logoFile").addEventListener(
-  "change",
-  function(){
 
-    const file=this.files[0];
+$("logoFile")
+  .addEventListener(
+    "change",
+    function(){
 
-    if(!file)return;
+      const file =
+        this.files[0];
 
-    const url=
-      URL.createObjectURL(file);
 
-    $("logoPreviewImage").src=url;
+      if(!file){
 
-    $("logoPreview").style.display=
-      "block";
-  }
-);
+        $("logoPreview")
+          .style.display =
+          "none";
+
+        return;
+
+      }
+
+
+      const url =
+        URL.createObjectURL(
+          file
+        );
+
+
+      $("logoPreviewImage")
+        .src =
+        url;
+
+
+      $("logoPreview")
+        .style.display =
+        "block";
+
+    }
+  );
 
 
 /* =========================
    ADD CLUB
 ========================= */
 
-$("addBtn").onclick=function(){
+
+$("addBtn").onclick =
+function(){
 
   $("clubForm").reset();
 
-  $("editId").value="";
 
-  $("trophies").value=0;
+  $("editId").value =
+    "";
 
-  $("modalTitle").textContent=
+
+  $("trophies").value =
+    0;
+
+
+  $("modalTitle")
+    .textContent =
     "＋ Ongeza Klabu";
 
-  $("logoPreview").style.display=
+
+  $("logoPreview")
+    .style.display =
     "none";
 
-  $("clubDialog").showModal();
+
+  $("duplicateWarning")
+    .style.display =
+    "none";
+
+
+  $("saveBtn").disabled =
+    false;
+
+
+  $("clubDialog")
+    .showModal();
+
 };
 
 
@@ -1217,9 +1619,12 @@ $("addBtn").onclick=function(){
    CANCEL
 ========================= */
 
-$("cancelBtn").onclick=function(){
 
-  $("clubDialog").close();
+$("cancelBtn").onclick =
+function(){
+
+  $("clubDialog")
+    .close();
 
 };
 
@@ -1228,72 +1633,159 @@ $("cancelBtn").onclick=function(){
    SEARCH
 ========================= */
 
-$("search").oninput=
-  renderClubs;
 
-$("filterDivision").onchange=
-  renderClubs;
+$("search").oninput =
+renderClubs;
 
-$("filterZone").onchange=
-  renderClubs;
+
+$("filterDivision").onchange =
+renderClubs;
+
+
+$("filterZone").onchange =
+renderClubs;
 
 
 /* =========================
    SAVE CLUB
 ========================= */
 
-$("clubForm").onsubmit=
+
+$("clubForm").onsubmit =
 async function(e){
 
   e.preventDefault();
 
-  const editId=
-    $("editId").value.trim();
 
-  const name=
-    $("name").value.trim();
+  const editId =
+    $("editId")
+      .value
+      .trim();
 
-  const division=
+
+  const name =
+    $("name")
+      .value
+      .trim();
+
+
+  const division =
     Number(
       $("division").value
     );
 
-  const zone=
-    $("zone").value.trim();
 
-  const trophies=
+  const zone =
+    $("zone")
+      .value
+      .trim();
+
+
+  const trophies =
     Number(
-      $("trophies").value||0
+      $("trophies")
+        .value || 0
     );
 
-  const founded=
-    $("founded").value
-      ? Number($("founded").value)
+
+  const founded =
+    $("founded")
+      .value
+      ? Number(
+          $("founded").value
+        )
       : null;
 
-  const phone=
-    $("phone").value.trim();
 
-  const email=
-    $("email").value.trim();
-
-  const homeKit=
-    $("homeKit").value.trim();
-
-  const awayKit=
-    $("awayKit").value.trim();
-
-  let logoUrl=
-    $("logoUrl").value.trim();
+  const phone =
+    $("phone")
+      .value
+      .trim();
 
 
-  if(!name||!zone){
+  const email =
+    $("email")
+      .value
+      .trim();
+
+
+  const homeKit =
+    $("homeKit")
+      .value
+      .trim();
+
+
+  const awayKit =
+    $("awayKit")
+      .value
+      .trim();
+
+
+  let logoUrl =
+    $("logoUrl")
+      .value
+      .trim();
+
+
+  /* =========================
+     REQUIRED FIELDS
+  ========================= */
+
+
+  if(!name || !zone){
 
     alert(
       "Jina la klabu na Zone ni lazima."
     );
 
     return;
+
+  }
+
+
+  /* =========================
+     DUPLICATE CHECK
+  ========================= */
+
+
+  const duplicate =
+    findDuplicateClub(
+      name,
+      editId
+    );
+
+
+  if(duplicate){
+
+    setStatus(
+      "⚠️ Timu hii tayari ipo: " +
+      duplicate.name,
+      "err"
+    );
+
+
+    $("duplicateWarning")
+      .style.display =
+      "block";
+
+
+    $("duplicateWarning")
+      .textContent =
+      "⚠️ Timu hii tayari ipo: " +
+      duplicate.name;
+
+
+    alert(
+      "⚠️ TIMU TAYARI IPO\n\n" +
+      "Jina: " +
+      duplicate.name +
+      "\n\n" +
+      "Huwezi kuingiza timu hii mara ya pili."
+    );
+
+
+    return;
+
   }
 
 
@@ -1301,8 +1793,10 @@ async function(e){
      UPLOAD LOGO
   ========================= */
 
-  const file=
-    $("logoFile").files[0];
+
+  const file =
+    $("logoFile")
+      .files[0];
 
 
   if(file){
@@ -1312,27 +1806,31 @@ async function(e){
     );
 
 
-    const ext=
+    const ext =
       file.name
         .split(".")
         .pop()
         .toLowerCase();
 
 
-    const fileName=
+    const fileName =
       "club_" +
       Date.now() +
+      "_" +
+      Math.random()
+        .toString(36)
+        .substring(2,8) +
       "." +
       ext;
 
 
-    const path=
+    const path =
       STORAGE_FOLDER +
       "/" +
       fileName;
 
 
-    const upload=
+    const upload =
       await db.storage
         .from(STORAGE_BUCKET)
         .upload(
@@ -1340,7 +1838,8 @@ async function(e){
           file,
           {
             upsert:true,
-            contentType:file.type
+            contentType:
+              file.type
           }
         );
 
@@ -1354,31 +1853,38 @@ async function(e){
       );
 
       return;
+
     }
 
 
-    const publicUrl=
+    const publicUrl =
       db.storage
         .from(STORAGE_BUCKET)
-        .getPublicUrl(path);
+        .getPublicUrl(
+          path
+        );
 
 
-    logoUrl=
-      publicUrl.data.publicUrl;
+    logoUrl =
+      publicUrl
+        .data
+        .publicUrl;
 
   }
 
 
   /* =========================
-     DATA
+     PAYLOAD
   ========================= */
 
-  const payload={
 
-    name:name,
+  const payload = {
+
+    name:
+      name.trim(),
 
     logo_url:
-      logoUrl||null,
+      logoUrl || null,
 
     division:
       division,
@@ -1393,18 +1899,27 @@ async function(e){
       founded,
 
     home_kit:
-      homeKit||null,
+      homeKit || null,
 
     away_kit:
-      awayKit||null,
+      awayKit || null,
 
     phone:
-      phone||null,
+      phone || null,
 
     mail:
-      email||null
+      email || null
 
   };
+
+
+  /* =========================
+     SAVE
+  ========================= */
+
+
+  $("saveBtn").disabled =
+    true;
 
 
   setStatus(
@@ -1419,20 +1934,27 @@ async function(e){
 
   if(editId){
 
-    result=
+    result =
       await db
         .from(TABLE)
         .update(payload)
-        .eq("id",editId);
+        .eq("id",editId)
+        .select();
 
   }else{
 
-    result=
+    result =
       await db
         .from(TABLE)
-        .insert(payload);
+        .insert(payload)
+        .select();
 
   }
+
+
+  /* =========================
+     DATABASE ERROR
+  ========================= */
 
 
   if(result.error){
@@ -1441,26 +1963,81 @@ async function(e){
       result.error
     );
 
-    setStatus(
-      "❌ " +
-      result.error.message,
-      "err"
-    );
 
-    alert(
-      result.error.message
-    );
+    /*
+      23505 = unique violation
+      Hii ndiyo database inazuia
+      duplicate.
+    */
+
+
+    if(
+      result.error.code ===
+      "23505"
+    ){
+
+      setStatus(
+        "⚠️ Timu hii tayari ipo kwenye database.",
+        "err"
+      );
+
+
+      alert(
+        "⚠️ TIMU TAYARI IPO\n\n" +
+        "Database imezuia kuingizwa kwa timu hii mara ya pili."
+      );
+
+    }else{
+
+      setStatus(
+        "❌ " +
+        result.error.message,
+        "err"
+      );
+
+
+      alert(
+        result.error.message
+      );
+
+    }
+
+
+    $("saveBtn").disabled =
+      false;
+
 
     return;
+
   }
 
 
-  $("clubDialog").close();
+  /* =========================
+     SUCCESS
+  ========================= */
 
-  $("clubForm").reset();
 
-  $("logoPreview").style.display=
+  $("clubDialog")
+    .close();
+
+
+  $("clubForm")
+    .reset();
+
+
+  $("logoPreview")
+    .style.display =
     "none";
+
+
+  $("duplicateWarning")
+    .style.display =
+    "none";
+
+
+  $("saveBtn").disabled =
+    false;
+
 
   await loadClubs();
 
@@ -1471,9 +2048,14 @@ async function(e){
    START
 ========================= */
 
+
 loadClubs();
+
 
 </script>
 
+
 </body>
+
 </html>
+```
