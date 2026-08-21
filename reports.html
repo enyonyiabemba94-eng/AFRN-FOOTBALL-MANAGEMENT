@@ -2,8 +2,11 @@
 <html lang="sw">
 
 <head>
+
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+<meta name="viewport"
+      content="width=device-width, initial-scale=1.0">
 
 <title>AFRN - Official Match Report</title>
 
@@ -15,12 +18,13 @@
   --navy:#071a33;
   --blue:#0d47a1;
   --gold:#f5b400;
-  --bg:#f4f7fb;
-  --white:#ffffff;
+  --bg:#f2f5f9;
+  --white:#fff;
   --text:#172033;
   --muted:#687386;
   --danger:#c62828;
-  --success:#16834b;
+  --yellow:#f5b400;
+  --green:#16834b;
   --border:#dce2ea;
 }
 
@@ -35,78 +39,55 @@ body{
   font-family:Arial,Helvetica,sans-serif;
 }
 
-/* =========================
-   HEADER
-========================= */
-
 header{
   background:linear-gradient(
     135deg,
     #06152b,
     #0d47a1
   );
-
   color:white;
-  padding:16px;
-
-  box-shadow:0 3px 12px #0003;
+  padding:18px;
+  text-align:center;
 }
 
-.header-inner{
-  max-width:1200px;
-  margin:auto;
-
-  display:flex;
-  align-items:center;
-  gap:14px;
-}
-
-.afrn-logo{
-  width:58px;
-  height:58px;
+header img{
+  width:75px;
+  height:75px;
   object-fit:contain;
-  background:white;
-  border-radius:10px;
-  padding:4px;
+  margin-bottom:8px;
 }
 
-.header-title h1{
+header h1{
   margin:0;
-  font-size:20px;
+  font-size:21px;
 }
 
-.header-title p{
-  margin:5px 0 0;
-  font-size:12px;
-  opacity:.9;
+header h2{
+  margin:7px 0;
+  font-size:14px;
 }
 
-/* =========================
-   NAV
-========================= */
+header p{
+  margin:4px 0;
+  font-size:11px;
+  opacity:.85;
+}
 
 nav{
   background:white;
   padding:10px;
-
   display:flex;
   gap:7px;
-
   overflow-x:auto;
-
-  border-bottom:1px solid var(--border);
+  border-bottom:1px solid #ddd;
 }
 
 nav a{
   text-decoration:none;
   white-space:nowrap;
-
   padding:9px 12px;
-
   border-radius:9px;
-
   color:var(--text);
-
   font-size:13px;
   font-weight:bold;
 }
@@ -116,36 +97,23 @@ nav a.active{
   color:white;
 }
 
-/* =========================
-   MAIN
-========================= */
-
 main{
-  max-width:1200px;
+  max-width:1100px;
   margin:auto;
-  padding:18px;
+  padding:16px;
 }
-
-/* =========================
-   STATUS
-========================= */
 
 .status{
   background:white;
-
-  padding:12px;
-
-  border-radius:10px;
-
-  margin-bottom:15px;
-
   border-left:4px solid var(--blue);
-
+  padding:12px;
+  border-radius:10px;
+  margin-bottom:15px;
   font-size:13px;
 }
 
 .status.ok{
-  border-left-color:var(--success);
+  border-left-color:var(--green);
 }
 
 .status.err{
@@ -153,14 +121,10 @@ main{
   color:var(--danger);
 }
 
-/* =========================
-   TOOLBAR
-========================= */
-
 .toolbar{
   display:flex;
-  flex-wrap:wrap;
   gap:10px;
+  flex-wrap:wrap;
   margin-bottom:15px;
 }
 
@@ -168,15 +132,10 @@ select,
 input,
 textarea{
   width:100%;
-
   padding:11px;
-
   border:1px solid var(--border);
-
   border-radius:9px;
-
   background:white;
-
   font-family:inherit;
 }
 
@@ -185,18 +144,11 @@ textarea{
   min-width:220px;
 }
 
-/* =========================
-   BUTTONS
-========================= */
-
 button{
   border:0;
   border-radius:9px;
-
   padding:11px 15px;
-
   font-weight:bold;
-
   cursor:pointer;
 }
 
@@ -210,210 +162,234 @@ button{
   color:#111;
 }
 
-.danger{
-  background:#fee;
-  color:var(--danger);
-}
-
 .secondary{
   background:#e8edf5;
   color:var(--text);
 }
 
-/* =========================
-   REPORT
-========================= */
+.danger{
+  background:#fee;
+  color:var(--danger);
+}
 
 .report{
   background:white;
-
   border-radius:16px;
-
-  box-shadow:0 5px 25px #14213d18;
-
-  overflow:hidden;
-
-  border:1px solid var(--border);
+  padding:25px;
+  box-shadow:0 5px 25px #00000012;
 }
 
 .report-header{
   text-align:center;
-
-  padding:25px 18px 20px;
-
-  border-bottom:4px solid var(--gold);
+  border-bottom:3px solid var(--blue);
+  padding-bottom:18px;
 }
 
-.report-header img{
-  width:80px;
-  height:80px;
-
+.report-logo{
+  width:95px;
+  height:95px;
   object-fit:contain;
-
   margin-bottom:8px;
 }
 
 .report-header h1{
   margin:4px 0;
-
-  font-size:22px;
-
   color:var(--navy);
+  font-size:23px;
 }
 
 .report-header h2{
-  margin:5px 0;
-
-  font-size:16px;
-
+  margin:7px 0;
   color:var(--blue);
+  font-size:15px;
 }
 
 .report-header p{
-  margin:4px 0;
-
-  font-weight:bold;
-
-  font-size:13px;
-}
-
-/* =========================
-   MATCH SCORE
-========================= */
-
-.match-info{
-  padding:20px;
-}
-
-.competition-name{
-  text-align:center;
-
-  font-weight:bold;
-
-  color:var(--blue);
-
-  margin-bottom:15px;
-}
-
-.teams{
-  display:grid;
-
-  grid-template-columns:1fr auto 1fr;
-
-  align-items:center;
-
-  gap:20px;
-
-  text-align:center;
-}
-
-.team-name{
-  font-size:22px;
-
-  font-weight:900;
-
-  color:var(--navy);
-}
-
-.score{
-  font-size:38px;
-
-  font-weight:900;
-
-  color:var(--blue);
-
-  white-space:nowrap;
-}
-
-.team-label{
+  margin:5px 0;
   color:var(--muted);
-
-  font-size:11px;
-
-  margin-top:5px;
-}
-
-/* =========================
-   DETAILS
-========================= */
-
-.details{
-  display:grid;
-
-  grid-template-columns:
-    repeat(4,1fr);
-
-  gap:10px;
-
-  padding:0 20px 20px;
-}
-
-.detail{
-  background:#f7f9fc;
-
-  padding:12px;
-
-  border-radius:10px;
-
   font-size:12px;
 }
 
-.detail b{
-  display:block;
-
-  color:var(--muted);
-
-  font-size:10px;
-
-  margin-bottom:5px;
+.official-title{
+  margin-top:12px;
+  font-size:18px;
+  font-weight:900;
+  letter-spacing:1px;
 }
 
-/* =========================
-   SECTION
-========================= */
+.competition-title{
+  text-align:center;
+  margin:20px 0;
+  font-size:17px;
+  font-weight:900;
+  color:var(--blue);
+}
+
+.match-score{
+  display:grid;
+  grid-template-columns:1fr auto 1fr;
+  gap:20px;
+  align-items:center;
+  text-align:center;
+  margin:20px 0;
+}
+
+.team-name{
+  font-size:20px;
+  font-weight:900;
+}
+
+.big-score{
+  font-size:32px;
+  font-weight:900;
+}
+
+.vs{
+  color:var(--muted);
+  font-weight:bold;
+}
+
+.match-info{
+  display:grid;
+  grid-template-columns:repeat(4,1fr);
+  gap:10px;
+  margin:20px 0;
+}
+
+.info-box{
+  background:#f6f8fb;
+  border-radius:10px;
+  padding:11px;
+  font-size:12px;
+}
+
+.info-box b{
+  display:block;
+  color:var(--muted);
+  font-size:10px;
+  margin-bottom:4px;
+}
 
 .section{
-  padding:20px;
-
-  border-top:1px solid var(--border);
+  margin-top:25px;
 }
 
 .section-title{
-  margin:0 0 14px;
-
-  color:var(--navy);
-
-  font-size:17px;
-
-  display:flex;
-
-  align-items:center;
-
-  gap:7px;
+  background:var(--navy);
+  color:white;
+  padding:11px 13px;
+  border-radius:9px;
+  font-size:14px;
+  font-weight:900;
 }
 
-/* =========================
-   EVENTS
-========================= */
+.teams-grid{
+  display:grid;
+  grid-template-columns:1fr 1fr;
+  gap:15px;
+  margin-top:12px;
+}
+
+.team-card{
+  border:1px solid var(--border);
+  border-radius:12px;
+  overflow:hidden;
+}
+
+.team-card h3{
+  margin:0;
+  padding:12px;
+  background:#eef4ff;
+  color:var(--blue);
+  font-size:15px;
+}
+
+.form-grid{
+  padding:12px;
+  display:grid;
+  grid-template-columns:1fr 1fr;
+  gap:10px;
+}
+
+.form-group label{
+  display:block;
+  font-size:11px;
+  font-weight:bold;
+  color:var(--muted);
+  margin-bottom:4px;
+}
+
+.full{
+  grid-column:1/-1;
+}
+
+.lineup-table{
+  width:100%;
+  border-collapse:collapse;
+  margin-top:12px;
+}
+
+.lineup-table th,
+.lineup-table td{
+  padding:9px;
+  border-bottom:1px solid var(--border);
+  text-align:left;
+  font-size:12px;
+}
+
+.lineup-table th{
+  background:#f5f7fa;
+  color:var(--muted);
+}
+
+.events-summary{
+  display:grid;
+  grid-template-columns:repeat(6,1fr);
+  gap:8px;
+  margin-top:12px;
+}
+
+.stat-box{
+  background:#f5f7fa;
+  padding:12px 6px;
+  text-align:center;
+  border-radius:9px;
+}
+
+.stat-box strong{
+  display:block;
+  font-size:20px;
+}
+
+.stat-box span{
+  display:block;
+  font-size:9px;
+  color:var(--muted);
+  margin-top:3px;
+}
 
 .event{
-  display:grid;
+  border-left:4px solid var(--blue);
+  background:#f8fafc;
+  padding:11px;
+  margin-top:8px;
+  border-radius:7px;
+}
 
-  grid-template-columns:70px 130px 1fr;
+.event.goal{
+  border-left-color:var(--green);
+}
 
-  gap:10px;
+.event.yellow{
+  border-left-color:var(--yellow);
+}
 
-  align-items:center;
-
-  padding:10px;
-
-  border-bottom:1px solid #edf0f4;
-
-  font-size:13px;
+.event.red{
+  border-left-color:var(--danger);
 }
 
 .event-minute{
-  font-weight:bold;
+  font-weight:900;
   color:var(--blue);
 }
 
@@ -421,148 +397,63 @@ button{
   font-weight:bold;
 }
 
-.event-description{
-  color:var(--muted);
-}
-
-.event.goal .event-type{
-  color:var(--success);
-}
-
-.event.yellow .event-type{
-  color:#b88600;
-}
-
-.event.red .event-type{
-  color:var(--danger);
-}
-
-/* =========================
-   REPORT BOX
-========================= */
-
 .report-box{
-  background:#f8fafc;
-
+  background:#f7f9fc;
   border:1px solid var(--border);
-
-  border-radius:12px;
-
-  padding:15px;
-
-  min-height:100px;
-
+  border-radius:10px;
+  padding:13px;
+  min-height:90px;
   white-space:pre-wrap;
+}
 
-  line-height:1.6;
-
-  font-size:13px;
+.report-actions{
+  display:flex;
+  justify-content:flex-end;
+  gap:8px;
+  margin-top:20px;
 }
 
 .empty{
-  color:var(--muted);
-
+  background:white;
+  border:1px dashed #cbd3df;
+  padding:30px;
   text-align:center;
-
-  padding:20px;
-}
-
-/* =========================
-   PRINT FOOTER
-========================= */
-
-.official-footer{
-  text-align:center;
-
-  padding:20px;
-
-  border-top:1px solid var(--border);
-
-  font-size:11px;
-
+  border-radius:14px;
   color:var(--muted);
 }
 
-.official-footer strong{
-  display:block;
-
-  color:var(--navy);
-
-  font-size:12px;
-
-  margin-bottom:4px;
+.hidden{
+  display:none;
 }
 
-/* =========================
-   REPORT FORM
-========================= */
+@media(max-width:750px){
 
-.report-form{
-  background:#f8fafc;
+  .teams-grid{
+    grid-template-columns:1fr;
+  }
 
-  padding:15px;
-
-  border-radius:12px;
-
-  border:1px solid var(--border);
-}
-
-.form-grid{
-  display:grid;
-
-  grid-template-columns:1fr 1fr;
-
-  gap:12px;
-}
-
-.full{
-  grid-column:1/-1;
-}
-
-label{
-  display:block;
-
-  font-size:12px;
-
-  font-weight:bold;
-
-  margin-bottom:5px;
-}
-
-.form-actions{
-  display:flex;
-
-  justify-content:flex-end;
-
-  gap:8px;
-
-  margin-top:12px;
-}
-
-/* =========================
-   RESPONSIVE
-========================= */
-
-@media(max-width:700px){
-
-  .details{
+  .match-info{
     grid-template-columns:1fr 1fr;
   }
 
-  .teams{
-    gap:8px;
+  .events-summary{
+    grid-template-columns:repeat(3,1fr);
   }
 
   .team-name{
     font-size:15px;
   }
 
-  .score{
-    font-size:27px;
+  .big-score{
+    font-size:25px;
   }
 
-  .event{
-    grid-template-columns:50px 100px 1fr;
+}
+
+@media(max-width:500px){
+
+  .report{
+    padding:14px;
   }
 
   .form-grid{
@@ -573,48 +464,11 @@ label{
     grid-column:auto;
   }
 
-}
-
-@media(max-width:500px){
-
-  .header-inner{
-    align-items:flex-start;
-  }
-
-  .header-title h1{
-    font-size:16px;
-  }
-
-  .header-title p{
-    font-size:10px;
-  }
-
-  .afrn-logo{
-    width:48px;
-    height:48px;
-  }
-
-  .details{
-    grid-template-columns:1fr;
-  }
-
-  .teams{
-    grid-template-columns:1fr;
-  }
-
-  .score{
-    order:2;
-  }
-
-  .event{
-    grid-template-columns:1fr;
+  .match-score{
+    gap:8px;
   }
 
 }
-
-/* =========================
-   PRINT
-========================= */
 
 @media print{
 
@@ -622,27 +476,21 @@ label{
     background:white;
   }
 
-  header,
   nav,
   .toolbar,
-  #status,
-  .report-form,
-  .no-print{
+  .status,
+  .report-actions{
     display:none !important;
   }
 
   main{
-    max-width:none;
     padding:0;
+    max-width:none;
   }
 
   .report{
     box-shadow:none;
     border:0;
-  }
-
-  .section{
-    break-inside:avoid;
   }
 
 }
@@ -653,93 +501,54 @@ label{
 
 <body>
 
-<!-- =========================
-     HEADER
-========================= -->
-
 <header>
 
-<div class="header-inner">
-
 <img
-class="afrn-logo"
 src="./afrn-logo.png"
-alt="AFRN Logo">
-
-<div class="header-title">
+alt="AFRN Logo"
+onerror="this.style.display='none';">
 
 <h1>
-⚽ AFRN FOOTBALL MANAGEMENT
+AFRN FOOTBALL MANAGEMENT
 </h1>
 
-<p>
+<h2>
 SHIRIKISHO LA MPIRA WA MIGUU KAMBINI NYARUGUSU
+</h2>
+
+<p>
+Association / Football Federation for Refugees in Nyarugusu
 </p>
-
-</div>
-
-</div>
 
 </header>
 
-
-<!-- =========================
-     NAVIGATION
-========================= -->
-
 <nav>
 
-<a href="./index.html">
-🏠 Dashboard
-</a>
+<a href="./index.html">🏠 Dashboard</a>
 
-<a href="./clubs.html">
-⚽ Vilabu
-</a>
+<a href="./clubs.html">⚽ Vilabu</a>
 
-<a href="./players.html">
-👤 Wachezaji
-</a>
+<a href="./players.html">👤 Wachezaji</a>
 
-<a href="./contracts.html">
-📄 Mikataba
-</a>
+<a href="./contracts.html">📄 Mikataba</a>
 
-<a href="./transfers.html">
-🔄 Uhamisho
-</a>
+<a href="./transfers.html">🔄 Uhamisho</a>
 
-<a href="./competitions.html">
-🏆 Mashindano
-</a>
+<a href="./competitions.html">🏆 Mashindano</a>
 
-<a href="./matches.html">
-🏟️ Mechi
-</a>
+<a href="./matches.html">🏟️ Mechi</a>
 
-<a href="./reports.html">
-📊 Ripoti
-</a>
+<a href="./reports.html">📊 Ripoti</a>
 
 </nav>
 
-
 <main>
 
-<div
-id="status"
-class="status">
-
+<div id="status" class="status">
 ⏳ Inaunganisha na Supabase...
-
 </div>
 
-
-<!-- =========================
-     MATCH SELECTOR
-========================= -->
-
-<div class="toolbar no-print">
+<div class="toolbar">
 
 <select id="matchSelect">
 
@@ -751,21 +560,15 @@ Chagua Mechi
 
 <button
 class="primary"
-id="printBtn">
+onclick="loadReport()">
 
-🖨️ Print / PDF
+📋 Fungua Match Report
 
 </button>
 
 </div>
 
-
-<!-- =========================
-     OFFICIAL REPORT
-========================= -->
-
-<div
-id="reportContainer">
+<div id="reportContainer">
 
 <div class="empty">
 
@@ -775,9 +578,7 @@ Chagua mechi ili kuona Official Match Report.
 
 </div>
 
-
 </main>
-
 
 <script>
 
@@ -814,13 +615,8 @@ const COMPETITIONS_TABLE =
 const EVENTS_TABLE =
 "match_events";
 
-
-/* =====================================================
-   AFRN LOGO
-===================================================== */
-
-const AFRN_LOGO =
-"./afrn-logo.png";
+const PLAYERS_TABLE =
+"players";
 
 
 /* =====================================================
@@ -828,96 +624,51 @@ const AFRN_LOGO =
 ===================================================== */
 
 let matches = [];
+
 let clubs = [];
+
 let competitions = [];
+
+let players = [];
+
 let events = [];
 
 
 /* =====================================================
-   SELECTOR
+   HELPERS
 ===================================================== */
 
-const $ =
-id => document.getElementById(id);
+function $(id){
 
-
-/* =====================================================
-   STATUS
-===================================================== */
-
-function setStatus(
-  message,
-  type=""
-){
-
-  $("status").textContent =
-    message;
-
-  $("status").className =
-    "status " + type;
+return document.getElementById(id);
 
 }
 
-
-/* =====================================================
-   ESCAPE HTML
-===================================================== */
 
 function esc(value){
 
-  return String(
-    value ?? ""
-  ).replace(
-    /[&<>"']/g,
-    char => ({
-
-      "&":"&amp;",
-      "<":"&lt;",
-      ">":"&gt;",
-      '"':"&quot;",
-      "'":"&#039;"
-
-    }[char])
-  );
+return String(value ?? "")
+.replace(
+/[&<>"']/g,
+char => ({
+"&":"&amp;",
+"<":"&lt;",
+">":"&gt;",
+'"':"&quot;",
+"'":"&#039;"
+}[char])
+);
 
 }
 
 
-/* =====================================================
-   LOAD CLUBS
-===================================================== */
+function setStatus(message,type=""){
 
-async function loadClubs(){
+$("status").textContent =
+message;
 
-  const {
-    data,
-    error
-  } =
-  await db
-  .from(CLUBS_TABLE)
-  .select("*")
-  .order(
-    "name",
-    {
-      ascending:true
-    }
-  );
-
-  if(error){
-
-    console.error(error);
-
-    setStatus(
-      "❌ Vilabu havijapakiwa: " +
-      error.message,
-      "err"
-    );
-
-    return;
-  }
-
-  clubs =
-    data || [];
+$("status").className =
+"status " + type;
 
 }
 
@@ -926,57 +677,47 @@ async function loadClubs(){
    CLUB NAME
 ===================================================== */
 
-function getClubName(id){
+function clubName(id){
 
-  const club =
-    clubs.find(
-      c =>
-      String(c.id) ===
-      String(id)
-    );
+const club =
+clubs.find(
+c => String(c.id) === String(id)
+);
 
-  return club
-    ? club.name
-    : "Unknown Club";
+return club
+? club.name
+: "Unknown Club";
 
 }
 
 
 /* =====================================================
-   LOAD COMPETITIONS
+   PLAYER NAME
 ===================================================== */
 
-async function loadCompetitions(){
+function playerName(id){
 
-  const {
-    data,
-    error
-  } =
-  await db
-  .from(COMPETITIONS_TABLE)
-  .select("*")
-  .order(
-    "name",
-    {
-      ascending:true
-    }
-  );
+const player =
+players.find(
+p => String(p.id) === String(id)
+);
 
-  if(error){
+if(!player){
 
-    console.error(error);
+return "Unknown Player";
 
-    setStatus(
-      "❌ Mashindano hayajapakiwa: " +
-      error.message,
-      "err"
-    );
+}
 
-    return;
-  }
+return [
 
-  competitions =
-    data || [];
+player.first_name,
+player.middle_name,
+player.last_name
+
+]
+
+.filter(Boolean)
+.join(" ");
 
 }
 
@@ -987,53 +728,49 @@ async function loadCompetitions(){
 
 async function loadMatches(){
 
-  const {
-    data,
-    error
-  } =
-  await db
-  .from(MATCHES_TABLE)
-  .select(`
-    id,
-    competition_id,
-    home_team_id,
-    away_team_id,
-    match_date,
-    match_time,
-    venue,
-    home_score,
-    away_score,
-    status,
-    referee,
-    match_number,
-    notes,
-    created_at
-  `)
-  .order(
-    "match_date",
-    {
-      ascending:true,
-      nullsFirst:false
-    }
-  );
+const {data,error} =
+await db
+.from(MATCHES_TABLE)
+.select(`
+id,
+competition_id,
+home_team_id,
+away_team_id,
+match_date,
+match_time,
+venue,
+home_score,
+away_score,
+status,
+referee,
+match_number,
+notes,
+created_at
+`)
+.order(
+"match_date",
+{
+ascending:false
+}
+);
 
-  if(error){
+if(error){
 
-    console.error(error);
+console.error(error);
 
-    setStatus(
-      "❌ Mechi hazijapakiwa: " +
-      error.message,
-      "err"
-    );
+setStatus(
+"❌ Matches: " + error.message,
+"err"
+);
 
-    return;
-  }
+return;
 
-  matches =
-    data || [];
+}
 
-  populateMatchSelect();
+matches =
+data || [];
+
+populateMatchSelect();
 
 }
 
@@ -1044,58 +781,157 @@ async function loadMatches(){
 
 function populateMatchSelect(){
 
-  const select =
-    $("matchSelect");
+const select =
+$("matchSelect");
 
-  select.innerHTML = `
+select.innerHTML = `
+<option value="">
+Chagua Mechi
+</option>
+`;
 
-    <option value="">
-      Chagua Mechi
-    </option>
+matches.forEach(match => {
 
-  `;
+const competition =
+competitions.find(
+c => String(c.id) ===
+String(match.competition_id)
+);
 
-  matches.forEach(
-    match => {
+const text =
 
-      const home =
-        getClubName(
-          match.home_team_id
-        );
+clubName(match.home_team_id)
++
+" VS "
++
+clubName(match.away_team_id)
++
+" • "
++
+(
+match.match_date || ""
+)
++
+(
+competition
+? " • " + competition.name
+: ""
+);
 
-      const away =
-        getClubName(
-          match.away_team_id
-        );
+const option =
+document.createElement("option");
 
-      const competition =
-        competitions.find(
-          c =>
-          String(c.id) ===
-          String(match.competition_id)
-        );
+option.value =
+match.id;
 
-      const option =
-        document.createElement(
-          "option"
-        );
+option.textContent =
+text;
 
-      option.value =
-        match.id;
+select.appendChild(option);
 
-      option.textContent =
-        `${home} vs ${away} — ${
-          competition
-          ? competition.name
-          : "Competition"
-        }`;
+});
 
-      select.appendChild(
-        option
-      );
+}
 
-    }
-  );
+
+/* =====================================================
+   LOAD CLUBS
+===================================================== */
+
+async function loadClubs(){
+
+const {data,error} =
+await db
+.from(CLUBS_TABLE)
+.select("*")
+.order(
+"name",
+{
+ascending:true
+}
+);
+
+if(error){
+
+console.error(error);
+
+setStatus(
+"❌ Clubs: " + error.message,
+"err"
+);
+
+return;
+
+}
+
+clubs =
+data || [];
+
+}
+
+
+/* =====================================================
+   LOAD COMPETITIONS
+===================================================== */
+
+async function loadCompetitions(){
+
+const {data,error} =
+await db
+.from(COMPETITIONS_TABLE)
+.select("*")
+.order(
+"name",
+{
+ascending:true
+}
+);
+
+if(error){
+
+console.error(error);
+
+setStatus(
+"❌ Competitions: " + error.message,
+"err"
+);
+
+return;
+
+}
+
+competitions =
+data || [];
+
+}
+
+
+/* =====================================================
+   LOAD PLAYERS
+===================================================== */
+
+async function loadPlayers(){
+
+const {data,error} =
+await db
+.from(PLAYERS_TABLE)
+.select("*");
+
+if(error){
+
+console.warn(
+"Players table:",
+error.message
+);
+
+players = [];
+
+return;
+
+}
+
+players =
+data || [];
 
 }
 
@@ -1106,38 +942,80 @@ function populateMatchSelect(){
 
 async function loadEvents(matchId){
 
-  const {
-    data,
-    error
-  } =
-  await db
-  .from(EVENTS_TABLE)
-  .select("*")
-  .eq(
-    "match_id",
-    matchId
-  )
-  .order(
-    "minute",
-    {
-      ascending:true
-    }
-  );
+const {data,error} =
+await db
+.from(EVENTS_TABLE)
+.select(`
+id,
+match_id,
+player_id,
+event_type,
+minute,
+description,
+created_at
+`)
+.eq(
+"match_id",
+matchId
+)
+.order(
+"minute",
+{
+ascending:true
+}
+);
 
-  if(error){
+if(error){
 
-    console.warn(
-      "Match events:",
-      error.message
-    );
+console.error(error);
 
-    events = [];
+events = [];
 
-    return;
-  }
+return;
 
-  events =
-    data || [];
+}
+
+events =
+data || [];
+
+}
+
+
+/* =====================================================
+   EVENT TYPE
+===================================================== */
+
+function eventClass(type){
+
+const value =
+String(type || "")
+.toLowerCase();
+
+if(
+value.includes("goal")
+){
+
+return "goal";
+
+}
+
+if(
+value.includes("yellow")
+){
+
+return "yellow";
+
+}
+
+if(
+value.includes("red")
+){
+
+return "red";
+
+}
+
+return "";
 
 }
 
@@ -1148,41 +1026,116 @@ async function loadEvents(matchId){
 
 function eventIcon(type){
 
-  const value =
-    String(type || "")
-    .toLowerCase();
+const value =
+String(type || "")
+.toLowerCase();
 
-  if(
-    value.includes("goal")
-  ){
-    return "⚽";
-  }
+if(value.includes("goal"))
+return "⚽";
 
-  if(
-    value.includes("yellow")
-  ){
-    return "🟨";
-  }
+if(value.includes("yellow"))
+return "🟨";
 
-  if(
-    value.includes("red")
-  ){
-    return "🟥";
-  }
+if(value.includes("red"))
+return "🟥";
 
-  if(
-    value.includes("sub")
-  ){
-    return "🔄";
-  }
+if(
+value.includes("sub")
+)
+return "🔄";
 
-  if(
-    value.includes("penalty")
-  ){
-    return "⚽";
-  }
+if(
+value.includes("penalty")
+)
+return "🎯";
 
-  return "📌";
+return "📌";
+
+}
+
+
+/* =====================================================
+   EVENT STATISTICS
+===================================================== */
+
+function eventStats(){
+
+let goals = 0;
+
+let yellow = 0;
+
+let red = 0;
+
+let substitutions = 0;
+
+let penalties = 0;
+
+let ownGoals = 0;
+
+events.forEach(event => {
+
+const type =
+String(
+event.event_type || ""
+).toLowerCase();
+
+if(
+type.includes("own goal")
+){
+
+ownGoals++;
+
+}else if(
+type.includes("goal")
+){
+
+goals++;
+
+}
+
+if(
+type.includes("yellow")
+){
+
+yellow++;
+
+}
+
+if(
+type.includes("red")
+){
+
+red++;
+
+}
+
+if(
+type.includes("sub")
+){
+
+substitutions++;
+
+}
+
+if(
+type.includes("penalty")
+){
+
+penalties++;
+
+}
+
+});
+
+return {
+goals,
+yellow,
+red,
+substitutions,
+penalties,
+ownGoals,
+total:events.length
+};
 
 }
 
@@ -1193,439 +1146,728 @@ function eventIcon(type){
 
 function renderEvents(){
 
-  if(!events.length){
+if(!events.length){
 
-    return `
-      <div class="empty">
-        Hakuna events zilizowekwa kwenye mechi hii.
-      </div>
-    `;
+return `
+<div class="empty">
+⚽ Hakuna events zilizowekwa kwenye mechi hii.
+</div>
+`;
 
-  }
+}
 
-  return events
-    .map(
-      event => {
+return events.map(event => {
 
-        const type =
-          event.event_type ||
-          event.type ||
-          "Event";
+const type =
+event.event_type || "Event";
 
-        const minute =
-          event.minute != null
-          ? `${event.minute}'`
-          : "-";
+return `
 
-        const description =
-          event.description ||
-          "";
+<div class="event ${eventClass(type)}">
 
-        const player =
-          event.player_name ||
-          "";
+<div>
 
-        return `
+<span class="event-minute">
+${esc(event.minute ?? "-")}'
+</span>
 
-          <div class="event">
+&nbsp;
 
-            <div class="event-minute">
-              ${esc(minute)}
-            </div>
+<span class="event-type">
 
-            <div class="event-type">
-              ${eventIcon(type)}
-              ${esc(type)}
-            </div>
+${eventIcon(type)}
+${esc(type)}
 
-            <div class="event-description">
+</span>
 
-              ${esc(player)}
+</div>
 
-              ${player && description
-                ? " — "
-                : ""}
+<div style="margin-top:5px;font-weight:bold;">
 
-              ${esc(description)}
+${esc(
+playerName(event.player_id)
+)}
 
-            </div>
+</div>
 
-          </div>
+${
+event.description
+?
+`<div style="
+margin-top:4px;
+font-size:11px;
+color:#687386;
+">
+${esc(event.description)}
+</div>`
+:
+""
+}
 
-        `;
+</div>
 
-      }
-    )
-    .join("");
+`;
+
+}).join("");
 
 }
 
 
 /* =====================================================
-   SHOW REPORT
+   REPORT
 ===================================================== */
 
-async function showReport(id){
+async function loadReport(){
 
-  const match =
-    matches.find(
-      m =>
-      String(m.id) ===
-      String(id)
-    );
+const matchId =
+$("matchSelect").value;
 
-  if(!match){
+if(!matchId){
 
-    return;
-  }
-
-  await loadEvents(id);
-
-  const competition =
-    competitions.find(
-      c =>
-      String(c.id) ===
-      String(match.competition_id)
-    );
-
-  const home =
-    getClubName(
-      match.home_team_id
-    );
-
-  const away =
-    getClubName(
-      match.away_team_id
-    );
-
-  const homeScore =
-    match.home_score ?? 0;
-
-  const awayScore =
-    match.away_score ?? 0;
-
-  const stage =
-    match.stage ||
-    "Group Stage";
-
-  const refereeReport =
-    match.referee_report ||
-    match.referee_notes ||
-    "";
-
-  const commissionerReport =
-    match.commissioner_report ||
-    match.commissioner_notes ||
-    "";
-
-
-  $("reportContainer").innerHTML = `
-
-    <article class="report">
-
-      <!-- REPORT HEADER -->
-
-      <div class="report-header">
-
-        <img
-          src="${AFRN_LOGO}"
-          alt="AFRN Logo">
-
-        <h1>
-          AFRN FOOTBALL MANAGEMENT
-        </h1>
-
-        <h2>
-          SHIRIKISHO LA MPIRA WA MIGUU KAMBINI NYARUGUSU
-        </h2>
-
-        <p>
-          OFFICIAL MATCH REPORT
-        </p>
-
-      </div>
-
-
-      <!-- MATCH INFORMATION -->
-
-      <div class="match-info">
-
-        <div class="competition-name">
-
-          🏆
-          ${esc(
-            competition
-            ? competition.name
-            : "Competition"
-          )}
-
-          <br>
-
-          <small>
-            ${esc(stage)}
-          </small>
-
-        </div>
-
-
-        <div class="teams">
-
-          <div>
-
-            <div class="team-name">
-              ${esc(home)}
-            </div>
-
-            <div class="score">
-              ${esc(homeScore)}
-            </div>
-
-            <div class="team-label">
-              HOME
-            </div>
-
-          </div>
-
-
-          <div>
-            <strong>
-              VS
-            </strong>
-          </div>
-
-
-          <div>
-
-            <div class="team-name">
-              ${esc(away)}
-            </div>
-
-            <div class="score">
-              ${esc(awayScore)}
-            </div>
-
-            <div class="team-label">
-              AWAY
-            </div>
-
-          </div>
-
-        </div>
-
-      </div>
-
-
-      <!-- DETAILS -->
-
-      <div class="details">
-
-        <div class="detail">
-
-          <b>
-            📅 DATE
-          </b>
-
-          ${esc(
-            match.match_date || "-"
-          )}
-
-        </div>
-
-
-        <div class="detail">
-
-          <b>
-            ⏰ TIME
-          </b>
-
-          ${esc(
-            match.match_time || "-"
-          )}
-
-        </div>
-
-
-        <div class="detail">
-
-          <b>
-            🏟️ VENUE
-          </b>
-
-          ${esc(
-            match.venue || "-"
-          )}
-
-        </div>
-
-
-        <div class="detail">
-
-          <b>
-            👨‍⚖️ REFEREE
-          </b>
-
-          ${esc(
-            match.referee || "-"
-          )}
-
-        </div>
-
-      </div>
-
-
-      <!-- EVENTS -->
-
-      <section class="section">
-
-        <h3 class="section-title">
-          ⚽ Match Events
-        </h3>
-
-        ${renderEvents()}
-
-      </section>
-
-
-      <!-- NOTES -->
-
-      <section class="section">
-
-        <h3 class="section-title">
-          📝 Match Notes
-        </h3>
-
-        <div class="report-box">
-
-          ${
-            esc(
-              match.notes ||
-              "Hakuna maelezo ya mechi."
-            )
-          }
-
-        </div>
-
-      </section>
-
-
-      <!-- REFEREE REPORT -->
-
-      <section class="section">
-
-        <h3 class="section-title">
-          👨‍⚖️ Referee Report
-        </h3>
-
-        <div class="report-box">
-
-          ${
-            refereeReport
-            ? esc(refereeReport)
-            : "Taarifa ya mwamuzi bado haijaingizwa."
-          }
-
-        </div>
-
-      </section>
-
-
-      <!-- COMMISSIONER REPORT -->
-
-      <section class="section">
-
-        <h3 class="section-title">
-          👔 Commissioner Report
-        </h3>
-
-        <div class="report-box">
-
-          ${
-            commissionerReport
-            ? esc(commissionerReport)
-            : "Taarifa ya kamisaa bado haijaingizwa."
-          }
-
-        </div>
-
-      </section>
-
-
-      <!-- OFFICIAL FOOTER -->
-
-      <div class="official-footer">
-
-        <strong>
-          AFRN FOOTBALL MANAGEMENT
-        </strong>
-
-        SHIRIKISHO LA MPIRA WA MIGUU KAMBINI NYARUGUSU
-
-        <br><br>
-
-        Official Competition & Match Record
-
-      </div>
-
-    </article>
-
-  `;
-
-}
-
-
-/* =====================================================
-   SELECT EVENT
-===================================================== */
-
-$("matchSelect").addEventListener(
-  "change",
-  function(){
-
-    if(!this.value){
-
-      $("reportContainer").innerHTML = `
-
-        <div class="empty">
-
-          Chagua mechi ili kuona
-          Official Match Report.
-
-        </div>
-
-      `;
-
-      return;
-    }
-
-    showReport(
-      this.value
-    );
-
-  }
+alert(
+"⚠️ Kwanza chagua mechi."
 );
 
+return;
+
+}
+
+const match =
+matches.find(
+m => String(m.id) ===
+String(matchId)
+);
+
+if(!match){
+
+return;
+
+}
+
+setStatus(
+"⏳ Inatengeneza Match Report..."
+);
+
+await loadEvents(matchId);
+
+const competition =
+competitions.find(
+c => String(c.id) ===
+String(match.competition_id)
+);
+
+const home =
+clubName(match.home_team_id);
+
+const away =
+clubName(match.away_team_id);
+
+const stats =
+eventStats();
+
+const homeScore =
+match.home_score ?? 0;
+
+const awayScore =
+match.away_score ?? 0;
+
 
 /* =====================================================
-   PRINT
+   REPORT HTML
 ===================================================== */
 
-$("printBtn").onclick =
-function(){
+$("reportContainer").innerHTML = `
 
-  if(
-    !$("matchSelect").value
-  ){
+<div class="report" id="printReport">
 
-    alert(
-      "⚠️ Kwanza chagua mechi."
-    );
+<div class="report-header">
 
-    return;
-  }
+<img
+src="./afrn-logo.png"
+alt="AFRN Logo"
+class="report-logo"
+onerror="this.style.display='none';">
 
-  window.print();
+<h1>
+AFRN FOOTBALL MANAGEMENT
+</h1>
 
-};
+<h2>
+SHIRIKISHO LA MPIRA WA MIGUU KAMBINI NYARUGUSU
+</h2>
+
+<p>
+Association / Football Federation for Refugees in Nyarugusu
+</p>
+
+<div class="official-title">
+OFFICIAL MATCH REPORT
+</div>
+
+</div>
+
+
+<div class="competition-title">
+
+🏆
+${esc(
+competition
+? competition.name
+: "Competition"
+)}
+
+</div>
+
+
+<div class="match-score">
+
+<div>
+
+<div class="team-name">
+${esc(home)}
+</div>
+
+<div class="big-score">
+${esc(homeScore)}
+</div>
+
+</div>
+
+
+<div class="vs">
+VS
+</div>
+
+
+<div>
+
+<div class="team-name">
+${esc(away)}
+</div>
+
+<div class="big-score">
+${esc(awayScore)}
+</div>
+
+</div>
+
+</div>
+
+
+<div class="match-info">
+
+<div class="info-box">
+
+<b>📅 DATE</b>
+
+${esc(
+match.match_date || "-"
+)}
+
+</div>
+
+<div class="info-box">
+
+<b>⏰ TIME</b>
+
+${esc(
+match.match_time || "-"
+)}
+
+</div>
+
+<div class="info-box">
+
+<b>🏟️ VENUE</b>
+
+${esc(
+match.venue || "-"
+)}
+
+</div>
+
+<div class="info-box">
+
+<b>👨‍⚖️ REFEREE</b>
+
+${esc(
+match.referee || "-"
+)}
+
+</div>
+
+</div>
+
+
+<!-- TEAM OFFICIALS -->
+
+<div class="section">
+
+<div class="section-title">
+
+👔 TEAM OFFICIALS / BENCHI LA UFUNDI
+
+</div>
+
+
+<div class="teams-grid">
+
+
+<div class="team-card">
+
+<h3>
+${esc(home)}
+</h3>
+
+<div class="form-grid">
+
+<div class="form-group">
+
+<label>
+Coach Mkuu
+</label>
+
+<input
+type="text"
+placeholder="Jina la Coach Mkuu">
+
+</div>
+
+
+<div class="form-group">
+
+<label>
+Coach Msaidizi
+</label>
+
+<input
+type="text"
+placeholder="Jina la Coach Msaidizi">
+
+</div>
+
+
+<div class="form-group">
+
+<label>
+Mjumbe 1
+</label>
+
+<input
+type="text"
+placeholder="Jina la Mjumbe 1">
+
+</div>
+
+
+<div class="form-group">
+
+<label>
+Mjumbe 2
+</label>
+
+<input
+type="text"
+placeholder="Jina la Mjumbe 2">
+
+</div>
+
+
+<div class="form-group">
+
+<label>
+Daktari 1
+</label>
+
+<input
+type="text"
+placeholder="Jina la Daktari 1">
+
+</div>
+
+
+<div class="form-group">
+
+<label>
+Daktari 2
+</label>
+
+<input
+type="text"
+placeholder="Jina la Daktari 2">
+
+</div>
+
+</div>
+
+</div>
+
+
+<div class="team-card">
+
+<h3>
+${esc(away)}
+</h3>
+
+<div class="form-grid">
+
+<div class="form-group">
+
+<label>
+Coach Mkuu
+</label>
+
+<input
+type="text"
+placeholder="Jina la Coach Mkuu">
+
+</div>
+
+
+<div class="form-group">
+
+<label>
+Coach Msaidizi
+</label>
+
+<input
+type="text"
+placeholder="Jina la Coach Msaidizi">
+
+</div>
+
+
+<div class="form-group">
+
+<label>
+Mjumbe 1
+</label>
+
+<input
+type="text"
+placeholder="Jina la Mjumbe 1">
+
+</div>
+
+
+<div class="form-group">
+
+<label>
+Mjumbe 2
+</label>
+
+<input
+type="text"
+placeholder="Jina la Mjumbe 2">
+
+</div>
+
+
+<div class="form-group">
+
+<label>
+Daktari 1
+</label>
+
+<input
+type="text"
+placeholder="Jina la Daktari 1">
+
+</div>
+
+
+<div class="form-group">
+
+<label>
+Daktari 2
+</label>
+
+<input
+type="text"
+placeholder="Jina la Daktari 2">
+
+</div>
+
+</div>
+
+</div>
+
+
+</div>
+
+</div>
+
+
+<!-- LINEUPS -->
+
+<div class="section">
+
+<div class="section-title">
+
+📋 VIKOSI VYA TIMU
+
+</div>
+
+<div class="teams-grid">
+
+
+<div class="team-card">
+
+<h3>
+${esc(home)}
+</h3>
+
+<div style="padding:15px;">
+
+<div class="empty">
+
+Kikosi kitaonyeshwa hapa
+baada ya kuunganishwa na
+mfumo wa lineups.
+
+</div>
+
+</div>
+
+</div>
+
+
+<div class="team-card">
+
+<h3>
+${esc(away)}
+</h3>
+
+<div style="padding:15px;">
+
+<div class="empty">
+
+Kikosi kitaonyeshwa hapa
+baada ya kuunganishwa na
+mfumo wa lineups.
+
+</div>
+
+</div>
+
+</div>
+
+
+</div>
+
+</div>
+
+
+<!-- EVENTS -->
+
+<div class="section">
+
+<div class="section-title">
+
+⚽ MATCH EVENTS
+
+</div>
+
+${renderEvents()}
+
+</div>
+
+
+<!-- STATISTICS -->
+
+<div class="section">
+
+<div class="section-title">
+
+📊 JUMLA YA MATUKIO YA MCHEZO
+
+</div>
+
+<div class="events-summary">
+
+
+<div class="stat-box">
+
+<strong>
+${stats.goals}
+</strong>
+
+<span>
+⚽ GOALS
+</span>
+
+</div>
+
+
+<div class="stat-box">
+
+<strong>
+${stats.yellow}
+</strong>
+
+<span>
+🟨 YELLOW
+</span>
+
+</div>
+
+
+<div class="stat-box">
+
+<strong>
+${stats.red}
+</strong>
+
+<span>
+🟥 RED
+</span>
+
+</div>
+
+
+<div class="stat-box">
+
+<strong>
+${stats.substitutions}
+</strong>
+
+<span>
+🔄 SUBS
+</span>
+
+</div>
+
+
+<div class="stat-box">
+
+<strong>
+${stats.penalties}
+</strong>
+
+<span>
+🎯 PENALTIES
+</span>
+
+</div>
+
+
+<div class="stat-box">
+
+<strong>
+${stats.total}
+</strong>
+
+<span>
+📋 TOTAL EVENTS
+</span>
+
+</div>
+
+
+</div>
+
+</div>
+
+
+<!-- MATCH NOTES -->
+
+<div class="section">
+
+<div class="section-title">
+
+📝 MATCH NOTES
+
+</div>
+
+<div class="report-box">
+
+${
+esc(
+match.notes ||
+"Hakuna maelezo ya ziada ya mechi."
+)
+}
+
+</div>
+
+</div>
+
+
+<!-- REFEREE -->
+
+<div class="section">
+
+<div class="section-title">
+
+👨‍⚖️ REFEREE REPORT
+
+</div>
+
+<div class="report-box">
+
+Taarifa ya mwamuzi bado
+haijaingizwa.
+
+</div>
+
+</div>
+
+
+<!-- COMMISSIONER -->
+
+<div class="section">
+
+<div class="section-title">
+
+👔 COMMISSIONER REPORT
+
+</div>
+
+<div class="report-box">
+
+Taarifa ya kamisaa bado
+haijaingizwa.
+
+</div>
+
+</div>
+
+
+<div class="report-actions">
+
+<button
+class="primary"
+onclick="window.print()">
+
+🖨️ PRINT / PDF
+
+</button>
+
+<button
+class="secondary"
+onclick="window.scrollTo({
+top:0,
+behavior:'smooth'
+})">
+
+⬆️ Juu
+
+</button>
+
+</div>
+
+
+</div>
+
+`;
+
+
+setStatus(
+"✅ Match Report imetengenezwa.",
+"ok"
+);
+
+}
 
 
 /* =====================================================
@@ -1634,32 +1876,25 @@ function(){
 
 async function init(){
 
-  try{
+setStatus(
+"⏳ Inapakia mfumo..."
+);
 
-    await loadClubs();
+await loadClubs();
 
-    await loadCompetitions();
+await loadCompetitions();
 
-    await loadMatches();
+await loadPlayers();
 
-    setStatus(
-      "✅ AFRN imeunganishwa vizuri.",
-      "ok"
-    );
+await loadMatches();
 
-  }catch(error){
-
-    console.error(error);
-
-    setStatus(
-      "❌ Mfumo umepata hitilafu: " +
-      error.message,
-      "err"
-    );
-
-  }
+setStatus(
+"✅ AFRN imeunganishwa vizuri.",
+"ok"
+);
 
 }
+
 
 init();
 
