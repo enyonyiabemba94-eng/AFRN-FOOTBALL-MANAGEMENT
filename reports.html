@@ -1,57 +1,2092 @@
-<!doctype html><html lang="sw"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>Ripoti | AFRN</title><style>
-:root{--navy:#082b52;--blue:#0b67c2;--bg:#f3f6fa;--card:#fff;--line:#dce3eb;--text:#172033;--muted:#667085;--green:#087443;--red:#b42318}
-*{box-sizing:border-box}body{margin:0;font-family:Arial,Helvetica,sans-serif;background:var(--bg);color:var(--text)}
-header{background:linear-gradient(135deg,#061f3b,#0b5ca8);color:#fff;padding:18px 16px}
-header h1{margin:0;font-size:21px}header p{margin:5px 0 0;font-size:13px;opacity:.85}
-nav{display:flex;gap:7px;overflow:auto;background:#fff;padding:10px;border-bottom:1px solid var(--line);position:sticky;top:0;z-index:10}
-nav a{white-space:nowrap;text-decoration:none;color:var(--navy);padding:9px 12px;border-radius:9px;background:#edf4fb;font-size:13px}
-main{max-width:1250px;margin:auto;padding:15px}.card{background:var(--card);border:1px solid var(--line);border-radius:14px;padding:15px;margin-bottom:14px;box-shadow:0 2px 8px #00000008}
-h2,h3{margin-top:0}.grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(180px,1fr));gap:11px}
-.stat{background:#eef5ff;border-radius:12px;padding:14px}.stat b{font-size:27px;display:block;color:var(--navy)}.stat span{font-size:12px;color:var(--muted)}
-label{font-size:12px;font-weight:bold;display:block;margin-bottom:5px}input,select,textarea,button{width:100%;padding:10px;border:1px solid #cbd5e1;border-radius:8px;font:inherit}textarea{min-height:80px;resize:vertical}
-button{background:var(--blue);color:#fff;border:0;font-weight:bold;cursor:pointer}.btn2{background:#667085}.danger{background:#c62828}.green{background:#087443}
-.actions{display:flex;gap:7px;flex-wrap:wrap}.actions button{width:auto}
-.tablewrap{overflow:auto}table{width:100%;border-collapse:collapse;min-width:650px}th,td{padding:9px;border-bottom:1px solid var(--line);font-size:13px;text-align:left}th{background:#f7f9fc}
-.badge{display:inline-block;padding:4px 8px;border-radius:20px;background:#edf4fb;font-size:11px}.msg{min-height:18px;margin:7px 0;font-size:13px}.ok{color:var(--green)}.err{color:var(--red)}
-.tabs{display:flex;gap:7px;overflow:auto;margin-bottom:12px}.tabs button{width:auto;background:#e7eef7;color:var(--navy)}.tabs button.active{background:var(--blue);color:#fff}
-@media(max-width:600px){main{padding:9px}.card{padding:12px}header h1{font-size:18px}}
-</style></head><body>
-<header><h1>AFRN FOOTBALL MANAGEMENT</h1><p>Association/Football Federation for Refugees in Nyarugusu</p></header>
-<nav><a href="index.html">🏠 Dashboard</a><a href="clubs.html">⚽ Vilabu</a><a href="players.html">👤 Wachezaji</a><a href="contracts.html">📄 Mikataba</a><a href="transfers.html">🔄 Uhamisho</a><a href="competitions.html">🏆 Mashindano</a><a href="matches.html">🏟️ Mechi</a><a href="reports.html">📊 Ripoti</a></nav>
-<main>
-<div class="card"><h2>📊 AFRN Statistics & Reports Centre</h2><p>Ripoti za mashindano, vilabu, wachezaji, mechi, nidhamu, mikataba na uhamisho.</p><div id="msg" class="msg"></div>
-<div class="grid"><div><label>Competition ID (optional)</label><input id="filter_comp"></div><div><label>Season</label><input id="filter_season" value="2026"></div><div><label>Daraja</label><select id="filter_level"><option value="">Zote</option><option>Daraja la Kwanza</option><option>Daraja la Pili</option><option>Daraja la Tatu</option><option>Daraja la Nne</option></select></div><div><label>Kuanzia</label><input id="from" type="date"></div><div><label>Mpaka</label><input id="to" type="date"></div></div><div class="actions" style="margin-top:10px"><button onclick="build()">🔄 Tengeneza Ripoti</button><button class="btn2" onclick="window.print()">🖨️ Print / PDF</button></div></div>
-<div class="grid"><div class="stat"><b id="clubs">0</b><span>Vilabu</span></div><div class="stat"><b id="players">0</b><span>Wachezaji</span></div><div class="stat"><b id="matches">0</b><span>Mechi</span></div><div class="stat"><b id="goals">0</b><span>Magoli</span></div><div class="stat"><b id="yellow">0</b><span>Yellow Cards</span></div><div class="stat"><b id="red">0</b><span>Red Cards</span></div></div>
-<div class="card"><h3>📊 Msimamo</h3><div class="tablewrap"><table><thead><tr><th>#</th><th>Klabu</th><th>P</th><th>W</th><th>D</th><th>L</th><th>GF</th><th>GA</th><th>GD</th><th>Pts</th></tr></thead><tbody id="stand"></tbody></table></div></div>
-<div class="card"><h3>📈 Muhtasari wa Ripoti</h3><div id="summary">Bonyeza “Tengeneza Ripoti”.</div></div>
-</main>
+<!DOCTYPE html>
+<html lang="sw">
+
+<head>
+
+<meta charset="UTF-8">
+
+<meta name="viewport"
+      content="width=device-width, initial-scale=1.0">
+
+<title>AFRN Football Management - Reports</title>
+
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+
+<style>
+
+:root{
+  --navy:#071a33;
+  --blue:#0d47a1;
+  --gold:#f5b400;
+  --bg:#f4f7fb;
+  --white:#fff;
+  --text:#172033;
+  --muted:#687386;
+  --danger:#c62828;
+  --red:#b71c1c;
+  --yellow:#d99b00;
+  --green:#16834b;
+}
+
+*{
+  box-sizing:border-box;
+}
+
+body{
+  margin:0;
+  background:var(--bg);
+  color:var(--text);
+  font-family:Arial,Helvetica,sans-serif;
+}
+
+header{
+  background:linear-gradient(135deg,#06152b,#0d47a1);
+  color:white;
+  padding:18px 16px;
+  position:sticky;
+  top:0;
+  z-index:10;
+  box-shadow:0 3px 12px #0002;
+}
+
+header h1{
+  margin:0;
+  font-size:20px;
+}
+
+header p{
+  margin:5px 0 0;
+  font-size:12px;
+  opacity:.85;
+}
+
+nav{
+  background:white;
+  padding:10px;
+  display:flex;
+  gap:7px;
+  overflow-x:auto;
+  border-bottom:1px solid #ddd;
+}
+
+nav a{
+  text-decoration:none;
+  white-space:nowrap;
+  padding:9px 12px;
+  border-radius:9px;
+  color:#172033;
+  font-size:13px;
+  font-weight:bold;
+}
+
+nav a.active{
+  background:var(--blue);
+  color:white;
+}
+
+main{
+  max-width:1250px;
+  margin:auto;
+  padding:16px;
+}
+
+.status{
+  background:white;
+  padding:11px 13px;
+  border-radius:10px;
+  margin-bottom:15px;
+  border-left:4px solid var(--blue);
+  font-size:13px;
+}
+
+.status.ok{
+  border-left-color:var(--green);
+}
+
+.status.err{
+  border-left-color:var(--danger);
+  color:var(--danger);
+}
+
+.card{
+  background:white;
+  border-radius:16px;
+  padding:16px;
+  margin-bottom:15px;
+  box-shadow:0 3px 15px #14213d12;
+  border:1px solid #e7ebf1;
+}
+
+.card h2,
+.card h3{
+  margin-top:0;
+}
+
+.filters{
+  display:grid;
+  grid-template-columns:repeat(4,1fr);
+  gap:10px;
+}
+
+.field{
+  width:100%;
+  padding:11px;
+  border:1px solid #d4dbe6;
+  border-radius:9px;
+  background:white;
+}
+
+label{
+  display:block;
+  font-size:12px;
+  font-weight:bold;
+  margin-bottom:5px;
+}
+
+button{
+  border:0;
+  border-radius:10px;
+  padding:11px 15px;
+  font-weight:bold;
+  cursor:pointer;
+}
+
+.primary{
+  background:var(--blue);
+  color:white;
+}
+
+.gold{
+  background:var(--gold);
+  color:#111;
+}
+
+.secondary{
+  background:#e8edf5;
+  color:#172033;
+}
+
+.actions{
+  display:flex;
+  gap:8px;
+  flex-wrap:wrap;
+  margin-top:12px;
+}
+
+.stats{
+  display:grid;
+  grid-template-columns:repeat(6,1fr);
+  gap:10px;
+  margin-bottom:15px;
+}
+
+.stat{
+  background:white;
+  border-radius:14px;
+  padding:15px;
+  text-align:center;
+  border:1px solid #e7ebf1;
+  box-shadow:0 3px 12px #0000000b;
+}
+
+.stat strong{
+  display:block;
+  font-size:25px;
+  margin-bottom:5px;
+}
+
+.stat span{
+  font-size:11px;
+  color:var(--muted);
+  font-weight:bold;
+}
+
+.table-wrap{
+  overflow-x:auto;
+}
+
+table{
+  width:100%;
+  border-collapse:collapse;
+  min-width:900px;
+}
+
+th{
+  background:var(--navy);
+  color:white;
+  padding:11px 8px;
+  font-size:11px;
+  text-align:center;
+}
+
+td{
+  padding:10px 8px;
+  border-bottom:1px solid #e7ebf1;
+  font-size:12px;
+  text-align:center;
+}
+
+td.club{
+  text-align:left;
+  font-weight:bold;
+}
+
+tr:nth-child(even){
+  background:#f8faff;
+}
+
+.badge{
+  display:inline-block;
+  padding:4px 7px;
+  border-radius:999px;
+  font-size:10px;
+  font-weight:bold;
+}
+
+.badge-red{
+  background:#ffebee;
+  color:var(--red);
+}
+
+.badge-yellow{
+  background:#fff8df;
+  color:#9b7000;
+}
+
+.badge-green{
+  background:#e8f7ef;
+  color:var(--green);
+}
+
+.empty{
+  padding:30px;
+  text-align:center;
+  color:var(--muted);
+  background:#f8fafc;
+  border:1px dashed #cbd3df;
+  border-radius:12px;
+}
+
+.report-box{
+  line-height:1.7;
+  font-size:13px;
+}
+
+@media(max-width:900px){
+
+  .filters{
+    grid-template-columns:1fr 1fr;
+  }
+
+  .stats{
+    grid-template-columns:repeat(3,1fr);
+  }
+
+}
+
+@media(max-width:600px){
+
+  .filters{
+    grid-template-columns:1fr;
+  }
+
+  .stats{
+    grid-template-columns:repeat(2,1fr);
+  }
+
+}
+
+</style>
+
+</head>
+
+<body>
+
+<header>
+
+<h1>
+⚽ AFRN FOOTBALL MANAGEMENT
+</h1>
+
+<p>
+Association / Football Federation for Refugees in Nyarugusu
+</p>
+
+</header>
+
+<nav>
+
+<a href="./index.html">
+🏠 Dashboard
+</a>
+
+<a href="./clubs.html">
+⚽ Vilabu
+</a>
+
+<a href="./players.html">
+👤 Wachezaji
+</a>
+
+<a href="./contracts.html">
+📄 Mikataba
+</a>
+
+<a href="./transfers.html">
+🔄 Uhamisho
+</a>
+
+<a href="./competitions.html">
+🏆 Mashindano
+</a>
+
+<a href="./matches.html">
+🏟️ Mechi
+</a>
+
+<a href="./reports.html"
+   class="active">
+📊 Ripoti
+</a>
+
+</nav>
+
+<main>
+
+<div id="status"
+     class="status">
+
+⏳ Inaunganisha na Supabase...
+
+</div>
+
+
+<!-- FILTERS -->
+
+<div class="card">
+
+<h2>
+📊 AFRN Statistics & Reports Centre
+</h2>
+
+<p style="color:var(--muted);font-size:13px;">
+Ripoti za mashindano, vilabu, wachezaji, mechi, nidhamu, mikataba na uhamisho.
+</p>
+
+<div class="filters">
+
+<div>
+
+<label>
+Competition
+</label>
+
+<select id="competitionFilter"
+        class="field">
+
+<option value="">
+Mashindano yote
+</option>
+
+</select>
+
+</div>
+
+
+<div>
+
+<label>
+Season
+</label>
+
+<select id="seasonFilter"
+        class="field">
+
+<option value="">
+Season zote
+</option>
+
+</select>
+
+</div>
+
+
+<div>
+
+<label>
+Daraja
+</label>
+
+<select id="divisionFilter"
+        class="field">
+
+<option value="">
+Daraja zote
+</option>
+
+<option value="Daraja la Kwanza">
+Daraja la Kwanza
+</option>
+
+<option value="Daraja la Pili">
+Daraja la Pili
+</option>
+
+<option value="Daraja la Tatu">
+Daraja la Tatu
+</option>
+
+<option value="Daraja la Nne">
+Daraja la Nne
+</option>
+
+</select>
+
+</div>
+
+
+<div>
+
+<label>
+Kuanzia
+</label>
+
+<input id="startDate"
+       class="field"
+       type="date">
+
+</div>
+
+
+<div>
+
+<label>
+Mpaka
+</label>
+
+<input id="endDate"
+       class="field"
+       type="date">
+
+</div>
+
+</div>
+
+
+<div class="actions">
+
+<button class="primary"
+        id="generateBtn">
+
+🔄 Tengeneza Ripoti
+
+</button>
+
+<button class="gold"
+        onclick="window.print()">
+
+🖨️ Print / PDF
+
+</button>
+
+<button class="secondary"
+        id="resetBtn">
+
+↩️ Reset
+
+</button>
+
+</div>
+
+</div>
+
+
+<!-- STATISTICS -->
+
+<div class="stats">
+
+<div class="stat">
+
+<strong id="clubsCount">
+0
+</strong>
+
+<span>
+Vilabu
+</span>
+
+</div>
+
+
+<div class="stat">
+
+<strong id="playersCount">
+0
+</strong>
+
+<span>
+Wachezaji
+</span>
+
+</div>
+
+
+<div class="stat">
+
+<strong id="matchesCount">
+0
+</strong>
+
+<span>
+Mechi
+</span>
+
+</div>
+
+
+<div class="stat">
+
+<strong id="goalsCount">
+0
+</strong>
+
+<span>
+Magoli
+</span>
+
+</div>
+
+
+<div class="stat">
+
+<strong id="yellowCount">
+0
+</strong>
+
+<span>
+Yellow Cards
+</span>
+
+</div>
+
+
+<div class="stat">
+
+<strong id="redCount">
+0
+</strong>
+
+<span>
+Red Cards
+</span>
+
+</div>
+
+</div>
+
+
+<!-- STANDINGS -->
+
+<div class="card">
+
+<h2>
+📊 Msimamo
+</h2>
+
+<div id="standingsContainer">
+
+<div class="empty">
+Bonyeza “Tengeneza Ripoti”.
+</div>
+
+</div>
+
+</div>
+
+
+<!-- REPORT SUMMARY -->
+
+<div class="card">
+
+<h2>
+📈 Muhtasari wa Ripoti
+</h2>
+
+<div id="reportSummary"
+     class="report-box">
+
+Bonyeza “Tengeneza Ripoti”.
+
+</div>
+
+</div>
+
+
+<!-- MATCH REPORT -->
+
+<div class="card">
+
+<h2>
+📅 Muhtasari wa Mechi
+</h2>
+
+<div id="matchReport">
+
+<div class="empty">
+Hakuna ripoti bado.
+</div>
+
+</div>
+
+</div>
+
+</main>
+
+
 <script>
-/* WEKA SUPABASE URL NA ANON KEY ZAKO HAPA.
-   Usibadilishe tables zako. Pages hizi zinasoma/kuhifadhi kwenye tables zilizopo. */
-const SUPABASE_URL="WEKA_SUPABASE_URL_HAPA";
-const SUPABASE_ANON_KEY="WEKA_SUPABASE_ANON_KEY_HAPA";
-const db=supabase.createClient(SUPABASE_URL,SUPABASE_ANON_KEY);
-const $=id=>document.getElementById(id);
-const esc=v=>String(v??"").replace(/[&<>"']/g,m=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#039;"}[m]));
-function notice(t,err=false){let x=$("msg");if(x){x.className="msg "+(err?"err":"ok");x.textContent=t;setTimeout(()=>x.textContent="",4000)}}
-async function rows(table){const {data,error}=await db.from(table).select("*");if(error)throw error;return data||[]}
-function pick(o,...keys){for(const k of keys)if(o&&o[k]!==undefined&&o[k]!==null)return o[k];return ""}
-function date(v){return v?new Date(v).toLocaleDateString("en-GB"):"-"}
+
+/* =====================================================
+   SUPABASE
+===================================================== */
+
+const SUPABASE_URL =
+"https://jjqhvruppafpumcthmwe.supabase.co";
+
+const SUPABASE_PUBLISHABLE_KEY =
+"sb_publishable_02hhRG8bgDOqSFxva8IMvQ_zWTLMa3G";
+
+const db =
+window.supabase.createClient(
+  SUPABASE_URL,
+  SUPABASE_PUBLISHABLE_KEY
+);
+
+
+/* =====================================================
+   TABLES
+===================================================== */
+
+const COMPETITIONS_TABLE =
+"competitions";
+
+const CLUBS_TABLE =
+"clubs";
+
+const PLAYERS_TABLE =
+"players";
+
+const MATCHES_TABLE =
+"matches";
+
+const EVENTS_TABLE =
+"match_events";
+
+
+/* =====================================================
+   DATA
+===================================================== */
+
+let competitions = [];
+let clubs = [];
+let players = [];
+let matches = [];
+let events = [];
+
+
+/* =====================================================
+   HELPERS
+===================================================== */
+
+const $ =
+id => document.getElementById(id);
+
+
+function esc(value){
+
+return String(value ?? "")
+.replace(/[&<>"']/g, char => ({
+
+"&":"&amp;",
+"<":"&lt;",
+">":"&gt;",
+'"':"&quot;",
+"'":"&#039;"
+
+}[char]));
+
+}
+
+
+function setStatus(message,type=""){
+
+$("status").textContent =
+message;
+
+$("status").className =
+"status " + type;
+
+}
+
+
+/* =====================================================
+   LOAD COMPETITIONS
+===================================================== */
+
+async function loadCompetitions(){
+
+const result =
+await db
+.from(COMPETITIONS_TABLE)
+.select(`
+id,
+name,
+competition_type,
+organizer,
+season,
+start_date,
+end_date,
+status
+`)
+.order("name");
+
+if(result.error){
+
+console.error(result.error);
+
+setStatus(
+"❌ Competition haijapakiwa: " +
+result.error.message,
+"err"
+);
+
+return;
+}
+
+competitions =
+result.data || [];
+
+renderCompetitions();
+
+}
+
+
+/* =====================================================
+   RENDER COMPETITIONS
+===================================================== */
+
+function renderCompetitions(){
+
+const select =
+$("competitionFilter");
+
+select.innerHTML = `
+<option value="">
+Mashindano yote
+</option>
+`;
+
+const seasons =
+new Set();
+
+competitions.forEach(c => {
+
+const option =
+document.createElement("option");
+
+option.value =
+c.id;
+
+option.textContent =
+c.name;
+
+select.appendChild(option);
+
+if(c.season !== null &&
+   c.season !== undefined &&
+   c.season !== ""){
+
+seasons.add(String(c.season));
+
+}
+
+});
+
+
+const seasonSelect =
+$("seasonFilter");
+
+seasonSelect.innerHTML = `
+<option value="">
+Season zote
+</option>
+`;
+
+[...seasons]
+.sort()
+.forEach(season => {
+
+const option =
+document.createElement("option");
+
+option.value =
+season;
+
+option.textContent =
+season;
+
+seasonSelect.appendChild(option);
+
+});
+
+}
+
+
+/* =====================================================
+   LOAD CLUBS
+===================================================== */
+
+async function loadClubs(){
+
+const result =
+await db
+.from(CLUBS_TABLE)
+.select("*");
+
+if(result.error){
+
+console.error(result.error);
+
+setStatus(
+"❌ Vilabu havijapakiwa: " +
+result.error.message,
+"err"
+);
+
+return;
+}
+
+clubs =
+result.data || [];
+
+}
+
+
+/* =====================================================
+   LOAD PLAYERS
+===================================================== */
+
+async function loadPlayers(){
+
+const result =
+await db
+.from(PLAYERS_TABLE)
+.select("*");
+
+if(result.error){
+
+console.warn(
+"Wachezaji hawajasomwa:",
+result.error.message
+);
+
+players = [];
+
+return;
+}
+
+players =
+result.data || [];
+
+}
+
+
+/* =====================================================
+   LOAD MATCHES
+===================================================== */
+
+async function loadMatches(){
+
+const result =
+await db
+.from(MATCHES_TABLE)
+.select(`
+id,
+competition_id,
+home_team_id,
+away_team_id,
+match_date,
+match_time,
+venue,
+home_score,
+away_score,
+status,
+referee,
+match_number,
+notes,
+created_at
+`);
+
+if(result.error){
+
+console.error(result.error);
+
+setStatus(
+"❌ Mechi hazijasomwa: " +
+result.error.message,
+"err"
+);
+
+matches = [];
+
+return;
+}
+
+matches =
+result.data || [];
+
+}
+
+
+/* =====================================================
+   LOAD EVENTS
+===================================================== */
+
+async function loadEvents(){
+
+const result =
+await db
+.from(EVENTS_TABLE)
+.select(`
+id,
+match_id,
+player_id,
+event_type,
+minute,
+description,
+created_at
+`);
+
+if(result.error){
+
+console.warn(
+"Match events hazijasomwa:",
+result.error.message
+);
+
+events = [];
+
+return;
+}
+
+events =
+result.data || [];
+
+}
+
+
+/* =====================================================
+   CLUB NAME
+===================================================== */
+
+function clubName(id){
+
+const club =
+clubs.find(
+c => String(c.id) === String(id)
+);
+
+if(!club)
+return "Unknown Club";
+
+return club.name ||
+club.club_name ||
+club.clubName ||
+"Unknown Club";
+
+}
+
+
+/* =====================================================
+   GET COMPETITION
+===================================================== */
+
+function getCompetition(id){
+
+return competitions.find(
+c => String(c.id) === String(id)
+);
+
+}
+
+
+/* =====================================================
+   FILTER MATCHES
+===================================================== */
+
+function getFilteredMatches(){
+
+const competitionId =
+$("competitionFilter").value;
+
+const season =
+$("seasonFilter").value;
+
+const start =
+$("startDate").value;
+
+const end =
+$("endDate").value;
+
+
+return matches.filter(match => {
+
+if(
+competitionId &&
+String(match.competition_id) !==
+String(competitionId)
+){
+
+return false;
+
+}
+
+
+if(start &&
+match.match_date &&
+match.match_date < start){
+
+return false;
+
+}
+
+
+if(end &&
+match.match_date &&
+match.match_date > end){
+
+return false;
+
+}
+
+
+if(season){
+
+const competition =
+getCompetition(
+match.competition_id
+);
+
+if(
+!competition ||
+String(competition.season) !==
+String(season)
+){
+
+return false;
+
+}
+
+}
+
+
+return true;
+
+});
+
+}
+
+
+/* =====================================================
+   FILTER CLUBS
+===================================================== */
+
+function getRelevantClubIds(filteredMatches){
+
+const ids =
+new Set();
+
+filteredMatches.forEach(match => {
+
+if(match.home_team_id)
+ids.add(String(match.home_team_id));
+
+if(match.away_team_id)
+ids.add(String(match.away_team_id));
+
+});
+
+return ids;
+
+}
+
+
+/* =====================================================
+   EVENT COUNTS
+===================================================== */
+
+function countEvents(matchIds){
+
+const idSet =
+new Set(
+matchIds.map(id => String(id))
+);
+
+let yellow = 0;
+let red = 0;
+
+events.forEach(event => {
+
+if(!idSet.has(String(event.match_id)))
+return;
+
+const type =
+String(
+event.event_type || ""
+)
+.toLowerCase()
+.trim();
+
+if(
+type.includes("yellow") ||
+type.includes("yellow card") ||
+type === "yc"
+){
+
+yellow++;
+
+}
+
+if(
+type.includes("red") ||
+type.includes("red card") ||
+type === "rc"
+){
+
+red++;
+
+}
+
+});
+
+return {
+yellow,
+red
+};
+
+}
+
+
+/* =====================================================
+   GENERATE STANDINGS
+===================================================== */
+
+function generateStandings(filteredMatches){
+
+const table = {};
+
+
+function createTeam(id){
+
+const key =
+String(id);
+
+if(!table[key]){
+
+table[key] = {
+
+id:id,
+
+club:clubName(id),
+
+p:0,
+
+w:0,
+
+d:0,
+
+l:0,
+
+gf:0,
+
+ga:0,
+
+gd:0,
+
+pts:0,
+
+yellow:0,
+
+red:0
+
+};
+
+}
+
+return table[key];
+
+}
+
+
+filteredMatches.forEach(match => {
+
+const status =
+String(
+match.status || ""
+)
+.toLowerCase();
+
+
+/*
+  Ratiba ambazo bado hazijachezwa
+  hazihesabiwi kwenye msimamo.
+*/
+
+if(
+status !== "completed" &&
+status !== "finished"
+){
+
+return;
+
+}
+
+
+if(
+match.home_score === null ||
+match.away_score === null
+){
+
+return;
+
+}
+
+
+const home =
+createTeam(
+match.home_team_id
+);
+
+const away =
+createTeam(
+match.away_team_id
+);
+
+
+const hg =
+Number(match.home_score || 0);
+
+const ag =
+Number(match.away_score || 0);
+
+
+home.p++;
+away.p++;
+
+
+home.gf += hg;
+home.ga += ag;
+
+away.gf += ag;
+away.ga += hg;
+
+
+if(hg > ag){
+
+home.w++;
+home.pts += 3;
+
+away.l++;
+
+}
+
+else if(hg < ag){
+
+away.w++;
+away.pts += 3;
+
+home.l++;
+
+}
+
+else{
+
+home.d++;
+away.d++;
+
+home.pts++;
+away.pts++;
+
+}
+
+});
+
+
+Object.values(table)
+.forEach(team => {
+
+team.gd =
+team.gf -
+team.ga;
+
+});
+
+
+/*
+  VIGEZO VYA AFRN
+
+  1. Points
+  2. Red Cards
+  3. Yellow Cards
+
+  GD HAITUMIKI KAMA KIGEZO.
+*/
+
+return Object.values(table)
+.sort((a,b) => {
+
+if(b.pts !== a.pts)
+return b.pts - a.pts;
+
+if(a.red !== b.red)
+return a.red - b.red;
+
+if(a.yellow !== b.yellow)
+return a.yellow - b.yellow;
+
+return a.club.localeCompare(
+b.club
+);
+
+});
+
+}
+
+
+/* =====================================================
+   RENDER STANDINGS
+===================================================== */
+
+function renderStandings(
+standings
+){
+
+if(!standings.length){
+
+$("standingsContainer").innerHTML = `
+<div class="empty">
+Hakuna matokeo yaliyokamilika kwa vigezo ulivyochagua.
+</div>
+`;
+
+return;
+
+}
+
+
+let html = `
+
+<div class="table-wrap">
+
+<table>
+
+<thead>
+
+<tr>
+
+<th>#</th>
+
+<th>KLUBU</th>
+
+<th>P</th>
+
+<th>W</th>
+
+<th>D</th>
+
+<th>L</th>
+
+<th>GF</th>
+
+<th>GA</th>
+
+<th>GD</th>
+
+<th>PTS</th>
+
+<th>🟥</th>
+
+<th>🟨</th>
+
+</tr>
+
+</thead>
+
+<tbody>
+
+`;
+
+
+standings.forEach(
+(team,index) => {
+
+html += `
+
+<tr>
+
+<td>
+<strong>${index+1}</strong>
+</td>
+
+<td class="club">
+${esc(team.club)}
+</td>
+
+<td>${team.p}</td>
+
+<td>${team.w}</td>
+
+<td>${team.d}</td>
+
+<td>${team.l}</td>
+
+<td>${team.gf}</td>
+
+<td>${team.ga}</td>
+
+<td>${team.gd}</td>
+
+<td>
+<strong>${team.pts}</strong>
+</td>
+
+<td>
+<span class="badge badge-red">
+${team.red}
+</span>
+</td>
+
+<td>
+<span class="badge badge-yellow">
+${team.yellow}
+</span>
+</td>
+
+</tr>
+
+`;
+
+});
+
+
+html += `
+
+</tbody>
+
+</table>
+
+</div>
+
+<p style="
+font-size:11px;
+color:#687386;
+margin-top:10px;
+">
+
+<strong>Kanuni ya kupanga:</strong>
+Points → Red Cards → Yellow Cards.
+GD inaonyeshwa kwa taarifa tu na
+<strong>haitumiki kupanga msimamo.</strong>
+
+</p>
+
+`;
+
+$("standingsContainer")
+.innerHTML =
+html;
+
+}
+
+
+/* =====================================================
+   GENERATE REPORT
+===================================================== */
+
+async function generateReport(){
+
+setStatus(
+"⏳ Inatengeneza ripoti..."
+);
+
+await loadMatches();
+await loadEvents();
+
+
+const filteredMatches =
+getFilteredMatches();
+
+
+const relevantClubIds =
+getRelevantClubIds(
+filteredMatches
+);
+
+
+const competitionId =
+$("competitionFilter").value;
+
+
+let relevantClubs =
+clubs.filter(c =>
+relevantClubIds.has(
+String(c.id)
+)
+);
+
+
+/*
+  Kama competition imechaguliwa,
+  jaribu kuonyesha clubs zake pia.
+*/
+
+if(
+competitionId &&
+!relevantClubs.length
+){
+
+relevantClubs = [];
+
+}
+
+
+const standings =
+generateStandings(
+filteredMatches
+);
+
+
+const eventCounts =
+countEvents(
+filteredMatches.map(
+m => m.id
+)
+);
+
+
+let goals = 0;
+
+filteredMatches.forEach(
+match => {
+
+if(
+String(match.status || "")
+.toLowerCase() ===
+"completed" ||
+String(match.status || "")
+.toLowerCase() ===
+"finished"
+){
+
+goals +=
+Number(match.home_score || 0) +
+Number(match.away_score || 0);
+
+}
+
+});
+
+
+$("clubsCount").textContent =
+relevantClubs.length;
+
+$("playersCount").textContent =
+players.length;
+
+$("matchesCount").textContent =
+filteredMatches.length;
+
+$("goalsCount").textContent =
+goals;
+
+$("yellowCount").textContent =
+eventCounts.yellow;
+
+$("redCount").textContent =
+eventCounts.red;
+
+
+renderStandings(
+standings
+);
+
+
+renderSummary(
+filteredMatches,
+standings,
+eventCounts,
+goals
+);
+
+
+renderMatchReport(
+filteredMatches
+);
+
+
+setStatus(
+"✅ Ripoti imetengenezwa • " +
+filteredMatches.length +
+" mechi",
+"ok"
+);
+
+}
+
+
+/* =====================================================
+   SUMMARY
+===================================================== */
+
+function renderSummary(
+filteredMatches,
+standings,
+eventCounts,
+goals
+){
+
+const competitionId =
+$("competitionFilter").value;
+
+const competition =
+competitionId
+? getCompetition(competitionId)
+: null;
+
+
+let completed = 0;
+let scheduled = 0;
+let postponed = 0;
+
+
+filteredMatches.forEach(
+match => {
+
+const status =
+String(
+match.status || ""
+)
+.toLowerCase();
+
+if(
+status === "completed" ||
+status === "finished"
+){
+
+completed++;
+
+}
+
+else if(
+status === "postponed"
+){
+
+postponed++;
+
+}
+
+else{
+
+scheduled++;
+
+}
+
+});
+
+
+let leader =
+standings.length
+? standings[0].club
+: "-";
+
+
+$("reportSummary")
+.innerHTML = `
+
+<strong>
+${competition
+? esc(competition.name)
+: "Mashindano yote"}
+</strong>
+
+<br><br>
+
+📅 Mechi zote:
+<strong>
+${filteredMatches.length}
+</strong>
+
+<br>
+
+✅ Mechi zilizokamilika:
+<strong>
+${completed}
+</strong>
+
+<br>
+
+⏳ Mechi ambazo bado:
+<strong>
+${scheduled}
+</strong>
+
+<br>
+
+⏸️ Mechi zilizoahirishwa:
+<strong>
+${postponed}
+</strong>
+
+<br>
+
+⚽ Magoli:
+<strong>
+${goals}
+</strong>
+
+<br>
+
+🟨 Yellow Cards:
+<strong>
+${eventCounts.yellow}
+</strong>
+
+<br>
+
+🟥 Red Cards:
+<strong>
+${eventCounts.red}
+</strong>
+
+<br><br>
+
+🏆 Timu iliyo juu kwa sasa:
+<strong>
+${esc(leader)}
+</strong>
+
+<br><br>
+
+⚠️
+GD imehesabiwa na kuonyeshwa,
+lakini haitumiki kama kigezo cha kupanga
+msimamo kulingana na sheria zako.
+
+`;
+
+}
+
+
+/* =====================================================
+   MATCH REPORT
+===================================================== */
+
+function renderMatchReport(
+filteredMatches
+){
+
+if(!filteredMatches.length){
+
+$("matchReport").innerHTML = `
+<div class="empty">
+Hakuna mechi kwa vigezo ulivyochagua.
+</div>
+`;
+
+return;
+
+}
+
+
+const sorted =
+[...filteredMatches]
+.sort((a,b) => {
+
+const da =
+a.match_date || "9999-99-99";
+
+const db =
+b.match_date || "9999-99-99";
+
+return da.localeCompare(db);
+
+});
+
+
+let html = `
+
+<div class="table-wrap">
+
+<table>
+
+<thead>
+
+<tr>
+
+<th>#</th>
+
+<th>TAREHE</th>
+
+<th>HOME</th>
+
+<th>SCORE</th>
+
+<th>AWAY</th>
+
+<th>VENUE</th>
+
+<th>STATUS</th>
+
+<th>REFEREE</th>
+
+</tr>
+
+</thead>
+
+<tbody>
+
+`;
+
+
+sorted.forEach(
+match => {
+
+const status =
+match.status || "Scheduled";
+
+
+html += `
+
+<tr>
+
+<td>
+${esc(
+match.match_number || "-"
+)}
+</td>
+
+<td>
+${esc(
+match.match_date || "-"
+)}
+</td>
+
+<td class="club">
+${esc(
+clubName(match.home_team_id)
+)}
+</td>
+
+<td>
+
+<strong>
+
+${esc(
+match.home_score ?? "-"
+)}
+
+&nbsp; - &nbsp;
+
+${esc(
+match.away_score ?? "-"
+)}
+
+</strong>
+
+</td>
+
+<td class="club">
+${esc(
+clubName(match.away_team_id)
+)}
+</td>
+
+<td>
+${esc(
+match.venue || "-"
+)}
+</td>
+
+<td>
+<span class="badge badge-green">
+${esc(status)}
+</span>
+</td>
+
+<td>
+${esc(
+match.referee || "-"
+)}
+</td>
+
+</tr>
+
+`;
+
+});
+
+
+html += `
+
+</tbody>
+
+</table>
+
+</div>
+
+`;
+
+$("matchReport").innerHTML =
+html;
+
+}
+
+
+/* =====================================================
+   RESET
+===================================================== */
+
+$("resetBtn").onclick =
+function(){
+
+$("competitionFilter").value =
+"";
+
+$("seasonFilter").value =
+"";
+
+$("divisionFilter").value =
+"";
+
+$("startDate").value =
+"";
+
+$("endDate").value =
+"";
+
+$("clubsCount").textContent =
+"0";
+
+$("playersCount").textContent =
+"0";
+
+$("matchesCount").textContent =
+"0";
+
+$("goalsCount").textContent =
+"0";
+
+$("yellowCount").textContent =
+"0";
+
+$("redCount").textContent =
+"0";
+
+
+$("standingsContainer")
+.innerHTML = `
+<div class="empty">
+Bonyeza “Tengeneza Ripoti”.
+</div>
+`;
+
+
+$("reportSummary").textContent =
+"Bonyeza “Tengeneza Ripoti”.";
+
+$("matchReport").innerHTML = `
+<div class="empty">
+Hakuna ripoti bado.
+</div>
+`;
+
+setStatus(
+"✅ Filters zime-reset.",
+"ok"
+);
+
+};
+
+
+/* =====================================================
+   EVENTS
+===================================================== */
+
+$("generateBtn").onclick =
+generateReport;
+
+
+$("competitionFilter").onchange =
+function(){
+
+/*
+  Competition ikichaguliwa,
+  ripoti inatengenezwa moja kwa moja.
+*/
+
+generateReport();
+
+};
+
+
+$("seasonFilter").onchange =
+function(){
+
+generateReport();
+
+};
+
+
+$("divisionFilter").onchange =
+function(){
+
+generateReport();
+
+};
+
+
+/* =====================================================
+   INIT
+===================================================== */
+
+async function init(){
+
+setStatus(
+"⏳ Inapakia taarifa za AFRN..."
+);
+
+await loadCompetitions();
+
+await loadClubs();
+
+await loadPlayers();
+
+await loadMatches();
+
+await loadEvents();
+
+
+setStatus(
+"✅ Supabase imeunganishwa vizuri.",
+"ok"
+);
+
+}
+
+
+init();
+
 </script>
-<script>
-async function build(){try{
-let [clubs,players,matches,events]=await Promise.all([rows("clubs"),rows("players"),rows("matches"),rows("match_events")]);
-let f=matches.filter(x=>{let d=pick(x,"match_date","date");return (!$("filter_comp").value||String(pick(x,"competition_id"))===$("filter_comp").value)&&(!$("filter_season").value||String(pick(x,"season","year")||"")===$("filter_season").value||!pick(x,"season","year"))&&(!$("from").value||!d||d>=$("from").value)&&(!$("to").value||!d||d<=$("to").value)});
-let stats={};function add(id){if(!id)return stats[id]??={id,played:0,w:0,d:0,l:0,gf:0,ga:0,pts:0};return stats[id]??={id,played:0,w:0,d:0,l:0,gf:0,ga:0,pts:0}}
-let totalGoals=0;
-f.forEach(x=>{let h=pick(x,"home_team_name","home_team","home_club_id","home_team_id"),a=pick(x,"away_team_name","away_team","away_club_id","away_team_id");let hg=Number(pick(x,"home_goals","home_score")||0),ag=Number(pick(x,"away_goals","away_score")||0);totalGoals+=hg+ag;if(String(pick(x,"status")).toLowerCase()!="finished")return;let H=add(h),A=add(a);H.played++;A.played++;H.gf+=hg;H.ga+=ag;A.gf+=ag;A.ga+=hg;if(hg>ag){H.w++;H.pts+=3;A.l++}else if(hg<ag){A.w++;A.pts+=3;H.l++}else{H.d++;A.d++;H.pts++;A.pts++}});
-$("clubs").textContent=clubs.length;$("players").textContent=players.length;$("matches").textContent=f.length;$("goals").textContent=totalGoals;
-$("yellow").textContent=events.filter(x=>String(pick(x,"event_type","type")).toLowerCase().includes("yellow")).length;
-$("red").textContent=events.filter(x=>String(pick(x,"event_type","type")).toLowerCase().includes("red")).length;
-let arr=Object.values(stats).sort((a,b)=>b.pts-a.pts||(b.gf-b.ga)-(a.gf-a.ga)||b.gf-a.gf);
-$("stand").innerHTML=arr.map((x,i)=>`<tr><td>${i+1}</td><td><b>${esc(x.id)}</b></td><td>${x.played}</td><td>${x.w}</td><td>${x.d}</td><td>${x.l}</td><td>${x.gf}</td><td>${x.ga}</td><td>${x.gf-x.ga}</td><td><b>${x.pts}</b></td></tr>`).join("")||"<tr><td colspan=10>Hakuna matokeo yaliyokamilika.</td></tr>";
-$("summary").innerHTML=`Ripoti imeundwa kwa <b>${f.length}</b> mechi. Magoli: <b>${totalGoals}</b>. Msimamo umehesabiwa kutoka kwenye mechi zenye status <b>Finished</b>.`;
-}catch(e){notice("Ripoti imekataa: "+e.message,true)}}
-build();
-</script></body></html>
+
+</body>
+
+</html>
