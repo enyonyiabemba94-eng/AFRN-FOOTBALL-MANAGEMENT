@@ -7,18 +7,20 @@
 <title>AFRN Football Management - Match Center</title>
 
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<script src="./supabase-config.js"></script>
 
 <style>
 :root{
   --navy:#071a33;
-  --blue:#0d47a1;
+  --blue:#0b5ed7;
   --light:#f4f7fb;
   --white:#fff;
   --green:#198754;
   --red:#dc3545;
-  --orange:#f59f00;
-  --border:#dbe2ea;
-  --text:#172033;
+  --orange:#fd7e14;
+  --gray:#6c757d;
+  --border:#dfe5ec;
+  --shadow:0 4px 18px rgba(0,0,0,.08);
 }
 
 *{
@@ -29,17 +31,17 @@ body{
   margin:0;
   font-family:Arial,Helvetica,sans-serif;
   background:var(--light);
-  color:var(--text);
+  color:#172033;
 }
 
 header{
-  background:linear-gradient(135deg,#071a33,#0d47a1);
+  background:var(--navy);
   color:white;
   padding:18px 15px;
 }
 
 .header-inner{
-  max-width:1250px;
+  max-width:1400px;
   margin:auto;
   display:flex;
   align-items:center;
@@ -47,176 +49,107 @@ header{
 }
 
 .logo{
-  width:70px;
-  height:70px;
-  border-radius:12px;
+  width:65px;
+  height:65px;
+  border-radius:50%;
   object-fit:cover;
   background:white;
 }
 
 header h1{
-  margin:0 0 5px;
+  margin:0;
   font-size:24px;
 }
 
 header p{
-  margin:0;
-  opacity:.9;
+  margin:5px 0 0;
+  opacity:.85;
 }
 
 nav{
   background:#fff;
   border-bottom:1px solid var(--border);
-  overflow-x:auto;
-  white-space:nowrap;
+  position:sticky;
+  top:0;
+  z-index:50;
 }
 
-nav .nav-inner{
-  max-width:1250px;
+.nav-inner{
+  max-width:1400px;
   margin:auto;
   display:flex;
+  flex-wrap:wrap;
 }
 
 nav a{
-  text-decoration:none;
-  color:#182238;
   padding:14px 13px;
-  display:inline-block;
+  text-decoration:none;
+  color:var(--navy);
   font-weight:bold;
-  font-size:14px;
 }
 
 nav a:hover,
 nav a.active{
-  background:#eaf1ff;
-  color:var(--blue);
+  background:var(--blue);
+  color:white;
 }
 
-.container{
-  max-width:1250px;
-  margin:20px auto;
-  padding:0 15px;
+main{
+  max-width:1400px;
+  margin:auto;
+  padding:20px;
 }
 
-.status{
-  padding:12px 15px;
-  border-radius:8px;
-  margin-bottom:15px;
-  display:none;
-  font-weight:bold;
+h2{
+  color:var(--navy);
 }
 
-.status.success{
-  display:block;
-  background:#d1e7dd;
-  color:#0f5132;
-}
-
-.status.error{
-  display:block;
-  background:#f8d7da;
-  color:#842029;
-}
-
-.status.info{
-  display:block;
-  background:#cfe2ff;
-  color:#084298;
-}
-
-.title{
-  margin-bottom:15px;
-}
-
-.title h2{
-  margin:0 0 5px;
-}
-
-.title p{
-  margin:0;
-  color:#687386;
-}
-
-.stats{
-  display:grid;
-  grid-template-columns:repeat(4,1fr);
-  gap:12px;
-  margin-bottom:20px;
-}
-
-.stat{
-  background:#fff;
-  border:1px solid var(--border);
-  border-radius:12px;
-  padding:18px;
-  text-align:center;
-  box-shadow:0 2px 7px rgba(0,0,0,.04);
-}
-
-.stat strong{
-  display:block;
-  font-size:28px;
-  color:var(--blue);
-}
-
-.stat span{
-  color:#657084;
-  font-weight:bold;
+h3{
+  margin-top:0;
+  color:var(--navy);
 }
 
 .card{
-  background:#fff;
-  border:1px solid var(--border);
+  background:white;
   border-radius:12px;
   padding:20px;
   margin-bottom:20px;
-  box-shadow:0 2px 8px rgba(0,0,0,.04);
+  box-shadow:var(--shadow);
 }
 
-.card h3{
-  margin-top:0;
-  border-bottom:1px solid var(--border);
-  padding-bottom:12px;
-}
-
-.form-grid{
+.grid{
   display:grid;
   grid-template-columns:repeat(2,1fr);
+  gap:18px;
+}
+
+.grid-3{
+  display:grid;
+  grid-template-columns:repeat(3,1fr);
   gap:15px;
 }
 
-.form-group{
-  display:flex;
-  flex-direction:column;
-  gap:6px;
-}
-
-.form-group.full{
-  grid-column:1/-1;
+.grid-4{
+  display:grid;
+  grid-template-columns:repeat(4,1fr);
+  gap:15px;
 }
 
 label{
+  display:block;
   font-weight:bold;
-  font-size:14px;
+  margin-bottom:6px;
 }
 
 input,
 select,
 textarea{
   width:100%;
-  padding:11px 12px;
-  border:1px solid #cbd5e1;
-  border-radius:7px;
-  font-size:14px;
-  outline:none;
+  padding:11px;
+  border:1px solid var(--border);
+  border-radius:8px;
+  font-size:15px;
   background:white;
-}
-
-input:focus,
-select:focus,
-textarea:focus{
-  border-color:var(--blue);
-  box-shadow:0 0 0 2px rgba(13,71,161,.1);
 }
 
 textarea{
@@ -224,46 +157,17 @@ textarea{
   resize:vertical;
 }
 
-.team-box{
-  border:1px solid var(--border);
-  border-radius:10px;
-  padding:15px;
-  background:#f9fbff;
-}
-
-.team-box h4{
-  margin-top:0;
-  color:var(--blue);
-}
-
-.team-grid{
-  display:grid;
-  grid-template-columns:repeat(2,1fr);
-  gap:12px;
-}
-
-.section-title{
-  grid-column:1/-1;
-  font-weight:bold;
-  margin-top:5px;
-  padding:10px;
-  background:#eef4ff;
-  border-radius:7px;
-}
-
-.btn-row{
-  display:flex;
-  gap:10px;
-  flex-wrap:wrap;
-  margin-top:15px;
+.form-group{
+  margin-bottom:14px;
 }
 
 button{
   border:0;
-  border-radius:7px;
-  padding:11px 15px;
+  border-radius:8px;
+  padding:11px 16px;
   cursor:pointer;
   font-weight:bold;
+  font-size:14px;
 }
 
 .btn-primary{
@@ -291,81 +195,119 @@ button{
   color:white;
 }
 
-button:hover{
-  opacity:.9;
+.btn-light{
+  background:#eef2f7;
+  color:#172033;
 }
 
-.table-wrap{
-  overflow-x:auto;
-}
-
-table{
-  width:100%;
-  border-collapse:collapse;
-  min-width:950px;
-}
-
-th,
-td{
-  padding:11px 10px;
-  border-bottom:1px solid var(--border);
-  text-align:left;
-  font-size:14px;
-}
-
-th{
-  background:#071a33;
-  color:white;
-}
-
-tr:hover td{
-  background:#f7faff;
-}
-
-.actions{
+.buttons{
   display:flex;
-  gap:5px;
   flex-wrap:wrap;
+  gap:10px;
+  margin-top:15px;
 }
 
-.small-btn{
-  padding:7px 9px;
-  font-size:12px;
+.status{
+  padding:12px 15px;
+  border-radius:8px;
+  margin-bottom:15px;
+  font-weight:bold;
 }
 
-.lineup-grid{
+.status.success{
+  background:#d1e7dd;
+  color:#0f5132;
+}
+
+.status.error{
+  background:#f8d7da;
+  color:#842029;
+}
+
+.status.info{
+  background:#cff4fc;
+  color:#055160;
+}
+
+.stats{
+  display:grid;
+  grid-template-columns:repeat(4,1fr);
+  gap:15px;
+  margin-bottom:20px;
+}
+
+.stat{
+  background:white;
+  border-radius:12px;
+  padding:18px;
+  box-shadow:var(--shadow);
+  text-align:center;
+}
+
+.stat strong{
+  display:block;
+  font-size:30px;
+  color:var(--blue);
+}
+
+.stat span{
+  color:var(--gray);
+  font-weight:bold;
+}
+
+.team-box{
+  border:1px solid var(--border);
+  border-radius:10px;
+  padding:15px;
+  background:#fafcff;
+}
+
+.team-box h3{
+  border-bottom:2px solid var(--blue);
+  padding-bottom:10px;
+}
+
+.referee-box{
+  background:#f8f9fa;
+  border-radius:10px;
+  padding:15px;
+  border:1px solid var(--border);
+}
+
+.lineup-columns{
   display:grid;
   grid-template-columns:1fr 1fr;
   gap:20px;
 }
 
-.lineup-card{
+.lineup-box{
   border:1px solid var(--border);
-  border-radius:10px;
+  border-radius:12px;
+  overflow:hidden;
+}
+
+.lineup-header{
+  background:var(--navy);
+  color:white;
+  padding:14px;
+}
+
+.lineup-body{
   padding:15px;
-  background:#fff;
 }
 
-.lineup-card h4{
-  margin-top:0;
-}
-
-.player-select-area{
-  max-height:420px;
-  overflow-y:auto;
-  border:1px solid var(--border);
-  border-radius:8px;
-  padding:8px;
-  background:#fafcff;
+.player-selector{
+  max-height:500px;
+  overflow:auto;
 }
 
 .player-row{
   display:grid;
-  grid-template-columns:35px 1fr 100px;
-  gap:8px;
+  grid-template-columns:40px 1fr auto;
   align-items:center;
-  padding:9px;
-  border-bottom:1px solid #edf0f4;
+  gap:10px;
+  padding:10px;
+  border-bottom:1px solid #eee;
 }
 
 .player-row:last-child{
@@ -381,81 +323,172 @@ tr:hover td{
   font-weight:bold;
 }
 
-.player-meta{
+.player-info{
   font-size:12px;
-  color:#687386;
+  color:var(--gray);
+  margin-top:3px;
+}
+
+.player-photo{
+  width:40px;
+  height:40px;
+  border-radius:50%;
+  object-fit:cover;
+  background:#ddd;
+}
+
+.counter{
+  background:#eef4ff;
+  color:var(--blue);
+  font-weight:bold;
+  padding:8px 12px;
+  border-radius:20px;
+  display:inline-block;
+  margin-bottom:10px;
+}
+
+.table-wrap{
+  overflow-x:auto;
+}
+
+table{
+  width:100%;
+  border-collapse:collapse;
+  min-width:1100px;
+}
+
+th,
+td{
+  padding:11px;
+  border-bottom:1px solid var(--border);
+  text-align:left;
+}
+
+th{
+  background:var(--navy);
+  color:white;
+}
+
+tr:hover td{
+  background:#f8fbff;
+}
+
+.action-buttons{
+  display:flex;
+  gap:6px;
+  flex-wrap:wrap;
 }
 
 .badge{
   display:inline-block;
-  padding:4px 8px;
-  border-radius:20px;
-  font-size:11px;
+  padding:5px 9px;
+  border-radius:15px;
+  font-size:12px;
   font-weight:bold;
 }
 
-.badge-blue{
-  background:#dbeafe;
-  color:#1d4ed8;
-}
-
-.badge-green{
-  background:#d1e7dd;
-  color:#0f5132;
-}
-
-.badge-orange{
+.badge-scheduled{
   background:#fff3cd;
   color:#664d03;
 }
 
+.badge-live{
+  background:#f8d7da;
+  color:#842029;
+}
+
+.badge-finished{
+  background:#d1e7dd;
+  color:#0f5132;
+}
+
+.badge-other{
+  background:#e2e3e5;
+  color:#41464b;
+}
+
+.hidden{
+  display:none!important;
+}
+
 .empty{
+  padding:25px;
   text-align:center;
-  padding:20px;
-  color:#777;
+  color:var(--gray);
+}
+
+.player-details{
+  margin-top:12px;
+  background:#f5f8fc;
+  border-radius:8px;
+  padding:12px;
+  font-size:13px;
+}
+
+.selected-list{
+  margin-top:12px;
+}
+
+.selected-item{
+  display:flex;
+  justify-content:space-between;
+  align-items:center;
+  background:#eef4ff;
+  border-radius:7px;
+  padding:8px 10px;
+  margin-bottom:6px;
+}
+
+.small{
+  font-size:12px;
+  color:var(--gray);
 }
 
 footer{
   text-align:center;
   padding:25px;
-  color:#667085;
+  color:var(--gray);
 }
 
-@media(max-width:800px){
-  .stats{
-    grid-template-columns:repeat(2,1fr);
-  }
-
-  .form-grid,
-  .team-grid,
-  .lineup-grid{
+@media(max-width:900px){
+  .grid,
+  .lineup-columns{
     grid-template-columns:1fr;
   }
 
-  header h1{
-    font-size:19px;
-  }
-}
-
-@media(max-width:500px){
-  .stats{
+  .grid-3{
     grid-template-columns:1fr 1fr;
   }
 
-  .stat{
-    padding:12px 5px;
+  .grid-4,
+  .stats{
+    grid-template-columns:1fr 1fr;
+  }
+}
+
+@media(max-width:600px){
+  main{
+    padding:10px;
   }
 
-  .stat strong{
-    font-size:22px;
+  header h1{
+    font-size:18px;
   }
 
-  .container{
-    padding:0 8px;
+  .logo{
+    width:50px;
+    height:50px;
   }
 
-  .card{
-    padding:13px;
+  nav a{
+    font-size:12px;
+    padding:10px 8px;
+  }
+
+  .grid-3,
+  .grid-4,
+  .stats{
+    grid-template-columns:1fr;
   }
 }
 </style>
@@ -487,567 +520,563 @@ footer{
     <a href="contracts.html">📄 Mikataba</a>
     <a href="transfers.html">🔄 Uhamisho</a>
     <a href="competitions.html">🏆 Mashindano</a>
-    <a href="matches.html" class="active">🏟️ Mechi</a>
+    <a class="active" href="matches.html">🏟️ Mechi</a>
     <a href="reports.html">📊 Ripoti</a>
   </div>
 </nav>
 
-<main class="container">
+<main>
 
-  <div id="statusBox" class="status"></div>
+<div id="systemStatus" class="status info">
+  ⏳ Inaunganisha na Supabase...
+</div>
 
-  <div class="title">
-    <h2>🏟️ MATCH CENTER</h2>
-    <p>
-      Simamia mechi, line-up, substitutes na taarifa za timu.
-    </p>
+<div class="stats">
+
+  <div class="stat">
+    <strong id="totalMatches">0</strong>
+    <span>📅 Mechi</span>
   </div>
 
-  <div class="stats">
-
-    <div class="stat">
-      <strong id="totalMatches">0</strong>
-      <span>📅 Mechi</span>
-    </div>
-
-    <div class="stat">
-      <strong id="scheduledMatches">0</strong>
-      <span>🕐 Scheduled</span>
-    </div>
-
-    <div class="stat">
-      <strong id="liveMatches">0</strong>
-      <span>🔴 Live</span>
-    </div>
-
-    <div class="stat">
-      <strong id="finishedMatches">0</strong>
-      <span>✅ Finished</span>
-    </div>
-
+  <div class="stat">
+    <strong id="scheduledMatches">0</strong>
+    <span>🕐 Scheduled</span>
   </div>
 
-
-  <!-- MATCH FORM -->
-
-  <div class="card">
-
-    <h3 id="formTitle">➕ Tengeneza Mechi</h3>
-
-    <form id="matchForm">
-
-      <input type="hidden" id="matchId">
-
-      <div class="form-grid">
-
-        <div class="form-group">
-          <label>🏆 Competition *</label>
-          <select id="competitionId" required>
-            <option value="">Chagua Competition</option>
-          </select>
-        </div>
-
-        <div class="form-group">
-          <label>📅 Tarehe *</label>
-          <input type="date" id="matchDate" required>
-        </div>
-
-        <div class="form-group">
-          <label>⏰ Muda *</label>
-          <input type="time" id="matchTime" required>
-        </div>
-
-        <div class="form-group">
-          <label>🏟️ Uwanja</label>
-          <input
-            type="text"
-            id="venue"
-            placeholder="Mfano: Nyarugusu Stadium"
-          >
-        </div>
-
-        <div class="form-group">
-          <label>🏠 Klabu ya Nyumbani *</label>
-          <select id="homeClub" required>
-            <option value="">Chagua Team</option>
-          </select>
-        </div>
-
-        <div class="form-group">
-          <label>✈️ Klabu ya Ugenini *</label>
-          <select id="awayClub" required>
-            <option value="">Chagua Team</option>
-          </select>
-        </div>
-
-      </div>
-
-
-      <!-- REFEREES -->
-
-      <div class="team-box" style="margin-top:20px">
-
-        <h4>👨‍⚖️ Waamuzi na Kamisaa</h4>
-
-        <div class="form-grid">
-
-          <div class="form-group">
-            <label>👨‍⚖️ Mwamuzi Mkuu</label>
-            <input type="text" id="refereeMain">
-          </div>
-
-          <div class="form-group">
-            <label>🏳️ Mwamuzi Msaidizi 1</label>
-            <input type="text" id="refereeAssistant1">
-          </div>
-
-          <div class="form-group">
-            <label>🏳️ Mwamuzi Msaidizi 2</label>
-            <input type="text" id="refereeAssistant2">
-          </div>
-
-          <div class="form-group">
-            <label>🏳️ Mwamuzi wa 4</label>
-            <input type="text" id="refereeFourth">
-          </div>
-
-          <div class="form-group">
-            <label>🧑‍⚖️ Kamisaa</label>
-            <input type="text" id="commissioner">
-          </div>
-
-        </div>
-
-      </div>
-
-
-      <!-- STATUS -->
-
-      <div class="form-grid" style="margin-top:20px">
-
-        <div class="form-group">
-          <label>📋 Match Status</label>
-          <select id="matchStatus">
-            <option value="Scheduled">Scheduled</option>
-            <option value="Live">Live</option>
-            <option value="Finished">Finished</option>
-            <option value="Postponed">Postponed</option>
-            <option value="Cancelled">Cancelled</option>
-          </select>
-        </div>
-
-        <div></div>
-
-        <div class="form-group">
-          <label>🏠 Home Score</label>
-          <input type="number" id="homeScore" min="0" value="0">
-        </div>
-
-        <div class="form-group">
-          <label>✈️ Away Score</label>
-          <input type="number" id="awayScore" min="0" value="0">
-        </div>
-
-      </div>
-
-
-      <!-- STAFF -->
-
-      <div style="margin-top:20px">
-
-        <h3>👥 Taarifa za Timu</h3>
-
-        <div class="lineup-grid">
-
-          <!-- HOME STAFF -->
-
-          <div class="team-box">
-
-            <h4>🏠 Home Team</h4>
-
-            <div class="form-group">
-              <label>👨‍🏫 Kocha 1</label>
-              <input type="text" id="homeCoach1">
-            </div>
-
-            <br>
-
-            <div class="form-group">
-              <label>👨‍🏫 Kocha 2</label>
-              <input type="text" id="homeCoach2">
-            </div>
-
-            <br>
-
-            <div class="form-group">
-              <label>🩺 Docta 1</label>
-              <input type="text" id="homeDoctor1">
-            </div>
-
-            <br>
-
-            <div class="form-group">
-              <label>🩺 Docta 2</label>
-              <input type="text" id="homeDoctor2">
-            </div>
-
-            <br>
-
-            <div class="form-group">
-              <label>👥 Mjumbe 1</label>
-              <input type="text" id="homeMember1">
-            </div>
-
-            <br>
-
-            <div class="form-group">
-              <label>👥 Mjumbe 2</label>
-              <input type="text" id="homeMember2">
-            </div>
-
-          </div>
-
-
-          <!-- AWAY STAFF -->
-
-          <div class="team-box">
-
-            <h4>✈️ Away Team</h4>
-
-            <div class="form-group">
-              <label>👨‍🏫 Kocha 1</label>
-              <input type="text" id="awayCoach1">
-            </div>
-
-            <br>
-
-            <div class="form-group">
-              <label>👨‍🏫 Kocha 2</label>
-              <input type="text" id="awayCoach2">
-            </div>
-
-            <br>
-
-            <div class="form-group">
-              <label>🩺 Docta 1</label>
-              <input type="text" id="awayDoctor1">
-            </div>
-
-            <br>
-
-            <div class="form-group">
-              <label>🩺 Docta 2</label>
-              <input type="text" id="awayDoctor2">
-            </div>
-
-            <br>
-
-            <div class="form-group">
-              <label>👥 Mjumbe 1</label>
-              <input type="text" id="awayMember1">
-            </div>
-
-            <br>
-
-            <div class="form-group">
-              <label>👥 Mjumbe 2</label>
-              <input type="text" id="awayMember2">
-            </div>
-
-          </div>
-
-        </div>
-
-      </div>
-
-
-      <div class="form-group full" style="margin-top:20px">
-
-        <label>📝 Maelezo</label>
-
-        <textarea
-          id="matchNotes"
-          placeholder="Maelezo ya mechi..."
-        ></textarea>
-
-      </div>
-
-
-      <div class="btn-row">
-
-        <button
-          type="submit"
-          class="btn-primary"
-          id="saveMatchBtn"
-        >
-          💾 Hifadhi Mechi
-        </button>
-
-        <button
-          type="button"
-          class="btn-warning"
-          id="updateMatchBtn"
-          style="display:none"
-        >
-          ✏️ Update Mechi
-        </button>
-
-        <button
-          type="button"
-          class="btn-secondary"
-          onclick="resetForm()"
-        >
-          Futa
-        </button>
-
-      </div>
-
-    </form>
-
+  <div class="stat">
+    <strong id="liveMatches">0</strong>
+    <span>🔴 Live</span>
   </div>
 
+  <div class="stat">
+    <strong id="finishedMatches">0</strong>
+    <span>✅ Finished</span>
+  </div>
 
-  <!-- LINEUPS -->
-
-  <div class="card">
-
-    <h3>👥 LINE-UP & SUBSTITUTES</h3>
-
-    <p>
-      Chagua timu kwanza. Wachezaji wanaoonekana hapa ni wale walio kwenye
-      <strong>players.club_id</strong> ya timu hiyo.
-      Taarifa zao zitaonekana automatic.
-    </p>
-
-    <div class="lineup-grid">
-
-      <!-- HOME -->
-
-      <div class="lineup-card">
-
-        <h4>🏠 Home Team</h4>
-
-        <div id="homePlayersInfo" class="empty">
-          Chagua Home Team ili kuona wachezaji.
-        </div>
-
-        <h4>⚽ Starting XI</h4>
-
-        <div
-          id="homeLineup"
-          class="player-select-area"
-        >
-          Chagua Home Team.
-        </div>
-
-        <h4 style="margin-top:20px">
-          🔄 Substitutes
-        </h4>
-
-        <div
-          id="homeSubs"
-          class="player-select-area"
-        >
-          Chagua Home Team.
-        </div>
-
-      </div>
+</div>
 
 
-      <!-- AWAY -->
+<!-- ================= CREATE / EDIT MATCH ================= -->
 
-      <div class="lineup-card">
+<section class="card">
 
-        <h4>✈️ Away Team</h4>
+  <h2 id="matchFormTitle">➕ Tengeneza Mechi</h2>
 
-        <div id="awayPlayersInfo" class="empty">
-          Chagua Away Team ili kuona wachezaji.
-        </div>
+  <input type="hidden" id="editMatchId">
 
-        <h4>⚽ Starting XI</h4>
+  <div class="grid">
 
-        <div
-          id="awayLineup"
-          class="player-select-area"
-        >
-          Chagua Away Team.
-        </div>
-
-        <h4 style="margin-top:20px">
-          🔄 Substitutes
-        </h4>
-
-        <div
-          id="awaySubs"
-          class="player-select-area"
-        >
-          Chagua Away Team.
-        </div>
-
-      </div>
-
+    <div class="form-group">
+      <label>🏆 Competition *</label>
+      <select id="competitionId">
+        <option value="">Chagua Competition</option>
+      </select>
     </div>
 
-    <div class="btn-row">
+    <div class="form-group">
+      <label>📅 Tarehe *</label>
+      <input type="date" id="matchDate">
+    </div>
 
-      <button
-        class="btn-success"
-        onclick="saveLineups()"
+    <div class="form-group">
+      <label>⏰ Muda *</label>
+      <input type="time" id="matchTime">
+    </div>
+
+    <div class="form-group">
+      <label>🏟️ Uwanja</label>
+      <input
+        type="text"
+        id="venue"
+        placeholder="Mfano: Nyarugusu Stadium"
       >
-        💾 Hifadhi Line-up & Substitutes
-      </button>
+    </div>
 
-      <button
-        class="btn-secondary"
-        onclick="clearLineups()"
-      >
-        Futa Uchaguzi
-      </button>
+    <div class="form-group">
+      <label>🏠 Klabu ya Nyumbani *</label>
+      <select id="homeClubId">
+        <option value="">Chagua Team</option>
+      </select>
+    </div>
 
+    <div class="form-group">
+      <label>✈️ Klabu ya Ugenini *</label>
+      <select id="awayClubId">
+        <option value="">Chagua Team</option>
+      </select>
     </div>
 
   </div>
 
 
-  <!-- MATCH TABLE -->
+  <!-- REFEREES -->
 
-  <div class="card">
+  <div class="referee-box">
 
-    <h3>📅 Mechi Zote</h3>
+    <h3>👨‍⚖️ Waamuzi na Kamisaa</h3>
 
-    <div class="form-grid">
+    <div class="grid-3">
 
       <div class="form-group">
-        <label>Competition</label>
-        <select id="filterCompetition">
-          <option value="">Mashindano yote</option>
-        </select>
+        <label>👨‍⚖️ Mwamuzi Mkuu</label>
+        <input id="refereeMain" type="text" placeholder="Jina la mwamuzi">
       </div>
 
       <div class="form-group">
-        <label>Status</label>
-        <select id="filterStatus">
-          <option value="">Status zote</option>
-          <option value="Scheduled">Scheduled</option>
-          <option value="Live">Live</option>
-          <option value="Finished">Finished</option>
-          <option value="Postponed">Postponed</option>
-          <option value="Cancelled">Cancelled</option>
-        </select>
+        <label>🏳️ Mwamuzi Msaidizi 1</label>
+        <input id="refereeAssistant1" type="text">
+      </div>
+
+      <div class="form-group">
+        <label>🏳️ Mwamuzi Msaidizi 2</label>
+        <input id="refereeAssistant2" type="text">
+      </div>
+
+      <div class="form-group">
+        <label>🏳️ Mwamuzi wa 4</label>
+        <input id="refereeFourth" type="text">
+      </div>
+
+      <div class="form-group">
+        <label>🧑‍⚖️ Kamisaa</label>
+        <input id="commissioner" type="text">
       </div>
 
     </div>
 
-    <div class="btn-row">
+  </div>
 
-      <button
-        class="btn-secondary"
-        onclick="loadMatches()"
-      >
-        🔄 Refresh
-      </button>
+
+  <!-- STATUS / SCORE -->
+
+  <div class="grid">
+
+    <div class="form-group">
+      <label>📋 Match Status</label>
+
+      <select id="matchStatus">
+        <option value="Scheduled">Scheduled</option>
+        <option value="Live">Live</option>
+        <option value="Finished">Finished</option>
+        <option value="Postponed">Postponed</option>
+        <option value="Cancelled">Cancelled</option>
+      </select>
 
     </div>
 
-    <br>
+    <div class="form-group">
+      <label>🏠 Home Score</label>
+      <input type="number" id="homeScore" value="0" min="0">
+    </div>
 
-    <div class="table-wrap">
+    <div class="form-group">
+      <label>✈️ Away Score</label>
+      <input type="number" id="awayScore" value="0" min="0">
+    </div>
 
-      <table>
+  </div>
 
-        <thead>
-          <tr>
-            <th>#</th>
-            <th>Competition</th>
-            <th>Tarehe</th>
-            <th>Muda</th>
-            <th>Nyumbani</th>
-            <th>Ugenini</th>
-            <th>Score</th>
-            <th>Status</th>
-            <th>Action</th>
-          </tr>
-        </thead>
 
-        <tbody id="matchesTable">
-          <tr>
-            <td colspan="9" class="empty">
-              Inapakia mechi...
-            </td>
-          </tr>
-        </tbody>
+  <!-- STAFF -->
 
-      </table>
+  <div class="card" style="box-shadow:none;border:1px solid var(--border)">
+
+    <h3>👥 Taarifa za Timu</h3>
+
+    <div class="grid">
+
+      <div class="team-box">
+
+        <h3>🏠 Home Team</h3>
+
+        <div class="form-group">
+          <label>👨‍🏫 Kocha 1</label>
+          <input id="homeCoach1" type="text">
+        </div>
+
+        <div class="form-group">
+          <label>👨‍🏫 Kocha 2</label>
+          <input id="homeCoach2" type="text">
+        </div>
+
+        <div class="form-group">
+          <label>🩺 Docta 1</label>
+          <input id="homeDoctor1" type="text">
+        </div>
+
+        <div class="form-group">
+          <label>🩺 Docta 2</label>
+          <input id="homeDoctor2" type="text">
+        </div>
+
+        <div class="form-group">
+          <label>👥 Mjumbe 1</label>
+          <input id="homeMember1" type="text">
+        </div>
+
+        <div class="form-group">
+          <label>👥 Mjumbe 2</label>
+          <input id="homeMember2" type="text">
+        </div>
+
+      </div>
+
+
+      <div class="team-box">
+
+        <h3>✈️ Away Team</h3>
+
+        <div class="form-group">
+          <label>👨‍🏫 Kocha 1</label>
+          <input id="awayCoach1" type="text">
+        </div>
+
+        <div class="form-group">
+          <label>👨‍🏫 Kocha 2</label>
+          <input id="awayCoach2" type="text">
+        </div>
+
+        <div class="form-group">
+          <label>🩺 Docta 1</label>
+          <input id="awayDoctor1" type="text">
+        </div>
+
+        <div class="form-group">
+          <label>🩺 Docta 2</label>
+          <input id="awayDoctor2" type="text">
+        </div>
+
+        <div class="form-group">
+          <label>👥 Mjumbe 1</label>
+          <input id="awayMember1" type="text">
+        </div>
+
+        <div class="form-group">
+          <label>👥 Mjumbe 2</label>
+          <input id="awayMember2" type="text">
+        </div>
+
+      </div>
 
     </div>
 
   </div>
+
+
+  <div class="form-group">
+
+    <label>📝 Maelezo</label>
+
+    <textarea
+      id="matchNotes"
+      placeholder="Maelezo ya mechi..."
+    ></textarea>
+
+  </div>
+
+
+  <div class="buttons">
+
+    <button
+      class="btn-success"
+      onclick="saveMatch()"
+    >
+      💾 Hifadhi Mechi
+    </button>
+
+    <button
+      class="btn-light"
+      onclick="resetMatchForm()"
+    >
+      Futa
+    </button>
+
+  </div>
+
+</section>
+
+
+
+<!-- ================= LINEUP ================= -->
+
+<section class="card">
+
+  <h2>👥 LINE-UP & SUBSTITUTES</h2>
+
+  <p class="small">
+    Wachezaji wanaonekana automatic kutoka
+    <strong>players.club_id</strong>.
+    Chagua Starting XI na substitutes wa kila timu.
+  </p>
+
+
+  <div class="lineup-columns">
+
+    <!-- HOME -->
+
+    <div class="lineup-box">
+
+      <div class="lineup-header">
+        <strong>🏠 HOME TEAM</strong>
+      </div>
+
+      <div class="lineup-body">
+
+        <div class="counter">
+          Starting XI:
+          <span id="homeStartingCount">0</span>/11
+        </div>
+
+        <div id="homeStartingPlayers"
+             class="player-selector">
+          <div class="empty">
+            Chagua Home Team kwanza.
+          </div>
+        </div>
+
+        <hr>
+
+        <div class="counter">
+          🔄 Substitutes:
+          <span id="homeSubstituteCount">0</span>
+        </div>
+
+        <div id="homeSubstitutePlayers"
+             class="player-selector">
+          <div class="empty">
+            Chagua Home Team kwanza.
+          </div>
+        </div>
+
+      </div>
+
+    </div>
+
+
+    <!-- AWAY -->
+
+    <div class="lineup-box">
+
+      <div class="lineup-header">
+        <strong>✈️ AWAY TEAM</strong>
+      </div>
+
+      <div class="lineup-body">
+
+        <div class="counter">
+          Starting XI:
+          <span id="awayStartingCount">0</span>/11
+        </div>
+
+        <div id="awayStartingPlayers"
+             class="player-selector">
+          <div class="empty">
+            Chagua Away Team kwanza.
+          </div>
+        </div>
+
+        <hr>
+
+        <div class="counter">
+          🔄 Substitutes:
+          <span id="awaySubstituteCount">0</span>
+        </div>
+
+        <div id="awaySubstitutePlayers"
+             class="player-selector">
+          <div class="empty">
+            Chagua Away Team kwanza.
+          </div>
+        </div>
+
+      </div>
+
+    </div>
+
+  </div>
+
+
+  <div class="buttons">
+
+    <button
+      class="btn-success"
+      onclick="saveLineups()"
+    >
+      💾 Hifadhi Line-up & Substitutes
+    </button>
+
+    <button
+      class="btn-light"
+      onclick="clearLineupSelections()"
+    >
+      Futa Uchaguzi
+    </button>
+
+  </div>
+
+</section>
+
+
+
+<!-- ================= MATCH LIST ================= -->
+
+<section class="card">
+
+  <h2>📅 Mechi Zote</h2>
+
+  <div class="grid">
+
+    <div>
+      <label>Competition</label>
+
+      <select id="filterCompetition">
+        <option value="">Mashindano yote</option>
+      </select>
+    </div>
+
+    <div>
+      <label>Status</label>
+
+      <select id="filterStatus">
+
+        <option value="">
+          Status zote
+        </option>
+
+        <option value="Scheduled">
+          Scheduled
+        </option>
+
+        <option value="Live">
+          Live
+        </option>
+
+        <option value="Finished">
+          Finished
+        </option>
+
+        <option value="Postponed">
+          Postponed
+        </option>
+
+        <option value="Cancelled">
+          Cancelled
+        </option>
+
+      </select>
+
+    </div>
+
+  </div>
+
+  <div class="buttons">
+
+    <button
+      class="btn-primary"
+      onclick="loadMatches()"
+    >
+      🔄 Refresh
+    </button>
+
+  </div>
+
+  <div class="table-wrap">
+
+    <table>
+
+      <thead>
+
+        <tr>
+
+          <th>#</th>
+          <th>Competition</th>
+          <th>Tarehe</th>
+          <th>Muda</th>
+          <th>Nyumbani</th>
+          <th>Ugenini</th>
+          <th>Score</th>
+          <th>Status</th>
+          <th>Action</th>
+
+        </tr>
+
+      </thead>
+
+      <tbody id="matchesTable">
+
+        <tr>
+          <td colspan="9" class="empty">
+            Inapakia mechi...
+          </td>
+        </tr>
+
+      </tbody>
+
+    </table>
+
+  </div>
+
+</section>
 
 </main>
 
 
 <footer>
-  AFRN FOOTBALL MANAGEMENT © 2026
+AFRN FOOTBALL MANAGEMENT © 2026
 </footer>
+
 
 
 <script>
 
 /* =========================================================
-   SUPABASE
+   GLOBAL VARIABLES
 ========================================================= */
 
-let supabaseClient = null;
+let db = null;
 
-let matchesData = [];
-let clubsData = [];
-let playersData = [];
-let competitionsData = [];
+let clubs = [];
+let players = [];
+let competitions = [];
+let matches = [];
 
-let currentLineups = {
-  home: [],
-  away: [],
-  homeSubs: [],
-  awaySubs: []
-};
+let currentMatchId = null;
+
+let homePlayers = [];
+let awayPlayers = [];
 
 
 /* =========================================================
-   INITIALIZE SUPABASE
+   SUPABASE
 ========================================================= */
 
-async function initSupabase(){
+function getSupabaseClient(){
+
+  if(
+    typeof window !== "undefined" &&
+    window.supabaseClient
+  ){
+    return window.supabaseClient;
+  }
+
+  if(
+    typeof window !== "undefined" &&
+    window.supabase
+  ){
+    return window.supabase;
+  }
+
+  return null;
+}
+
+
+async function init(){
 
   try{
 
-    /*
-      Tunasoma supabase-config.js kama module.
-      Kama file yako tayari ina window.supabaseClient,
-      pia tunaitumia.
-    */
+    db = getSupabaseClient();
 
-    if(
-      typeof window.supabaseClient !== "undefined" &&
-      window.supabaseClient
-    ){
-
-      supabaseClient = window.supabaseClient;
-
-    }else{
-
-      const module = await import("./supabase-config.js");
-
-      if(module.supabaseClient){
-        supabaseClient = module.supabaseClient;
-      }
-
-      if(!supabaseClient && module.default){
-        supabaseClient = module.default;
-      }
-
-    }
-
-    if(!supabaseClient){
+    if(!db){
 
       throw new Error(
         "supabaseClient haikupatikana kutoka supabase-config.js"
@@ -1055,18 +1084,22 @@ async function initSupabase(){
 
     }
 
-    showStatus(
+    setStatus(
       "✅ Mfumo umeunganishwa na Supabase.",
       "success"
     );
 
-    await loadAll();
+    await Promise.all([
+      loadCompetitions(),
+      loadClubs(),
+      loadMatches()
+    ]);
 
   }catch(error){
 
     console.error(error);
 
-    showStatus(
+    setStatus(
       "❌ Imeshindikana kuanzisha Supabase: " +
       error.message,
       "error"
@@ -1078,15 +1111,18 @@ async function initSupabase(){
 
 
 /* =========================================================
-   LOAD EVERYTHING
+   STATUS
 ========================================================= */
 
-async function loadAll(){
+function setStatus(message,type="info"){
 
-  await loadCompetitions();
-  await loadClubs();
-  await loadPlayers();
-  await loadMatches();
+  const box =
+    document.getElementById("systemStatus");
+
+  box.textContent = message;
+
+  box.className =
+    "status " + type;
 
 }
 
@@ -1097,55 +1133,48 @@ async function loadAll(){
 
 async function loadCompetitions(){
 
-  const result =
-    await supabaseClient
-      .from("competitions")
-      .select("*")
-      .order("name",{ascending:true});
+  const {data,error} = await db
+    .from("competitions")
+    .select("*")
+    .order("name",{ascending:true});
 
-  if(result.error){
+  if(error){
 
-    console.error(result.error);
-
-    showStatus(
-      "❌ Imeshindikana kupakia competitions: " +
-      result.error.message,
-      "error"
-    );
+    console.error(error);
 
     return;
   }
 
-  competitionsData = result.data || [];
+  competitions = data || [];
 
-  const competitionSelect =
+  const main =
     document.getElementById("competitionId");
 
   const filter =
     document.getElementById("filterCompetition");
 
-  competitionSelect.innerHTML =
-    '<option value="">Chagua Competition</option>';
+  main.innerHTML =
+    `<option value="">Chagua Competition</option>`;
 
   filter.innerHTML =
-    '<option value="">Mashindano yote</option>';
+    `<option value="">Mashindano yote</option>`;
 
-  competitionsData.forEach(c=>{
-
-    const id = c.id;
+  competitions.forEach(c=>{
 
     const name =
       c.name ||
       c.competition_name ||
       "Competition";
 
-    competitionSelect.innerHTML +=
-      `<option value="${escapeHtml(id)}">
+    const id = c.id;
+
+    main.innerHTML +=
+      `<option value="${escapeAttr(id)}">
         ${escapeHtml(name)}
       </option>`;
 
     filter.innerHTML +=
-      `<option value="${escapeHtml(id)}">
+      `<option value="${escapeAttr(id)}">
         ${escapeHtml(name)}
       </option>`;
 
@@ -1160,70 +1189,49 @@ async function loadCompetitions(){
 
 async function loadClubs(){
 
-  const result =
-    await supabaseClient
-      .from("clubs")
-      .select("*")
-      .order("name",{ascending:true});
+  const {data,error} = await db
+    .from("clubs")
+    .select("*")
+    .order("name",{ascending:true});
 
-  if(result.error){
+  if(error){
 
-    console.error(result.error);
+    console.error(error);
 
-    showStatus(
-      "❌ Imeshindikana kupakia clubs: " +
-      result.error.message,
-      "error"
-    );
-
-    return;
+    throw error;
   }
 
-  clubsData = result.data || [];
-
-  populateClubSelects();
-
-}
-
-
-function getClubName(club){
-
-  return (
-    club.name ||
-    club.club_name ||
-    club.clubName ||
-    club.title ||
-    "Unknown Club"
-  );
-
-}
-
-
-function populateClubSelects(){
+  clubs = data || [];
 
   const home =
-    document.getElementById("homeClub");
+    document.getElementById("homeClubId");
 
   const away =
-    document.getElementById("awayClub");
+    document.getElementById("awayClubId");
 
   home.innerHTML =
-    '<option value="">Chagua Team</option>';
+    `<option value="">Chagua Team</option>`;
 
   away.innerHTML =
-    '<option value="">Chagua Team</option>';
+    `<option value="">Chagua Team</option>`;
 
-  clubsData.forEach(club=>{
+  clubs.forEach(club=>{
 
-    const name = getClubName(club);
+    const name =
+      club.name ||
+      club.club_name ||
+      club.clubName ||
+      "Unknown Club";
 
-    const option =
-      `<option value="${escapeHtml(club.id)}">
+    home.innerHTML +=
+      `<option value="${escapeAttr(club.id)}">
         ${escapeHtml(name)}
       </option>`;
 
-    home.innerHTML += option;
-    away.innerHTML += option;
+    away.innerHTML +=
+      `<option value="${escapeAttr(club.id)}">
+        ${escapeHtml(name)}
+      </option>`;
 
   });
 
@@ -1234,66 +1242,63 @@ function populateClubSelects(){
    PLAYERS
 ========================================================= */
 
-async function loadPlayers(){
+async function loadPlayersForClub(clubId){
 
-  const result =
-    await supabaseClient
-      .from("players")
-      .select("*");
+  if(!clubId){
 
-  if(result.error){
-
-    console.error(result.error);
-
-    showStatus(
-      "❌ Imeshindikana kupakia players: " +
-      result.error.message,
-      "error"
-    );
-
-    return;
+    return [];
   }
 
-  playersData = result.data || [];
+  const {data,error} = await db
+    .from("players")
+    .select("*")
+    .eq("club_id",clubId)
+    .order("first_name",{ascending:true});
+
+  if(error){
+
+    console.error(error);
+
+    return [];
+  }
+
+  return data || [];
 
 }
 
 
 /* =========================================================
-   PLAYER INFORMATION
+   PLAYER NAME
 ========================================================= */
 
-function getPlayerName(player){
+function playerName(player){
 
-  if(player.full_name)
-    return player.full_name;
+  const parts = [
 
-  const names = [
     player.first_name,
     player.middle_name,
     player.last_name
+
   ].filter(Boolean);
 
-  return names.join(" ") || "Unknown Player";
-
-}
-
-
-function getPlayerAfrnId(player){
+  if(parts.length){
+    return parts.join(" ");
+  }
 
   return (
-    player.afrn_player_id ||
-    player.afrn_id ||
-    player.player_id ||
-    player.afrnId ||
-    player.id ||
-    "-"
+    player.full_name ||
+    player.name ||
+    "Unknown Player"
   );
 
 }
 
 
-function getPlayerPosition(player){
+/* =========================================================
+   PLAYER POSITION
+========================================================= */
+
+function playerPosition(player){
 
   return (
     player.position ||
@@ -1304,254 +1309,521 @@ function getPlayerPosition(player){
 }
 
 
-function getClubPlayers(clubId){
-
-  return playersData.filter(player=>{
-
-    return String(player.club_id) === String(clubId);
-
-  });
-
-}
-
-
 /* =========================================================
-   TEAM CHANGE
+   PLAYER ID
 ========================================================= */
 
-document
-  .getElementById("homeClub")
-  .addEventListener("change",function(){
+function playerAFRNId(player){
 
-    const clubId = this.value;
-
-    renderTeamPlayers(
-      clubId,
-      "home"
-    );
-
-  });
-
-
-document
-  .getElementById("awayClub")
-  .addEventListener("change",function(){
-
-    const clubId = this.value;
-
-    renderTeamPlayers(
-      clubId,
-      "away"
-    );
-
-  });
-
-
-/* =========================================================
-   RENDER PLAYERS
-========================================================= */
-
-function renderTeamPlayers(clubId,side){
-
-  const info =
-    document.getElementById(
-      side + "PlayersInfo"
-    );
-
-  const lineup =
-    document.getElementById(
-      side + "Lineup"
-    );
-
-  const subs =
-    document.getElementById(
-      side + "Subs"
-    );
-
-  if(!clubId){
-
-    info.innerHTML =
-      "Chagua timu ili kuona wachezaji.";
-
-    lineup.innerHTML =
-      "Chagua timu.";
-
-    subs.innerHTML =
-      "Chagua timu.";
-
-    return;
-  }
-
-  const players =
-    getClubPlayers(clubId);
-
-  info.innerHTML =
-    `<span class="badge badge-blue">
-      ${players.length} Wachezaji
-    </span>`;
-
-  if(players.length === 0){
-
-    lineup.innerHTML =
-      '<div class="empty">Hakuna wachezaji wa timu hii.</div>';
-
-    subs.innerHTML =
-      '<div class="empty">Hakuna wachezaji.</div>';
-
-    return;
-  }
-
-  renderPlayerCheckboxes(
-    players,
-    lineup,
-    side,
-    "lineup"
-  );
-
-  renderPlayerCheckboxes(
-    players,
-    subs,
-    side,
-    "subs"
+  return (
+    player.afrn_player_id ||
+    player.afrn_id ||
+    player.player_id ||
+    "-"
   );
 
 }
 
 
 /* =========================================================
-   CHECKBOXES
+   PLAYER PHOTO
 ========================================================= */
 
-function renderPlayerCheckboxes(
-  players,
-  container,
-  side,
-  type
-){
+function playerPhoto(player){
 
-  container.innerHTML = "";
+  return (
+    player.photo_url ||
+    player.photograph ||
+    player.photo ||
+    ""
+  );
 
-  const selected =
-    type === "lineup"
-      ? currentLineups[side]
-      : currentLineups[side + "Subs"];
+}
 
-  players.forEach(player=>{
 
-    const id = String(player.id);
+/* =========================================================
+   HOME CLUB CHANGE
+========================================================= */
 
-    const checked =
-      selected.map(String).includes(id)
-        ? "checked"
-        : "";
+document
+.getElementById("homeClubId")
+.addEventListener("change",async function(){
 
-    const html = `
-      <label class="player-row">
+  const clubId = this.value;
 
-        <input
-          type="checkbox"
-          value="${escapeHtml(id)}"
-          ${checked}
-          data-side="${side}"
-          data-type="${type}"
-          onchange="playerSelectionChanged(this)"
-        >
+  homePlayers =
+    await loadPlayersForClub(clubId);
 
-        <span>
-          <span class="player-name">
-            ${escapeHtml(getPlayerName(player))}
-          </span>
+  renderPlayerSelectors(
+    "home",
+    homePlayers
+  );
 
-          <span class="player-meta">
-            AFRN ID:
-            ${escapeHtml(getPlayerAfrnId(player))}
-          </span>
-        </span>
+});
 
-        <span class="badge badge-green">
-          ${escapeHtml(getPlayerPosition(player))}
-        </span>
+
+/* =========================================================
+   AWAY CLUB CHANGE
+========================================================= */
+
+document
+.getElementById("awayClubId")
+.addEventListener("change",async function(){
+
+  const clubId = this.value;
+
+  awayPlayers =
+    await loadPlayersForClub(clubId);
+
+  renderPlayerSelectors(
+    "away",
+    awayPlayers
+  );
+
+});
+
+
+/* =========================================================
+   RENDER PLAYER SELECTORS
+========================================================= */
+
+function renderPlayerSelectors(side,list){
+
+  const starting =
+    document.getElementById(
+      side + "StartingPlayers"
+    );
+
+  const substitutes =
+    document.getElementById(
+      side + "SubstitutePlayers"
+    );
+
+  if(!list.length){
+
+    starting.innerHTML =
+      `<div class="empty">
+        Hakuna mchezaji aliyesajiliwa kwenye timu hii.
+      </div>`;
+
+    substitutes.innerHTML =
+      `<div class="empty">
+        Hakuna mchezaji aliyesajiliwa kwenye timu hii.
+      </div>`;
+
+    updateCounters(side);
+
+    return;
+  }
+
+
+  starting.innerHTML =
+    list.map(player=>
+      playerCheckbox(
+        player,
+        side,
+        "starting"
+      )
+    ).join("");
+
+
+  substitutes.innerHTML =
+    list.map(player=>
+      playerCheckbox(
+        player,
+        side,
+        "substitute"
+      )
+    ).join("");
+
+
+  document
+    .querySelectorAll(
+      `input[data-side="${side}"]`
+    )
+    .forEach(input=>{
+
+      input.addEventListener(
+        "change",
+        ()=>{
+
+          handlePlayerSelection(
+            input,
+            side
+          );
+
+        }
+      );
+
+    });
+
+
+  updateCounters(side);
+
+}
+
+
+/* =========================================================
+   PLAYER CHECKBOX
+========================================================= */
+
+function playerCheckbox(player,side,type){
+
+  const id =
+    player.id;
+
+  const photo =
+    playerPhoto(player);
+
+  const photoHTML =
+    photo
+    ?
+    `<img
+      class="player-photo"
+      src="${escapeAttr(photo)}"
+      alt=""
+    >`
+    :
+    `<div class="player-photo"></div>`;
+
+
+  return `
+
+    <div class="player-row">
+
+      <input
+        type="checkbox"
+        class="lineup-check"
+        data-side="${escapeAttr(side)}"
+        data-type="${escapeAttr(type)}"
+        data-player-id="${escapeAttr(id)}"
+        id="${escapeAttr(side)}_${escapeAttr(type)}_${escapeAttr(id)}"
+      >
+
+      ${photoHTML}
+
+      <label
+        for="${escapeAttr(side)}_${escapeAttr(type)}_${escapeAttr(id)}"
+      >
+
+        <div class="player-name">
+          ${escapeHtml(playerName(player))}
+        </div>
+
+        <div class="player-info">
+
+          AFRN ID:
+          ${escapeHtml(playerAFRNId(player))}
+
+          |
+          Position:
+          ${escapeHtml(playerPosition(player))}
+
+        </div>
 
       </label>
-    `;
 
-    container.innerHTML += html;
+    </div>
 
-  });
+  `;
 
 }
 
 
 /* =========================================================
-   PLAYER SELECTION
+   PREVENT DUPLICATE LINEUP / SUBSTITUTES
 ========================================================= */
 
-function playerSelectionChanged(input){
+function handlePlayerSelection(input,side){
 
-  const side =
-    input.dataset.side;
+  const playerId =
+    input.dataset.playerId;
 
   const type =
     input.dataset.type;
 
-  const id =
-    String(input.value);
-
-  const key =
-    type === "lineup"
-      ? side
-      : side + "Subs";
-
   if(input.checked){
 
-    if(!currentLineups[key].map(String).includes(id)){
+    const oppositeType =
+      type === "starting"
+      ? "substitute"
+      : "starting";
 
-      currentLineups[key].push(id);
+    const opposite =
+      document.querySelector(
+        `input[data-side="${side}"][data-type="${oppositeType}"][data-player-id="${playerId}"]`
+      );
+
+    if(opposite){
+
+      opposite.checked = false;
 
     }
 
-  }else{
 
-    currentLineups[key] =
-      currentLineups[key].filter(
-        x => String(x) !== id
-      );
+    if(type === "starting"){
 
-  }
+      const checked =
+        document.querySelectorAll(
+          `input[data-side="${side}"][data-type="starting"]:checked`
+        );
 
-  /*
-    Mchezaji mmoja hawezi kuwa kwenye
-    Starting XI na substitutes kwa wakati mmoja.
-  */
+      if(checked.length > 11){
 
-  if(type === "lineup" && input.checked){
+        input.checked = false;
 
-    currentLineups[side + "Subs"] =
-      currentLineups[side + "Subs"].filter(
-        x => String(x) !== id
-      );
+        alert(
+          "Starting XI haiwezi kuzidi wachezaji 11."
+        );
 
-  }
+      }
 
-  if(type === "subs" && input.checked){
-
-    currentLineups[side] =
-      currentLineups[side].filter(
-        x => String(x) !== id
-      );
+    }
 
   }
 
-  const clubId =
-    document.getElementById(
-      side + "Club"
-    ).value;
+  updateCounters(side);
 
-  if(clubId){
+}
 
-    renderTeamPlayers(
-      clubId,
-      side
+
+/* =========================================================
+   COUNTERS
+========================================================= */
+
+function updateCounters(side){
+
+  const starting =
+    document.querySelectorAll(
+      `input[data-side="${side}"][data-type="starting"]:checked`
+    ).length;
+
+  const substitutes =
+    document.querySelectorAll(
+      `input[data-side="${side}"][data-type="substitute"]:checked`
+    ).length;
+
+  document.getElementById(
+    side + "StartingCount"
+  ).textContent = starting;
+
+  document.getElementById(
+    side + "SubstituteCount"
+  ).textContent = substitutes;
+
+}
+
+
+/* =========================================================
+   SAVE MATCH
+========================================================= */
+
+async function saveMatch(){
+
+  try{
+
+    if(!db){
+
+      throw new Error(
+        "Supabase haijaunganishwa."
+      );
+
+    }
+
+    const competitionId =
+      document.getElementById(
+        "competitionId"
+      ).value;
+
+    const matchDate =
+      document.getElementById(
+        "matchDate"
+      ).value;
+
+    const matchTime =
+      document.getElementById(
+        "matchTime"
+      ).value;
+
+    const homeClubId =
+      document.getElementById(
+        "homeClubId"
+      ).value;
+
+    const awayClubId =
+      document.getElementById(
+        "awayClubId"
+      ).value;
+
+
+    if(
+      !competitionId ||
+      !matchDate ||
+      !matchTime ||
+      !homeClubId ||
+      !awayClubId
+    ){
+
+      alert(
+        "Tafadhali jaza Competition, tarehe, muda, Home Team na Away Team."
+      );
+
+      return;
+    }
+
+
+    if(homeClubId === awayClubId){
+
+      alert(
+        "Home Team na Away Team haziwezi kuwa timu moja."
+      );
+
+      return;
+    }
+
+
+    const payload = {
+
+      competition_id: competitionId,
+
+      match_date: matchDate,
+
+      match_time: matchTime,
+
+      home_club_id: homeClubId,
+
+      away_club_id: awayClubId,
+
+      venue:
+        value("venue"),
+
+      referee:
+        value("refereeMain"),
+
+      referee_main:
+        value("refereeMain"),
+
+      referee_assistant_1:
+        value("refereeAssistant1"),
+
+      referee_assistant_2:
+        value("refereeAssistant2"),
+
+      referee_fourth:
+        value("refereeFourth"),
+
+      commissioner:
+        value("commissioner"),
+
+      status:
+        value("matchStatus"),
+
+      home_score:
+        numberValue("homeScore"),
+
+      away_score:
+        numberValue("awayScore"),
+
+      home_coach_1:
+        value("homeCoach1"),
+
+      home_coach_2:
+        value("homeCoach2"),
+
+      home_doctor_1:
+        value("homeDoctor1"),
+
+      home_doctor_2:
+        value("homeDoctor2"),
+
+      home_member_1:
+        value("homeMember1"),
+
+      home_member_2:
+        value("homeMember2"),
+
+      away_coach_1:
+        value("awayCoach1"),
+
+      away_coach_2:
+        value("awayCoach2"),
+
+      away_doctor_1:
+        value("awayDoctor1"),
+
+      away_doctor_2:
+        value("awayDoctor2"),
+
+      away_member_1:
+        value("awayMember1"),
+
+      away_member_2:
+        value("awayMember2"),
+
+      notes:
+        value("matchNotes")
+
+    };
+
+
+    let result;
+
+
+    if(currentMatchId){
+
+      result =
+        await db
+          .from("matches")
+          .update(payload)
+          .eq("id",currentMatchId)
+          .select();
+
+    }else{
+
+      result =
+        await db
+          .from("matches")
+          .insert(payload)
+          .select();
+
+    }
+
+
+    if(result.error){
+
+      console.error(result.error);
+
+      throw result.error;
+    }
+
+
+    if(!currentMatchId && result.data?.length){
+
+      currentMatchId =
+        result.data[0].id;
+
+      document.getElementById(
+        "editMatchId"
+      ).value =
+        currentMatchId;
+
+    }
+
+
+    setStatus(
+      "✅ Taarifa za mechi zimehifadhiwa.",
+      "success"
+    );
+
+    await loadMatches();
+
+  }catch(error){
+
+    console.error(error);
+
+    alert(
+      "❌ Imeshindikana kuhifadhi mechi:\n" +
+      error.message
     );
 
   }
@@ -1560,298 +1832,84 @@ function playerSelectionChanged(input){
 
 
 /* =========================================================
-   SAVE LINEUPS
+   LOAD MATCHES
 ========================================================= */
 
-function saveLineups(){
+async function loadMatches(){
 
-  const matchId =
-    document.getElementById("matchId").value;
+  if(!db){
+    return;
+  }
 
-  if(!matchId){
 
-    showStatus(
-      "⚠️ Kwanza hifadhi mechi.",
+  let query =
+    db
+      .from("matches")
+      .select("*")
+      .order(
+        "match_date",
+        {ascending:false}
+      );
+
+
+  const competition =
+    document.getElementById(
+      "filterCompetition"
+    ).value;
+
+  const status =
+    document.getElementById(
+      "filterStatus"
+    ).value;
+
+
+  if(competition){
+
+    query =
+      query.eq(
+        "competition_id",
+        competition
+      );
+
+  }
+
+
+  if(status){
+
+    query =
+      query.eq(
+        "status",
+        status
+      );
+
+  }
+
+
+  const {data,error} =
+    await query;
+
+
+  if(error){
+
+    console.error(error);
+
+    setStatus(
+      "❌ Imeshindikana kupakia mechi: " +
+      error.message,
       "error"
     );
 
     return;
   }
 
-  const allLineups =
-    JSON.parse(
-      localStorage.getItem("afrn_match_lineups") || "{}"
-    );
 
-  allLineups[matchId] = {
+  matches =
+    data || [];
 
-    home:
-      currentLineups.home,
-
-    away:
-      currentLineups.away,
-
-    homeSubs:
-      currentLineups.homeSubs,
-
-    awaySubs:
-      currentLineups.awaySubs,
-
-    savedAt:
-      new Date().toISOString()
-
-  };
-
-  localStorage.setItem(
-    "afrn_match_lineups",
-    JSON.stringify(allLineups)
-  );
-
-  showStatus(
-    "✅ Line-up na substitutes zimehifadhiwa.",
-    "success"
-  );
-
-}
-
-
-/* =========================================================
-   LOAD LINEUPS
-========================================================= */
-
-function loadLineups(matchId){
-
-  currentLineups = {
-    home: [],
-    away: [],
-    homeSubs: [],
-    awaySubs: []
-  };
-
-  const all =
-    JSON.parse(
-      localStorage.getItem("afrn_match_lineups") || "{}"
-    );
-
-  const saved =
-    all[matchId];
-
-  if(saved){
-
-    currentLineups = {
-
-      home:
-        saved.home || [],
-
-      away:
-        saved.away || [],
-
-      homeSubs:
-        saved.homeSubs || [],
-
-      awaySubs:
-        saved.awaySubs || []
-
-    };
-
-  }
-
-  const homeClub =
-    document.getElementById("homeClub").value;
-
-  const awayClub =
-    document.getElementById("awayClub").value;
-
-  if(homeClub)
-    renderTeamPlayers(homeClub,"home");
-
-  if(awayClub)
-    renderTeamPlayers(awayClub,"away");
-
-}
-
-
-/* =========================================================
-   MATCHES
-========================================================= */
-
-async function loadMatches(){
-
-  const tbody =
-    document.getElementById("matchesTable");
-
-  tbody.innerHTML =
-    `<tr>
-      <td colspan="9" class="empty">
-        Inapakia mechi...
-      </td>
-    </tr>`;
-
-  /*
-    HATUTUMII created.
-    Hii ndiyo iliyokuwa ikisababisha:
-    column matches.created does not exist
-  */
-
-  const result =
-    await supabaseClient
-      .from("matches")
-      .select("*");
-
-  if(result.error){
-
-    console.error(result.error);
-
-    tbody.innerHTML =
-      `<tr>
-        <td colspan="9" class="empty">
-          ❌ ${escapeHtml(result.error.message)}
-        </td>
-      </tr>`;
-
-    return;
-  }
-
-  matchesData =
-    result.data || [];
 
   renderMatches();
 
   updateStats();
-
-}
-
-
-/* =========================================================
-   FIND MATCH VALUES
-========================================================= */
-
-function getMatchCompetitionId(match){
-
-  return (
-    match.competition_id ||
-    match.competitionId ||
-    match.competition ||
-    ""
-  );
-
-}
-
-
-function getMatchHomeId(match){
-
-  return (
-    match.home_club_id ||
-    match.home_team_id ||
-    match.homeClubId ||
-    match.home_team ||
-    ""
-  );
-
-}
-
-
-function getMatchAwayId(match){
-
-  return (
-    match.away_club_id ||
-    match.away_team_id ||
-    match.awayClubId ||
-    match.away_team ||
-    ""
-  );
-
-}
-
-
-function getMatchDate(match){
-
-  return (
-    match.match_date ||
-    match.date ||
-    match.start_date ||
-    ""
-  );
-
-}
-
-
-function getMatchTime(match){
-
-  return (
-    match.match_time ||
-    match.time ||
-    ""
-  );
-
-}
-
-
-function getMatchStatus(match){
-
-  return (
-    match.status ||
-    match.match_status ||
-    "Scheduled"
-  );
-
-}
-
-
-function getHomeScore(match){
-
-  return (
-    match.home_score ??
-    match.homeScore ??
-    0
-  );
-
-}
-
-
-function getAwayScore(match){
-
-  return (
-    match.away_score ??
-    match.awayScore ??
-    0
-  );
-
-}
-
-
-/* =========================================================
-   NAME LOOKUPS
-========================================================= */
-
-function findClubName(id){
-
-  const club =
-    clubsData.find(
-      c => String(c.id) === String(id)
-    );
-
-  return club
-    ? getClubName(club)
-    : "Unknown";
-
-}
-
-
-function findCompetitionName(id){
-
-  const competition =
-    competitionsData.find(
-      c => String(c.id) === String(id)
-    );
-
-  return competition
-    ? (
-        competition.name ||
-        competition.competition_name ||
-        "Competition"
-      )
-    : "Unknown";
 
 }
 
@@ -1863,46 +1921,12 @@ function findCompetitionName(id){
 function renderMatches(){
 
   const tbody =
-    document.getElementById("matchesTable");
-
-  let data =
-    [...matchesData];
-
-  const filterCompetition =
     document.getElementById(
-      "filterCompetition"
-    ).value;
+      "matchesTable"
+    );
 
-  const filterStatus =
-    document.getElementById(
-      "filterStatus"
-    ).value;
 
-  if(filterCompetition){
-
-    data =
-      data.filter(
-        match =>
-          String(getMatchCompetitionId(match))
-          ===
-          String(filterCompetition)
-      );
-
-  }
-
-  if(filterStatus){
-
-    data =
-      data.filter(
-        match =>
-          getMatchStatus(match)
-          ===
-          filterStatus
-      );
-
-  }
-
-  if(data.length === 0){
+  if(!matches.length){
 
     tbody.innerHTML =
       `<tr>
@@ -1914,436 +1938,155 @@ function renderMatches(){
     return;
   }
 
-  tbody.innerHTML = "";
 
-  data.forEach((match,index)=>{
-
-    const home =
-      findClubName(
-        getMatchHomeId(match)
-      );
-
-    const away =
-      findClubName(
-        getMatchAwayId(match)
-      );
-
-    const competition =
-      findCompetitionName(
-        getMatchCompetitionId(match)
-      );
-
-    const status =
-      getMatchStatus(match);
-
-    const statusClass =
-      status === "Finished"
-        ? "badge-green"
-        : status === "Live"
-        ? "badge-orange"
-        : "badge-blue";
-
-    tbody.innerHTML += `
-
-      <tr>
-
-        <td>${index + 1}</td>
-
-        <td>
-          <strong>
-            ${escapeHtml(competition)}
-          </strong>
-        </td>
-
-        <td>
-          ${escapeHtml(
-            getMatchDate(match) || "-"
-          )}
-        </td>
-
-        <td>
-          ${escapeHtml(
-            getMatchTime(match) || "-"
-          )}
-        </td>
-
-        <td>
-          <strong>
-            ${escapeHtml(home)}
-          </strong>
-        </td>
-
-        <td>
-          <strong>
-            ${escapeHtml(away)}
-          </strong>
-        </td>
-
-        <td>
-          <strong>
-            ${getHomeScore(match)}
-            -
-            ${getAwayScore(match)}
-          </strong>
-        </td>
-
-        <td>
-          <span class="badge ${statusClass}">
-            ${escapeHtml(status)}
-          </span>
-        </td>
-
-        <td>
-
-          <div class="actions">
-
-            <button
-              class="btn-primary small-btn"
-              onclick="editMatch('${escapeHtml(match.id)}')"
-            >
-              ✏️ Edit
-            </button>
-
-            <button
-              class="btn-success small-btn"
-              onclick="openMatch('${escapeHtml(match.id)}')"
-            >
-              ⚽ Fungua
-            </button>
-
-            <button
-              class="btn-danger small-btn"
-              onclick="deleteMatch('${escapeHtml(match.id)}')"
-            >
-              🗑
-            </button>
-
-          </div>
-
-        </td>
-
-      </tr>
-
-    `;
-
-  });
+  tbody.innerHTML =
+    matches.map(
+      (match,index)=>
+        matchRow(match,index)
+    ).join("");
 
 }
 
 
 /* =========================================================
-   FILTER EVENTS
+   MATCH ROW
 ========================================================= */
 
-document
-  .getElementById("filterCompetition")
-  .addEventListener(
-    "change",
-    renderMatches
-  );
+function matchRow(match,index){
 
-document
-  .getElementById("filterStatus")
-  .addEventListener(
-    "change",
-    renderMatches
-  );
-
-
-/* =========================================================
-   SAVE MATCH
-========================================================= */
-
-document
-  .getElementById("matchForm")
-  .addEventListener(
-    "submit",
-    async function(event){
-
-      event.preventDefault();
-
-      await saveMatch();
-
-    }
-  );
-
-
-async function saveMatch(){
-
-  if(!supabaseClient){
-
-    showStatus(
-      "❌ Supabase haijaunganishwa.",
-      "error"
+  const competition =
+    findCompetition(
+      match.competition_id
     );
 
-    return;
-  }
-
-  const homeId =
-    document.getElementById("homeClub").value;
-
-  const awayId =
-    document.getElementById("awayClub").value;
-
-  if(homeId && awayId && homeId === awayId){
-
-    showStatus(
-      "❌ Timu ya nyumbani na ugenini haiwezi kuwa timu moja.",
-      "error"
+  const home =
+    findClub(
+      match.home_club_id
     );
 
-    return;
-  }
-
-
-  const competitionId =
-    document.getElementById("competitionId").value;
-
-  const date =
-    document.getElementById("matchDate").value;
-
-  const time =
-    document.getElementById("matchTime").value;
-
-  if(!competitionId || !date || !time || !homeId || !awayId){
-
-    showStatus(
-      "❌ Jaza Competition, tarehe, muda, Home Team na Away Team.",
-      "error"
+  const away =
+    findClub(
+      match.away_club_id
     );
 
-    return;
-  }
 
+  const competitionName =
+    competition?.name ||
+    competition?.competition_name ||
+    "Unknown";
 
-  /*
-    TUNATUMIA columns za msingi zinazojulikana
-    kwenye mfumo wako.
-  */
 
-  const payload = {
+  const homeName =
+    home?.name ||
+    home?.club_name ||
+    "Unknown";
 
-    competition_id:
-      competitionId,
 
-    match_date:
-      date,
+  const awayName =
+    away?.name ||
+    away?.club_name ||
+    "Unknown";
 
-    match_time:
-      time,
 
-    home_club_id:
-      homeId,
+  const score =
+    `${match.home_score ?? 0} - ${match.away_score ?? 0}`;
 
-    away_club_id:
-      awayId,
 
-    venue:
-      document.getElementById("venue").value || null,
+  const status =
+    match.status ||
+    "Scheduled";
 
-    referee:
-      document.getElementById("refereeMain").value || null,
 
-    status:
-      document.getElementById("matchStatus").value,
+  const badge =
+    status === "Live"
+    ? "badge-live"
+    :
+    status === "Finished"
+    ? "badge-finished"
+    :
+    status === "Scheduled"
+    ? "badge-scheduled"
+    : "badge-other";
 
-    home_score:
-      Number(
-        document.getElementById("homeScore").value || 0
-      ),
 
-    away_score:
-      Number(
-        document.getElementById("awayScore").value || 0
-      ),
+  return `
 
-    notes:
-      document.getElementById("matchNotes").value || null
+    <tr>
 
-  };
+      <td>${index + 1}</td>
 
+      <td>
+        <strong>
+          ${escapeHtml(competitionName)}
+        </strong>
+      </td>
 
-  /*
-    Hifadhi taarifa za staff/referees kwenye
-    localStorage ikiwa table yako ya matches
-    haina columns hizo.
+      <td>
+        ${escapeHtml(
+          match.match_date || "-"
+        )}
+      </td>
 
-    Hii inalinda database yako isivunjike.
-  */
+      <td>
+        ${escapeHtml(
+          match.match_time || "-"
+        )}
+      </td>
 
-  const extraData = {
+      <td>
+        <strong>
+          ${escapeHtml(homeName)}
+        </strong>
+      </td>
 
-    refereeAssistant1:
-      document.getElementById("refereeAssistant1").value,
+      <td>
+        <strong>
+          ${escapeHtml(awayName)}
+        </strong>
+      </td>
 
-    refereeAssistant2:
-      document.getElementById("refereeAssistant2").value,
+      <td>
+        <strong>${score}</strong>
+      </td>
 
-    refereeFourth:
-      document.getElementById("refereeFourth").value,
+      <td>
+        <span class="badge ${badge}">
+          ${escapeHtml(status)}
+        </span>
+      </td>
 
-    commissioner:
-      document.getElementById("commissioner").value,
+      <td>
 
-    homeCoach1:
-      document.getElementById("homeCoach1").value,
+        <div class="action-buttons">
 
-    homeCoach2:
-      document.getElementById("homeCoach2").value,
+          <button
+            class="btn-primary"
+            onclick="editMatch('${escapeAttr(match.id)}')"
+          >
+            ✏️ Edit
+          </button>
 
-    homeDoctor1:
-      document.getElementById("homeDoctor1").value,
+          <button
+            class="btn-success"
+            onclick="openLineup('${escapeAttr(match.id)}')"
+          >
+            ⚽ Line-up
+          </button>
 
-    homeDoctor2:
-      document.getElementById("homeDoctor2").value,
+          <button
+            class="btn-danger"
+            onclick="deleteMatch('${escapeAttr(match.id)}')"
+          >
+            🗑
+          </button>
 
-    homeMember1:
-      document.getElementById("homeMember1").value,
+        </div>
 
-    homeMember2:
-      document.getElementById("homeMember2").value,
+      </td>
 
-    awayCoach1:
-      document.getElementById("awayCoach1").value,
+    </tr>
 
-    awayCoach2:
-      document.getElementById("awayCoach2").value,
-
-    awayDoctor1:
-      document.getElementById("awayDoctor1").value,
-
-    awayDoctor2:
-      document.getElementById("awayDoctor2").value,
-
-    awayMember1:
-      document.getElementById("awayMember1").value,
-
-    awayMember2:
-      document.getElementById("awayMember2").value
-
-  };
-
-
-  const matchId =
-    document.getElementById("matchId").value;
-
-
-  let result;
-
-
-  if(matchId){
-
-    result =
-      await supabaseClient
-        .from("matches")
-        .update(payload)
-        .eq("id",matchId);
-
-  }else{
-
-    result =
-      await supabaseClient
-        .from("matches")
-        .insert(payload)
-        .select();
-
-  }
-
-
-  if(result.error){
-
-    console.error(result.error);
-
-    showStatus(
-      "❌ Imeshindikana kuhifadhi mechi: " +
-      result.error.message,
-      "error"
-    );
-
-    return;
-  }
-
-
-  /*
-    Hifadhi staff na waamuzi kwa match ID.
-  */
-
-  let savedId = matchId;
-
-  if(!savedId && result.data && result.data[0]){
-
-    savedId =
-      result.data[0].id;
-
-  }
-
-
-  if(savedId){
-
-    saveExtraMatchData(
-      savedId,
-      extraData
-    );
-
-  }
-
-
-  showStatus(
-    matchId
-      ? "✅ Taarifa za mechi zime-update."
-      : "✅ Mechi imehifadhiwa.",
-    "success"
-  );
-
-
-  if(!matchId){
-
-    document.getElementById("matchId").value =
-      savedId || "";
-
-  }
-
-
-  await loadMatches();
-
-}
-
-
-/* =========================================================
-   EXTRA MATCH DATA
-========================================================= */
-
-function saveExtraMatchData(matchId,data){
-
-  const all =
-    JSON.parse(
-      localStorage.getItem("afrn_match_extra") || "{}"
-    );
-
-  all[matchId] =
-    data;
-
-  localStorage.setItem(
-    "afrn_match_extra",
-    JSON.stringify(all)
-  );
-
-}
-
-
-/* =========================================================
-   GET EXTRA DATA
-========================================================= */
-
-function getExtraMatchData(matchId){
-
-  const all =
-    JSON.parse(
-      localStorage.getItem("afrn_match_extra") || "{}"
-    );
-
-  return all[matchId] || {};
+  `;
 
 }
 
@@ -2352,138 +2095,206 @@ function getExtraMatchData(matchId){
    EDIT MATCH
 ========================================================= */
 
-function editMatch(matchId){
+async function editMatch(id){
 
   const match =
-    matchesData.find(
-      m => String(m.id) === String(matchId)
+    matches.find(
+      m => String(m.id) === String(id)
     );
+
 
   if(!match){
 
-    showStatus(
-      "❌ Mechi haijapatikana.",
-      "error"
+    alert(
+      "Mechi haikupatikana."
     );
 
     return;
   }
 
 
-  document.getElementById("matchId").value =
+  currentMatchId =
     match.id;
 
-  document.getElementById("formTitle").innerText =
-    "✏️ Edit Mechi";
+
+  document.getElementById(
+    "editMatchId"
+  ).value =
+    match.id;
 
 
-  document.getElementById("competitionId").value =
-    getMatchCompetitionId(match);
-
-  document.getElementById("matchDate").value =
-    getMatchDate(match);
-
-  document.getElementById("matchTime").value =
-    getMatchTime(match);
-
-  document.getElementById("homeClub").value =
-    getMatchHomeId(match);
-
-  document.getElementById("awayClub").value =
-    getMatchAwayId(match);
-
-  document.getElementById("venue").value =
-    match.venue || "";
-
-  document.getElementById("refereeMain").value =
-    match.referee || "";
-
-  document.getElementById("matchStatus").value =
-    getMatchStatus(match);
-
-  document.getElementById("homeScore").value =
-    getHomeScore(match);
-
-  document.getElementById("awayScore").value =
-    getAwayScore(match);
-
-  document.getElementById("matchNotes").value =
-    match.notes || "";
+  document.getElementById(
+    "matchFormTitle"
+  ).textContent =
+    "✏️ Edit Taarifa za Mechi";
 
 
-  const extra =
-    getExtraMatchData(match.id);
-
-
-  document.getElementById("refereeAssistant1").value =
-    extra.refereeAssistant1 || "";
-
-  document.getElementById("refereeAssistant2").value =
-    extra.refereeAssistant2 || "";
-
-  document.getElementById("refereeFourth").value =
-    extra.refereeFourth || "";
-
-  document.getElementById("commissioner").value =
-    extra.commissioner || "";
-
-
-  document.getElementById("homeCoach1").value =
-    extra.homeCoach1 || "";
-
-  document.getElementById("homeCoach2").value =
-    extra.homeCoach2 || "";
-
-  document.getElementById("homeDoctor1").value =
-    extra.homeDoctor1 || "";
-
-  document.getElementById("homeDoctor2").value =
-    extra.homeDoctor2 || "";
-
-  document.getElementById("homeMember1").value =
-    extra.homeMember1 || "";
-
-  document.getElementById("homeMember2").value =
-    extra.homeMember2 || "";
-
-
-  document.getElementById("awayCoach1").value =
-    extra.awayCoach1 || "";
-
-  document.getElementById("awayCoach2").value =
-    extra.awayCoach2 || "";
-
-  document.getElementById("awayDoctor1").value =
-    extra.awayDoctor1 || "";
-
-  document.getElementById("awayDoctor2").value =
-    extra.awayDoctor2 || "";
-
-  document.getElementById("awayMember1").value =
-    extra.awayMember1 || "";
-
-  document.getElementById("awayMember2").value =
-    extra.awayMember2 || "";
-
-
-  currentLineups = {
-    home: [],
-    away: [],
-    homeSubs: [],
-    awaySubs: []
-  };
-
-  loadLineups(match.id);
-
-
-  renderTeamPlayers(
-    getMatchHomeId(match),
-    "home"
+  setField(
+    "competitionId",
+    match.competition_id
   );
 
-  renderTeamPlayers(
-    getMatchAwayId(match),
-    "away"
+  setField(
+    "matchDate",
+    match.match_date
+  );
+
+  setField(
+    "matchTime",
+    match.match_time
+  );
+
+  setField(
+    "venue",
+    match.venue
+  );
+
+  setField(
+    "homeClubId",
+    match.home_club_id
+  );
+
+  setField(
+    "awayClubId",
+    match.away_club_id
+  );
+
+
+  setField(
+    "refereeMain",
+    match.referee_main ||
+    match.referee
+  );
+
+  setField(
+    "refereeAssistant1",
+    match.referee_assistant_1
+  );
+
+  setField(
+    "refereeAssistant2",
+    match.referee_assistant_2
+  );
+
+  setField(
+    "refereeFourth",
+    match.referee_fourth
+  );
+
+  setField(
+    "commissioner",
+    match.commissioner
+  );
+
+
+  setField(
+    "matchStatus",
+    match.status
+  );
+
+  setField(
+    "homeScore",
+    match.home_score ?? 0
+  );
+
+  setField(
+    "awayScore",
+    match.away_score ?? 0
+  );
+
+
+  setField(
+    "homeCoach1",
+    match.home_coach_1
+  );
+
+  setField(
+    "homeCoach2",
+    match.home_coach_2
+  );
+
+  setField(
+    "homeDoctor1",
+    match.home_doctor_1
+  );
+
+  setField(
+    "homeDoctor2",
+    match.home_doctor_2
+  );
+
+  setField(
+    "homeMember1",
+    match.home_member_1
+  );
+
+  setField(
+    "homeMember2",
+    match.home_member_2
+  );
+
+
+  setField(
+    "awayCoach1",
+    match.away_coach_1
+  );
+
+  setField(
+    "awayCoach2",
+    match.away_coach_2
+  );
+
+  setField(
+    "awayDoctor1",
+    match.away_doctor_1
+  );
+
+  setField(
+    "awayDoctor2",
+    match.away_doctor_2
+  );
+
+  setField(
+    "awayMember1",
+    match.away_member_1
+  );
+
+  setField(
+    "awayMember2",
+    match.away_member_2
+  );
+
+
+  setField(
+    "matchNotes",
+    match.notes
+  );
+
+
+  homePlayers =
+    await loadPlayersForClub(
+      match.home_club_id
+    );
+
+  awayPlayers =
+    await loadPlayersForClub(
+      match.away_club_id
+    );
+
+
+  renderPlayerSelectors(
+    "home",
+    homePlayers
+  );
+
+  renderPlayerSelectors(
+    "away",
+    awayPlayers
+  );
+
+
+  await loadSavedLineups(
+    match.id
   );
 
 
@@ -2496,17 +2307,453 @@ function editMatch(matchId){
 
 
 /* =========================================================
-   OPEN MATCH
+   OPEN LINEUP
 ========================================================= */
 
-function openMatch(matchId){
+async function openLineup(id){
 
-  editMatch(matchId);
+  await editMatch(id);
 
-  showStatus(
-    "⚽ Mechi imefunguliwa. Unaweza ku-edit line-up, substitutes na taarifa.",
-    "info"
-  );
+  setTimeout(()=>{
+
+    document
+      .querySelector(
+        ".lineup-columns"
+      )
+      ?.scrollIntoView({
+        behavior:"smooth"
+      });
+
+  },300);
+
+}
+
+
+/* =========================================================
+   LOAD SAVED LINEUPS
+========================================================= */
+
+async function loadSavedLineups(matchId){
+
+  try{
+
+    const {data,error} =
+      await db
+        .from("match_events")
+        .select("*")
+        .eq("match_id",matchId);
+
+
+    if(error){
+
+      console.warn(
+        "Lineup haikusomeka:",
+        error.message
+      );
+
+      return;
+    }
+
+
+    if(!data){
+      return;
+    }
+
+
+    data.forEach(event=>{
+
+      const type =
+        String(
+          event.event_type || ""
+        ).toLowerCase();
+
+
+      let side = null;
+
+      if(
+        type.includes("home")
+      ){
+        side = "home";
+      }
+
+      if(
+        type.includes("away")
+      ){
+        side = "away";
+      }
+
+
+      /*
+        Kama event_type ni
+        lineup_starting / lineup_substitute
+        tunatumia description kutambua upande.
+      */
+
+      const description =
+        String(
+          event.description || ""
+        ).toLowerCase();
+
+
+      if(!side){
+
+        if(
+          description.includes("home")
+        ){
+          side = "home";
+        }
+
+        if(
+          description.includes("away")
+        ){
+          side = "away";
+        }
+
+      }
+
+
+      if(!side){
+        return;
+      }
+
+
+      const playerId =
+        event.player_id;
+
+
+      if(!playerId){
+        return;
+      }
+
+
+      let selectionType = null;
+
+
+      if(
+        type.includes("starting")
+      ){
+
+        selectionType =
+          "starting";
+
+      }else if(
+        type.includes("substitute")
+      ){
+
+        selectionType =
+          "substitute";
+
+      }
+
+
+      if(!selectionType){
+        return;
+      }
+
+
+      const checkbox =
+        document.querySelector(
+          `input[data-side="${side}"][data-type="${selectionType}"][data-player-id="${playerId}"]`
+        );
+
+
+      if(checkbox){
+
+        checkbox.checked = true;
+
+      }
+
+    });
+
+
+    updateCounters("home");
+    updateCounters("away");
+
+  }catch(error){
+
+    console.error(error);
+
+  }
+
+}
+
+
+/* =========================================================
+   SAVE LINEUPS
+========================================================= */
+
+async function saveLineups(){
+
+  try{
+
+    if(!currentMatchId){
+
+      alert(
+        "Kwanza hifadhi mechi au chagua mechi kwenye orodha."
+      );
+
+      return;
+    }
+
+
+    const homeStarting =
+      selectedPlayers(
+        "home",
+        "starting"
+      );
+
+    const homeSubs =
+      selectedPlayers(
+        "home",
+        "substitute"
+      );
+
+    const awayStarting =
+      selectedPlayers(
+        "away",
+        "starting"
+      );
+
+    const awaySubs =
+      selectedPlayers(
+        "away",
+        "substitute"
+      );
+
+
+    if(homeStarting.length > 11){
+
+      alert(
+        "Home Starting XI haiwezi kuzidi 11."
+      );
+
+      return;
+    }
+
+
+    if(awayStarting.length > 11){
+
+      alert(
+        "Away Starting XI haiwezi kuzidi 11."
+      );
+
+      return;
+    }
+
+
+    /*
+      Delete only previous lineup records
+      for this match.
+    */
+
+    const {error:deleteError} =
+      await db
+        .from("match_events")
+        .delete()
+        .eq("match_id",currentMatchId)
+        .in(
+          "event_type",
+          [
+            "lineup_starting",
+            "lineup_substitute",
+            "home_starting",
+            "away_starting",
+            "home_substitute",
+            "away_substitute"
+          ]
+        );
+
+
+    if(deleteError){
+
+      console.warn(
+        "Old lineup delete:",
+        deleteError.message
+      );
+
+    }
+
+
+    const rows = [];
+
+
+    homeStarting.forEach((playerId,index)=>{
+
+      rows.push({
+
+        match_id:
+          currentMatchId,
+
+        player_id:
+          playerId,
+
+        event_type:
+          "lineup_starting",
+
+        minute:
+          null,
+
+        description:
+          `home starting ${index+1}`
+
+      });
+
+    });
+
+
+    homeSubs.forEach((playerId,index)=>{
+
+      rows.push({
+
+        match_id:
+          currentMatchId,
+
+        player_id:
+          playerId,
+
+        event_type:
+          "lineup_substitute",
+
+        minute:
+          null,
+
+        description:
+          `home substitute ${index+1}`
+
+      });
+
+    });
+
+
+    awayStarting.forEach((playerId,index)=>{
+
+      rows.push({
+
+        match_id:
+          currentMatchId,
+
+        player_id:
+          playerId,
+
+        event_type:
+          "lineup_starting",
+
+        minute:
+          null,
+
+        description:
+          `away starting ${index+1}`
+
+      });
+
+    });
+
+
+    awaySubs.forEach((playerId,index)=>{
+
+      rows.push({
+
+        match_id:
+          currentMatchId,
+
+        player_id:
+          playerId,
+
+        event_type:
+          "lineup_substitute",
+
+        minute:
+          null,
+
+        description:
+          `away substitute ${index+1}`
+
+      });
+
+    });
+
+
+    if(rows.length){
+
+      const {error} =
+        await db
+          .from("match_events")
+          .insert(rows);
+
+
+      if(error){
+
+        throw error;
+
+      }
+
+    }
+
+
+    setStatus(
+      "✅ Line-up na substitutes zimehifadhiwa.",
+      "success"
+    );
+
+
+    alert(
+      "✅ Line-up na substitutes zimehifadhiwa."
+    );
+
+
+  }catch(error){
+
+    console.error(error);
+
+    alert(
+      "❌ Imeshindikana kuhifadhi line-up:\n" +
+      error.message
+    );
+
+  }
+
+}
+
+
+/* =========================================================
+   SELECTED PLAYERS
+========================================================= */
+
+function selectedPlayers(side,type){
+
+  return Array
+    .from(
+      document.querySelectorAll(
+        `input[data-side="${side}"][data-type="${type}"]:checked`
+      )
+    )
+    .map(
+      input =>
+        input.dataset.playerId
+    );
+
+}
+
+
+/* =========================================================
+   CLEAR LINEUP
+========================================================= */
+
+function clearLineupSelections(){
+
+  document
+    .querySelectorAll(
+      ".lineup-check"
+    )
+    .forEach(input=>{
+
+      input.checked = false;
+
+    });
+
+
+  updateCounters("home");
+  updateCounters("away");
 
 }
 
@@ -2515,71 +2762,64 @@ function openMatch(matchId){
    DELETE MATCH
 ========================================================= */
 
-async function deleteMatch(matchId){
+async function deleteMatch(id){
 
-  const confirmDelete =
-    confirm(
+  if(
+    !confirm(
       "Una uhakika unataka kufuta mechi hii?"
-    );
-
-  if(!confirmDelete)
-    return;
-
-
-  const result =
-    await supabaseClient
-      .from("matches")
-      .delete()
-      .eq("id",matchId);
-
-
-  if(result.error){
-
-    showStatus(
-      "❌ Imeshindikana kufuta mechi: " +
-      result.error.message,
-      "error"
-    );
+    )
+  ){
 
     return;
+
   }
 
 
-  const extras =
-    JSON.parse(
-      localStorage.getItem("afrn_match_extra") || "{}"
+  try{
+
+    const {error} =
+      await db
+        .from("matches")
+        .delete()
+        .eq("id",id);
+
+
+    if(error){
+
+      throw error;
+
+    }
+
+
+    setStatus(
+      "✅ Mechi imefutwa.",
+      "success"
     );
 
-  delete extras[matchId];
 
-  localStorage.setItem(
-    "afrn_match_extra",
-    JSON.stringify(extras)
-  );
+    if(
+      String(currentMatchId) ===
+      String(id)
+    ){
+
+      resetMatchForm();
+
+    }
 
 
-  const lineups =
-    JSON.parse(
-      localStorage.getItem("afrn_match_lineups") || "{}"
+    await loadMatches();
+
+
+  }catch(error){
+
+    console.error(error);
+
+    alert(
+      "❌ Imeshindikana kufuta mechi:\n" +
+      error.message
     );
 
-  delete lineups[matchId];
-
-  localStorage.setItem(
-    "afrn_match_lineups",
-    JSON.stringify(lineups)
-  );
-
-
-  showStatus(
-    "✅ Mechi imefutwa.",
-    "success"
-  );
-
-
-  resetForm();
-
-  await loadMatches();
+  }
 
 }
 
@@ -2588,165 +2828,299 @@ async function deleteMatch(matchId){
    RESET FORM
 ========================================================= */
 
-function resetForm(){
+function resetMatchForm(){
 
-  document
-    .getElementById("matchForm")
-    .reset();
+  currentMatchId = null;
 
-  document.getElementById("matchId").value =
-    "";
+  document.getElementById(
+    "editMatchId"
+  ).value = "";
 
-  document.getElementById("formTitle").innerText =
+
+  document.getElementById(
+    "matchFormTitle"
+  ).textContent =
     "➕ Tengeneza Mechi";
 
 
-  currentLineups = {
-    home: [],
-    away: [],
-    homeSubs: [],
-    awaySubs: []
-  };
+  const fields = [
+
+    "competitionId",
+    "matchDate",
+    "matchTime",
+    "venue",
+    "homeClubId",
+    "awayClubId",
+    "refereeMain",
+    "refereeAssistant1",
+    "refereeAssistant2",
+    "refereeFourth",
+    "commissioner",
+    "homeCoach1",
+    "homeCoach2",
+    "homeDoctor1",
+    "homeDoctor2",
+    "homeMember1",
+    "homeMember2",
+    "awayCoach1",
+    "awayCoach2",
+    "awayDoctor1",
+    "awayDoctor2",
+    "awayMember1",
+    "awayMember2",
+    "matchNotes"
+
+  ];
 
 
-  document.getElementById("homePlayersInfo").innerHTML =
-    "Chagua Home Team ili kuona wachezaji.";
+  fields.forEach(id=>{
 
-  document.getElementById("awayPlayersInfo").innerHTML =
-    "Chagua Away Team ili kuona wachezaji.";
+    const element =
+      document.getElementById(id);
 
-  document.getElementById("homeLineup").innerHTML =
-    "Chagua Home Team.";
+    if(element){
 
-  document.getElementById("awayLineup").innerHTML =
-    "Chagua Away Team.";
+      element.value = "";
 
-  document.getElementById("homeSubs").innerHTML =
-    "Chagua Home Team.";
+    }
 
-  document.getElementById("awaySubs").innerHTML =
-    "Chagua Away Team.";
+  });
+
+
+  document.getElementById(
+    "matchStatus"
+  ).value =
+    "Scheduled";
+
+
+  document.getElementById(
+    "homeScore"
+  ).value = 0;
+
+
+  document.getElementById(
+    "awayScore"
+  ).value = 0;
+
+
+  homePlayers = [];
+  awayPlayers = [];
+
+
+  document.getElementById(
+    "homeStartingPlayers"
+  ).innerHTML =
+    `<div class="empty">
+      Chagua Home Team kwanza.
+    </div>`;
+
+
+  document.getElementById(
+    "homeSubstitutePlayers"
+  ).innerHTML =
+    `<div class="empty">
+      Chagua Home Team kwanza.
+    </div>`;
+
+
+  document.getElementById(
+    "awayStartingPlayers"
+  ).innerHTML =
+    `<div class="empty">
+      Chagua Away Team kwanza.
+    </div>`;
+
+
+  document.getElementById(
+    "awaySubstitutePlayers"
+  ).innerHTML =
+    `<div class="empty">
+      Chagua Away Team kwanza.
+    </div>`;
+
+
+  updateCounters("home");
+  updateCounters("away");
 
 }
 
 
 /* =========================================================
-   CLEAR LINEUPS
+   HELPERS
 ========================================================= */
 
-function clearLineups(){
+function value(id){
 
-  currentLineups = {
-    home: [],
-    away: [],
-    homeSubs: [],
-    awaySubs: []
-  };
+  const el =
+    document.getElementById(id);
 
-  const home =
-    document.getElementById("homeClub").value;
+  return el
+    ? el.value.trim()
+    : "";
 
-  const away =
-    document.getElementById("awayClub").value;
+}
 
-  if(home)
-    renderTeamPlayers(home,"home");
 
-  if(away)
-    renderTeamPlayers(away,"away");
+function numberValue(id){
+
+  const n =
+    Number(
+      document.getElementById(id).value
+    );
+
+  return Number.isFinite(n)
+    ? n
+    : 0;
+
+}
+
+
+function setField(id,value){
+
+  const el =
+    document.getElementById(id);
+
+  if(el){
+
+    el.value =
+      value ?? "";
+
+  }
+
+}
+
+
+function findClub(id){
+
+  return clubs.find(
+    club =>
+      String(club.id) ===
+      String(id)
+  );
+
+}
+
+
+function findCompetition(id){
+
+  return competitions.find(
+    competition =>
+      String(competition.id) ===
+      String(id)
+  );
+
+}
+
+
+function escapeHtml(value){
+
+  return String(
+    value ?? ""
+  )
+  .replace(/&/g,"&amp;")
+  .replace(/</g,"&lt;")
+  .replace(/>/g,"&gt;")
+  .replace(/"/g,"&quot;")
+  .replace(/'/g,"&#039;");
+
+}
+
+
+function escapeAttr(value){
+
+  return escapeHtml(value);
 
 }
 
 
 /* =========================================================
-   STATS
+   STATISTICS
 ========================================================= */
 
 function updateStats(){
 
   const total =
-    matchesData.length;
+    matches.length;
+
 
   const scheduled =
-    matchesData.filter(
-      m => getMatchStatus(m) === "Scheduled"
+    matches.filter(
+      m =>
+        String(m.status)
+        .toLowerCase()
+        ===
+        "scheduled"
     ).length;
+
 
   const live =
-    matchesData.filter(
-      m => getMatchStatus(m) === "Live"
+    matches.filter(
+      m =>
+        String(m.status)
+        .toLowerCase()
+        ===
+        "live"
     ).length;
 
-  const finished =
-    matchesData.filter(
-      m => {
-        const s =
-          getMatchStatus(m);
 
-        return (
-          s === "Finished" ||
-          s === "Completed"
-        );
-      }
+  const finished =
+    matches.filter(
+      m =>
+        String(m.status)
+        .toLowerCase()
+        ===
+        "finished" ||
+        String(m.status)
+        .toLowerCase()
+        ===
+        "completed"
     ).length;
 
 
   document.getElementById(
     "totalMatches"
-  ).innerText = total;
+  ).textContent =
+    total;
+
 
   document.getElementById(
     "scheduledMatches"
-  ).innerText = scheduled;
+  ).textContent =
+    scheduled;
+
 
   document.getElementById(
     "liveMatches"
-  ).innerText = live;
+  ).textContent =
+    live;
+
 
   document.getElementById(
     "finishedMatches"
-  ).innerText = finished;
+  ).textContent =
+    finished;
 
 }
 
 
 /* =========================================================
-   STATUS
+   FILTERS
 ========================================================= */
 
-function showStatus(message,type){
-
-  const box =
-    document.getElementById(
-      "statusBox"
-    );
-
-  box.className =
-    "status " + type;
-
-  box.innerHTML =
-    message;
-
-}
+document
+.getElementById("filterCompetition")
+.addEventListener(
+  "change",
+  loadMatches
+);
 
 
-/* =========================================================
-   HTML ESCAPE
-========================================================= */
-
-function escapeHtml(value){
-
-  if(value === null || value === undefined)
-    return "";
-
-  return String(value)
-    .replaceAll("&","&amp;")
-    .replaceAll("<","&lt;")
-    .replaceAll(">","&gt;")
-    .replaceAll('"',"&quot;")
-    .replaceAll("'","&#039;");
-
-}
+document
+.getElementById("filterStatus")
+.addEventListener(
+  "change",
+  loadMatches
+);
 
 
 /* =========================================================
@@ -2755,7 +3129,7 @@ function escapeHtml(value){
 
 document.addEventListener(
   "DOMContentLoaded",
-  initSupabase
+  init
 );
 
 </script>
