@@ -1,285 +1,466 @@
 <!DOCTYPE html>
 <html lang="sw">
-
 <head>
 
 <meta charset="UTF-8">
-
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
-<title>AFRN Football Management - Mikataba</title>
+<title>AFRN Football Management - Contracts & Licences</title>
 
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
-<script src="supabase-config.js"></script>
+<script src="./supabase-config.js"></script>
+
+<!-- jsPDF -->
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
 
 <style>
 
 :root{
-    --navy:#071a33;
-    --blue:#0d47a1;
-    --green:#198754;
-    --red:#dc3545;
-    --orange:#f59e0b;
-    --gray:#667085;
-    --bg:#f4f7fb;
-    --white:#ffffff;
-    --border:#d9e1ec;
+  --navy:#071a33;
+  --blue:#0b5ed7;
+  --light:#f4f7fb;
+  --white:#fff;
+  --green:#198754;
+  --red:#dc3545;
+  --orange:#fd7e14;
+  --gray:#6c757d;
+  --border:#dfe5ec;
+  --shadow:0 4px 18px rgba(0,0,0,.08);
 }
 
 *{
-    box-sizing:border-box;
+  box-sizing:border-box;
 }
 
 body{
-    margin:0;
-    font-family:Arial,sans-serif;
-    background:var(--bg);
-    color:#172033;
+  margin:0;
+  font-family:Arial,Helvetica,sans-serif;
+  background:var(--light);
+  color:#172033;
 }
 
 header{
-    background:var(--navy);
-    color:#fff;
-    padding:18px;
+  background:linear-gradient(135deg,#071a33,#0b3d7a);
+  color:white;
+  padding:18px 15px;
 }
 
-header h2,
-header p{
-    margin:0;
+.header-inner{
+  max-width:1400px;
+  margin:auto;
+  display:flex;
+  align-items:center;
+  gap:15px;
+}
+
+.logo{
+  width:65px;
+  height:65px;
+  border-radius:50%;
+  object-fit:cover;
+  background:white;
+}
+
+header h1{
+  margin:0;
+  font-size:24px;
 }
 
 header p{
-    margin-top:6px;
-    opacity:.9;
+  margin:5px 0 0;
+  opacity:.85;
+}
+
+nav{
+  background:white;
+  border-bottom:1px solid var(--border);
+  position:sticky;
+  top:0;
+  z-index:100;
+}
+
+.nav-inner{
+  max-width:1400px;
+  margin:auto;
+  display:flex;
+  flex-wrap:wrap;
+}
+
+nav a{
+  padding:14px 13px;
+  text-decoration:none;
+  color:var(--navy);
+  font-weight:bold;
+}
+
+nav a:hover,
+nav a.active{
+  background:var(--blue);
+  color:white;
 }
 
 main{
-    max-width:1100px;
-    margin:auto;
-    padding:18px;
+  max-width:1400px;
+  margin:auto;
+  padding:20px;
 }
 
 .card{
-    background:#fff;
-    padding:16px;
-    margin:12px 0;
-    border-radius:12px;
-    box-shadow:0 2px 8px #0000000d;
+  background:white;
+  border-radius:14px;
+  padding:20px;
+  margin-bottom:20px;
+  box-shadow:var(--shadow);
 }
 
-.btn{
-    border:0;
-    border-radius:9px;
-    padding:11px 15px;
-    font-weight:700;
-    cursor:pointer;
-    margin:3px;
+h2{
+  color:var(--navy);
 }
 
-.primary{
-    background:var(--blue);
-    color:#fff;
+h3{
+  color:var(--navy);
 }
 
-.secondary{
-    background:#e9eef5;
-    color:#172033;
+.grid{
+  display:grid;
+  grid-template-columns:repeat(2,1fr);
+  gap:18px;
 }
 
-.danger{
-    background:var(--red);
-    color:#fff;
+.grid-3{
+  display:grid;
+  grid-template-columns:repeat(3,1fr);
+  gap:15px;
+}
+
+.stats{
+  display:grid;
+  grid-template-columns:repeat(4,1fr);
+  gap:15px;
+  margin-bottom:20px;
+}
+
+.stat{
+  background:white;
+  border-radius:14px;
+  padding:18px;
+  box-shadow:var(--shadow);
+  text-align:center;
+}
+
+.stat strong{
+  display:block;
+  font-size:30px;
+  color:var(--blue);
+}
+
+.stat span{
+  color:var(--gray);
+  font-weight:bold;
+}
+
+label{
+  display:block;
+  font-weight:bold;
+  margin-bottom:6px;
 }
 
 input,
 select,
 textarea{
-    width:100%;
-    padding:11px;
-    border:1px solid var(--border);
-    border-radius:8px;
-    font:inherit;
+  width:100%;
+  padding:11px;
+  border:1px solid var(--border);
+  border-radius:8px;
+  font-size:15px;
 }
 
-textarea{
-    min-height:90px;
+.form-group{
+  margin-bottom:14px;
 }
 
-.grid{
-    display:grid;
-    grid-template-columns:1fr 1fr;
-    gap:12px;
+button{
+  border:0;
+  border-radius:8px;
+  padding:11px 16px;
+  cursor:pointer;
+  font-weight:bold;
 }
 
-label{
-    display:block;
-    font-weight:700;
-    margin-bottom:6px;
+.btn-primary{
+  background:var(--blue);
+  color:white;
 }
 
-/* PLAYER CARD */
-
-.contract{
-    display:grid;
-    grid-template-columns:120px 1fr auto;
-    gap:18px;
-    align-items:center;
+.btn-success{
+  background:var(--green);
+  color:white;
 }
 
-/* SQUARE PHOTO */
-
-.photo{
-    width:110px;
-    height:110px;
-    object-fit:cover;
-    border-radius:8px;
-    border:2px solid #e1e7ef;
-    background:#e9eef5;
-    display:block;
+.btn-danger{
+  background:var(--red);
+  color:white;
 }
 
-.player-name{
-    margin:0 0 10px 0;
-    font-size:20px;
-    font-weight:800;
+.btn-warning{
+  background:var(--orange);
+  color:white;
 }
 
-.club-line{
-    margin:6px 0;
-    line-height:1.5;
+.btn-light{
+  background:#eef2f7;
+  color:#172033;
+}
+
+.buttons{
+  display:flex;
+  flex-wrap:wrap;
+  gap:10px;
+  margin-top:15px;
+}
+
+.status{
+  padding:12px 15px;
+  border-radius:8px;
+  margin-bottom:15px;
+  font-weight:bold;
+}
+
+.status.success{
+  background:#d1e7dd;
+  color:#0f5132;
+}
+
+.status.error{
+  background:#f8d7da;
+  color:#842029;
+}
+
+.status.info{
+  background:#cff4fc;
+  color:#055160;
+}
+
+.search-box{
+  margin-bottom:20px;
+}
+
+.contract-grid{
+  display:grid;
+  grid-template-columns:repeat(3,1fr);
+  gap:18px;
+}
+
+.contract-card{
+  background:white;
+  border:1px solid var(--border);
+  border-radius:14px;
+  overflow:hidden;
+  box-shadow:0 3px 12px rgba(0,0,0,.06);
+}
+
+.contract-top{
+  background:linear-gradient(135deg,#071a33,#0b5ed7);
+  color:white;
+  padding:18px;
+}
+
+.player-photo{
+  width:85px;
+  height:85px;
+  border-radius:50%;
+  object-fit:cover;
+  background:#e9eef5;
+  border:3px solid white;
+}
+
+.contract-top-content{
+  display:flex;
+  align-items:center;
+  gap:15px;
+}
+
+.contract-top h3{
+  color:white;
+  margin:0;
+}
+
+.contract-body{
+  padding:17px;
+}
+
+.info-line{
+  margin:8px 0;
+  font-size:14px;
+}
+
+.info-line strong{
+  color:var(--navy);
 }
 
 .badge{
-    display:inline-block;
-    padding:6px 10px;
-    border-radius:20px;
-    font-size:12px;
-    font-weight:700;
+  display:inline-block;
+  padding:6px 10px;
+  border-radius:20px;
+  font-size:12px;
+  font-weight:bold;
 }
 
-.active{
-    background:#d1e7dd;
-    color:#0f5132;
+.badge-active{
+  background:#d1e7dd;
+  color:#0f5132;
 }
 
-.expired{
-    background:#f8d7da;
-    color:#842029;
+.badge-expired{
+  background:#f8d7da;
+  color:#842029;
 }
 
-.loan{
-    background:#fff3cd;
-    color:#664d03;
+.badge-pending{
+  background:#fff3cd;
+  color:#664d03;
 }
 
-.permanent{
-    background:#dbeafe;
-    color:#1e3a8a;
+.badge-free{
+  background:#cff4fc;
+  color:#055160;
 }
 
-.notice{
-    display:none;
-    padding:12px;
-    border-radius:9px;
-    background:#fff3cd;
-    color:#664d03;
-    margin-top:10px;
+.action-buttons{
+  display:flex;
+  flex-wrap:wrap;
+  gap:7px;
+  margin-top:15px;
 }
 
-.loan-info{
-    display:none;
-    padding:12px;
-    background:#fff3cd;
-    color:#664d03;
-    border-radius:9px;
-    margin-top:10px;
-}
-
-.preview{
-    display:none;
-    text-align:center;
-    background:#f8fafc;
-    border:1px solid var(--border);
-    border-radius:12px;
-    padding:15px;
-    margin-top:10px;
-}
-
-.preview img{
-    width:130px;
-    height:130px;
-    object-fit:cover;
-    border-radius:8px;
-    border:2px solid #e1e7ef;
-    background:#e9eef5;
-}
-
-.actions{
-    display:flex;
-    justify-content:flex-end;
-    flex-wrap:wrap;
-    margin-top:15px;
-}
-
-.muted{
-    color:var(--gray);
+.empty{
+  padding:30px;
+  text-align:center;
+  color:var(--gray);
 }
 
 .hidden{
-    display:none !important;
+  display:none!important;
 }
 
-dialog{
-    width:min(760px,94vw);
-    border:0;
-    border-radius:14px;
-    padding:0;
-    box-shadow:0 15px 50px #0005;
+.modal{
+  position:fixed;
+  inset:0;
+  background:rgba(0,0,0,.65);
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  z-index:1000;
+  padding:15px;
 }
 
-dialog::backdrop{
-    background:#0008;
+.modal-content{
+  width:min(900px,100%);
+  max-height:95vh;
+  overflow:auto;
+  background:white;
+  border-radius:15px;
+  padding:25px;
 }
 
-.body{
-    padding:20px;
+.modal-header{
+  display:flex;
+  justify-content:space-between;
+  align-items:center;
 }
 
-.head{
-    display:flex;
-    justify-content:space-between;
-    align-items:center;
-    border-bottom:1px solid var(--border);
-    margin-bottom:15px;
+.close{
+  font-size:25px;
+  cursor:pointer;
 }
 
-.head h3{
-    margin:0 0 15px;
+.licence-preview{
+  max-width:500px;
+  margin:20px auto;
+  border:2px solid var(--navy);
+  border-radius:15px;
+  overflow:hidden;
+  background:white;
+}
+
+.licence-header{
+  background:var(--navy);
+  color:white;
+  text-align:center;
+  padding:15px;
+}
+
+.licence-header img{
+  width:65px;
+  height:65px;
+  border-radius:50%;
+}
+
+.licence-body{
+  padding:20px;
+  display:grid;
+  grid-template-columns:120px 1fr;
+  gap:20px;
+}
+
+.licence-photo{
+  width:120px;
+  height:150px;
+  object-fit:cover;
+  background:#eee;
+  border:1px solid var(--border);
+}
+
+.licence-info p{
+  margin:8px 0;
+  font-size:14px;
+}
+
+.licence-footer{
+  background:#f4f7fb;
+  padding:12px;
+  text-align:center;
+  font-size:12px;
+}
+
+footer{
+  text-align:center;
+  padding:25px;
+  color:var(--gray);
+}
+
+@media(max-width:1000px){
+
+  .contract-grid{
+    grid-template-columns:repeat(2,1fr);
+  }
+
+  .stats{
+    grid-template-columns:repeat(2,1fr);
+  }
+
 }
 
 @media(max-width:700px){
 
-    .grid{
-        grid-template-columns:1fr;
-    }
+  .grid,
+  .grid-3,
+  .contract-grid{
+    grid-template-columns:1fr;
+  }
 
-    .contract{
-        grid-template-columns:95px 1fr;
-        gap:12px;
-    }
+  .stats{
+    grid-template-columns:1fr 1fr;
+  }
 
-    .photo{
-        width:90px;
-        height:90px;
-    }
+  .licence-body{
+    grid-template-columns:1fr;
+    text-align:center;
+  }
 
-    .contract .actions{
-        grid-column:1/-1;
-    }
-
-    .player-name{
-        font-size:18px;
-    }
+  .licence-photo{
+    margin:auto;
+  }
 
 }
 
@@ -291,90 +472,123 @@ dialog::backdrop{
 
 <header>
 
-<h2>⚽ AFRN FOOTBALL MANAGEMENT</h2>
+<div class="header-inner">
 
-<p>📄 Mikataba na Uhamisho wa Wachezaji</p>
+<img
+class="logo"
+src="https://raw.githubusercontent.com/enyonyiabemba94-eng/AFRN-FOOTBALL-MANAGEMENT/main/IMG-20260319-WA0093.jpg"
+alt="AFRN Logo"
+>
+
+<div>
+
+<h1>⚽ AFRN FOOTBALL MANAGEMENT</h1>
+
+<p>
+SHIRIKISHO LA MPIRA WA MIGUU KAMBINI NYARUGUSU
+</p>
+
+</div>
+
+</div>
 
 </header>
 
+
+<nav>
+
+<div class="nav-inner">
+
+<a href="index.html">🏠 Dashboard</a>
+
+<a href="clubs.html">⚽ Vilabu</a>
+
+<a href="divisions.html">🏆 Madaraja</a>
+
+<a href="players.html">👤 Wachezaji</a>
+
+<a class="active" href="contracts.html">📄 Mikataba</a>
+
+<a href="transfers.html">🔄 Uhamisho</a>
+
+<a href="competitions.html">🏆 Mashindano</a>
+
+<a href="matches.html">🏟️ Mechi</a>
+
+<a href="reports.html">📊 Ripoti</a>
+
+</div>
+
+</nav>
+
+
 <main>
 
-<h2>📄 Mikataba ya Wachezaji</h2>
+<div id="systemStatus"
+class="status info">
+⏳ Inaunganisha na Supabase...
+</div>
+
+
+<div class="stats">
+
+<div class="stat">
+
+<strong id="totalContracts">0</strong>
+
+<span>📄 Mikataba</span>
+
+</div>
+
+
+<div class="stat">
+
+<strong id="activeContracts">0</strong>
+
+<span>✅ Active</span>
+
+</div>
+
+
+<div class="stat">
+
+<strong id="expiredContracts">0</strong>
+
+<span>⏰ Expired</span>
+
+</div>
+
+
+<div class="stat">
+
+<strong id="totalPlayers">0</strong>
+
+<span>👤 Wachezaji</span>
+
+</div>
+
+</div>
+
+
+<!-- ADD CONTRACT -->
+
+<section class="card">
+
+<h2>📄 Mkataba wa Mchezaji</h2>
 
 <p>
-Usajili, uhamisho na mikopo ya wachezaji
+Unda mkataba rasmi wa mchezaji na uweze kuupakua kama PDF.
 </p>
 
-<button
-class="btn primary"
-id="addBtn">
-
-＋ Ongeza Mkataba
-
-</button>
-
-<div
-id="status"
-class="card">
-
-⏳ Inaanzisha mfumo...
-
-</div>
-
-<div class="card">
-
-<label>🔎 Tafuta Mchezaji / Klabu</label>
-
-<input
-id="search"
-placeholder="Jina la mchezaji au klabu...">
-
-</div>
-
-<div id="contractsContainer"></div>
-
-</main>
-
-
-<!-- DIALOG -->
-
-<dialog id="contractDialog">
-
-<div class="body">
-
-<div class="head">
-
-<h3>
-＋ Ongeza Mkataba
-</h3>
-
-<button
-type="button"
-class="btn secondary"
-id="closeContract">
-
-✕
-
-</button>
-
-</div>
-
-<form id="contractForm">
 
 <div class="grid">
 
 
-<!-- PLAYER -->
+<div class="form-group">
 
-<div>
+<label>👤 Mchezaji *</label>
 
-<label>
-Mchezaji *
-</label>
-
-<select
-id="playerId"
-required>
+<select id="playerId">
 
 <option value="">
 Chagua Mchezaji
@@ -382,49 +596,12 @@ Chagua Mchezaji
 
 </select>
 
-<div
-id="playerPreview"
-class="preview">
-
-<img
-id="playerPhoto"
-alt="Picha ya mchezaji">
-
-<h3 id="playerName"></h3>
-
-<p id="playerCurrentClub"></p>
-
-</div>
-
 </div>
 
 
-<!-- FROM CLUB -->
+<div class="form-group">
 
-<div>
-
-<label>
-Klabu anayotoka
-</label>
-
-<select id="fromClubId">
-
-<option value="">
-Chagua Klabu
-</option>
-
-</select>
-
-</div>
-
-
-<!-- CURRENT CLUB -->
-
-<div>
-
-<label>
-Klabu ya sasa / anayokwenda
-</label>
+<label>⚽ Klabu *</label>
 
 <select id="clubId">
 
@@ -437,15 +614,11 @@ Chagua Klabu
 </div>
 
 
-<!-- REGISTRATION TYPE -->
+<div class="form-group">
 
-<div>
+<label>📄 Aina ya Mkataba</label>
 
-<label>
-Aina ya uhamisho
-</label>
-
-<select id="registrationType">
+<select id="contractType">
 
 <option value="Permanent">
 Uhamisho wa kudumu
@@ -455,33 +628,12 @@ Uhamisho wa kudumu
 Mkopo
 </option>
 
-</select>
-
-</div>
-
-
-<!-- LOAN TYPE -->
-
-<div
-id="loanTypeBox"
-class="hidden">
-
-<label>
-Aina ya mkopo
-</label>
-
-<select id="loanType">
-
-<option value="">
-Chagua aina ya mkopo
+<option value="Renewal">
+Kuongeza mkataba
 </option>
 
-<option value="Months">
-Mkopo wa miezi
-</option>
-
-<option value="League">
-Mkopo wa Ligi
+<option value="Free Agent">
+Free Agent
 </option>
 
 </select>
@@ -489,77 +641,33 @@ Mkopo wa Ligi
 </div>
 
 
-<!-- START -->
+<div class="form-group">
 
-<div>
-
-<label>
-Mkataba unaanza
-</label>
+<label>📅 Tarehe ya Kuanza *</label>
 
 <input
+type="date"
 id="startDate"
-type="date">
+>
 
 </div>
 
 
-<!-- END -->
+<div class="form-group">
 
-<div
-id="endDateBox">
-
-<label>
-Mkataba unaishia
-</label>
+<label>📅 Tarehe ya Kumalizika *</label>
 
 <input
+type="date"
 id="endDate"
-type="date">
+>
 
 </div>
 
 
-<!-- LEAGUE -->
+<div class="form-group">
 
-<div
-id="leagueBox"
-class="hidden">
-
-<label>
-Jina la ligi
-</label>
-
-<input
-id="leagueName"
-placeholder="Mfano: Indiana Cup 2026">
-
-</div>
-
-
-<!-- CONTRACT NUMBER -->
-
-<div
-id="contractNumberBox">
-
-<label>
-Namba ya Mkataba
-</label>
-
-<input
-id="contractNumber"
-placeholder="AFRN-2026-001">
-
-</div>
-
-
-<!-- STATUS -->
-
-<div>
-
-<label>
-Hali
-</label>
+<label>📌 Status</label>
 
 <select id="contractStatus">
 
@@ -567,120 +675,1837 @@ Hali
 Active
 </option>
 
-<option value="Expired">
-Expired
+<option value="Pending">
+Pending
 </option>
 
-<option value="Terminated">
-Terminated
+<option value="Expired">
+Expired
 </option>
 
 </select>
 
 </div>
 
+</div>
 
-<!-- FILE -->
 
-<div>
+<div class="buttons">
 
-<label>
-Upload Mkataba
-</label>
+<button
+class="btn-success"
+onclick="saveContract()"
+>
+💾 Hifadhi Mkataba
+</button>
+
+<button
+class="btn-light"
+onclick="resetContractForm()"
+>
+Futa
+</button>
+
+</div>
+
+</section>
+
+
+<!-- SEARCH -->
+
+<section class="card">
+
+<h2>📄 Mikataba ya Wachezaji</h2>
+
+<div class="search-box">
 
 <input
-id="contractFile"
-type="file"
-accept=".pdf,.jpg,.jpeg,.png">
-
-</div>
+type="search"
+id="searchInput"
+placeholder="🔎 Tafuta Mchezaji / Klabu..."
+>
 
 </div>
 
 
 <div
-id="loanInfo"
-class="loan-info">
+id="contractsContainer"
+class="contract-grid"
+>
+
+<div class="empty">
+⏳ Inapakia mikataba...
+</div>
+
+</div>
+
+</section>
+
+
+<!-- LICENCE MODAL -->
+
+<div
+id="licenceModal"
+class="modal hidden"
+>
+
+<div class="modal-content">
+
+<div class="modal-header">
+
+<h2>🪪 AFRN PLAYER LICENCE</h2>
+
+<span
+class="close"
+onclick="closeLicence()"
+>
+×
+</span>
+
 </div>
 
 
 <div
-id="conflictNotice"
-class="notice">
+id="licencePreview"
+class="licence-preview"
+>
 </div>
 
 
-<br>
-
-
-<label>
-Maelezo
-</label>
-
-<textarea
-id="notes"
-placeholder="Maelezo muhimu...">
-</textarea>
-
-
-<div class="actions">
+<div class="buttons">
 
 <button
-class="btn primary"
-type="submit">
-
-💾 Hifadhi
-
+class="btn-primary"
+onclick="downloadLicence()"
+>
+⬇️ Pakua Licence PDF
 </button>
 
 <button
-class="btn secondary"
-type="button"
-id="cancelContract">
-
+class="btn-light"
+onclick="closeLicence()"
+>
 Funga
-
 </button>
 
 </div>
 
-</form>
+</div>
 
 </div>
 
-</dialog>
+
+</main>
+
+
+<footer>
+
+AFRN FOOTBALL MANAGEMENT © 2026
+
+</footer>
 
 
 <script>
 
+/* =========================================================
+GLOBAL
+========================================================= */
 
-/* =========================================
-   CONFIGURATION
-========================================= */
-
-const TABLE = "player_contracts";
-
-const STORAGE_BUCKET = "AFRN FILES";
-
-const STORAGE_FOLDER = "contracts";
-
-let contracts = [];
+let db = null;
 
 let players = [];
 
 let clubs = [];
 
-const $ = id => document.getElementById(id);
+let contracts = [];
 
-const db = window.supabaseClient;
+let currentLicencePlayer = null;
 
 
-/* =========================================
-   FALLBACK PHOTO
-========================================= */
+/* =========================================================
+SUPABASE
+========================================================= */
 
-const FALLBACK =
-"data:image/svg+xml;charset=UTF-8," +
+function getSupabaseClient(){
+
+if(window.supabaseClient){
+
+return window.supabaseClient;
+
+}
+
+if(window.supabase){
+
+return window.supabase;
+
+}
+
+return null;
+
+}
+
+
+/* =========================================================
+INIT
+========================================================= */
+
+async function init(){
+
+try{
+
+db = getSupabaseClient();
+
+if(!db){
+
+throw new Error(
+"Supabase client haikupatikana."
+);
+
+}
+
+setStatus(
+"✅ Mfumo umeunganishwa na Supabase.",
+"success"
+);
+
+
+await loadPlayers();
+
+await loadClubs();
+
+await loadContracts();
+
+
+}catch(error){
+
+console.error(error);
+
+setStatus(
+"❌ Mfumo umeshindwa kuunganishwa: "+
+error.message,
+"error"
+);
+
+}
+
+}
+
+
+/* =========================================================
+STATUS
+========================================================= */
+
+function setStatus(message,type="info"){
+
+const box =
+document.getElementById(
+"systemStatus"
+);
+
+box.textContent = message;
+
+box.className =
+"status "+type;
+
+}
+
+
+/* =========================================================
+LOAD PLAYERS
+========================================================= */
+
+async function loadPlayers(){
+
+const {data,error} =
+await db
+.from("players")
+.select("*")
+.order("first_name",{ascending:true});
+
+
+if(error){
+
+console.error(error);
+
+throw error;
+
+}
+
+players = data || [];
+
+
+const select =
+document.getElementById("playerId");
+
+select.innerHTML =
+`<option value="">
+Chagua Mchezaji
+</option>`;
+
+
+players.forEach(player=>{
+
+select.innerHTML += `
+
+<option value="${escapeAttr(player.id)}">
+
+${escapeHtml(playerName(player))}
+
+</option>
+
+`;
+
+});
+
+
+document.getElementById(
+"totalPlayers"
+).textContent =
+players.length;
+
+}
+
+
+/* =========================================================
+LOAD CLUBS
+========================================================= */
+
+async function loadClubs(){
+
+const {data,error} =
+await db
+.from("clubs")
+.select("*")
+.order("name",{ascending:true});
+
+
+if(error){
+
+console.error(error);
+
+throw error;
+
+}
+
+clubs = data || [];
+
+
+const select =
+document.getElementById("clubId");
+
+select.innerHTML =
+`<option value="">
+Chagua Klabu
+</option>`;
+
+
+clubs.forEach(club=>{
+
+select.innerHTML += `
+
+<option value="${escapeAttr(club.id)}">
+
+${escapeHtml(clubName(club))}
+
+</option>
+
+`;
+
+});
+
+}
+
+
+/* =========================================================
+LOAD CONTRACTS
+========================================================= */
+
+async function loadContracts(){
+
+const {data,error} =
+await db
+.from("player_contracts")
+.select("*")
+.order("created_at",{ascending:false});
+
+
+if(error){
+
+console.error(error);
+
+setStatus(
+"❌ Imeshindikana kupakia mikataba: "+
+error.message,
+"error"
+);
+
+return;
+
+}
+
+contracts = data || [];
+
+renderContracts();
+
+updateStats();
+
+}
+
+
+/* =========================================================
+RENDER
+========================================================= */
+
+function renderContracts(){
+
+const container =
+document.getElementById(
+"contractsContainer"
+);
+
+const search =
+document.getElementById(
+"searchInput"
+).value
+.toLowerCase()
+.trim();
+
+
+let filtered =
+contracts.filter(contract=>{
+
+const player =
+findPlayer(contract.player_id);
+
+const club =
+findClub(contract.club_id);
+
+
+const text = (
+
+playerName(player)+
+" "+
+clubName(club)+
+" "+
+(contract.contract_type || "")+
+" "+
+(contract.status || "")
+
+).toLowerCase();
+
+
+return text.includes(search);
+
+});
+
+
+if(!filtered.length){
+
+container.innerHTML = `
+
+<div class="empty">
+
+Hakuna mkataba uliopatikana.
+
+</div>
+
+`;
+
+return;
+
+}
+
+
+container.innerHTML =
+filtered
+.map(contractCard)
+.join("");
+
+}
+
+
+/* =========================================================
+CONTRACT CARD
+========================================================= */
+
+function contractCard(contract){
+
+const player =
+findPlayer(contract.player_id);
+
+const club =
+findClub(contract.club_id);
+
+
+const name =
+playerName(player);
+
+
+const clubText =
+clubName(club);
+
+
+const start =
+contract.start_date ||
+contract.contract_start_date ||
+"-";
+
+
+const end =
+contract.end_date ||
+contract.contract_end_date ||
+"-";
+
+
+const type =
+contract.contract_type ||
+"Permanent";
+
+
+let status =
+contract.status ||
+"Active";
+
+
+status =
+calculateStatus(
+start,
+end,
+status
+);
+
+
+let badge =
+"badge-active";
+
+
+if(status === "Expired"){
+
+badge =
+"badge-expired";
+
+}
+
+if(status === "Pending"){
+
+badge =
+"badge-pending";
+
+}
+
+if(status === "Free Agent"){
+
+badge =
+"badge-free";
+
+}
+
+
+const photo =
+playerPhoto(player);
+
+
+return `
+
+<div class="contract-card">
+
+
+<div class="contract-top">
+
+
+<div class="contract-top-content">
+
+
+<img
+class="player-photo"
+src="${escapeAttr(
+photo || placeholderImage()
+)}"
+alt=""
+>
+
+
+<div>
+
+<h3>
+${escapeHtml(name)}
+</h3>
+
+<div>
+${escapeHtml(clubText)}
+</div>
+
+</div>
+
+
+</div>
+
+</div>
+
+
+<div class="contract-body">
+
+
+<div class="info-line">
+
+<strong>
+Klabu anayotoka:
+</strong>
+
+Klabu haijawekwa
+
+</div>
+
+
+<div class="info-line">
+
+<strong>
+Klabu ya sasa:
+</strong>
+
+${escapeHtml(clubText)}
+
+</div>
+
+
+<div class="info-line">
+
+<strong>
+Aina:
+</strong>
+
+${escapeHtml(type)}
+
+</div>
+
+
+<div class="info-line">
+
+<strong>
+📅 Mkataba:
+</strong>
+
+${escapeHtml(start)}
+→
+${escapeHtml(end)}
+
+</div>
+
+
+<div class="info-line">
+
+<span class="badge ${badge}">
+
+${escapeHtml(status)}
+
+</span>
+
+</div>
+
+
+<div class="action-buttons">
+
+
+<button
+class="btn-primary"
+onclick="downloadContract('${escapeAttr(contract.id)}')"
+>
+📄 Pakua Mkataba
+</button>
+
+
+<button
+class="btn-success"
+onclick="openLicence('${escapeAttr(contract.player_id)}')"
+>
+🪪 Licence
+</button>
+
+
+<button
+class="btn-danger"
+onclick="deleteContract('${escapeAttr(contract.id)}')"
+>
+🗑️ Futa
+</button>
+
+
+</div>
+
+
+</div>
+
+</div>
+
+`;
+
+}
+
+
+/* =========================================================
+SAVE CONTRACT
+========================================================= */
+
+async function saveContract(){
+
+try{
+
+const playerId =
+document.getElementById(
+"playerId"
+).value;
+
+
+const clubId =
+document.getElementById(
+"clubId"
+).value;
+
+
+const contractType =
+document.getElementById(
+"contractType"
+).value;
+
+
+const startDate =
+document.getElementById(
+"startDate"
+).value;
+
+
+const endDate =
+document.getElementById(
+"endDate"
+).value;
+
+
+const status =
+document.getElementById(
+"contractStatus"
+).value;
+
+
+if(
+!playerId ||
+!clubId ||
+!startDate ||
+!endDate
+){
+
+alert(
+"Tafadhali jaza Mchezaji, Klabu, tarehe ya kuanza na tarehe ya kumaliza."
+);
+
+return;
+
+}
+
+
+if(
+new Date(endDate)
+<
+new Date(startDate)
+){
+
+alert(
+"Tarehe ya kumaliza haiwezi kuwa kabla ya tarehe ya kuanza."
+);
+
+return;
+
+}
+
+
+/*
+Kuzuia Active duplicate
+*/
+
+const duplicate =
+contracts.find(c=>{
+
+return String(c.player_id)
+===
+String(playerId)
+&&
+String(c.club_id)
+===
+String(clubId)
+&&
+String(c.status || "")
+.toLowerCase()
+===
+"active";
+
+});
+
+
+if(duplicate){
+
+alert(
+"Mchezaji huyu tayari ana mkataba Active na klabu hii."
+);
+
+return;
+
+}
+
+
+const payload = {
+
+player_id:
+playerId,
+
+club_id:
+clubId,
+
+contract_type:
+contractType,
+
+start_date:
+startDate,
+
+end_date:
+endDate,
+
+status:
+status
+
+};
+
+
+const {error} =
+await db
+.from("player_contracts")
+.insert(payload);
+
+
+if(error){
+
+throw error;
+
+}
+
+
+setStatus(
+"✅ Mkataba umehifadhiwa.",
+"success"
+);
+
+
+alert(
+"✅ Mkataba umehifadhiwa."
+);
+
+
+resetContractForm();
+
+await loadContracts();
+
+
+}catch(error){
+
+console.error(error);
+
+alert(
+"❌ Imeshindikana kuhifadhi mkataba:\n"+
+error.message
+);
+
+}
+
+}
+
+
+/* =========================================================
+DELETE CONTRACT
+========================================================= */
+
+async function deleteContract(id){
+
+if(
+!confirm(
+"Una uhakika unataka kufuta mkataba huu?"
+)
+){
+
+return;
+
+}
+
+
+const {error} =
+await db
+.from("player_contracts")
+.delete()
+.eq("id",id);
+
+
+if(error){
+
+alert(
+"❌ Imeshindikana kufuta:\n"+
+error.message
+);
+
+return;
+
+}
+
+
+setStatus(
+"✅ Mkataba umefutwa.",
+"success"
+);
+
+
+await loadContracts();
+
+}
+
+
+/* =========================================================
+DOWNLOAD CONTRACT PDF
+========================================================= */
+
+async function downloadContract(id){
+
+const contract =
+contracts.find(
+c =>
+String(c.id) ===
+String(id)
+);
+
+
+if(!contract){
+
+alert(
+"Mkataba haujapatikana."
+);
+
+return;
+
+}
+
+
+const player =
+findPlayer(contract.player_id);
+
+const club =
+findClub(contract.club_id);
+
+
+const name =
+playerName(player);
+
+const clubText =
+clubName(club);
+
+const start =
+contract.start_date ||
+"-";
+
+const end =
+contract.end_date ||
+"-";
+
+const type =
+contract.contract_type ||
+"Permanent";
+
+
+const {
+jsPDF
+} = window.jspdf;
+
+
+const pdf =
+new jsPDF();
+
+
+const pageWidth =
+pdf.internal.pageSize.getWidth();
+
+
+/* HEADER */
+
+pdf.setFillColor(
+7,26,51
+);
+
+pdf.rect(
+0,
+0,
+pageWidth,
+34,
+"F"
+);
+
+
+/*
+AFRN logo:
+kwa PDF tunatumia maandishi
+kwa sababu browser image inaweza
+kushindwa kusomeka moja kwa moja
+kwenye canvas.
+*/
+
+pdf.setTextColor(
+255,255,255
+);
+
+pdf.setFontSize(20);
+
+pdf.setFont("helvetica","bold");
+
+pdf.text(
+"AFRN",
+20,
+16
+);
+
+
+pdf.setFontSize(10);
+
+pdf.setFont(
+"helvetica",
+"normal"
+);
+
+pdf.text(
+"FOOTBALL MANAGEMENT",
+20,
+23
+);
+
+
+pdf.text(
+"SHIRIKISHO LA MPIRA WA MIGUU KAMBINI NYARUGUSU",
+20,
+29
+);
+
+
+/* TITLE */
+
+pdf.setTextColor(
+7,26,51
+);
+
+pdf.setFontSize(18);
+
+pdf.setFont(
+"helvetica",
+"bold"
+);
+
+pdf.text(
+"PLAYER CONTRACT",
+pageWidth/2,
+50,
+{
+align:"center"
+}
+);
+
+
+pdf.setFontSize(11);
+
+pdf.setFont(
+"helvetica",
+"normal"
+);
+
+
+let y = 68;
+
+
+function line(label,value){
+
+pdf.setFont(
+"helvetica",
+"bold"
+);
+
+pdf.text(
+label,
+25,
+y
+);
+
+pdf.setFont(
+"helvetica",
+"normal"
+);
+
+pdf.text(
+String(value || "-"),
+75,
+y
+);
+
+y += 10;
+
+}
+
+
+line(
+"Mchezaji:",
+name
+);
+
+line(
+"AFRN Player ID:",
+playerAFRNId(player)
+);
+
+line(
+"Klabu:",
+clubText
+);
+
+line(
+"Aina ya mkataba:",
+type
+);
+
+line(
+"Tarehe ya kuanza:",
+start
+);
+
+line(
+"Tarehe ya kumaliza:",
+end
+);
+
+line(
+"Status:",
+calculateStatus(
+start,
+end,
+contract.status
+)
+);
+
+
+y += 10;
+
+
+pdf.setFont(
+"helvetica",
+"bold"
+);
+
+pdf.text(
+"MAELEZO YA MKATABA",
+25,
+y
+);
+
+y += 9;
+
+
+pdf.setFont(
+"helvetica",
+"normal"
+);
+
+const text =
+`Mkataba huu unathibitisha kuwa mchezaji ${name} amesajiliwa chini ya ${clubText} kwa kipindi kilichoainishwa hapo juu. Mchezaji anatakiwa kufuata sheria, kanuni na taratibu za AFRN Football Management pamoja na kanuni za klabu.`;
+
+
+const lines =
+pdf.splitTextToSize(
+text,
+pageWidth-50
+);
+
+
+pdf.text(
+lines,
+25,
+y
+);
+
+
+y +=
+lines.length * 6 +
+20;
+
+
+pdf.line(
+25,
+y,
+85,
+y
+);
+
+pdf.line(
+125,
+y,
+185,
+y
+);
+
+
+pdf.text(
+"Sahihi ya Mchezaji",
+25,
+y+7
+);
+
+pdf.text(
+"Sahihi ya Klabu",
+125,
+y+7
+);
+
+
+y += 25;
+
+
+pdf.setFontSize(9);
+
+pdf.setTextColor(
+100,100,100
+);
+
+pdf.text(
+"AFRN FOOTBALL MANAGEMENT - Official Player Contract",
+pageWidth/2,
+285,
+{
+align:"center"
+}
+);
+
+
+pdf.save(
+"AFRN-Contract-"+sanitizeFilename(name)+".pdf"
+);
+
+}
+
+
+/* =========================================================
+LICENCE
+========================================================= */
+
+function openLicence(playerId){
+
+const player =
+findPlayer(playerId);
+
+
+if(!player){
+
+alert(
+"Mchezaji hakupatikana."
+);
+
+return;
+
+}
+
+
+currentLicencePlayer =
+player;
+
+
+const club =
+findClub(
+player.club_id
+);
+
+
+const activeContract =
+contracts.find(
+c =>
+String(c.player_id)
+===
+String(player.id)
+&&
+String(c.status || "")
+.toLowerCase()
+===
+"active"
+);
+
+
+const licenceNumber =
+playerAFRNId(player);
+
+
+const start =
+activeContract?.start_date ||
+"-";
+
+
+const end =
+activeContract?.end_date ||
+"-";
+
+
+document.getElementById(
+"licencePreview"
+).innerHTML = `
+
+<div class="licence-header">
+
+<img
+src="https://raw.githubusercontent.com/enyonyiabemba94-eng/AFRN-FOOTBALL-MANAGEMENT/main/IMG-20260319-WA0093.jpg"
+>
+
+<div>
+<strong>
+AFRN FOOTBALL MANAGEMENT
+</strong>
+</div>
+
+<div>
+OFFICIAL PLAYER LICENCE
+</div>
+
+</div>
+
+
+<div class="licence-body">
+
+<img
+class="licence-photo"
+src="${escapeAttr(
+playerPhoto(player) ||
+placeholderImage()
+)}"
+>
+
+
+<div class="licence-info">
+
+<p>
+<strong>Player ID:</strong>
+${escapeHtml(licenceNumber)}
+</p>
+
+<p>
+<strong>Jina:</strong>
+${escapeHtml(playerName(player))}
+</p>
+
+<p>
+<strong>Nationality:</strong>
+${escapeHtml(
+player.nationality || "-"
+)}
+</p>
+
+<p>
+<strong>Position:</strong>
+${escapeHtml(
+playerPosition(player)
+)}
+</p>
+
+<p>
+<strong>Klabu:</strong>
+${escapeHtml(
+clubName(club)
+)}
+</p>
+
+<p>
+<strong>Valid From:</strong>
+${escapeHtml(start)}
+</p>
+
+<p>
+<strong>Valid Until:</strong>
+${escapeHtml(end)}
+</p>
+
+</div>
+
+</div>
+
+
+<div class="licence-footer">
+
+AFRN OFFICIAL PLAYER LICENCE
+
+<br>
+
+This licence remains the property of AFRN Football Management.
+
+</div>
+
+`;
+
+
+document.getElementById(
+"licenceModal"
+).classList.remove(
+"hidden"
+);
+
+}
+
+
+/* =========================================================
+DOWNLOAD LICENCE
+========================================================= */
+
+function downloadLicence(){
+
+const player =
+currentLicencePlayer;
+
+
+if(!player){
+
+return;
+
+}
+
+
+const club =
+findClub(
+player.club_id
+);
+
+
+const contract =
+contracts.find(
+c =>
+String(c.player_id)
+===
+String(player.id)
+&&
+String(c.status || "")
+.toLowerCase()
+===
+"active"
+);
+
+
+const {
+jsPDF
+} = window.jspdf;
+
+
+const pdf =
+new jsPDF(
+{
+orientation:"portrait",
+unit:"mm",
+format:"a4"
+}
+);
+
+
+const width =
+pdf.internal.pageSize.getWidth();
+
+
+/* BORDER */
+
+pdf.setLineWidth(1);
+
+pdf.rect(
+10,
+10,
+width-20,
+277
+);
+
+
+/* HEADER */
+
+pdf.setFillColor(
+7,26,51
+);
+
+pdf.rect(
+10,
+10,
+width-20,
+42,
+"F"
+);
+
+
+pdf.setTextColor(
+255,255,255
+);
+
+pdf.setFont(
+"helvetica",
+"bold"
+);
+
+pdf.setFontSize(18);
+
+pdf.text(
+"AFRN FOOTBALL MANAGEMENT",
+width/2,
+25,
+{
+align:"center"
+}
+);
+
+
+pdf.setFontSize(12);
+
+pdf.text(
+"OFFICIAL PLAYER LICENCE",
+width/2,
+35,
+{
+align:"center"
+}
+);
+
+
+pdf.setFont(
+"helvetica",
+"normal"
+);
+
+pdf.setFontSize(8);
+
+pdf.text(
+"SHIRIKISHO LA MPIRA WA MIGUU KAMBINI NYARUGUSU",
+width/2,
+43,
+{
+align:"center"
+}
+);
+
+
+/* PLAYER INFO */
+
+pdf.setTextColor(
+20,30,45
+);
+
+
+pdf.setFont(
+"helvetica",
+"bold"
+);
+
+pdf.setFontSize(16);
+
+pdf.text(
+playerName(player),
+25,
+72
+);
+
+
+pdf.setFontSize(11);
+
+pdf.setFont(
+"helvetica",
+"normal"
+);
+
+
+let y = 88;
+
+
+function info(label,value){
+
+pdf.setFont(
+"helvetica",
+"bold"
+);
+
+pdf.text(
+label,
+25,
+y
+);
+
+pdf.setFont(
+"helvetica",
+"normal"
+);
+
+pdf.text(
+String(value || "-"),
+75,
+y
+);
+
+y += 10;
+
+}
+
+
+info(
+"AFRN Player ID:",
+playerAFRNId(player)
+);
+
+info(
+"Nationality:",
+player.nationality
+);
+
+info(
+"Position:",
+playerPosition(player)
+);
+
+info(
+"Club:",
+clubName(club)
+);
+
+info(
+"Valid From:",
+contract?.start_date || "-"
+);
+
+info(
+"Valid Until:",
+contract?.end_date || "-"
+);
+
+
+/* STATUS */
+
+y += 10;
+
+pdf.setFillColor(
+25,135,84
+);
+
+pdf.roundedRect(
+25,
+y,
+55,
+12,
+3,
+3,
+"F"
+);
+
+pdf.setTextColor(
+255,255,255
+);
+
+pdf.setFont(
+"helvetica",
+"bold"
+);
+
+pdf.text(
+"VALID",
+52.5,
+y+8,
+{
+align:"center"
+}
+);
+
+
+/* FOOTER */
+
+pdf.setTextColor(
+100,100,100
+);
+
+pdf.setFont(
+"helvetica",
+"normal"
+);
+
+pdf.setFontSize(8);
+
+pdf.text(
+"AFRN Football Management - Official Player Licence",
+width/2,
+275,
+{
+align:"center"
+}
+);
+
+pdf.text(
+"This licence remains the property of AFRN Football Management.",
+width/2,
+281,
+{
+align:"center"
+}
+);
+
+
+pdf.save(
+"AFRN-Player-Licence-"+
+sanitizeFilename(
+playerName(player)
+)+
+".pdf"
+);
+
+}
+
+
+/* =========================================================
+CLOSE LICENCE
+========================================================= */
+
+function closeLicence(){
+
+document.getElementById(
+"licenceModal"
+).classList.add(
+"hidden"
+);
+
+}
+
+
+/* =========================================================
+SEARCH
+========================================================= */
+
+document.getElementById(
+"searchInput"
+).addEventListener(
+"input",
+renderContracts
+);
+
+
+/* =========================================================
+HELPERS
+========================================================= */
+
+function findPlayer(id){
+
+return players.find(
+p =>
+String(p.id) ===
+String(id)
+);
+
+}
+
+
+function findClub(id){
+
+return clubs.find(
+c =>
+String(c.id) ===
+String(id)
+);
+
+}
+
+
+function playerName(player){
+
+if(!player){
+
+return "Unknown Player";
+
+}
+
+
+const parts = [
+
+player.first_name,
+player.middle_name,
+player.last_name
+
+].filter(Boolean);
+
+
+return parts.length
+?
+parts.join(" ")
+:
+(
+player.full_name ||
+player.name ||
+"Unknown Player"
+);
+
+}
+
+
+function clubName(club){
+
+if(!club){
+
+return "Klabu haijawekwa";
+
+}
+
+
+return (
+
+club.name ||
+club.club_name ||
+club.clubName ||
+"Unknown Club"
+
+);
+
+}
+
+
+function playerAFRNId(player){
+
+return (
+
+player?.afrn_player_id ||
+player?.afrn_id ||
+player?.player_id ||
+"-"
+
+);
+
+}
+
+
+function playerPosition(player){
+
+return (
+
+player?.position ||
+player?.player_position ||
+"-"
+
+);
+
+}
+
+
+function playerPhoto(player){
+
+return (
+
+player?.photo_url ||
+player?.photograph ||
+player?.photo ||
+""
+
+);
+
+}
+
+
+function placeholderImage(){
+
+return "data:image/svg+xml;charset=UTF-8,"+
 encodeURIComponent(`
 
 <svg xmlns="http://www.w3.org/2000/svg"
@@ -709,1344 +2534,198 @@ Picha haipo
 
 `);
 
-
-/* =========================================
-   PLAYER NAME
-========================================= */
-
-function playerName(p){
-
-    if(!p){
-        return "Mchezaji";
-    }
-
-    return [
-        p.first_name,
-        p.middle_name,
-        p.last_name
-    ]
-    .filter(Boolean)
-    .join(" ")
-
-    || "Mchezaji";
 }
 
 
-/* =========================================
-   CLUB NAME
-========================================= */
+function calculateStatus(
+start,
+end,
+currentStatus
+){
 
-function clubName(id){
+if(
+String(currentStatus || "")
+.toLowerCase()
+===
+"pending"
+){
 
-    if(!id){
-        return "Klabu haijawekwa";
-    }
-
-    const c = clubs.find(
-        x => String(x.id) === String(id)
-    );
-
-    return c?.name || "Klabu haijawekwa";
-}
-
-
-/* =========================================
-   GET PLAYER
-========================================= */
-
-function getPlayer(id){
-
-    return players.find(
-        p => String(p.id) === String(id)
-    );
+return "Pending";
 
 }
 
 
-/* =========================================
-   PHOTO
-========================================= */
+if(!end){
 
-function getPhoto(p){
-
-    if(
-        p &&
-        p.photo_url &&
-        String(p.photo_url).trim()
-    ){
-
-        return p.photo_url;
-
-    }
-
-    return FALLBACK;
+return currentStatus ||
+"Active";
 
 }
 
 
-/* =========================================
-   TODAY
-========================================= */
-
-function today(){
-
-    return new Date()
-        .toISOString()
-        .slice(0,10);
-
-}
-
-
-/* =========================================
-   STATUS
-========================================= */
-
-function contractStatus(c){
-
-    if(
-        c.end_date &&
-        c.end_date < today() &&
-        String(c.status).toLowerCase()
-        !== "terminated"
-    ){
-
-        return "Expired";
-
-    }
-
-    return c.status || "Active";
-
-}
-
-
-/* =========================================
-   LOAD PLAYERS
-========================================= */
-
-function loadPlayers(){
-
-    const select = $("playerId");
-
-    select.innerHTML = `
-        <option value="">
-            Chagua Mchezaji
-        </option>
-    `;
-
-    players.forEach(p => {
-
-        const option =
-            document.createElement("option");
-
-        option.value = p.id;
-
-        option.textContent =
-            playerName(p);
-
-        select.appendChild(option);
-
-    });
-
-}
-
-
-/* =========================================
-   LOAD CLUBS
-========================================= */
-
-function loadClubs(){
-
-    const from =
-        $("fromClubId");
-
-    const current =
-        $("clubId");
-
-    from.innerHTML = `
-        <option value="">
-            Chagua Klabu
-        </option>
-    `;
-
-    current.innerHTML = `
-        <option value="">
-            Chagua Klabu
-        </option>
-    `;
-
-    clubs.forEach(c => {
-
-        const a =
-            document.createElement("option");
-
-        a.value = c.id;
-
-        a.textContent = c.name;
-
-        from.appendChild(a);
-
-
-        const b =
-            document.createElement("option");
-
-        b.value = c.id;
-
-        b.textContent = c.name;
-
-        current.appendChild(b);
-
-    });
-
-}
-
-
-/* =========================================
-   PLAYER PREVIEW
-========================================= */
-
-function previewPlayer(){
-
-    const p =
-        getPlayer(
-            $("playerId").value
-        );
-
-    if(!p){
-
-        $("playerPreview")
-            .style.display = "none";
-
-        return;
-
-    }
-
-    $("playerName")
-        .textContent =
-        playerName(p);
-
-    $("playerPhoto")
-        .src =
-        getPhoto(p);
-
-    $("playerPhoto").onerror =
-        function(){
-
-            this.onerror = null;
-
-            this.src = FALLBACK;
-
-        };
-
-    $("playerCurrentClub")
-        .textContent =
-        "Klabu ya sasa: " +
-        clubName(p.club_id);
-
-    $("playerPreview")
-        .style.display = "block";
-
-    /*
-       Mchezaji akichaguliwa,
-       tunatumia klabu yake ya sasa
-       kama klabu anayotoka.
-    */
-
-    if(p.club_id){
-
-        $("fromClubId").value =
-            p.club_id;
-
-    }
-
-    checkConflict();
-
-}
-
-
-/* =========================================
-   LOAN UI
-========================================= */
-
-function updateLoanUI(){
-
-    const type =
-        $("registrationType").value;
-
-    const loanBox =
-        $("loanTypeBox");
-
-    const endBox =
-        $("endDateBox");
-
-    const leagueBox =
-        $("leagueBox");
-
-    const numberBox =
-        $("contractNumberBox");
-
-    const info =
-        $("loanInfo");
-
-
-    if(type === "Loan"){
-
-        loanBox
-            .classList
-            .remove("hidden");
-
-        info.style.display =
-            "block";
-
-        info.innerHTML =
-            "ℹ️ Huu ni <b>mkopo</b>, " +
-            "si uhamisho wa kudumu.";
-
-    }
-
-    else{
-
-        loanBox
-            .classList
-            .add("hidden");
-
-        leagueBox
-            .classList
-            .add("hidden");
-
-        info.style.display =
-            "none";
-
-        $("loanType").value = "";
-
-    }
-
-
-    if(
-        type === "Loan" &&
-        $("loanType").value === "League"
-    ){
-
-        endBox
-            .classList
-            .add("hidden");
-
-        $("endDate").value = "";
-
-        leagueBox
-            .classList
-            .remove("hidden");
-
-        numberBox
-            .classList
-            .add("hidden");
-
-        $("contractNumber").value = "";
-
-        info.style.display =
-            "block";
-
-        info.innerHTML =
-            "🏆 <b>Mkopo wa Ligi</b><br>" +
-            "Mchezaji atarejea baada ya ligi " +
-            "kumalizika.";
-
-    }
-
-    else{
-
-        endBox
-            .classList
-            .remove("hidden");
-
-        leagueBox
-            .classList
-            .add("hidden");
-
-        numberBox
-            .classList
-            .remove("hidden");
-
-    }
-
-}
-
-
-/* =========================================
-   CONFLICT
-========================================= */
-
-function checkConflict(){
-
-    const pid =
-        $("playerId").value;
-
-    const start =
-        $("startDate").value;
-
-    const end =
-        $("endDate").value;
-
-    if(
-        !pid ||
-        !start ||
-        !end
-    ){
-
-        $("conflictNotice")
-            .style.display =
-            "none";
-
-        return;
-
-    }
-
-    const conflicts =
-        contracts.filter(c => {
-
-            return (
-
-                String(c.player_id)
-                === String(pid)
-
-                &&
-
-                start <=
-                (c.end_date ||
-                "9999-12-31")
-
-                &&
-
-                end >=
-                (c.start_date ||
-                "0000-01-01")
-
-            );
-
-        });
-
-    if(conflicts.length){
-
-        $("conflictNotice")
-            .style.display =
-            "block";
-
-        $("conflictNotice")
-            .innerHTML =
-            "⚠️ <b>Mchezaji ana taarifa " +
-            "inayoingiliana na kipindi hiki.</b>";
-
-    }
-
-    else{
-
-        $("conflictNotice")
-            .style.display =
-            "none";
-
-    }
-
-}
-
-
-/* =========================================
-   LOAD DATA
-========================================= */
-
-async function loadData(){
-
-    if(!db){
-
-        $("status").textContent =
-            "❌ Supabase client haijapatikana.";
-
-        return false;
-
-    }
-
-    const [
-        playersResult,
-        clubsResult
-    ] = await Promise.all([
-
-        db
-            .from("players")
-            .select("*"),
-
-        db
-            .from("clubs")
-            .select("*")
-
-    ]);
-
-    if(playersResult.error){
-
-        $("status").textContent =
-            "❌ Players: " +
-            playersResult.error.message;
-
-        return false;
-
-    }
-
-    if(clubsResult.error){
-
-        $("status").textContent =
-            "❌ Clubs: " +
-            clubsResult.error.message;
-
-        return false;
-
-    }
-
-    players =
-        playersResult.data || [];
-
-    clubs =
-        clubsResult.data || [];
-
-    loadPlayers();
-
-    loadClubs();
-
-    $("status").textContent =
-        "✅ Players: " +
-        players.length +
-        " • Clubs: " +
-        clubs.length;
-
-    return true;
-
-}
-
-
-/* =========================================
-   LOAD CONTRACTS
-========================================= */
-
-async function loadContracts(){
-
-    const result =
-        await db
-            .from(TABLE)
-            .select("*")
-            .order(
-                "created_at",
-                {
-                    ascending:false
-                }
-            );
-
-    if(result.error){
-
-        $("status").textContent =
-            "❌ " +
-            result.error.message;
-
-        return;
-
-    }
-
-    contracts =
-        result.data || [];
-
-    render();
-
-}
-
-
-/* =========================================
-   RENDER
-========================================= */
-
-function render(){
-
-    const box =
-        $("contractsContainer");
-
-    if(!contracts.length){
-
-        box.innerHTML = `
-            <div class="card muted">
-                Hakuna mikataba bado.
-            </div>
-        `;
-
-        return;
-
-    }
-
-    box.innerHTML =
-        contracts.map(c => {
-
-            const p =
-                getPlayer(c.player_id);
-
-            const currentClub =
-                clubName(c.club_id);
-
-            /*
-              from_club_id ni bigint kwenye
-              database yako kwa sasa.
-              Hivyo tunaitafsiri tu kama
-              ID iliyopo.
-            */
-
-            const fromClub =
-                clubName(c.from_club_id);
-
-            const st =
-                contractStatus(c);
-
-            const type =
-                c.registration_type ||
-                "Permanent";
-
-            const isLoan =
-                String(type)
-                .toLowerCase()
-                === "loan";
-
-            const loanType =
-                c.loan_type || "";
-
-            let typeBadge = `
-                <span class="badge permanent">
-                    Uhamisho wa kudumu
-                </span>
-            `;
-
-            if(isLoan){
-
-                typeBadge = `
-                    <span class="badge loan">
-                        ${
-                            loanType === "League"
-                            ?
-                            "Mkopo wa Ligi"
-                            :
-                            "Mkopo wa miezi"
-                        }
-                    </span>
-                `;
-
-            }
-
-            let dateText = `
-                ${c.start_date || "-"}
-                →
-                ${c.end_date || "-"}
-            `;
-
-            if(
-                isLoan &&
-                loanType === "League"
-            ){
-
-                dateText = `
-                    ${c.start_date || "-"}
-                    → Mwisho wa ligi
-                `;
-
-            }
-
-            return `
-
-            <div class="card contract">
-
-                <img
-                    class="photo"
-                    src="${getPhoto(p)}"
-                    alt="${playerName(p)}"
-                    onerror="
-                        this.onerror=null;
-                        this.src='${FALLBACK}'
-                    "
-                >
-
-                <div>
-
-                    <h3 class="player-name">
-                        ${playerName(p)}
-                    </h3>
-
-                    <p class="club-line">
-
-                        <b>
-                            Klabu anayotoka:
-                        </b>
-
-                        ${fromClub}
-
-                    </p>
-
-                    <p class="club-line">
-
-                        <b>
-                            Klabu ya sasa:
-                        </b>
-
-                        ${currentClub}
-
-                    </p>
-
-                    <p>
-                        ${typeBadge}
-                    </p>
-
-                    <p>
-                        📅 ${dateText}
-                    </p>
-
-                    ${
-                        isLoan &&
-                        loanType === "League"
-
-                        ?
-
-                        `
-                        <p>
-                            🏆
-                            <b>Ligi:</b>
-                            ${c.league_name || "-"}
-                        </p>
-                        `
-
-                        :
-
-                        ""
-                    }
-
-                    ${
-                        c.contract_number
-
-                        ?
-
-                        `
-                        <p>
-                            📄
-                            ${c.contract_number}
-                        </p>
-                        `
-
-                        :
-
-                        ""
-                    }
-
-                    <span
-                        class="badge ${
-                            st.toLowerCase()
-                            === "expired"
-                            ?
-                            "expired"
-                            :
-                            "active"
-                        }">
-
-                        ${st}
-
-                    </span>
-
-                    ${
-                        c.contract_file_url
-
-                        ?
-
-                        `
-                        <a
-                            class="btn secondary"
-                            href="${c.contract_file_url}"
-                            target="_blank"
-                            rel="noopener">
-
-                            👁️ Angalia
-
-                        </a>
-                        `
-
-                        :
-
-                        ""
-                    }
-
-                </div>
-
-                <div class="actions">
-
-                    <button
-                        class="btn danger"
-                        onclick="
-                            deleteContract('${c.id}')
-                        ">
-
-                        🗑️ Futa
-
-                    </button>
-
-                </div>
-
-            </div>
-
-            `;
-
-        }).join("");
-
-}
-
-
-/* =========================================
-   SAVE
-========================================= */
-
-async function save(e){
-
-    e.preventDefault();
-
-    const pid =
-        $("playerId").value;
-
-    if(!pid){
-
-        alert(
-            "Tafadhali chagua mchezaji."
-        );
-
-        return;
-
-    }
-
-    const type =
-        $("registrationType").value;
-
-    const loanType =
-        $("loanType").value;
-
-    const start =
-        $("startDate").value;
-
-    let end =
-        $("endDate").value;
-
-    if(
-        type === "Loan" &&
-        loanType === "League"
-    ){
-
-        end = null;
-
-    }
-
-    if(
-        type !== "Loan" &&
-        start &&
-        end &&
-        end < start
-    ){
-
-        alert(
-            "Tarehe ya mwisho haiwezi " +
-            "kuwa kabla ya tarehe ya kuanza."
-        );
-
-        return;
-
-    }
-
-
-    /* FILE */
-
-    let fileUrl = null;
-
-    const file =
-        $("contractFile")
-            .files[0];
-
-    if(file){
-
-        $("status").textContent =
-            "⏳ Inapakia mkataba...";
-
-        const ext =
-            file.name
-                .split(".")
-                .pop()
-                .toLowerCase();
-
-        const path =
-            STORAGE_FOLDER +
-            "/contract_" +
-            Date.now() +
-            "." +
-            ext;
-
-        const upload =
-            await db
-                .storage
-                .from(STORAGE_BUCKET)
-                .upload(
-                    path,
-                    file,
-                    {
-                        upsert:true,
-                        contentType:file.type
-                    }
-                );
-
-        if(upload.error){
-
-            $("status").textContent =
-                "❌ " +
-                upload.error.message;
-
-            return;
-
-        }
-
-        fileUrl =
-            db
-                .storage
-                .from(STORAGE_BUCKET)
-                .getPublicUrl(path)
-                .data
-                .publicUrl;
-
-    }
-
-
-    /*
-       MUHIMU:
-
-       salary haipo kwenye payload.
-    */
-
-    const payload = {
-
-        player_id:
-            pid,
-
-        club_id:
-            $("clubId").value ||
-            null,
-
-        /*
-          Kwa sasa tunaweka from_club_id
-          tu kama value yake ni number.
-          Hii inazuia UUID kuingia kwenye
-          bigint na kusababisha error.
-        */
-
-        from_club_id:
-            null,
-
-        contract_number:
-            $("contractNumber")
-                .value
-                .trim() ||
-            null,
-
-        start_date:
-            start ||
-            null,
-
-        end_date:
-            end ||
-            null,
-
-        contract_file_url:
-            fileUrl,
-
-        status:
-            $("contractStatus")
-                .value,
-
-        notes:
-            $("notes")
-                .value
-                .trim() ||
-            null,
-
-        registration_type:
-            type,
-
-        loan_type:
-            type === "Loan"
-            ?
-            (loanType || null)
-            :
-            null,
-
-        league_name:
-            (
-                type === "Loan" &&
-                loanType === "League"
-            )
-            ?
-            (
-                $("leagueName")
-                    .value
-                    .trim() ||
-                null
-            )
-            :
-            null
-
-    };
-
-
-    $("status").textContent =
-        "⏳ Inahifadhi...";
-
-
-    const result =
-        await db
-            .from(TABLE)
-            .insert(payload);
-
-
-    if(result.error){
-
-        console.error(
-            "SAVE ERROR:",
-            result.error
-        );
-
-        $("status").textContent =
-            "❌ " +
-            result.error.message;
-
-        alert(
-            "Imeshindwa kuhifadhi:\n\n" +
-            result.error.message
-        );
-
-        return;
-
-    }
-
-
-    $("contractDialog")
-        .close();
-
-    $("status").textContent =
-        "✅ Mkataba umehifadhiwa.";
-
-    await loadContracts();
-
-}
-
-
-/* =========================================
-   DELETE - UUID SAFE
-========================================= */
-
-async function deleteContract(id){
-
-    if(!id){
-
-        alert(
-            "ID ya taarifa haijapatikana."
-        );
-
-        return;
-
-    }
-
-
-    const confirmed =
-        confirm(
-
-            "⚠️ UNA UHAKIKA?\n\n" +
-
-            "Taarifa hii itafutwa kabisa " +
-            "kwenye database.\n\n" +
-
-            "Mchezaji mwenyewe hatafutwa."
-
-        );
-
-
-    if(!confirmed){
-
-        return;
-
-    }
-
-
-    try{
-
-        $("status").textContent =
-            "⏳ Inafuta taarifa...";
-
-
-        /*
-          ID ya player_contracts ni UUID.
-          Hatuibadilishi kuwa bigint.
-        */
-
-        const {
-            data,
-            error
-        } = await db
-            .from(TABLE)
-            .delete()
-            .eq("id", id)
-            .select();
-
-
-        if(error){
-
-            console.error(
-                "DELETE ERROR:",
-                error
-            );
-
-            $("status").textContent =
-                "❌ Imeshindwa kufuta: " +
-                error.message;
-
-            alert(
-                "Imeshindwa kufuta:\n\n" +
-                error.message
-            );
-
-            return;
-
-        }
-
-
-        /*
-          Kama data ni tupu,
-          DELETE haikufuta rekodi.
-        */
-
-        if(
-            !data ||
-            data.length === 0
-        ){
-
-            $("status").textContent =
-                "⚠️ Hakuna taarifa iliyofutwa.";
-
-            alert(
-
-                "Hakuna rekodi iliyofutwa.\n\n" +
-
-                "Inawezekana RLS ya Supabase " +
-                "haijaruhusu DELETE."
-
-            );
-
-            return;
-
-        }
-
-
-        /*
-          Ondoa pia kwenye memory ya browser.
-        */
-
-        contracts =
-            contracts.filter(
-                c =>
-                    String(c.id)
-                    !== String(id)
-            );
-
-
-        render();
-
-
-        $("status").textContent =
-            "✅ Taarifa imefutwa kabisa " +
-            "kwenye database.";
-
-    }
-
-    catch(err){
-
-        console.error(err);
-
-        $("status").textContent =
-            "❌ Hitilafu: " +
-            err.message;
-
-    }
-
-}
-
-
-/* =========================================
-   SEARCH
-========================================= */
-
-$("search")
-.addEventListener(
-    "input",
-    function(){
-
-        const q =
-            this.value
-                .toLowerCase()
-                .trim();
-
-        if(!q){
-
-            render();
-
-            return;
-
-        }
-
-        const filtered =
-            contracts.filter(c => {
-
-                const p =
-                    getPlayer(c.player_id);
-
-                const current =
-                    clubName(c.club_id);
-
-                const from =
-                    clubName(c.from_club_id);
-
-                return (
-
-                    playerName(p)
-                        .toLowerCase()
-                        .includes(q)
-
-                    ||
-
-                    current
-                        .toLowerCase()
-                        .includes(q)
-
-                    ||
-
-                    from
-                        .toLowerCase()
-                        .includes(q)
-
-                );
-
-            });
-
-        const original =
-            contracts;
-
-        contracts =
-            filtered;
-
-        render();
-
-        contracts =
-            original;
-
-    }
+const today =
+new Date();
+
+today.setHours(
+0,0,0,0
 );
 
 
-/* =========================================
-   OPEN FORM
-========================================= */
+const expiry =
+new Date(end);
 
-$("addBtn")
-.onclick = () => {
-
-    $("contractForm")
-        .reset();
-
-    $("playerPreview")
-        .style.display =
-        "none";
-
-    $("loanTypeBox")
-        .classList
-        .add("hidden");
-
-    $("leagueBox")
-        .classList
-        .add("hidden");
-
-    $("loanInfo")
-        .style.display =
-        "none";
-
-    $("endDateBox")
-        .classList
-        .remove("hidden");
-
-    $("contractNumberBox")
-        .classList
-        .remove("hidden");
-
-    $("contractDialog")
-        .showModal();
-
-};
+expiry.setHours(
+0,0,0,0
+);
 
 
-/* =========================================
-   CLOSE
-========================================= */
+if(expiry < today){
 
-$("closeContract").onclick =
-$("cancelContract").onclick =
-() => {
+return "Expired";
 
-    $("contractDialog")
-        .close();
-
-};
+}
 
 
-/* =========================================
-   EVENTS
-========================================= */
+return "Active";
 
-$("playerId")
-    .onchange =
-    previewPlayer;
-
-$("registrationType")
-    .onchange =
-    updateLoanUI;
-
-$("loanType")
-    .onchange =
-    updateLoanUI;
-
-$("startDate")
-    .onchange =
-    checkConflict;
-
-$("endDate")
-    .onchange =
-    checkConflict;
-
-$("contractForm")
-    .onsubmit =
-    save;
+}
 
 
-/* =========================================
-   START SYSTEM
-========================================= */
+function sanitizeFilename(name){
 
-(async()=>{
+return String(name || "Player")
+.replace(
+/[^a-z0-9]+/gi,
+"-"
+)
+.replace(
+/^-+|-+$/g,
+""
+);
 
-    if(
-        await loadData()
-    ){
+}
 
-        await loadContracts();
 
-    }
+function escapeHtml(value){
 
-})();
+return String(
+value ?? ""
+)
+.replace(/&/g,"&amp;")
+.replace(/</g,"&lt;")
+.replace(/>/g,"&gt;")
+.replace(/"/g,"&quot;")
+.replace(/'/g,"&#039;");
+
+}
+
+
+function escapeAttr(value){
+
+return escapeHtml(value);
+
+}
+
+
+/* =========================================================
+RESET
+========================================================= */
+
+function resetContractForm(){
+
+document.getElementById(
+"playerId"
+).value="";
+
+document.getElementById(
+"clubId"
+).value="";
+
+document.getElementById(
+"contractType"
+).value="Permanent";
+
+document.getElementById(
+"startDate"
+).value="";
+
+document.getElementById(
+"endDate"
+).value="";
+
+document.getElementById(
+"contractStatus"
+).value="Active";
+
+}
+
+
+/* =========================================================
+STATS
+========================================================= */
+
+function updateStats(){
+
+const total =
+contracts.length;
+
+
+const active =
+contracts.filter(
+c =>
+calculateStatus(
+c.start_date,
+c.end_date,
+c.status
+)
+===
+"Active"
+).length;
+
+
+const expired =
+contracts.filter(
+c =>
+calculateStatus(
+c.start_date,
+c.end_date,
+c.status
+)
+===
+"Expired"
+).length;
+
+
+document.getElementById(
+"totalContracts"
+).textContent =
+total;
+
+
+document.getElementById(
+"activeContracts"
+).textContent =
+active;
+
+
+document.getElementById(
+"expiredContracts"
+).textContent =
+expired;
+
+}
+
+
+/* =========================================================
+START
+========================================================= */
+
+document.addEventListener(
+"DOMContentLoaded",
+init
+);
 
 </script>
 
 </body>
-
 </html>
