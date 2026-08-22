@@ -1,3 +1,4 @@
+```html
 <!DOCTYPE html>
 <html lang="sw">
 
@@ -11,7 +12,11 @@
 
   <title>AFRN Football Management - Madaraja</title>
 
+  <!-- Supabase library -->
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+
+  <!-- SUPABASE CONFIG YA MFUMO WAKO -->
+  <script src="supabase-config.js"></script>
 
   <style>
 
@@ -19,11 +24,8 @@
       --navy:#071a33;
       --blue:#0d6efd;
       --blue-dark:#084298;
-      --green:#198754;
-      --orange:#f59e0b;
-      --red:#dc3545;
       --light:#f4f7fb;
-      --white:#ffffff;
+      --white:#fff;
       --text:#172033;
       --muted:#6b7280;
       --border:#e1e7ef;
@@ -146,10 +148,6 @@
       outline:none;
     }
 
-    .search:focus{
-      border-color:var(--blue);
-    }
-
     button{
       border:0;
       border-radius:10px;
@@ -160,7 +158,7 @@
 
     .btn{
       background:var(--blue);
-      color:#fff;
+      color:white;
     }
 
     .btn:hover{
@@ -184,11 +182,6 @@
       color:#9b1c2b;
     }
 
-    .message.success{
-      background:#e5f7ec;
-      color:#146c35;
-    }
-
     .loading{
       background:white;
       padding:40px;
@@ -197,8 +190,6 @@
       color:var(--muted);
       box-shadow:var(--shadow);
     }
-
-    /* DIVISION */
 
     .division{
       background:#fff;
@@ -215,7 +206,6 @@
       display:flex;
       justify-content:space-between;
       align-items:center;
-      gap:10px;
     }
 
     .division-head h3{
@@ -305,7 +295,7 @@
       color:var(--muted);
     }
 
-    /* TEAM PAGE */
+    /* TEAM PROFILE */
 
     #teamPage{
       display:none;
@@ -320,7 +310,6 @@
       border-radius:var(--radius);
       box-shadow:var(--shadow);
       overflow:hidden;
-      margin-bottom:20px;
     }
 
     .team-cover{
@@ -348,7 +337,6 @@
 
     .team-cover p{
       margin:4px 0;
-      opacity:.9;
     }
 
     .team-content{
@@ -381,8 +369,8 @@
 
     .players-heading{
       display:flex;
-      align-items:center;
       justify-content:space-between;
+      align-items:center;
       margin-bottom:12px;
     }
 
@@ -393,7 +381,7 @@
 
     .players-count{
       background:#eaf2ff;
-      color:var(--blue-dark);
+      color:#084298;
       padding:7px 12px;
       border-radius:20px;
       font-size:13px;
@@ -426,19 +414,6 @@
       font-size:14px;
     }
 
-    tr:hover td{
-      background:#fafcff;
-    }
-
-    .player-photo{
-      width:40px;
-      height:40px;
-      object-fit:cover;
-      border-radius:50%;
-      background:#eee;
-      border:1px solid var(--border);
-    }
-
     .position{
       background:#eaf2ff;
       color:#084298;
@@ -463,11 +438,6 @@
 
       .brand p{
         font-size:10px;
-      }
-
-      .logo{
-        width:42px;
-        height:42px;
       }
 
       .toolbar{
@@ -540,10 +510,7 @@
       ⚽ Vilabu
     </a>
 
-    <a
-      href="divisions.html"
-      class="active"
-    >
+    <a href="divisions.html" class="active">
       🏆 Madaraja
     </a>
 
@@ -579,9 +546,9 @@
 <main>
 
 
-  <!-- =========================
-       DIVISIONS
-  ========================== -->
+  <!-- ==============================
+       MADARAJA
+  =============================== -->
 
   <section id="divisionsPage">
 
@@ -635,9 +602,9 @@
   </section>
 
 
-  <!-- =========================
-       TEAM PAGE
-  ========================== -->
+  <!-- ==============================
+       TEAM PROFILE
+  =============================== -->
 
   <section id="teamPage">
 
@@ -647,7 +614,6 @@
     >
       ← Rudi kwenye Madaraja
     </button>
-
 
     <div id="teamContainer"></div>
 
@@ -667,27 +633,73 @@
 <script>
 
 /* ==========================================================
-   SUPABASE
+   SUPABASE CLIENT
    ==========================================================
 
-   Kama una supabase-config.js yenye credentials zako,
-   unaweza kuweka values hizo hapa.
+   Tunatumia client iliyotengenezwa na supabase-config.js.
 
-   USITENGENEZE DATABASE MPYA.
+   HATUTENGENEZI client mpya hapa.
    ========================================================== */
 
-const SUPABASE_URL =
-  "WEKA_SUPABASE_URL_YAKO_HAPA";
+function getSupabaseClient(){
 
-const SUPABASE_ANON_KEY =
-  "WEKA_SUPABASE_ANON_KEY_YAKO_HAPA";
+  /*
+    Hii inasaidia kama supabase-config.js yako
+    inatumia jina tofauti la global variable.
+  */
+
+  if(
+    window.afrnSupabase &&
+    typeof window.afrnSupabase
+      .from === "function"
+  ){
+
+    return window.afrnSupabase;
+
+  }
 
 
-const supabaseClient =
-  window.supabase.createClient(
-    SUPABASE_URL,
-    SUPABASE_ANON_KEY
+  if(
+    window.supabaseClient &&
+    typeof window.supabaseClient
+      .from === "function"
+  ){
+
+    return window.supabaseClient;
+
+  }
+
+
+  if(
+    window.sb &&
+    typeof window.sb.from === "function"
+  ){
+
+    return window.sb;
+
+  }
+
+
+  /*
+    Kama config yako inatumia window.supabase
+    yenye .from(), tumia hiyo.
+  */
+
+  if(
+    window.supabase &&
+    typeof window.supabase.from === "function"
+  ){
+
+    return window.supabase;
+
+  }
+
+
+  throw new Error(
+    "Supabase client haijapatikana. Hakikisha supabase-config.js imeunganishwa vizuri."
   );
+
+}
 
 
 /* ==========================================================
@@ -698,12 +710,18 @@ let clubs = [];
 
 
 /* ==========================================================
-   SAFE VALUE
+   VALUE HELPER
    ========================================================== */
 
-function valueOf(object, fields, fallback=""){
+function valueOf(
+  object,
+  fields,
+  fallback=""
+){
 
-  for(const field of fields){
+  for(
+    const field of fields
+  ){
 
     if(
       object &&
@@ -823,7 +841,7 @@ function normalize(value){
 
 
 /* ==========================================================
-   DIVISION NUMBER
+   GET DIVISION
    ========================================================== */
 
 function getDivision(value){
@@ -930,28 +948,35 @@ function escapeJS(value){
    MESSAGE
    ========================================================== */
 
-function showMessage(text,type="success"){
+function showMessage(
+  text,
+  type="success"
+){
 
-  const message =
-    document.getElementById("message");
+  const el =
+    document.getElementById(
+      "message"
+    );
 
-  message.className =
+  el.className =
     "message show " + type;
 
-  message.innerHTML = text;
+  el.innerHTML = text;
 
 }
 
 
 function hideMessage(){
 
-  const message =
-    document.getElementById("message");
+  const el =
+    document.getElementById(
+      "message"
+    );
 
-  message.className =
+  el.className =
     "message";
 
-  message.innerHTML = "";
+  el.innerHTML = "";
 
 }
 
@@ -963,47 +988,59 @@ function hideMessage(){
 async function loadClubs(){
 
   const container =
-    document.getElementById("divisions");
+    document.getElementById(
+      "divisions"
+    );
+
 
   container.innerHTML = `
+
     <div class="loading">
+
       ⏳ Inapakia vilabu kutoka Supabase...
+
     </div>
+
   `;
+
 
   hideMessage();
 
 
   try{
 
+    const supabase =
+      getSupabaseClient();
+
+
     /*
-      HATUTUMII:
+      MUHIMU:
 
-      order("created")
+      Hapa hatutumii created,
+      created_at au column nyingine
+      ambayo inaweza kukosekana.
 
-      HATUTUMII:
-
-      order("created_at")
-
-      Kwa sababu hatujui kama column hiyo ipo.
-
-      Tunachukua clubs tu.
+      Tunachukua data yote ya clubs.
     */
 
-    const result =
-      await supabaseClient
+    const {
+      data,
+      error
+    } =
+      await supabase
         .from("clubs")
         .select("*");
 
 
-    if(result.error){
+    if(error){
 
-      throw result.error;
+      throw error;
 
     }
 
 
-    clubs = result.data || [];
+    clubs =
+      data || [];
 
 
     renderDivisions();
@@ -1036,7 +1073,11 @@ async function loadClubs(){
 
 
     showMessage(
-      "❌ Mfumo umeshindwa kusoma taarifa za clubs.",
+      "❌ " +
+      escapeHTML(
+        error.message ||
+        "Mfumo umeshindwa kusoma clubs."
+      ),
       "error"
     );
 
@@ -1052,27 +1093,36 @@ async function loadClubs(){
 function renderDivisions(){
 
   const container =
-    document.getElementById("divisions");
+    document.getElementById(
+      "divisions"
+    );
 
 
   const search =
     normalize(
-      document.getElementById("search").value
+      document.getElementById(
+        "search"
+      ).value
     );
 
 
   const filtered =
-    clubs.filter(club => {
+    clubs.filter(
+      club => {
 
-      if(!search){
-        return true;
+        if(!search){
+
+          return true;
+
+        }
+
+
+        return normalize(
+          clubName(club)
+        ).includes(search);
+
       }
-
-      return normalize(
-        clubName(club)
-      ).includes(search);
-
-    });
+    );
 
 
   const settings = {
@@ -1103,7 +1153,12 @@ function renderDivisions(){
   let html = "";
 
 
-  ["I","II","III","IV"].forEach(
+  [
+    "I",
+    "II",
+    "III",
+    "IV"
+  ].forEach(
     division => {
 
 
@@ -1140,6 +1195,7 @@ function renderDivisions(){
 
           ${
             teams.length
+
             ?
 
             `
@@ -1164,7 +1220,9 @@ function renderDivisions(){
 
             `
               <div class="empty">
+
                 Hakuna timu kwenye daraja hili.
+
               </div>
             `
           }
@@ -1177,14 +1235,19 @@ function renderDivisions(){
   );
 
 
-  /* ================================================
-     CLUBS WITHOUT DIVISION
-  ================================================ */
+  /* ========================================================
+     CLUBS ZISIZO NA DARAJA
+     ======================================================== */
 
   const noDivision =
     filtered.filter(
       club =>
-        !["I","II","III","IV"].includes(
+        ![
+          "I",
+          "II",
+          "III",
+          "IV"
+        ].includes(
           getDivision(
             clubDivision(club)
           )
@@ -1198,7 +1261,12 @@ function renderDivisions(){
 
       <div class="division">
 
-        <div class="division-head division-4">
+        <div
+          class="
+            division-head
+            division-4
+          "
+        >
 
           <h3>
             ⚠️ DARAJA HALIJAWEKWA
@@ -1209,6 +1277,7 @@ function renderDivisions(){
           </span>
 
         </div>
+
 
         <div class="clubs-grid">
 
@@ -1233,7 +1302,8 @@ function renderDivisions(){
   }
 
 
-  container.innerHTML = html;
+  container.innerHTML =
+    html;
 
 }
 
@@ -1242,7 +1312,10 @@ function renderDivisions(){
    CLUB CARD
    ========================================================== */
 
-function renderClub(club,number){
+function renderClub(
+  club,
+  number
+){
 
   const id =
     escapeJS(club.id);
@@ -1270,6 +1343,7 @@ function renderClub(club,number){
 
       ${
         logo
+
         ?
 
         `
@@ -1277,7 +1351,9 @@ function renderClub(club,number){
             class="club-logo"
             src="${escapeAttribute(logo)}"
             alt="${escapeAttribute(name)}"
-            onerror="this.style.display='none'"
+            onerror="
+              this.style.display='none'
+            "
           >
         `
 
@@ -1302,11 +1378,13 @@ function renderClub(club,number){
       <div class="club-info">
 
         <h4>
-          ${number}. ${escapeHTML(name)}
+          ${number}.
+          ${escapeHTML(name)}
         </h4>
 
         <p>
-          📍 ${escapeHTML(zone)}
+          📍
+          ${escapeHTML(zone)}
         </p>
 
         <p>
@@ -1327,7 +1405,9 @@ function renderClub(club,number){
    OPEN CLUB
    ========================================================== */
 
-async function openClub(clubId){
+async function openClub(
+  clubId
+){
 
   const club =
     clubs.find(
@@ -1350,12 +1430,16 @@ async function openClub(clubId){
 
 
   document
-    .getElementById("divisionsPage")
+    .getElementById(
+      "divisionsPage"
+    )
     .style.display = "none";
 
 
   document
-    .getElementById("teamPage")
+    .getElementById(
+      "teamPage"
+    )
     .style.display = "block";
 
 
@@ -1369,7 +1453,7 @@ async function openClub(clubId){
 
     <div class="loading">
 
-      ⏳ Inapakia wachezaji wa
+      ⏳ Inatafuta wachezaji wa
 
       <strong>
         ${escapeHTML(
@@ -1392,39 +1476,46 @@ async function openClub(clubId){
 
   try{
 
+    const supabase =
+      getSupabaseClient();
+
+
     /*
-      =======================================================
-      MUHIMU
+      ========================================================
+      UHUSIANO WA KWELI
 
       clubs.id
           ↓
       players.club_id
 
-      Hapa tunatumia ID halisi ya club.
-      =======================================================
+      Kwa hiyo hakuna kutafuta wachezaji
+      kwa jina la klabu.
+      ========================================================
     */
 
-    const result =
-      await supabaseClient
+    const {
+      data:players,
+      error
+    } =
+      await supabase
         .from("players")
         .select("*")
-        .eq("club_id",club.id);
+        .eq(
+          "club_id",
+          club.id
+        );
 
 
-    if(result.error){
+    if(error){
 
-      throw result.error;
+      throw error;
 
     }
 
 
-    const players =
-      result.data || [];
-
-
     renderClubProfile(
       club,
-      players
+      players || []
     );
 
 
@@ -1488,7 +1579,7 @@ function renderClubProfile(
     "Haijawekwa";
 
 
-  let logoHTML = "";
+  let logoHTML;
 
 
   if(logo){
@@ -1499,7 +1590,9 @@ function renderClubProfile(
         class="team-cover-logo"
         src="${escapeAttribute(logo)}"
         alt="${escapeAttribute(name)}"
-        onerror="this.style.display='none'"
+        onerror="
+          this.style.display='none'
+        "
       >
 
     `;
@@ -1631,9 +1724,13 @@ function renderClubProfile(
 
         ${
           players.length
+
           ?
+
           renderPlayers(players)
+
           :
+
           `
             <div class="empty">
 
@@ -1655,10 +1752,12 @@ function renderClubProfile(
 
 
 /* ==========================================================
-   PLAYERS
+   PLAYERS TABLE
    ========================================================== */
 
-function renderPlayers(players){
+function renderPlayers(
+  players
+){
 
   let rows = "";
 
@@ -1673,8 +1772,7 @@ function renderPlayers(players){
           [
             "first_name",
             "firstName"
-          ],
-          ""
+          ]
         );
 
 
@@ -1684,8 +1782,7 @@ function renderPlayers(players){
           [
             "middle_name",
             "middleName"
-          ],
-          ""
+          ]
         );
 
 
@@ -1695,8 +1792,7 @@ function renderPlayers(players){
           [
             "last_name",
             "lastName"
-          ],
-          ""
+          ]
         );
 
 
@@ -1707,9 +1803,13 @@ function renderPlayers(players){
             "full_name",
             "fullName"
           ],
-          [first,middle,last]
-            .filter(Boolean)
-            .join(" ")
+          [
+            first,
+            middle,
+            last
+          ]
+          .filter(Boolean)
+          .join(" ")
         );
 
 
@@ -1745,8 +1845,7 @@ function renderPlayers(players){
             "photo",
             "image_url",
             "imageUrl"
-          ],
-          ""
+          ]
         );
 
 
@@ -1758,10 +1857,12 @@ function renderPlayers(players){
             ${index + 1}
           </td>
 
+
           <td>
 
             ${
               photo
+
               ?
 
               `
@@ -1769,7 +1870,9 @@ function renderPlayers(players){
                   class="player-photo"
                   src="${escapeAttribute(photo)}"
                   alt="Player"
-                  onerror="this.style.display='none'"
+                  onerror="
+                    this.style.display='none'
+                  "
                 >
               `
 
@@ -1804,13 +1907,10 @@ function renderPlayers(players){
           <td>
 
             <span class="position">
-
               ${escapeHTML(position)}
-
             </span>
 
           </td>
-
 
         </tr>
 
@@ -1877,12 +1977,16 @@ function renderPlayers(players){
 function backToDivisions(){
 
   document
-    .getElementById("teamPage")
+    .getElementById(
+      "teamPage"
+    )
     .style.display = "none";
 
 
   document
-    .getElementById("divisionsPage")
+    .getElementById(
+      "divisionsPage"
+    )
     .style.display = "block";
 
 
@@ -1929,3 +2033,4 @@ document.addEventListener(
 </body>
 
 </html>
+```
