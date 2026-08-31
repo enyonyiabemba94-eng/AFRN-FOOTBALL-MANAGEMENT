@@ -1,4 +1,5 @@
 <!DOCTYPE html>
+
 <html lang="sw">
 
 <head>
@@ -8,6 +9,7 @@
 <title>AFRN Football Management - Match Center</title>
 
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+
 <script src="./supabase-config.js"></script>
 
 <style>
@@ -473,8 +475,8 @@ footer{
 }
 
 </style>
-</head>
 
+</head>
 
 <body>
 
@@ -486,6 +488,7 @@ footer{
 class="logo"
 src="https://raw.githubusercontent.com/enyonyiabemba94-eng/AFRN-FOOTBALL-MANAGEMENT/main/IMG-20260319-WA0093.jpg"
 alt="AFRN Logo"
+
 >
 
 <div>
@@ -502,82 +505,45 @@ SHIRIKISHO LA MPIRA WA MIGUU KAMBINI NYARUGUSU
 
 </header>
 
-
 <nav>
 
 <div class="nav-inner">
 
-<a href="index.html">🏠 Dashboard</a>
-
-<a href="clubs.html">⚽ Vilabu</a>
-
-<a href="divisions.html">🏆 Madaraja</a>
-
-<a href="players.html">👤 Wachezaji</a>
-
-<a href="contracts.html">📄 Mikataba</a>
-
-<a href="transfers.html">🔄 Uhamisho</a>
-
-<a href="competitions.html">🏆 Mashindano</a>
-
-<a class="active" href="matches.html">🏟️ Mechi</a>
-
-<a href="reports.html">📊 Ripoti</a>
+<a href="index.html">🏠 Dashboard</a> <a href="clubs.html">⚽ Vilabu</a> <a href="divisions.html">🏆 Madaraja</a> <a href="players.html">👤 Wachezaji</a> <a href="contracts.html">📄 Mikataba</a> <a href="transfers.html">🔄 Uhamisho</a> <a href="competitions.html">🏆 Mashindano</a> <a class="active" href="matches.html">🏟️ Mechi</a> <a href="reports.html">📊 Ripoti</a>
 
 </div>
 
 </nav>
 
-
 <main>
-
 
 <div id="systemStatus" class="status info">
 ⏳ Inaunganisha na Supabase...
 </div>
 
-
 <div class="stats">
 
 <div class="stat">
-
 <strong id="totalMatches">0</strong>
-
 <span>📅 Mechi</span>
-
 </div>
 
-
 <div class="stat">
-
 <strong id="scheduledMatches">0</strong>
-
 <span>🕐 Scheduled</span>
-
 </div>
 
-
 <div class="stat">
-
 <strong id="liveMatches">0</strong>
-
 <span>🔴 Live</span>
-
 </div>
-
 
 <div class="stat">
-
 <strong id="finishedMatches">0</strong>
-
 <span>✅ Finished</span>
-
 </div>
 
 </div>
-
-
 
 <!-- CREATE / EDIT MATCH -->
 
@@ -587,20 +553,13 @@ SHIRIKISHO LA MPIRA WA MIGUU KAMBINI NYARUGUSU
 ➕ Tengeneza Mechi
 </h2>
 
-<input
-type="hidden"
-id="editMatchId"
->
-
+<input type="hidden" id="editMatchId">
 
 <div class="grid">
 
-
 <div class="form-group">
 
-<label>
-🏆 Competition *
-</label>
+<label>🏆 Competition *</label>
 
 <select id="competitionId">
 
@@ -612,55 +571,46 @@ Chagua Competition
 
 </div>
 
-
 <div class="form-group">
 
-<label>
-📅 Tarehe *
-</label>
+<label>📅 Tarehe *</label>
 
 <input
 type="date"
 id="matchDate"
+
 >
 
 </div>
 
-
 <div class="form-group">
 
-<label>
-⏰ Muda *
-</label>
+<label>⏰ Muda *</label>
 
 <input
 type="time"
 id="matchTime"
+
 >
 
 </div>
 
-
 <div class="form-group">
 
-<label>
-🏟️ Uwanja
-</label>
+<label>🏟️ Uwanja</label>
 
 <input
 type="text"
 id="venue"
 placeholder="Mfano: Nyarugusu Stadium"
+
 >
 
 </div>
 
-
 <div class="form-group">
 
-<label>
-🏠 Klabu ya Nyumbani *
-</label>
+<label>🏠 Klabu ya Nyumbani *</label>
 
 <select id="homeClubId">
 
@@ -672,12 +622,9 @@ Chagua Team
 
 </div>
 
-
 <div class="form-group">
 
-<label>
-✈️ Klabu ya Ugenini *
-</label>
+<label>✈️ Klabu ya Ugenini *</label>
 
 <select id="awayClubId">
 
@@ -691,85 +638,71 @@ Chagua Team
 
 </div>
 
-
-
 <!-- REFEREES -->
 
 <div class="referee-box">
 
-<h3>
-👨‍⚖️ Waamuzi na Kamisaa
-</h3>
+<h3>👨‍⚖️ Waamuzi na Kamisaa</h3>
 
 <div class="grid-3">
 
-
 <div class="form-group">
 
-<label>
-👨‍⚖️ Mwamuzi Mkuu
-</label>
+<label>👨‍⚖️ Mwamuzi Mkuu</label>
 
 <input
 id="refereeMain"
 type="text"
 placeholder="Jina la mwamuzi"
+
 >
 
 </div>
 
-
 <div class="form-group">
 
-<label>
-🏳️ Mwamuzi Msaidizi 1
-</label>
+<label>🏳️ Mwamuzi Msaidizi 1</label>
 
 <input
 id="refereeAssistant1"
 type="text"
+
 >
 
 </div>
 
-
 <div class="form-group">
 
-<label>
-🏳️ Mwamuzi Msaidizi 2
-</label>
+<label>🏳️ Mwamuzi Msaidizi 2</label>
 
 <input
 id="refereeAssistant2"
 type="text"
+
 >
 
 </div>
 
-
 <div class="form-group">
 
-<label>
-🏳️ Mwamuzi wa 4
-</label>
+<label>🏳️ Mwamuzi wa 4</label>
 
 <input
 id="refereeFourth"
 type="text"
+
 >
 
 </div>
 
-
 <div class="form-group">
 
-<label>
-🧑‍⚖️ Kamisaa
-</label>
+<label>🧑‍⚖️ Kamisaa</label>
 
 <input
 id="commissioner"
 type="text"
+
 >
 
 </div>
@@ -777,81 +710,56 @@ type="text"
 </div>
 
 </div>
-
-
 
 <!-- STATUS SCORE -->
 
 <div class="grid">
 
-
 <div class="form-group">
 
-<label>
-📋 Match Status
-</label>
+<label>📋 Match Status</label>
 
 <select id="matchStatus">
 
-<option value="Scheduled">
-Scheduled
-</option>
-
-<option value="Live">
-Live
-</option>
-
-<option value="Finished">
-Finished
-</option>
-
-<option value="Postponed">
-Postponed
-</option>
-
-<option value="Cancelled">
-Cancelled
-</option>
+<option value="Scheduled">Scheduled</option>
+<option value="Live">Live</option>
+<option value="Finished">Finished</option>
+<option value="Postponed">Postponed</option>
+<option value="Cancelled">Cancelled</option>
 
 </select>
 
 </div>
 
-
 <div class="form-group">
 
-<label>
-🏠 Home Score
-</label>
+<label>🏠 Home Score</label>
 
 <input
 type="number"
 id="homeScore"
 value="0"
 min="0"
+
 >
 
 </div>
 
-
 <div class="form-group">
 
-<label>
-✈️ Away Score
-</label>
+<label>✈️ Away Score</label>
 
 <input
 type="number"
 id="awayScore"
 value="0"
 min="0"
+
 >
 
 </div>
 
 </div>
-
-
 
 <!-- STAFF -->
 
@@ -860,211 +768,89 @@ class="card"
 style="box-shadow:none;border:1px solid var(--border)"
 >
 
-<h3>
-👥 Taarifa za Timu
-</h3>
-
+<h3>👥 Taarifa za Timu</h3>
 
 <div class="grid">
 
+<div class="team-box">
+
+<h3>🏠 Home Team</h3>
+
+<div class="form-group">
+<label>👨‍🏫 Kocha 1</label>
+<input id="homeCoach1" type="text">
+</div>
+
+<div class="form-group">
+<label>👨‍🏫 Kocha 2</label>
+<input id="homeCoach2" type="text">
+</div>
+
+<div class="form-group">
+<label>🩺 Docta 1</label>
+<input id="homeDoctor1" type="text">
+</div>
+
+<div class="form-group">
+<label>🩺 Docta 2</label>
+<input id="homeDoctor2" type="text">
+</div>
+
+<div class="form-group">
+<label>👥 Mjumbe 1</label>
+<input id="homeMember1" type="text">
+</div>
+
+<div class="form-group">
+<label>👥 Mjumbe 2</label>
+<input id="homeMember2" type="text">
+</div>
+
+</div>
 
 <div class="team-box">
 
-<h3>
-🏠 Home Team
-</h3>
+<h3>✈️ Away Team</h3>
 
+<div class="form-group">
+<label>👨‍🏫 Kocha 1</label>
+<input id="awayCoach1" type="text">
+</div>
+
+<div class="form-group">
+<label>👨‍🏫 Kocha 2</label>
+<input id="awayCoach2" type="text">
+</div>
+
+<div class="form-group">
+<label>🩺 Docta 1</label>
+<input id="awayDoctor1" type="text">
+</div>
+
+<div class="form-group">
+<label>🩺 Docta 2</label>
+<input id="awayDoctor2" type="text">
+</div>
+
+<div class="form-group">
+<label>👥 Mjumbe 1</label>
+<input id="awayMember1" type="text">
+</div>
+
+<div class="form-group">
+<label>👥 Mjumbe 2</label>
+<input id="awayMember2" type="text">
+</div>
+
+</div>
+
+</div>
+
+</div>
 
 <div class="form-group">
 
-<label>
-👨‍🏫 Kocha 1
-</label>
-
-<input
-id="homeCoach1"
-type="text"
->
-
-</div>
-
-
-<div class="form-group">
-
-<label>
-👨‍🏫 Kocha 2
-</label>
-
-<input
-id="homeCoach2"
-type="text"
->
-
-</div>
-
-
-<div class="form-group">
-
-<label>
-🩺 Docta 1
-</label>
-
-<input
-id="homeDoctor1"
-type="text"
->
-
-</div>
-
-
-<div class="form-group">
-
-<label>
-🩺 Docta 2
-</label>
-
-<input
-id="homeDoctor2"
-type="text"
->
-
-</div>
-
-
-<div class="form-group">
-
-<label>
-👥 Mjumbe 1
-</label>
-
-<input
-id="homeMember1"
-type="text"
->
-
-</div>
-
-
-<div class="form-group">
-
-<label>
-👥 Mjumbe 2
-</label>
-
-<input
-id="homeMember2"
-type="text"
->
-
-</div>
-
-</div>
-
-
-
-<div class="team-box">
-
-<h3>
-✈️ Away Team
-</h3>
-
-
-<div class="form-group">
-
-<label>
-👨‍🏫 Kocha 1
-</label>
-
-<input
-id="awayCoach1"
-type="text"
->
-
-</div>
-
-
-<div class="form-group">
-
-<label>
-👨‍🏫 Kocha 2
-</label>
-
-<input
-id="awayCoach2"
-type="text"
->
-
-</div>
-
-
-<div class="form-group">
-
-<label>
-🩺 Docta 1
-</label>
-
-<input
-id="awayDoctor1"
-type="text"
->
-
-</div>
-
-
-<div class="form-group">
-
-<label>
-🩺 Docta 2
-</label>
-
-<input
-id="awayDoctor2"
-type="text"
->
-
-</div>
-
-
-<div class="form-group">
-
-<label>
-👥 Mjumbe 1
-</label>
-
-<input
-id="awayMember1"
-type="text"
->
-
-</div>
-
-
-<div class="form-group">
-
-<label>
-👥 Mjumbe 2
-</label>
-
-<input
-id="awayMember2"
-type="text"
->
-
-</div>
-
-</div>
-
-</div>
-
-</div>
-
-
-
-<div class="form-group">
-
-<label>
-📝 Maelezo
-</label>
+<label>📝 Maelezo</label>
 
 <textarea
 id="matchNotes"
@@ -1073,79 +859,56 @@ placeholder="Maelezo ya mechi..."
 
 </div>
 
-
 <div class="buttons">
 
 <button
 class="btn-success"
 onclick="saveMatch()"
+
 >
-💾 Hifadhi Mechi
-</button>
+
+💾 Hifadhi Mechi </button>
 
 <button
 class="btn-light"
 onclick="resetMatchForm()"
+
 >
-Futa
-</button>
+
+Futa </button>
 
 </div>
 
 </section>
 
-
-
 <!-- LINEUP -->
 
 <section class="card">
 
-<h2>
-👥 LINE-UP & SUBSTITUTES
-</h2>
+<h2>👥 LINE-UP & SUBSTITUTES</h2>
 
 <p class="small">
 
-Wachezaji wanaonekana automatic kutoka
-
-<strong>
-players.club_id
-</strong>.
-
+Wachezaji wanaonekana automatic kutoka <strong>players.club_id</strong>.
 Chagua Starting XI na substitutes wa kila timu.
 
 </p>
 
-
 <div class="lineup-columns">
-
-
-<!-- HOME -->
 
 <div class="lineup-box">
 
 <div class="lineup-header">
-
-<strong>
-🏠 HOME TEAM
-</strong>
-
+<strong>🏠 HOME TEAM</strong>
 </div>
-
 
 <div class="lineup-body">
 
-
 <div class="counter">
 
-Starting XI:
-
-<span id="homeStartingCount">
-0
-</span>/11
+Starting XI: <span id="homeStartingCount">0</span>/11
 
 </div>
-
 
 <div
 id="homeStartingPlayers"
@@ -1153,27 +916,18 @@ class="player-selector"
 >
 
 <div class="empty">
-
 Chagua Home Team kwanza.
-
 </div>
 
 </div>
-
 
 <hr>
 
-
 <div class="counter">
 
-🔄 Substitutes:
-
-<span id="homeSubstituteCount">
-0
-</span>
+🔄 Substitutes: <span id="homeSubstituteCount">0</span>
 
 </div>
-
 
 <div
 id="homeSubstitutePlayers"
@@ -1181,9 +935,7 @@ class="player-selector"
 >
 
 <div class="empty">
-
 Chagua Home Team kwanza.
-
 </div>
 
 </div>
@@ -1191,35 +943,20 @@ Chagua Home Team kwanza.
 </div>
 
 </div>
-
-
-
-<!-- AWAY -->
 
 <div class="lineup-box">
 
 <div class="lineup-header">
-
-<strong>
-✈️ AWAY TEAM
-</strong>
-
+<strong>✈️ AWAY TEAM</strong>
 </div>
-
 
 <div class="lineup-body">
 
-
 <div class="counter">
 
-Starting XI:
-
-<span id="awayStartingCount">
-0
-</span>/11
+Starting XI: <span id="awayStartingCount">0</span>/11
 
 </div>
-
 
 <div
 id="awayStartingPlayers"
@@ -1227,27 +964,18 @@ class="player-selector"
 >
 
 <div class="empty">
-
 Chagua Away Team kwanza.
-
 </div>
 
 </div>
-
 
 <hr>
 
-
 <div class="counter">
 
-🔄 Substitutes:
-
-<span id="awaySubstituteCount">
-0
-</span>
+🔄 Substitutes: <span id="awaySubstituteCount">0</span>
 
 </div>
-
 
 <div
 id="awaySubstitutePlayers"
@@ -1255,9 +983,7 @@ class="player-selector"
 >
 
 <div class="empty">
-
 Chagua Away Team kwanza.
-
 </div>
 
 </div>
@@ -1267,47 +993,40 @@ Chagua Away Team kwanza.
 </div>
 
 </div>
-
 
 <div class="buttons">
 
 <button
 class="btn-success"
 onclick="saveLineups()"
+
 >
-💾 Hifadhi Line-up & Substitutes
-</button>
+
+💾 Hifadhi Line-up & Substitutes </button>
 
 <button
 class="btn-light"
 onclick="clearLineupSelections()"
+
 >
-Futa Uchaguzi
-</button>
+
+Futa Uchaguzi </button>
 
 </div>
 
 </section>
 
-
-
 <!-- MATCH LIST -->
 
 <section class="card">
 
-<h2>
-📅 Mechi Zote
-</h2>
-
+<h2>📅 Mechi Zote</h2>
 
 <div class="grid">
 
-
 <div>
 
-<label>
-Competition
-</label>
+<label>Competition</label>
 
 <select id="filterCompetition">
 
@@ -1319,12 +1038,9 @@ Mashindano yote
 
 </div>
 
-
 <div>
 
-<label>
-Status
-</label>
+<label>Status</label>
 
 <select id="filterStatus">
 
@@ -1332,25 +1048,11 @@ Status
 Status zote
 </option>
 
-<option value="Scheduled">
-Scheduled
-</option>
-
-<option value="Live">
-Live
-</option>
-
-<option value="Finished">
-Finished
-</option>
-
-<option value="Postponed">
-Postponed
-</option>
-
-<option value="Cancelled">
-Cancelled
-</option>
+<option value="Scheduled">Scheduled</option>
+<option value="Live">Live</option>
+<option value="Finished">Finished</option>
+<option value="Postponed">Postponed</option>
+<option value="Cancelled">Cancelled</option>
 
 </select>
 
@@ -1358,18 +1060,17 @@ Cancelled
 
 </div>
 
-
 <div class="buttons">
 
 <button
 class="btn-primary"
 onclick="loadMatches()"
+
 >
-🔄 Refresh
-</button>
+
+🔄 Refresh </button>
 
 </div>
-
 
 <div class="table-wrap">
 
@@ -1380,39 +1081,25 @@ onclick="loadMatches()"
 <tr>
 
 <th>#</th>
-
 <th>Competition</th>
-
 <th>Tarehe</th>
-
 <th>Muda</th>
-
 <th>Nyumbani</th>
-
 <th>Ugenini</th>
-
 <th>Score</th>
-
 <th>Status</th>
-
 <th>Action</th>
 
 </tr>
 
 </thead>
 
-
 <tbody id="matchesTable">
 
 <tr>
 
-<td
-colspan="9"
-class="empty"
->
-
+<td colspan="9" class="empty">
 Inapakia mechi...
-
 </td>
 
 </tr>
@@ -1427,14 +1114,9 @@ Inapakia mechi...
 
 </main>
 
-
 <footer>
-
 AFRN FOOTBALL MANAGEMENT © 2026
-
 </footer>
-
-
 
 <script>
 
@@ -1461,9 +1143,7 @@ SUPABASE
 
 function getSupabaseClient(){
 
-  if(
-    window.supabaseClient
-  ){
+  if(window.supabaseClient){
 
     return window.supabaseClient;
 
@@ -1501,19 +1181,16 @@ async function init(){
 
     }
 
-
     setStatus(
       "✅ Mfumo umeunganishwa na Supabase.",
       "success"
     );
-
 
     await loadCompetitions();
 
     await loadClubs();
 
     await loadMatches();
-
 
   }catch(error){
 
@@ -1548,7 +1225,46 @@ function setStatus(message,type="info"){
 
 
 /* =========================================================
-COMPETITIONS
+COMPETITION HELPERS
+========================================================= */
+
+function getCompetitionId(competition){
+
+  if(!competition) return null;
+
+  return (
+    competition.id ??
+    competition.competition_id ??
+    competition.competitionId ??
+    null
+  );
+
+}
+
+
+function getCompetitionName(competition){
+
+  if(!competition){
+
+    return "Unknown";
+
+  }
+
+  return (
+    competition.name ||
+    competition.competition_name ||
+    competition.competitionName ||
+    competition.title ||
+    competition.full_name ||
+    competition.fullName ||
+    "Unknown"
+  );
+
+}
+
+
+/* =========================================================
+LOAD COMPETITIONS
 ========================================================= */
 
 async function loadCompetitions(){
@@ -1559,18 +1275,25 @@ async function loadCompetitions(){
       .select("*")
       .order("name",{ascending:true});
 
-
   if(error){
 
-    console.error(error);
+    console.error(
+      "COMPETITIONS ERROR:",
+      error
+    );
 
     throw error;
 
   }
 
-
   competitions =
     data || [];
+
+
+  console.log(
+    "✅ COMPETITIONS:",
+    competitions
+  );
 
 
   const main =
@@ -1585,34 +1308,44 @@ async function loadCompetitions(){
     );
 
 
-  main.innerHTML =
-    `<option value="">
+  main.innerHTML = `
+    <option value="">
       Chagua Competition
-    </option>`;
+    </option>
+  `;
 
 
-  filter.innerHTML =
-    `<option value="">
+  filter.innerHTML = `
+    <option value="">
       Mashindano yote
-    </option>`;
+    </option>
+  `;
 
 
   competitions.forEach(c=>{
+
+    const id =
+      getCompetitionId(c);
 
     const name =
       getCompetitionName(c);
 
 
-    main.innerHTML +=
-      `<option value="${escapeAttr(c.id)}">
-        ${escapeHtml(name)}
-      </option>`;
+    if(!id) return;
 
 
-    filter.innerHTML +=
-      `<option value="${escapeAttr(c.id)}">
+    main.innerHTML += `
+      <option value="${escapeAttr(id)}">
         ${escapeHtml(name)}
-      </option>`;
+      </option>
+    `;
+
+
+    filter.innerHTML += `
+      <option value="${escapeAttr(id)}">
+        ${escapeHtml(name)}
+      </option>
+    `;
 
   });
 
@@ -1620,80 +1353,24 @@ async function loadCompetitions(){
 
 
 /* =========================================================
-CLUBS
+CLUB HELPERS
 ========================================================= */
 
-async function loadClubs(){
+function getClubId(club){
 
-  const {data,error} =
-    await db
-      .from("clubs")
-      .select("*")
-      .order("name",{ascending:true});
+  if(!club) return null;
 
-
-  if(error){
-
-    console.error(error);
-
-    throw error;
-
-  }
-
-
-  clubs =
-    data || [];
-
-
-  const home =
-    document.getElementById(
-      "homeClubId"
-    );
-
-
-  const away =
-    document.getElementById(
-      "awayClubId"
-    );
-
-
-  home.innerHTML =
-    `<option value="">
-      Chagua Team
-    </option>`;
-
-
-  away.innerHTML =
-    `<option value="">
-      Chagua Team
-    </option>`;
-
-
-  clubs.forEach(club=>{
-
-    const name =
-      getClubName(club);
-
-
-    home.innerHTML +=
-      `<option value="${escapeAttr(club.id)}">
-        ${escapeHtml(name)}
-      </option>`;
-
-
-    away.innerHTML +=
-      `<option value="${escapeAttr(club.id)}">
-        ${escapeHtml(name)}
-      </option>`;
-
-  });
+  return (
+    club.id ??
+    club.club_id ??
+    club.team_id ??
+    club.clubId ??
+    club.teamId ??
+    null
+  );
 
 }
 
-
-/* =========================================================
-CLUB NAME
-========================================================= */
 
 function getClubName(club){
 
@@ -1708,6 +1385,10 @@ function getClubName(club){
     club.club_name ||
     club.clubName ||
     club.full_name ||
+    club.fullName ||
+    club.team_name ||
+    club.teamName ||
+    club.title ||
     "Unknown"
   );
 
@@ -1715,23 +1396,308 @@ function getClubName(club){
 
 
 /* =========================================================
-COMPETITION NAME
+LOAD CLUBS
 ========================================================= */
 
-function getCompetitionName(competition){
+async function loadClubs(){
 
-  if(!competition){
+  const {data,error} =
+    await db
+      .from("clubs")
+      .select("*")
+      .order("name",{ascending:true});
 
-    return "Unknown";
+
+  if(error){
+
+    console.error(
+      "CLUBS ERROR:",
+      error
+    );
+
+    throw error;
 
   }
 
-  return (
-    competition.name ||
-    competition.competition_name ||
-    competition.title ||
-    "Unknown"
+
+  clubs =
+    data || [];
+
+
+  console.log(
+    "✅ CLUBS:",
+    clubs
   );
+
+
+  const home =
+    document.getElementById(
+      "homeClubId"
+    );
+
+
+  const away =
+    document.getElementById(
+      "awayClubId"
+    );
+
+
+  home.innerHTML = `
+    <option value="">
+      Chagua Team
+    </option>
+  `;
+
+
+  away.innerHTML = `
+    <option value="">
+      Chagua Team
+    </option>
+  `;
+
+
+  clubs.forEach(club=>{
+
+    const id =
+      getClubId(club);
+
+    const name =
+      getClubName(club);
+
+
+    if(!id) return;
+
+
+    home.innerHTML += `
+      <option value="${escapeAttr(id)}">
+        ${escapeHtml(name)}
+      </option>
+    `;
+
+
+    away.innerHTML += `
+      <option value="${escapeAttr(id)}">
+        ${escapeHtml(name)}
+      </option>
+    `;
+
+  });
+
+}
+
+
+/* =========================================================
+MATCH ID HELPERS
+========================================================= */
+
+function getMatchCompetitionId(match){
+
+  if(!match) return null;
+
+  return (
+    match.competition_id ??
+    match.competitionId ??
+    match.competition ??
+    null
+  );
+
+}
+
+
+function getHomeClubId(match){
+
+  if(!match) return null;
+
+  return (
+    match.home_club_id ??
+    match.home_team_id ??
+    match.home_id ??
+    match.homeClubId ??
+    match.homeTeamId ??
+    match.home_team ??
+    match.home_club ??
+    null
+  );
+
+}
+
+
+function getAwayClubId(match){
+
+  if(!match) return null;
+
+  return (
+    match.away_club_id ??
+    match.away_team_id ??
+    match.away_id ??
+    match.awayClubId ??
+    match.awayTeamId ??
+    match.away_team ??
+    match.away_club ??
+    null
+  );
+
+}
+
+
+/* =========================================================
+FIND CLUB
+========================================================= */
+
+function findClub(id){
+
+  if(
+    id === null ||
+    id === undefined ||
+    id === ""
+  ){
+
+    return null;
+
+  }
+
+
+  const search =
+    String(id)
+      .trim()
+      .toLowerCase();
+
+
+  return clubs.find(club=>{
+
+    const ids = [
+
+      club.id,
+      club.club_id,
+      club.team_id,
+      club.clubId,
+      club.teamId
+
+    ]
+    .filter(
+      x =>
+        x !== null &&
+        x !== undefined &&
+        x !== ""
+    )
+    .map(
+      x =>
+        String(x)
+          .trim()
+          .toLowerCase()
+    );
+
+
+    if(ids.includes(search)){
+
+      return true;
+
+    }
+
+
+    const names = [
+
+      club.name,
+      club.club_name,
+      club.clubName,
+      club.full_name,
+      club.fullName,
+      club.team_name,
+      club.teamName,
+      club.title
+
+    ]
+    .filter(Boolean)
+    .map(
+      x =>
+        String(x)
+          .trim()
+          .toLowerCase()
+    );
+
+
+    return names.includes(search);
+
+  });
+
+}
+
+
+/* =========================================================
+FIND COMPETITION
+========================================================= */
+
+function findCompetition(id){
+
+  if(
+    id === null ||
+    id === undefined ||
+    id === ""
+  ){
+
+    return null;
+
+  }
+
+
+  const search =
+    String(id)
+      .trim()
+      .toLowerCase();
+
+
+  return competitions.find(competition=>{
+
+    const ids = [
+
+      competition.id,
+      competition.competition_id,
+      competition.competitionId
+
+    ]
+    .filter(
+      x =>
+        x !== null &&
+        x !== undefined &&
+        x !== ""
+    )
+    .map(
+      x =>
+        String(x)
+          .trim()
+          .toLowerCase()
+    );
+
+
+    if(ids.includes(search)){
+
+      return true;
+
+    }
+
+
+    const names = [
+
+      competition.name,
+      competition.competition_name,
+      competition.competitionName,
+      competition.title,
+      competition.full_name,
+      competition.fullName
+
+    ]
+    .filter(Boolean)
+    .map(
+      x =>
+        String(x)
+          .trim()
+          .toLowerCase()
+    );
+
+
+    return names.includes(search);
+
+  });
 
 }
 
@@ -1856,7 +1822,7 @@ function playerPhoto(player){
 
 
 /* =========================================================
-HOME CLUB
+HOME CLUB CHANGE
 ========================================================= */
 
 document
@@ -1885,7 +1851,7 @@ document
 
 
 /* =========================================================
-AWAY CLUB
+AWAY CLUB CHANGE
 ========================================================= */
 
 document
@@ -2050,9 +2016,7 @@ function playerCheckbox(player,side,type){
 
       ${photoHTML}
 
-      <label
-        for="${escapeAttr(checkboxId)}"
-      >
+      <label for="${escapeAttr(checkboxId)}">
 
         <div class="player-name">
           ${escapeHtml(playerName(player))}
@@ -2197,18 +2161,14 @@ async function saveMatch(){
     const competitionId =
       value("competitionId");
 
-
     const matchDate =
       value("matchDate");
-
 
     const matchTime =
       value("matchTime");
 
-
     const homeClubId =
       value("homeClubId");
-
 
     const awayClubId =
       value("awayClubId");
@@ -2368,7 +2328,6 @@ async function saveMatch(){
       currentMatchId =
         result.data.id;
 
-
       document.getElementById(
         "editMatchId"
       ).value =
@@ -2413,51 +2372,93 @@ async function loadMatches(){
   }
 
 
-  let query =
-    db
-      .from("matches")
-      .select("*")
-      .order(
-        "match_date",
-        {ascending:false}
-      );
+  try{
+
+    let query =
+      db
+        .from("matches")
+        .select("*")
+        .order(
+          "match_date",
+          {ascending:false}
+        );
 
 
-  const competition =
-    value("filterCompetition");
+    const competition =
+      value("filterCompetition");
 
 
-  const status =
-    value("filterStatus");
+    const status =
+      value("filterStatus");
 
 
-  if(competition){
+    if(competition){
 
-    query =
-      query.eq(
-        "competition_id",
-        competition
-      );
+      query =
+        query.eq(
+          "competition_id",
+          competition
+        );
 
-  }
-
-
-  if(status){
-
-    query =
-      query.eq(
-        "status",
-        status
-      );
-
-  }
+    }
 
 
-  const {data,error} =
-    await query;
+    if(status){
+
+      query =
+        query.eq(
+          "status",
+          status
+        );
+
+    }
 
 
-  if(error){
+    const {data,error} =
+      await query;
+
+
+    if(error){
+
+      throw error;
+
+    }
+
+
+    matches =
+      data || [];
+
+
+    console.log(
+      "================================"
+    );
+
+    console.log(
+      "MATCHES:",
+      matches
+    );
+
+    console.log(
+      "CLUBS:",
+      clubs
+    );
+
+    console.log(
+      "COMPETITIONS:",
+      competitions
+    );
+
+    console.log(
+      "================================"
+    );
+
+
+    renderMatches();
+
+    updateStats();
+
+
+  }catch(error){
 
     console.error(error);
 
@@ -2467,18 +2468,7 @@ async function loadMatches(){
       "error"
     );
 
-    return;
-
   }
-
-
-  matches =
-    data || [];
-
-
-  renderMatches();
-
-  updateStats();
 
 }
 
@@ -2526,50 +2516,92 @@ function renderMatches(){
 
 
 /* =========================================================
-MATCH ROW
+MATCH ROW - FIXED
 ========================================================= */
 
 function matchRow(match,index){
 
+  /* -----------------------------------------
+     COMPETITION
+  ----------------------------------------- */
+
+  const competitionId =
+    getMatchCompetitionId(match);
+
+
   const competition =
     findCompetition(
-      match.competition_id
-    );
-
-
-  const home =
-    findClub(
-      match.home_club_id
-    );
-
-
-  const away =
-    findClub(
-      match.away_club_id
+      competitionId
     );
 
 
   const competitionName =
-    getCompetitionName(
-      competition
-    );
+    competition
+    ? getCompetitionName(competition)
+    : (
+        match.competition_name ||
+        match.competitionName ||
+        "Unknown Competition"
+      );
+
+
+  /* -----------------------------------------
+     HOME TEAM
+  ----------------------------------------- */
+
+  const homeId =
+    getHomeClubId(match);
+
+
+  const home =
+    findClub(homeId);
 
 
   const homeName =
-    getClubName(
-      home
-    );
+    home
+    ? getClubName(home)
+    : (
+        match.home_club_name ||
+        match.home_team_name ||
+        match.home_name ||
+        "Unknown"
+      );
+
+
+  /* -----------------------------------------
+     AWAY TEAM
+  ----------------------------------------- */
+
+  const awayId =
+    getAwayClubId(match);
+
+
+  const away =
+    findClub(awayId);
 
 
   const awayName =
-    getClubName(
-      away
-    );
+    away
+    ? getClubName(away)
+    : (
+        match.away_club_name ||
+        match.away_team_name ||
+        match.away_name ||
+        "Unknown"
+      );
 
+
+  /* -----------------------------------------
+     SCORE
+  ----------------------------------------- */
 
   const score =
     `${match.home_score ?? 0} - ${match.away_score ?? 0}`;
 
+
+  /* -----------------------------------------
+     STATUS
+  ----------------------------------------- */
 
   let status =
     match.status ||
@@ -2588,9 +2620,7 @@ function matchRow(match,index){
 
 
   const badge =
-    getStatusBadge(
-      status
-    );
+    getStatusBadge(status);
 
 
   return `
@@ -2601,13 +2631,11 @@ function matchRow(match,index){
         ${index + 1}
       </td>
 
-
       <td>
         <strong>
           ${escapeHtml(competitionName)}
         </strong>
       </td>
-
 
       <td>
         ${escapeHtml(
@@ -2615,13 +2643,11 @@ function matchRow(match,index){
         )}
       </td>
 
-
       <td>
         ${escapeHtml(
           match.match_time || "-"
         )}
       </td>
-
 
       <td>
         <strong>
@@ -2629,20 +2655,17 @@ function matchRow(match,index){
         </strong>
       </td>
 
-
       <td>
         <strong>
           ${escapeHtml(awayName)}
         </strong>
       </td>
 
-
       <td>
         <strong>
           ${escapeHtml(score)}
         </strong>
       </td>
-
 
       <td>
 
@@ -2652,11 +2675,9 @@ function matchRow(match,index){
 
       </td>
 
-
       <td>
 
         <div class="action-buttons">
-
 
           <button
             class="btn-primary"
@@ -2665,7 +2686,6 @@ function matchRow(match,index){
             ✏️ Edit
           </button>
 
-
           <button
             class="btn-success"
             onclick="openLineup('${escapeAttr(match.id)}')"
@@ -2673,14 +2693,12 @@ function matchRow(match,index){
             ⚽ Line-up
           </button>
 
-
           <button
             class="btn-danger"
             onclick="deleteMatch('${escapeAttr(match.id)}')"
           >
             🗑
           </button>
-
 
         </div>
 
@@ -2776,7 +2794,7 @@ async function editMatch(id){
 
   setField(
     "competitionId",
-    match.competition_id
+    getMatchCompetitionId(match)
   );
 
 
@@ -2800,13 +2818,13 @@ async function editMatch(id){
 
   setField(
     "homeClubId",
-    match.home_club_id
+    getHomeClubId(match)
   );
 
 
   setField(
     "awayClubId",
-    match.away_club_id
+    getAwayClubId(match)
   );
 
 
@@ -2955,13 +2973,13 @@ async function editMatch(id){
 
   homePlayers =
     await loadPlayersForClub(
-      match.home_club_id
+      getHomeClubId(match)
     );
 
 
   awayPlayers =
     await loadPlayersForClub(
-      match.away_club_id
+      getAwayClubId(match)
     );
 
 
@@ -3483,7 +3501,6 @@ async function deleteMatch(id){
 
   try{
 
-
     await db
       .from("match_events")
       .delete()
@@ -3568,51 +3585,28 @@ function resetMatchForm(){
   const fields = [
 
     "competitionId",
-
     "matchDate",
-
     "matchTime",
-
     "venue",
-
     "homeClubId",
-
     "awayClubId",
-
     "refereeMain",
-
     "refereeAssistant1",
-
     "refereeAssistant2",
-
     "refereeFourth",
-
     "commissioner",
-
     "homeCoach1",
-
     "homeCoach2",
-
     "homeDoctor1",
-
     "homeDoctor2",
-
     "homeMember1",
-
     "homeMember2",
-
     "awayCoach1",
-
     "awayCoach2",
-
     "awayDoctor1",
-
     "awayDoctor2",
-
     "awayMember1",
-
     "awayMember2",
-
     "matchNotes"
 
   ];
@@ -3654,7 +3648,6 @@ function resetMatchForm(){
 
   homePlayers =
     [];
-
 
   awayPlayers =
     [];
@@ -3756,27 +3749,9 @@ function setField(id,val){
 }
 
 
-function findClub(id){
-
-  return clubs.find(
-    club =>
-      String(club.id) ===
-      String(id)
-  );
-
-}
-
-
-function findCompetition(id){
-
-  return competitions.find(
-    competition =>
-      String(competition.id) ===
-      String(id)
-  );
-
-}
-
+/* =========================================================
+ESCAPE
+========================================================= */
 
 function escapeHtml(value){
 
