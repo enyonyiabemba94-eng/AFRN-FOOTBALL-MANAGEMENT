@@ -1,636 +1,970 @@
 <!DOCTYPE html>
 <html lang="sw">
-
 <head>
 
-  <meta charset="UTF-8">
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
 
-  <meta
-    name="viewport"
-    content="width=device-width, initial-scale=1.0">
+<title>AFRN Football Management</title>
 
-  <title>
-    AFRN Football Management
-  </title>
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<script src="supabase-config.js"></script>
 
-  <link
-    rel="stylesheet"
-    href="./css/style.css">
+<style>
+
+:root{
+    --navy:#071a33;
+    --blue:#0d47a1;
+    --blue2:#1565c0;
+    --green:#198754;
+    --orange:#f59e0b;
+    --red:#dc3545;
+    --gray:#667085;
+    --light:#f4f7fb;
+    --border:#d9e1ec;
+    --white:#ffffff;
+    --dark:#172033;
+}
+
+*{
+    box-sizing:border-box;
+}
+
+body{
+    margin:0;
+    font-family:Arial,Helvetica,sans-serif;
+    background:var(--light);
+    color:var(--dark);
+}
+
+/* ================= HEADER ================= */
+
+header{
+    background:linear-gradient(
+        135deg,
+        #071a33,
+        #0d47a1
+    );
+    color:#fff;
+    padding:18px 14px 0;
+}
+
+.header-inner{
+    max-width:1200px;
+    margin:auto;
+    display:flex;
+    align-items:center;
+    gap:14px;
+}
+
+.logo{
+    width:65px;
+    height:65px;
+    object-fit:contain;
+    background:#fff;
+    padding:4px;
+    border-radius:10px;
+    flex-shrink:0;
+}
+
+.header-text h1{
+    margin:0;
+    font-size:22px;
+    font-weight:900;
+}
+
+.header-text p{
+    margin:5px 0 0;
+    font-size:12px;
+    opacity:.9;
+    font-weight:600;
+}
+
+/* ================= NAVIGATION ================= */
+
+nav{
+    max-width:1200px;
+    margin:18px auto 0;
+    display:flex;
+    gap:6px;
+    overflow-x:auto;
+    padding-bottom:10px;
+}
+
+nav a{
+    color:#fff;
+    text-decoration:none;
+    background:#ffffff14;
+    border:1px solid #ffffff2b;
+    padding:10px 13px;
+    border-radius:8px;
+    white-space:nowrap;
+    font-size:13px;
+    font-weight:800;
+    transition:.2s;
+}
+
+nav a:hover{
+    background:#ffffff28;
+}
+
+nav a.active{
+    background:#fff;
+    color:var(--navy);
+}
+
+/* ================= MAIN ================= */
+
+main{
+    max-width:1200px;
+    margin:auto;
+    padding:22px 14px 45px;
+}
+
+/* ================= WELCOME ================= */
+
+.welcome{
+    background:#fff;
+    border:1px solid var(--border);
+    border-radius:15px;
+    padding:22px;
+    box-shadow:0 4px 15px #0000000b;
+    margin-bottom:18px;
+}
+
+.welcome h2{
+    margin:0 0 7px;
+    color:var(--navy);
+    font-size:22px;
+}
+
+.welcome p{
+    margin:6px 0;
+    color:var(--gray);
+}
+
+.connection{
+    display:inline-flex;
+    align-items:center;
+    gap:6px;
+    margin-top:8px;
+    background:#e9f7ef;
+    color:#0f5132;
+    padding:8px 12px;
+    border-radius:20px;
+    font-size:12px;
+    font-weight:800;
+}
+
+/* ================= STATS ================= */
+
+.stats{
+    display:grid;
+    grid-template-columns:
+        repeat(5,1fr);
+    gap:12px;
+    margin-bottom:22px;
+}
+
+.stat{
+    background:#fff;
+    border:1px solid var(--border);
+    border-radius:14px;
+    padding:18px 14px;
+    text-align:center;
+    box-shadow:0 3px 12px #00000008;
+}
+
+.stat-number{
+    font-size:30px;
+    font-weight:900;
+    color:var(--navy);
+    margin-bottom:5px;
+}
+
+.stat-label{
+    font-size:12px;
+    font-weight:800;
+    color:var(--gray);
+}
+
+/* ================= SECTION TITLE ================= */
+
+.section-title{
+    margin:22px 0 12px;
+}
+
+.section-title h2{
+    margin:0;
+    font-size:19px;
+    color:var(--navy);
+}
+
+.section-title p{
+    margin:5px 0 0;
+    color:var(--gray);
+    font-size:13px;
+}
+
+/* ================= MODULES ================= */
+
+.modules{
+    display:grid;
+    grid-template-columns:
+        repeat(3,1fr);
+    gap:14px;
+}
+
+.module{
+    display:block;
+    text-decoration:none;
+    background:#fff;
+    border:1px solid var(--border);
+    border-radius:15px;
+    padding:20px;
+    color:var(--dark);
+    box-shadow:0 3px 12px #00000008;
+    transition:
+        transform .2s,
+        box-shadow .2s,
+        border-color .2s;
+}
+
+.module:hover{
+    transform:translateY(-3px);
+    border-color:#9db8dc;
+    box-shadow:0 7px 20px #00000012;
+}
+
+.module-icon{
+    width:48px;
+    height:48px;
+    border-radius:12px;
+    background:#edf4ff;
+    display:flex;
+    align-items:center;
+    justify-content:center;
+    font-size:25px;
+    margin-bottom:13px;
+}
+
+.module h3{
+    margin:0 0 7px;
+    font-size:16px;
+    color:var(--navy);
+}
+
+.module p{
+    margin:0;
+    color:var(--gray);
+    font-size:12px;
+    line-height:1.5;
+}
+
+/* ================= TRANSFER FEATURE ================= */
+
+.transfer-module{
+    border:2px solid #0d47a133;
+    background:
+        linear-gradient(
+            135deg,
+            #ffffff,
+            #f2f7ff
+        );
+}
+
+.transfer-module .module-icon{
+    background:#dbeafe;
+}
+
+/* ================= FOOTER ================= */
+
+footer{
+    background:var(--navy);
+    color:#fff;
+    text-align:center;
+    padding:18px 12px;
+    font-size:11px;
+}
+
+footer strong{
+    display:block;
+    margin-bottom:4px;
+    font-size:12px;
+}
+
+/* ================= LOADING ================= */
+
+.loading{
+    opacity:.6;
+}
+
+/* ================= MOBILE ================= */
+
+@media(max-width:900px){
+
+    .stats{
+        grid-template-columns:
+            repeat(3,1fr);
+    }
+
+    .modules{
+        grid-template-columns:
+            repeat(2,1fr);
+    }
+
+}
+
+@media(max-width:600px){
+
+    header{
+        padding-top:14px;
+    }
+
+    .header-inner{
+        align-items:flex-start;
+    }
+
+    .logo{
+        width:54px;
+        height:54px;
+    }
+
+    .header-text h1{
+        font-size:17px;
+    }
+
+    .header-text p{
+        font-size:10px;
+        line-height:1.4;
+    }
+
+    nav{
+        margin-top:14px;
+    }
+
+    nav a{
+        padding:9px 11px;
+        font-size:12px;
+    }
+
+    main{
+        padding:16px 10px 35px;
+    }
+
+    .welcome{
+        padding:17px;
+    }
+
+    .welcome h2{
+        font-size:19px;
+    }
+
+    .stats{
+        grid-template-columns:
+            repeat(2,1fr);
+    }
+
+    .stat{
+        padding:15px 10px;
+    }
+
+    .stat-number{
+        font-size:26px;
+    }
+
+    .modules{
+        grid-template-columns:1fr;
+    }
+
+}
+
+</style>
 
 </head>
 
-
 <body>
 
+<!-- =====================================================
+     HEADER
+===================================================== -->
 
-<header class="top-header">
+<header>
 
-  <h1>
-    AFRN FOOTBALL MANAGEMENT
-  </h1>
+<div class="header-inner">
 
-  <p>
-    Association/Football Federation for Refugees in Nyarugusu
-  </p>
+<img
+    src="IMG-20260319-WA0093.jpg"
+    class="logo"
+    alt="AFRN Logo"
+>
+
+<div class="header-text">
+
+<h1>
+⚽ AFRN FOOTBALL MANAGEMENT
+</h1>
+
+<p>
+SHIRIKISHO LA MPIRA WA MIGUU KAMBINI NYARUGUSU
+</p>
+
+</div>
+
+</div>
+
+
+<!-- =====================================================
+     NAVIGATION
+===================================================== -->
+
+<nav>
+
+<a
+    href="index.html"
+    class="active"
+>
+🏠 Dashboard
+</a>
+
+<a href="clubs.html">
+⚽ Vilabu
+</a>
+
+<a href="players.html">
+👤 Wachezaji
+</a>
+
+<a href="transfers.html">
+🔄 Uhamisho + Mikataba
+</a>
+
+<a href="competitions.html">
+🏆 Mashindano
+</a>
+
+<a href="matches.html">
+🏟️ Mechi
+</a>
+
+<a href="reports.html">
+📊 Ripoti
+</a>
+
+</nav>
 
 </header>
 
 
+<!-- =====================================================
+     MAIN
+===================================================== -->
 
-<nav class="main-nav">
+<main>
 
 
-  <a
-    href="./index.html"
-    class="nav-btn active">
+<!-- =====================================================
+     WELCOME
+===================================================== -->
 
-    🏠 Dashboard
+<section class="welcome">
 
-  </a>
+<h2>
+Karibu AFRN
+</h2>
 
+<div
+    id="connectionStatus"
+    class="connection loading"
+>
+⏳ Inaunganisha Supabase...
+</div>
 
-  <a
-    href="./clubs.html"
-    class="nav-btn">
+<p>
+Mfumo wa kisasa wa usimamizi wa soka wa
+<strong>AFRN Football Management</strong>.
+</p>
 
-    ⚽ Vilabu
+<p>
+Chagua sehemu yoyote kwenye menu kusimamia
+taarifa za AFRN.
+</p>
 
-  </a>
+</section>
 
 
-  <a
-    href="./players.html"
-    class="nav-btn">
+<!-- =====================================================
+     STATISTICS
+===================================================== -->
 
-    👤 Wachezaji
+<section class="stats">
 
-  </a>
+<div class="stat">
 
+<div
+    class="stat-number"
+    id="clubCount"
+>
+0
+</div>
 
-  <a
-    href="./contracts.html"
-    class="nav-btn">
+<div class="stat-label">
+⚽ Vilabu
+</div>
 
-    📄 Mikataba
+</div>
 
-  </a>
 
+<div class="stat">
 
-  <a
-    href="./transfers.html"
-    class="nav-btn">
+<div
+    class="stat-number"
+    id="playerCount"
+>
+0
+</div>
 
-    🔄 Uhamisho
+<div class="stat-label">
+👤 Wachezaji
+</div>
 
-  </a>
+</div>
 
 
-  <a
-    href="./competitions.html"
-    class="nav-btn">
+<div class="stat">
 
-    🏆 Mashindano
+<div
+    class="stat-number"
+    id="transferCount"
+>
+0
+</div>
 
-  </a>
+<div class="stat-label">
+🔄 Uhamisho
+</div>
 
+</div>
 
-  <a
-    href="./matches.html"
-    class="nav-btn">
 
-    🏟️ Mechi
+<div class="stat">
 
-  </a>
+<div
+    class="stat-number"
+    id="competitionCount"
+>
+0
+</div>
 
+<div class="stat-label">
+🏆 Mashindano
+</div>
 
-  <a
-    href="./reports.html"
-    class="nav-btn">
+</div>
 
-    📊 Ripoti
 
-  </a>
+<div class="stat">
 
+<div
+    class="stat-number"
+    id="matchCount"
+>
+0
+</div>
 
-</nav>
+<div class="stat-label">
+🏟️ Mechi
+</div>
 
+</div>
 
+</section>
 
-<main class="container">
 
+<!-- =====================================================
+     SYSTEM MODULES
+===================================================== -->
 
-  <section class="page active">
+<section>
 
+<div class="section-title">
 
-    <!-- =========================
-         WELCOME
-    ========================== -->
+<h2>
+Mfumo wa AFRN
+</h2>
 
-    <div class="card">
+<p>
+Tumia sehemu zifuatazo kusimamia shughuli mbalimbali
+za mpira wa miguu.
+</p>
 
+</div>
 
-      <h2>
-        Karibu AFRN
-      </h2>
 
+<div class="modules">
 
-      <div
-        id="connectionStatus"
-        class="status">
 
-        Inaunganisha na Supabase...
+<!-- VILABU -->
 
-      </div>
+<a
+    href="clubs.html"
+    class="module"
+>
 
+<div class="module-icon">
+⚽
+</div>
 
-      <p>
-        Mfumo wa usimamizi wa soka wa AFRN.
-      </p>
+<h3>
+Vilabu
+</h3>
 
+<p>
+Dhibiti na simamia vilabu vya AFRN
+kwa Daraja la I, II, III na IV.
+</p>
 
-      <p class="muted">
+</a>
 
-        Chagua sehemu yoyote kwenye menu
-        kusimamia taarifa za AFRN.
 
-      </p>
+<!-- WACHEZAJI -->
 
+<a
+    href="players.html"
+    class="module"
+>
 
-    </div>
+<div class="module-icon">
+👤
+</div>
 
+<h3>
+Wachezaji
+</h3>
 
+<p>
+Sajili, tafuta na simamia taarifa
+za wachezaji wa AFRN.
+</p>
 
-    <!-- =========================
-         STATISTICS
-    ========================== -->
+</a>
 
-    <div class="stats-grid">
 
+<!-- TRANSFER + CONTRACT -->
 
-      <!-- CLUBS -->
+<a
+    href="transfers.html"
+    class="module transfer-module"
+>
 
-      <div class="stat-card">
+<div class="module-icon">
+🔄
+</div>
 
-        <strong id="dashClubs">
-          0
-        </strong>
+<h3>
+Uhamisho + Mikataba
+</h3>
 
-        <span>
-          Vilabu
-        </span>
+<p>
+Simamia uhamisho wa wachezaji,
+mikataba, renewal, expiry,
+free agents na Player Licence.
+</p>
 
-      </div>
+</a>
 
 
+<!-- MASHINDANO -->
 
-      <!-- PLAYERS -->
+<a
+    href="competitions.html"
+    class="module"
+>
 
-      <div class="stat-card">
+<div class="module-icon">
+🏆
+</div>
 
-        <strong id="dashPlayers">
-          0
-        </strong>
+<h3>
+Mashindano
+</h3>
 
-        <span>
-          Wachezaji
-        </span>
+<p>
+Simamia mashindano, makundi,
+ratiba, standings na hatua za knockout.
+</p>
 
-      </div>
+</a>
 
 
+<!-- MECHI -->
 
-      <!-- CONTRACTS -->
+<a
+    href="matches.html"
+    class="module"
+>
 
-      <div class="stat-card">
+<div class="module-icon">
+🏟️
+</div>
 
-        <strong id="dashContracts">
-          0
-        </strong>
+<h3>
+Mechi
+</h3>
 
-        <span>
-          Mikataba
-        </span>
+<p>
+Simamia ratiba za mechi,
+matokeo, line-up na matukio ya mchezo.
+</p>
 
-      </div>
+</a>
 
 
+<!-- RIPOTI -->
 
-      <!-- TRANSFERS -->
+<a
+    href="reports.html"
+    class="module"
+>
 
-      <div class="stat-card">
+<div class="module-icon">
+📊
+</div>
 
-        <strong id="dashTransfers">
-          0
-        </strong>
+<h3>
+Ripoti
+</h3>
 
-        <span>
-          Uhamisho
-        </span>
+<p>
+Angalia ripoti na takwimu
+za mfumo mzima wa AFRN.
+</p>
 
-      </div>
+</a>
 
 
+</div>
 
-      <!-- COMPETITIONS -->
-
-      <div class="stat-card">
-
-        <strong id="dashCompetitions">
-          0
-        </strong>
-
-        <span>
-          Mashindano
-        </span>
-
-      </div>
-
-
-
-      <!-- MATCHES -->
-
-      <div class="stat-card">
-
-        <strong id="dashMatches">
-          0
-        </strong>
-
-        <span>
-          Mechi
-        </span>
-
-      </div>
-
-
-    </div>
-
-
-
-    <!-- =========================
-         SYSTEM MENU
-    ========================== -->
-
-    <div class="card">
-
-
-      <h2>
-        Mfumo wa AFRN
-      </h2>
-
-
-      <p class="muted">
-
-        Tumia menu hapo juu kufungua
-        sehemu mbalimbali za mfumo.
-
-      </p>
-
-
-
-      <div class="dashboard-links">
-
-
-        <!-- CLUBS -->
-
-        <a
-          href="./clubs.html"
-          class="dashboard-link">
-
-          ⚽
-
-          <strong>
-            Vilabu
-          </strong>
-
-          <span>
-            Dhibiti Daraja 1–4
-          </span>
-
-        </a>
-
-
-
-        <!-- PLAYERS -->
-
-        <a
-          href="./players.html"
-          class="dashboard-link">
-
-          👤
-
-          <strong>
-            Wachezaji
-          </strong>
-
-          <span>
-            Sajili na simamia wachezaji
-          </span>
-
-        </a>
-
-
-
-        <!-- CONTRACTS -->
-
-        <a
-          href="./contracts.html"
-          class="dashboard-link">
-
-          📄
-
-          <strong>
-            Mikataba
-          </strong>
-
-          <span>
-            Simamia mikataba ya wachezaji
-          </span>
-
-        </a>
-
-
-
-        <!-- TRANSFERS -->
-
-        <a
-          href="./transfers.html"
-          class="dashboard-link">
-
-          🔄
-
-          <strong>
-            Uhamisho
-          </strong>
-
-          <span>
-            Simamia uhamisho wa wachezaji
-          </span>
-
-        </a>
-
-
-
-        <!-- COMPETITIONS -->
-
-        <a
-          href="./competitions.html"
-          class="dashboard-link">
-
-          🏆
-
-          <strong>
-            Mashindano
-          </strong>
-
-          <span>
-            Simamia mashindano
-          </span>
-
-        </a>
-
-
-
-        <!-- MATCHES -->
-
-        <a
-          href="./matches.html"
-          class="dashboard-link">
-
-          🏟️
-
-          <strong>
-            Mechi
-          </strong>
-
-          <span>
-            Ratiba na matokeo
-          </span>
-
-        </a>
-
-
-
-        <!-- REPORTS -->
-
-        <a
-          href="./reports.html"
-          class="dashboard-link">
-
-          📊
-
-          <strong>
-            Ripoti
-          </strong>
-
-          <span>
-            Ripoti na takwimu za AFRN
-          </span>
-
-        </a>
-
-
-      </div>
-
-
-    </div>
-
-
-  </section>
-
+</section>
 
 </main>
 
 
+<!-- =====================================================
+     FOOTER
+===================================================== -->
 
-<!-- =========================
-     SUPABASE
-========================= -->
+<footer>
 
-<script
-  src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2">
-</script>
+<strong>
+⚽ AFRN FOOTBALL MANAGEMENT
+</strong>
+
+SHIRIKISHO LA MPIRA WA MIGUU KAMBINI NYARUGUSU
+
+<br><br>
+
+© 2026 AFRN Football Management
+•
+Official Football Administration System
+
+</footer>
 
 
-<script
-  src="./supabase-config.js">
-</script>
-
-
+<!-- =====================================================
+     JAVASCRIPT
+===================================================== -->
 
 <script>
 
-
 const db =
-  window.supabaseClient;
+    window.supabaseClient;
 
 
+/* =====================================================
+   SET CONNECTION STATUS
+===================================================== */
 
-/* =========================
-   SUPABASE CONNECTION
-========================= */
+function setConnectionStatus(
+    text,
+    type
+){
 
-async function testConnection() {
+    const box =
+        document.getElementById(
+            "connectionStatus"
+        );
 
+    if(!box)
+        return;
 
-  const status =
-    document.getElementById(
-      "connectionStatus"
+    box.classList.remove(
+        "loading"
     );
 
+    box.textContent =
+        text;
 
-  if (!db) {
+    if(type === "success"){
 
+        box.style.background =
+            "#e9f7ef";
 
-    status.textContent =
-      "❌ Supabase haijaunganishwa.";
-
-
-    return;
-
-  }
-
-
-
-  const { error } =
-    await db
-      .from("clubs")
-      .select("id")
-      .limit(1);
-
-
-
-  if (error) {
-
-
-    status.textContent =
-      "❌ Supabase Error: " +
-      error.message;
-
-
-  } else {
-
-
-    status.textContent =
-      "✅ Supabase imeunganishwa vizuri.";
-
-
-  }
-
-}
-
-
-
-/* =========================
-   DASHBOARD COUNTS
-========================= */
-
-async function loadDashboard() {
-
-
-  if (!db) return;
-
-
-
-  const tables = [
-
-
-    [
-      "clubs",
-      "dashClubs"
-    ],
-
-
-    [
-      "players",
-      "dashPlayers"
-    ],
-
-
-    [
-      "player_contracts",
-      "dashContracts"
-    ],
-
-
-    [
-      "transfers",
-      "dashTransfers"
-    ],
-
-
-    [
-      "competitions",
-      "dashCompetitions"
-    ],
-
-
-    [
-      "matches",
-      "dashMatches"
-    ]
-
-
-  ];
-
-
-
-  for (
-    const [table, elementId]
-    of tables
-  ) {
-
-
-    const { count, error } =
-      await db
-        .from(table)
-        .select(
-          "id",
-          {
-            count: "exact",
-            head: true
-          }
-        );
-
-
-
-    if (!error) {
-
-
-      const element =
-        document.getElementById(
-          elementId
-        );
-
-
-      if (element) {
-
-
-        element.textContent =
-          count || 0;
-
-
-      }
+        box.style.color =
+            "#0f5132";
 
     }
 
-  }
+    if(type === "error"){
+
+        box.style.background =
+            "#fdecec";
+
+        box.style.color =
+            "#842029";
+
+    }
 
 }
 
 
+/* =====================================================
+   LOAD COUNT
+===================================================== */
 
-/* =========================
-   START DASHBOARD
-========================= */
+async function loadCount(
+    table,
+    elementId
+){
 
-testConnection();
+    const element =
+        document.getElementById(
+            elementId
+        );
 
-loadDashboard();
+    if(!element)
+        return;
 
+
+    const result =
+        await db
+        .from(table)
+        .select(
+            "*",
+            {
+                count:"exact",
+                head:true
+            }
+        );
+
+
+    if(result.error){
+
+        console.error(
+            "Count error:",
+            table,
+            result.error
+        );
+
+        element.textContent =
+            "0";
+
+        return;
+
+    }
+
+
+    element.textContent =
+        result.count ?? 0;
+
+}
+
+
+/* =====================================================
+   LOAD DASHBOARD DATA
+===================================================== */
+
+async function loadDashboard(){
+
+    if(!db){
+
+        setConnectionStatus(
+            "❌ Supabase haijaunganishwa.",
+            "error"
+        );
+
+        return;
+
+    }
+
+
+    try{
+
+        await Promise.all([
+
+            loadCount(
+                "clubs",
+                "clubCount"
+            ),
+
+            loadCount(
+                "players",
+                "playerCount"
+            ),
+
+            loadCount(
+                "transfers",
+                "transferCount"
+            ),
+
+            loadCount(
+                "competitions",
+                "competitionCount"
+            ),
+
+            loadCount(
+                "matches",
+                "matchCount"
+            )
+
+        ]);
+
+
+        setConnectionStatus(
+            "✅ Supabase imeunganishwa vizuri.",
+            "success"
+        );
+
+
+        console.log(
+            "AFRN Dashboard loaded successfully."
+        );
+
+
+    }catch(error){
+
+        console.error(error);
+
+        setConnectionStatus(
+            "❌ Kuna tatizo la kuunganisha Supabase.",
+            "error"
+        );
+
+    }
+
+}
+
+
+/* =====================================================
+   INITIALIZE
+===================================================== */
+
+document.addEventListener(
+    "DOMContentLoaded",
+    loadDashboard
+);
 
 </script>
 
-
 </body>
-
 </html>
