@@ -5,7 +5,7 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width,initial-scale=1.0">
 
-<title>AFRN Football Management - Transfers</title>
+<title>AFRN Football Management - Transfers & Contracts</title>
 
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 <script src="supabase-config.js"></script>
@@ -25,9 +25,7 @@
     --white:#fff;
 }
 
-*{
-    box-sizing:border-box;
-}
+*{box-sizing:border-box}
 
 body{
     margin:0;
@@ -103,13 +101,8 @@ main{
     padding:18px 12px 40px;
 }
 
-.tab{
-    display:none;
-}
-
-.tab.active{
-    display:block;
-}
+.tab{display:none}
+.tab.active{display:block}
 
 .panel,
 .card{
@@ -153,9 +146,7 @@ main{
     gap:13px;
 }
 
-.full{
-    grid-column:1/-1;
-}
+.full{grid-column:1/-1}
 
 label{
     display:block;
@@ -198,30 +189,11 @@ textarea:focus{
     margin:3px;
 }
 
-.primary{
-    background:var(--blue);
-    color:#fff;
-}
-
-.success{
-    background:var(--green);
-    color:#fff;
-}
-
-.danger{
-    background:var(--red);
-    color:#fff;
-}
-
-.light{
-    background:#e9eef5;
-    color:#172033;
-}
-
-.warning{
-    background:var(--orange);
-    color:#fff;
-}
+.primary{background:var(--blue);color:#fff}
+.success{background:var(--green);color:#fff}
+.danger{background:var(--red);color:#fff}
+.light{background:#e9eef5;color:#172033}
+.warning{background:var(--orange);color:#fff}
 
 .actions{
     display:flex;
@@ -241,13 +213,13 @@ textarea:focus{
 
 .error{
     background:#fdecec;
-    border-left:5px solid var(--red);
+    border-left-color:var(--red);
     color:#842029;
 }
 
 .successNotice{
     background:#e9f7ef;
-    border-left:5px solid var(--green);
+    border-left-color:var(--green);
     color:#0f5132;
 }
 
@@ -280,9 +252,7 @@ textarea:focus{
     font-size:14px;
 }
 
-.muted{
-    color:var(--gray);
-}
+.muted{color:var(--gray)}
 
 .locked{
     background:#f1f4f8;
@@ -343,30 +313,11 @@ th{
     font-weight:900;
 }
 
-.badgeDraft{
-    background:#e9eef5;
-    color:#344054;
-}
-
-.badgePending{
-    background:#fff3cd;
-    color:#664d03;
-}
-
-.badgeApproved{
-    background:#dbeafe;
-    color:#1e40af;
-}
-
-.badgeCompleted{
-    background:#d1e7dd;
-    color:#0f5132;
-}
-
-.badgeCancelled{
-    background:#f8d7da;
-    color:#842029;
-}
+.badgeDraft{background:#e9eef5;color:#344054}
+.badgePending{background:#fff3cd;color:#664d03}
+.badgeApproved{background:#dbeafe;color:#1e40af}
+.badgeCompleted{background:#d1e7dd;color:#0f5132}
+.badgeCancelled{background:#f8d7da;color:#842029}
 
 .empty{
     padding:25px;
@@ -374,9 +325,7 @@ th{
     color:var(--gray);
 }
 
-.hidden{
-    display:none!important;
-}
+.hidden{display:none!important}
 
 /* ================= MODAL ================= */
 
@@ -390,9 +339,7 @@ th{
     overflow:auto;
 }
 
-.modal.show{
-    display:block;
-}
+.modal.show{display:block}
 
 .modalBar{
     max-width:900px;
@@ -405,19 +352,24 @@ th{
     flex-wrap:wrap;
 }
 
-/* ================= A4 CONTRACT ================= */
+/* =========================================================
+   A4 PAPER — PAGE 1 ONLY
+   ========================================================= */
 
 .a4{
     width:210mm;
+    height:297mm;
     min-height:297mm;
+    max-height:297mm;
     background:#fff;
     margin:auto;
-    padding:9mm 10mm 18mm;
+    padding:8mm 9mm 15mm;
     color:#111;
     position:relative;
+    overflow:hidden;
     font-family:Arial,Helvetica,sans-serif;
-    font-size:12px;
-    line-height:1.4;
+    font-size:10.5px;
+    line-height:1.25;
 }
 
 .a4head{
@@ -427,107 +379,102 @@ th{
     justify-content:center;
     text-align:center;
     border-bottom:3px solid var(--navy);
-    padding-bottom:7px;
+    padding-bottom:5px;
 }
 
 .a4head img{
-    width:55px;
-    height:55px;
+    width:48px;
+    height:48px;
     object-fit:contain;
-    margin-bottom:3px;
+    margin-bottom:2px;
 }
 
 .a4head strong{
     display:block;
-    font-size:16px;
+    font-size:15px;
     font-weight:900;
     color:var(--navy);
 }
 
 .a4head span{
     display:block;
-    font-size:9px;
+    font-size:8px;
     font-weight:700;
-    line-height:1.3;
+    line-height:1.2;
 }
 
 .a4Title{
     text-align:center;
-    margin:9px 0 7px;
+    margin:6px 0 5px;
 }
 
 .a4Title h2{
     margin:0;
-    font-size:15px;
+    font-size:14px;
     font-weight:900;
     color:var(--navy);
 }
 
 .a4Title p{
-    margin:3px 0;
-    font-size:9px;
+    margin:2px 0;
+    font-size:8px;
     font-weight:700;
 }
 
 .a4TransferId{
     text-align:center;
-    font-size:10px;
-    margin-bottom:7px;
+    font-size:9px;
+    margin-bottom:5px;
 }
 
-.a4TransferId strong{
-    color:var(--navy);
-}
+.a4TransferId strong{color:var(--navy)}
 
-.sec{
-    margin-top:8px;
-}
+.sec{margin-top:5px}
 
 .secTitle{
     background:var(--navy);
     color:#fff;
-    padding:5px 7px;
-    font-size:10px;
+    padding:4px 6px;
+    font-size:9px;
     font-weight:900;
     border-radius:3px 3px 0 0;
 }
 
 .playerGrid{
     display:grid;
-    grid-template-columns:30mm 1fr;
-    gap:9px;
-    margin-top:5px;
+    grid-template-columns:27mm 1fr;
+    gap:8px;
+    margin-top:4px;
 }
 
 .pimg{
-    width:30mm;
-    height:35mm;
+    width:27mm;
+    height:31mm;
     object-fit:cover;
     border:1.5px solid #777;
     border-radius:3px;
 }
 
 .playerInfo{
-    font-size:12px;
-    line-height:1.55;
+    font-size:10.5px;
+    line-height:1.4;
 }
 
-.playerInfo b{
-    font-weight:900;
-}
+.playerInfo b{font-weight:900}
 
 .a4Table{
     width:100%;
     border-collapse:collapse;
-    margin-top:5px;
+    margin-top:4px;
 }
 
 .a4Table th,
 .a4Table td{
     border:1px solid #888;
-    padding:5px;
-    font-size:12px;
+    padding:4px;
+    font-size:9.5px;
     white-space:normal;
+    vertical-align:top;
 }
 
 .a4Table th{
@@ -537,58 +484,51 @@ th{
 
 .agreement{
     border:1px solid #888;
-    padding:7px;
-    font-size:12px;
-    line-height:1.5;
+    padding:5px;
+    font-size:9.5px;
+    line-height:1.35;
     text-align:justify;
 }
 
 .signGrid{
     display:grid;
     grid-template-columns:repeat(3,1fr);
-    gap:6px;
-    margin-top:5px;
+    gap:5px;
+    margin-top:4px;
 }
 
 .signBox{
     border:1px solid #777;
-    padding:7px;
-    min-height:35mm;
-    font-size:12px;
-    line-height:1.35;
+    padding:5px;
+    min-height:29mm;
+    font-size:9.5px;
+    line-height:1.25;
 }
 
 .signBox h4{
-    margin:0 0 6px;
+    margin:0 0 4px;
     text-align:center;
-    font-size:12px;
+    font-size:10px;
     font-weight:900;
     color:var(--navy);
 }
 
 .signatureLine{
-    height:8mm;
+    height:6mm;
     border-bottom:1px solid #222;
-    margin-top:4px;
-    margin-bottom:3px;
-}
-
-.playerConfirm{
-    border:1px solid #777;
-    padding:7px;
-    font-size:12px;
-    line-height:1.4;
+    margin-top:2px;
+    margin-bottom:2px;
 }
 
 .footer{
     position:absolute;
-    bottom:5mm;
-    left:10mm;
-    right:10mm;
+    bottom:4mm;
+    left:9mm;
+    right:9mm;
     border-top:1px solid #999;
     text-align:center;
-    font-size:7px;
-    padding-top:3px;
+    font-size:6.5px;
+    padding-top:2px;
     color:#555;
 }
 
@@ -643,13 +583,8 @@ th{
     border-radius:3px;
 }
 
-.licenseInfo{
-    line-height:1.35;
-}
-
-.licenseInfo b{
-    color:var(--navy);
-}
+.licenseInfo{line-height:1.35}
+.licenseInfo b{color:var(--navy)}
 
 .licenseFooter{
     border-top:1px solid #aaa;
@@ -669,15 +604,12 @@ th{
         grid-template-columns:1fr;
     }
 
-    .full{
-        grid-column:auto;
-    }
+    .full{grid-column:auto}
 
     .a4{
         width:210mm;
         margin-left:0;
     }
-
 }
 
 @media print{
@@ -699,9 +631,17 @@ th{
     }
 
     .a4{
-        margin:0;
-        box-shadow:none;
-        page-break-after:avoid;
+        width:210mm!important;
+        height:297mm!important;
+        min-height:297mm!important;
+        max-height:297mm!important;
+        margin:0!important;
+        padding:8mm 9mm 15mm!important;
+        box-shadow:none!important;
+        overflow:hidden!important;
+        page-break-after:avoid!important;
+        page-break-before:avoid!important;
+        page-break-inside:avoid!important;
     }
 
     .licenseCard{
@@ -713,7 +653,6 @@ th{
         size:A4 portrait;
         margin:0;
     }
-
 }
 
 </style>
@@ -750,7 +689,7 @@ SHIRIKISHO LA MPIRA WA MIGUU KAMBINI NYARUGUSU
 </button>
 
 <button onclick="showTab('newTransfer',this)">
-➕ Transfer
+➕ Transfer + Contract
 </button>
 
 <button onclick="showTab('history',this)">
@@ -765,13 +704,16 @@ SHIRIKISHO LA MPIRA WA MIGUU KAMBINI NYARUGUSU
 
 </header>
 
+
 <main>
 
-<!-- ================= DASHBOARD ================= -->
+<!-- =====================================================
+     DASHBOARD
+===================================================== -->
 
 <section id="dashboard" class="tab active">
 
-<h2>📊 Transfer Dashboard</h2>
+<h2>📊 Transfer & Contract Dashboard</h2>
 
 <div class="cards">
 
@@ -808,19 +750,27 @@ SHIRIKISHO LA MPIRA WA MIGUU KAMBINI NYARUGUSU
 </section>
 
 
-<!-- ================= NEW TRANSFER ================= -->
+<!-- =====================================================
+     NEW TRANSFER + CONTRACT
+===================================================== -->
 
 <section id="newTransfer" class="tab">
 
-<h2>➕ Sajili Transfer</h2>
+<h2>➕ Sajili Transfer & Contract</h2>
 
 <div class="notice">
 
-<b>⚽ Mfumo wa AFRN</b><br>
+<b>⚽ AFRN TRANSFER & CONTRACT MANAGEMENT</b><br>
 
 Chagua mchezaji kutoka database.
-<b>Klabu Anayotoka</b> itajazwa automatic kutoka kwenye taarifa ya mchezaji.
-Baada ya transfer kuwa <b>COMPLETED</b>, <b>Klabu ya Sasa</b> itabadilishwa automatic.
+<b>Klabu Anayotoka</b> itajazwa automatic kutoka kwenye
+<strong>players.club_id</strong>.
+
+Baada ya transfer kuwa
+<b>COMPLETED</b>,
+klabu ya mchezaji itabadilishwa automatic.
+
+Taarifa za mkataba zitaunganishwa na Transfer Agreement.
 
 </div>
 
@@ -890,7 +840,6 @@ Inatengenezwa...
 
 </div>
 
-
 <div>
 
 <label>Jina Kamili</label>
@@ -898,7 +847,6 @@ Inatengenezwa...
 <input id="playerName" class="locked" readonly>
 
 </div>
-
 
 <div>
 
@@ -908,7 +856,6 @@ Inatengenezwa...
 
 </div>
 
-
 <div>
 
 <label>Nationality</label>
@@ -916,7 +863,6 @@ Inatengenezwa...
 <input id="nationality" class="locked" readonly>
 
 </div>
-
 
 <div>
 
@@ -926,7 +872,6 @@ Inatengenezwa...
 
 </div>
 
-
 <div>
 
 <label>Klabu Anayotoka *</label>
@@ -935,10 +880,9 @@ Inatengenezwa...
 
 </div>
 
-
 <div>
 
-<label>Klabu ya Sasa *</label>
+<label>Klabu Mpya *</label>
 
 <select id="toClub">
 
@@ -955,7 +899,7 @@ Chagua Klabu Mpya
 </div>
 
 
-<!-- TRANSFER DETAILS -->
+<!-- TRANSFER -->
 
 <div class="panel">
 
@@ -989,7 +933,6 @@ Kurudi kutoka Mkopo
 
 </div>
 
-
 <div>
 
 <label>Tarehe ya Uhamisho *</label>
@@ -998,8 +941,18 @@ Kurudi kutoka Mkopo
 
 </div>
 
+</div>
 
-<!-- PERMANENT CONTRACT -->
+</div>
+
+
+<!-- CONTRACT -->
+
+<div class="panel">
+
+<h3>📄 Taarifa za Mkataba</h3>
+
+<div class="grid">
 
 <div id="permanentContractBox">
 
@@ -1009,7 +962,6 @@ Kurudi kutoka Mkopo
 
 </div>
 
-
 <div id="permanentContractEndBox">
 
 <label>Contract End *</label>
@@ -1017,7 +969,6 @@ Kurudi kutoka Mkopo
 <input id="contractEnd" type="date">
 
 </div>
-
 
 <div id="contractYearsBox">
 
@@ -1027,7 +978,7 @@ Kurudi kutoka Mkopo
     id="contractYears"
     type="number"
     min="1"
-    step="1"
+    step="0.1"
     placeholder="Mfano 2"
 >
 
@@ -1058,7 +1009,6 @@ Mkopo wa Ligi
 
 </div>
 
-
 <div id="loanMonthsBox" class="hidden">
 
 <label>Muda wa Mkopo (Miezi)</label>
@@ -1073,7 +1023,6 @@ Mkopo wa Ligi
 
 </div>
 
-
 <div id="leagueNameBox" class="hidden">
 
 <label>Jina la Ligi</label>
@@ -1085,15 +1034,15 @@ Mkopo wa Ligi
 
 </div>
 
-
 <div id="leagueReturnBox" class="hidden">
 
 <label>Atarejea</label>
 
 <input
-    value="Mwisho wa Ligi"
+    id="leagueReturn"
     class="locked"
     readonly
+    value="Mwisho wa Ligi"
 >
 
 </div>
@@ -1101,7 +1050,7 @@ Mkopo wa Ligi
 
 <div>
 
-<label>Status</label>
+<label>Status *</label>
 
 <select id="transferStatus">
 
@@ -1119,14 +1068,13 @@ Mkopo wa Ligi
 
 </div>
 
-
 <div class="full">
 
 <label>Maelezo / Masharti Maalum</label>
 
 <textarea
     id="notes"
-    placeholder="Andika maelezo muhimu..."
+    placeholder="Andika maelezo muhimu ya transfer au mkataba..."
 ></textarea>
 
 </div>
@@ -1162,7 +1110,7 @@ Mkopo wa Ligi
 
 <div>
 
-<label>Mwenyekiti — Klabu ya Sasa *</label>
+<label>Mwenyekiti — Klabu Mpya *</label>
 
 <input id="toChairman">
 
@@ -1170,7 +1118,7 @@ Mkopo wa Ligi
 
 <div>
 
-<label>Katibu — Klabu ya Sasa *</label>
+<label>Katibu — Klabu Mpya *</label>
 
 <input id="toSecretary">
 
@@ -1205,24 +1153,15 @@ Mkopo wa Ligi
 
 <div class="actions">
 
-<button
-    class="btn success"
-    onclick="saveTransfer()"
->
-💾 Save Transfer
+<button class="btn success" onclick="saveTransfer()">
+💾 Save Transfer + Contract
 </button>
 
-<button
-    class="btn primary"
-    onclick="previewCurrent()"
->
-👁️ Preview
+<button class="btn primary" onclick="previewCurrent()">
+👁️ Preview A4
 </button>
 
-<button
-    class="btn light"
-    onclick="resetForm()"
->
+<button class="btn light" onclick="resetForm()">
 ↺ Reset
 </button>
 
@@ -1233,11 +1172,13 @@ Mkopo wa Ligi
 </section>
 
 
-<!-- ================= HISTORY ================= -->
+<!-- =====================================================
+     HISTORY
+===================================================== -->
 
 <section id="history" class="tab">
 
-<h2>📜 Transfer History</h2>
+<h2>📜 Transfer & Contract History</h2>
 
 <div class="panel">
 
@@ -1255,7 +1196,9 @@ Mkopo wa Ligi
 </section>
 
 
-<!-- ================= REPORTS ================= -->
+<!-- =====================================================
+     REPORTS
+===================================================== -->
 
 <section id="reports" class="tab">
 
@@ -1285,24 +1228,15 @@ Mkopo wa Ligi
 
 <div class="actions">
 
-<button
-    class="btn primary"
-    onclick="filterReport()"
->
+<button class="btn primary" onclick="filterReport()">
 🔎 Tafuta
 </button>
 
-<button
-    class="btn success"
-    onclick="downloadCSV()"
->
+<button class="btn success" onclick="downloadCSV()">
 📥 Download CSV
 </button>
 
-<button
-    class="btn light"
-    onclick="clearReportFilter()"
->
+<button class="btn light" onclick="clearReportFilter()">
 ↺ Reset
 </button>
 
@@ -1317,7 +1251,9 @@ Mkopo wa Ligi
 </main>
 
 
-<!-- ================= CONTRACT MODAL ================= -->
+<!-- =====================================================
+     A4 CONTRACT / TRANSFER MODAL
+===================================================== -->
 
 <div id="contractModal" class="modal">
 
@@ -1327,7 +1263,7 @@ Mkopo wa Ligi
 ✕ Funga
 </button>
 
-<button class="btn primary" onclick="window.print()">
+<button class="btn primary" onclick="printA4()">
 🖨️ Print A4
 </button>
 
@@ -1342,7 +1278,9 @@ Mkopo wa Ligi
 </div>
 
 
-<!-- ================= LICENSE MODAL ================= -->
+<!-- =====================================================
+     LICENCE MODAL
+===================================================== -->
 
 <div id="licenseModal" class="modal">
 
@@ -1352,7 +1290,7 @@ Mkopo wa Ligi
 ✕ Funga
 </button>
 
-<button class="btn primary" onclick="window.print()">
+<button class="btn primary" onclick="printLicense()">
 🖨️ Print Licence
 </button>
 
@@ -1367,7 +1305,7 @@ Mkopo wa Ligi
 
 /* =========================================================
    AFRN FOOTBALL MANAGEMENT
-   TRANSFERS + CONTRACT + PLAYER LICENCE
+   TRANSFER + CONTRACT + LICENCE
    ========================================================= */
 
 const db = window.supabaseClient;
@@ -1387,7 +1325,7 @@ let editingId = null;
 
 /* =========================================================
    HELPERS
-   ========================================================= */
+========================================================= */
 
 const $ = id => document.getElementById(id);
 
@@ -1395,11 +1333,11 @@ const $ = id => document.getElementById(id);
 function escapeHTML(value){
 
     return String(value ?? "")
-    .replace(/&/g,"&amp;")
-    .replace(/</g,"&lt;")
-    .replace(/>/g,"&gt;")
-    .replace(/"/g,"&quot;")
-    .replace(/'/g,"&#039;");
+        .replace(/&/g,"&amp;")
+        .replace(/</g,"&lt;")
+        .replace(/>/g,"&gt;")
+        .replace(/"/g,"&quot;")
+        .replace(/'/g,"&#039;");
 
 }
 
@@ -1407,8 +1345,8 @@ function escapeHTML(value){
 function today(){
 
     return new Date()
-    .toISOString()
-    .slice(0,10);
+        .toISOString()
+        .slice(0,10);
 
 }
 
@@ -1460,7 +1398,8 @@ function getClub(id){
 
 function statusBadge(status){
 
-    const s = String(status || "DRAFT").toUpperCase();
+    const s =
+        String(status || "DRAFT").toUpperCase();
 
     let cls = "badgeDraft";
 
@@ -1480,19 +1419,19 @@ function statusBadge(status){
 
 /* =========================================================
    TAB
-   ========================================================= */
+========================================================= */
 
 function showTab(id,button){
 
     document
-    .querySelectorAll(".tab")
-    .forEach(x => x.classList.remove("active"));
+        .querySelectorAll(".tab")
+        .forEach(x => x.classList.remove("active"));
 
     $(id).classList.add("active");
 
     document
-    .querySelectorAll("nav button")
-    .forEach(x => x.classList.remove("active"));
+        .querySelectorAll("nav button")
+        .forEach(x => x.classList.remove("active"));
 
     if(button)
         button.classList.add("active");
@@ -1504,7 +1443,7 @@ function showTab(id,button){
 
 /* =========================================================
    MESSAGE
-   ========================================================= */
+========================================================= */
 
 function showMessage(text,type="notice"){
 
@@ -1524,21 +1463,23 @@ function showMessage(text,type="notice"){
 
 /* =========================================================
    LOAD PLAYERS
-   ========================================================= */
+========================================================= */
 
 async function loadPlayers(){
 
-    const {data,error} = await db
-    .from("players")
-    .select("*")
-    .order("first_name",{ascending:true});
+    const {data,error} =
+        await db
+        .from("players")
+        .select("*")
+        .order("first_name",{ascending:true});
 
     if(error){
 
         console.error(error);
 
         showMessage(
-            "❌ Imeshindikana kusoma Players: " + error.message,
+            "❌ Imeshindikana kusoma Players: " +
+            error.message,
             "error"
         );
 
@@ -1579,21 +1520,23 @@ async function loadPlayers(){
 
 /* =========================================================
    LOAD CLUBS
-   ========================================================= */
+========================================================= */
 
 async function loadClubs(){
 
-    const {data,error} = await db
-    .from("clubs")
-    .select("*")
-    .order("name",{ascending:true});
+    const {data,error} =
+        await db
+        .from("clubs")
+        .select("*")
+        .order("name",{ascending:true});
 
     if(error){
 
         console.error(error);
 
         showMessage(
-            "❌ Imeshindikana kusoma Clubs: " + error.message,
+            "❌ Imeshindikana kusoma Clubs: " +
+            error.message,
             "error"
         );
 
@@ -1617,7 +1560,6 @@ async function loadClubs(){
             document.createElement("option");
 
         option.value = c.id;
-
         option.textContent = c.name;
 
         select.appendChild(option);
@@ -1629,14 +1571,15 @@ async function loadClubs(){
 
 /* =========================================================
    LOAD TRANSFERS
-   ========================================================= */
+========================================================= */
 
 async function loadTransfers(){
 
-    const {data,error} = await db
-    .from(TRANSFER_TABLE)
-    .select("*")
-    .order("created_at",{ascending:false});
+    const {data,error} =
+        await db
+        .from(TRANSFER_TABLE)
+        .select("*")
+        .order("created_at",{ascending:false});
 
     if(error){
 
@@ -1661,7 +1604,7 @@ async function loadTransfers(){
 
 /* =========================================================
    PLAYER SELECTED
-   ========================================================= */
+========================================================= */
 
 function playerSelected(){
 
@@ -1672,12 +1615,12 @@ function playerSelected(){
     if(!p){
 
         clearPlayerPreview();
-
         return;
 
     }
 
-    const currentClub = getClub(p.club_id);
+    const currentClub =
+        getClub(p.club_id);
 
     $("playerIdText").value =
         p.afrn_player_id ||
@@ -1732,10 +1675,6 @@ function playerSelected(){
     $("playerPreview").style.display =
         "block";
 
-    /*
-       Usiruhusu klabu ile ile.
-    */
-
     [...$("toClub").options].forEach(option => {
 
         if(!option.value){
@@ -1757,8 +1696,8 @@ function playerSelected(){
 
 
 /* =========================================================
-   PLACEHOLDER PHOTO
-   ========================================================= */
+   PLACEHOLDER
+========================================================= */
 
 function placeholderPhoto(){
 
@@ -1787,12 +1726,11 @@ function placeholderPhoto(){
 
 /* =========================================================
    CLEAR PLAYER
-   ========================================================= */
+========================================================= */
 
 function clearPlayerPreview(){
 
-    $("playerPreview").style.display =
-        "none";
+    $("playerPreview").style.display = "none";
 
     $("playerIdText").value = "";
     $("playerName").value = "";
@@ -1805,8 +1743,8 @@ function clearPlayerPreview(){
 
 
 /* =========================================================
-   TRANSFER VALIDATION
-   ========================================================= */
+   VALIDATE TRANSFER
+========================================================= */
 
 function validateTransfer(){
 
@@ -1842,8 +1780,8 @@ function validateTransfer(){
 
 
 /* =========================================================
-   TRANSFER TYPE UI
-   ========================================================= */
+   TRANSFER TYPE
+========================================================= */
 
 function updateTransferTypeUI(){
 
@@ -1854,27 +1792,27 @@ function updateTransferTypeUI(){
         type === "Loan Transfer";
 
     $("permanentContractBox")
-    .classList.toggle("hidden",isLoan);
+        .classList.toggle("hidden",isLoan);
 
     $("permanentContractEndBox")
-    .classList.toggle("hidden",isLoan);
+        .classList.toggle("hidden",isLoan);
 
     $("contractYearsBox")
-    .classList.toggle("hidden",isLoan);
+        .classList.toggle("hidden",isLoan);
 
     $("loanTypeBox")
-    .classList.toggle("hidden",!isLoan);
+        .classList.toggle("hidden",!isLoan);
 
     if(!isLoan){
 
         $("loanMonthsBox")
-        .classList.add("hidden");
+            .classList.add("hidden");
 
         $("leagueNameBox")
-        .classList.add("hidden");
+            .classList.add("hidden");
 
         $("leagueReturnBox")
-        .classList.add("hidden");
+            .classList.add("hidden");
 
         return;
 
@@ -1886,8 +1824,8 @@ function updateTransferTypeUI(){
 
 
 /* =========================================================
-   LOAN TYPE UI
-   ========================================================= */
+   LOAN TYPE
+========================================================= */
 
 function updateLoanTypeUI(){
 
@@ -1901,20 +1839,20 @@ function updateLoanTypeUI(){
         type === "LEAGUE";
 
     $("loanMonthsBox")
-    .classList.toggle("hidden",!monthly);
+        .classList.toggle("hidden",!monthly);
 
     $("leagueNameBox")
-    .classList.toggle("hidden",!league);
+        .classList.toggle("hidden",!league);
 
     $("leagueReturnBox")
-    .classList.toggle("hidden",!league);
+        .classList.toggle("hidden",!league);
 
 }
 
 
 /* =========================================================
    CONTRACT YEARS
-   ========================================================= */
+========================================================= */
 
 function calculateYears(){
 
@@ -1933,22 +1871,16 @@ function calculateYears(){
     if(e <= s){
 
         $("contractYears").value = "";
-
         return;
 
     }
 
     const diff =
-        e.getTime() -
-        s.getTime();
+        e.getTime() - s.getTime();
 
     const years =
         diff /
-        (365.25 *
-         24 *
-         60 *
-         60 *
-         1000);
+        (365.25 * 24 * 60 * 60 * 1000);
 
     $("contractYears").value =
         years.toFixed(1);
@@ -1957,8 +1889,34 @@ function calculateYears(){
 
 
 /* =========================================================
-   NOTES
-   ========================================================= */
+   LOAN END DATE
+========================================================= */
+
+function calculateLoanEndDate(){
+
+    const transferDate =
+        $("transferDate").value;
+
+    const months =
+        parseInt($("loanMonths").value || 0);
+
+    if(!transferDate || !months)
+        return null;
+
+    const d =
+        new Date(transferDate + "T00:00:00");
+
+    d.setMonth(d.getMonth() + months);
+
+    return d.toISOString().slice(0,10);
+
+}
+
+
+/* =========================================================
+   BUILD NOTES
+   CONTRACT DATA IS STORED INSIDE EXISTING NOTES COLUMN
+========================================================= */
 
 function buildNotes(){
 
@@ -1966,6 +1924,15 @@ function buildNotes(){
 
         agreement_notes:
             $("notes").value.trim(),
+
+        contract_start:
+            $("contractStart").value || null,
+
+        contract_end:
+            $("contractEnd").value || null,
+
+        contract_years:
+            $("contractYears").value || null,
 
         loan_type:
             $("loanType").value || null,
@@ -1975,6 +1942,9 @@ function buildNotes(){
 
         league_name:
             $("leagueName").value.trim() || null,
+
+        loan_end_date:
+            calculateLoanEndDate(),
 
         leaders:{
 
@@ -2008,16 +1978,27 @@ function buildNotes(){
 }
 
 
+/* =========================================================
+   READ NOTES
+========================================================= */
+
 function readNotes(raw){
 
-    if(!raw)
+    if(!raw){
+
         return {
             agreement_notes:"",
-            leaders:{},
+            contract_start:"",
+            contract_end:"",
+            contract_years:"",
             loan_type:"",
             loan_months:"",
-            league_name:""
+            league_name:"",
+            loan_end_date:"",
+            leaders:{}
         };
+
+    }
 
     try{
 
@@ -2029,8 +2010,14 @@ function readNotes(raw){
             agreement_notes:
                 obj.agreement_notes || "",
 
-            leaders:
-                obj.leaders || {},
+            contract_start:
+                obj.contract_start || "",
+
+            contract_end:
+                obj.contract_end || "",
+
+            contract_years:
+                obj.contract_years || "",
 
             loan_type:
                 obj.loan_type || "",
@@ -2039,7 +2026,13 @@ function readNotes(raw){
                 obj.loan_months || "",
 
             league_name:
-                obj.league_name || ""
+                obj.league_name || "",
+
+            loan_end_date:
+                obj.loan_end_date || "",
+
+            leaders:
+                obj.leaders || {}
 
         };
 
@@ -2049,13 +2042,14 @@ function readNotes(raw){
 
             agreement_notes:String(raw),
 
-            leaders:{},
-
+            contract_start:"",
+            contract_end:"",
+            contract_years:"",
             loan_type:"",
-
             loan_months:"",
-
-            league_name:""
+            league_name:"",
+            loan_end_date:"",
+            leaders:{}
 
         };
 
@@ -2066,7 +2060,7 @@ function readNotes(raw){
 
 /* =========================================================
    TRANSFER ID
-   ========================================================= */
+========================================================= */
 
 function generateTransferId(){
 
@@ -2083,8 +2077,10 @@ function generateTransferId(){
         const match =
             id.match(/TR-(\d{4})-(\d+)/);
 
-        if(match &&
-           Number(match[1]) === year){
+        if(
+            match &&
+            Number(match[1]) === year
+        ){
 
             max =
                 Math.max(
@@ -2103,7 +2099,7 @@ function generateTransferId(){
 
 /* =========================================================
    SAVE TRANSFER
-   ========================================================= */
+========================================================= */
 
 async function saveTransfer(){
 
@@ -2172,7 +2168,7 @@ async function saveTransfer(){
     if(!toClub){
 
         showMessage(
-            "❌ Chagua Klabu ya Sasa.",
+            "❌ Chagua klabu mpya.",
             "error"
         );
 
@@ -2197,7 +2193,7 @@ async function saveTransfer(){
     ){
 
         showMessage(
-            "❌ Klabu Anayotoka na Klabu ya Sasa haziwezi kuwa sawa.",
+            "❌ Klabu anayotoka na klabu mpya haziwezi kuwa sawa.",
             "error"
         );
 
@@ -2205,11 +2201,8 @@ async function saveTransfer(){
 
     }
 
-    if(!validateTransfer())
-        return;
 
-
-    /* ================= LOAN VALIDATION ================= */
+    /* LOAN */
 
     if(transferType === "Loan Transfer"){
 
@@ -2229,7 +2222,7 @@ async function saveTransfer(){
 
         if(
             loanType === "MONTHLY" &&
-            !$("loanMonths").value
+            !parseInt($("loanMonths").value)
         ){
 
             showMessage(
@@ -2258,11 +2251,17 @@ async function saveTransfer(){
     }
 
 
-    /* ================= PERMANENT VALIDATION ================= */
+    /* CONTRACT */
 
     if(transferType !== "Loan Transfer"){
 
-        if(!$("contractStart").value){
+        const start =
+            $("contractStart").value;
+
+        const end =
+            $("contractEnd").value;
+
+        if(!start){
 
             showMessage(
                 "❌ Weka Contract Start.",
@@ -2273,7 +2272,7 @@ async function saveTransfer(){
 
         }
 
-        if(!$("contractEnd").value){
+        if(!end){
 
             showMessage(
                 "❌ Weka Contract End.",
@@ -2284,10 +2283,7 @@ async function saveTransfer(){
 
         }
 
-        if(
-            $("contractEnd").value <
-            $("contractStart").value
-        ){
+        if(end < start){
 
             showMessage(
                 "❌ Contract End haiwezi kuwa kabla ya Contract Start.",
@@ -2301,7 +2297,7 @@ async function saveTransfer(){
     }
 
 
-    /* ================= LEADERS ================= */
+    /* LEADERS */
 
     const requiredLeaders = [
 
@@ -2339,14 +2335,6 @@ async function saveTransfer(){
         generateTransferId();
 
 
-    /*
-       IMPORTANT:
-       Tunahifadhi from_club_id na to_club_id.
-       UI itaita:
-       Klabu Anayotoka
-       Klabu ya Sasa
-    */
-
     const payload = {
 
         player_id:
@@ -2377,15 +2365,17 @@ async function saveTransfer(){
             transferType,
 
         loan_end_date:
-            null
+            transferType === "Loan Transfer"
+            ? calculateLoanEndDate()
+            : null
 
     };
 
 
     showMessage(
         editingId
-        ? "⏳ Inasasisha Transfer..."
-        : "⏳ Inahifadhi Transfer...",
+        ? "⏳ Inasasisha Transfer + Contract..."
+        : "⏳ Inahifadhi Transfer + Contract...",
         "notice"
     );
 
@@ -2437,12 +2427,9 @@ async function saveTransfer(){
         result.data.id;
 
 
-    await loadTransfers();
-
-
     /*
-       If COMPLETED:
-       update player current club.
+       IMPORTANT:
+       Only COMPLETED changes player's current club.
     */
 
     if(
@@ -2461,22 +2448,25 @@ async function saveTransfer(){
 
         if(updatePlayer.error){
 
-            console.warn(
-                "Transfer saved but player club was not updated:",
-                updatePlayer.error
+            console.error(updatePlayer.error);
+
+            showMessage(
+                "⚠️ Transfer imehifadhiwa lakini klabu ya mchezaji haikubadilishwa: " +
+                updatePlayer.error.message,
+                "error"
             );
-
-        }else{
-
-            await loadPlayers();
 
         }
 
     }
 
 
+    await loadPlayers();
+    await loadTransfers();
+
+
     showMessage(
-        "✅ Transfer imehifadhiwa kikamilifu.",
+        "✅ Transfer + Contract imehifadhiwa kikamilifu.",
         "success"
     );
 
@@ -2487,8 +2477,8 @@ async function saveTransfer(){
 
 
 /* =========================================================
-   CONTRACT
-   ========================================================= */
+   CONTRACT PAPER
+========================================================= */
 
 function openContract(t){
 
@@ -2516,22 +2506,17 @@ function openContract(t){
         );
 
     $("contractModal")
-    .classList.add("show");
+        .classList.add("show");
 
 }
 
 
 /* =========================================================
-   CONTRACT HTML
-   ========================================================= */
+   A4 AGREEMENT
+   ONE PAGE ONLY
+========================================================= */
 
-function agreementHTML(
-    t,
-    p,
-    from,
-    to,
-    meta
-){
+function agreementHTML(t,p,from,to,meta){
 
     const v =
         value =>
@@ -2567,16 +2552,26 @@ function agreementHTML(
         "Uhamisho wa Kudumu";
 
 
-    if(isLoan){
-
+    if(isLoan)
         transferDescription =
             "Uhamisho wa Mkopo";
 
-    }
+    else if(
+        t.transfer_type ===
+        "Free Transfer"
+    )
+        transferDescription =
+            "Uhamisho wa Bure";
+
+    else if(
+        t.transfer_type ===
+        "Return from Loan"
+    )
+        transferDescription =
+            "Kurudi kutoka Mkopo";
 
 
     let loanDescription = "";
-
 
     if(isLoan){
 
@@ -2589,12 +2584,26 @@ function agreementHTML(
         }else if(meta.loan_type === "MONTHLY"){
 
             loanDescription =
-                `Mkopo wa Miezi: ${v(meta.loan_months)}.
-                 Muda wa mkopo ni miezi ${v(meta.loan_months)}.`;
+                `Mkopo wa Miezi ${v(meta.loan_months)}.
+                 Mwisho wa mkopo: ${v(meta.loan_end_date)}.`;
 
         }
 
     }
+
+
+    const contractStart =
+        meta.contract_start ||
+        t.transfer_date ||
+        "";
+
+    const contractEnd =
+        meta.contract_end ||
+        "";
+
+    const contractYears =
+        meta.contract_years ||
+        "";
 
 
     return `
@@ -2699,18 +2708,18 @@ ${v(to?.name)}
 <div class="sec">
 
 <div class="secTitle">
-02 — AINA YA UHAMISHO
+02 — AINA YA UHAMISHO NA MKATABA
 </div>
 
 <table class="a4Table">
 
 <tr>
 
-<th>Aina</th>
+<th>Aina ya Uhamisho</th>
 
 <th>Tarehe</th>
 
-<th>Muda / Masharti</th>
+<th>Mkataba / Masharti</th>
 
 </tr>
 
@@ -2729,17 +2738,26 @@ ${v(t.transfer_date)}
 ${
 isLoan
 ?
-v(loanDescription)
+`
+<b>Aina ya Mkopo:</b>
+${v(
+    meta.loan_type === "LEAGUE"
+    ? "Mkopo wa Ligi"
+    : "Mkopo wa Miezi"
+)}
+<br>
+${v(loanDescription)}
+`
 :
 `
-Mkataba unaanza:
-<b>${v($("contractStart")?.value || t.transfer_date)}</b>
+<b>Contract Start:</b>
+${v(contractStart)}
 <br>
-Mkataba unaisha:
-<b>${v($("contractEnd")?.value)}</b>
+<b>Contract End:</b>
+${v(contractEnd)}
 <br>
-Muda:
-<b>${v($("contractYears")?.value)}</b> Miaka
+<b>Muda:</b>
+${v(contractYears)} Miaka
 `
 }
 
@@ -2783,9 +2801,11 @@ ${v(loanDescription)}
 `
 <br><br>
 Mkataba unaanza tarehe
-<b>${v($("contractStart")?.value || t.transfer_date)}</b>
+<b>${v(contractStart)}</b>
 na kuisha tarehe
-<b>${v($("contractEnd")?.value)}</b>.
+<b>${v(contractEnd)}</b>,
+kwa muda wa
+<b>${v(contractYears)}</b> Miaka.
 `
 }
 
@@ -2805,7 +2825,6 @@ ${escapeHTML(meta.agreement_notes)}
 `
 :
 ""
-
 }
 
 </div>
@@ -2835,7 +2854,7 @@ ${v(leaders.from_chairman)}
 
 Saini
 
-<br><br>
+<br>
 
 <b>Katibu:</b>
 ${v(leaders.from_secretary)}
@@ -2860,7 +2879,7 @@ ${v(leaders.to_chairman)}
 
 Saini
 
-<br><br>
+<br>
 
 <b>Katibu:</b>
 ${v(leaders.to_secretary)}
@@ -2879,13 +2898,16 @@ MCHEZAJI
 </h4>
 
 <b>Jina:</b>
-${v(leaders.player_representative || playerName(p))}
+${v(
+    leaders.player_representative ||
+    playerName(p)
+)}
 
 <div class="signatureLine"></div>
 
 Saini
 
-<br><br>
+<br>
 
 <b>Tarehe:</b>
 
@@ -2913,19 +2935,17 @@ ${v(leaders.federation_chairman)}
 <br>
 
 Saini:
+____________________
 
-____________________________
+&nbsp;&nbsp;
 
-<br><br>
-
-<b>Katibu wa Shirikisho:</b>
+<b>Katibu:</b>
 ${v(leaders.federation_secretary)}
 
 <br>
 
 Saini / Muhuri:
-
-____________________________
+____________________
 
 </div>
 
@@ -2952,7 +2972,7 @@ ${v(t.transfer_number)}
 
 /* =========================================================
    PREVIEW
-   ========================================================= */
+========================================================= */
 
 function previewCurrent(){
 
@@ -2961,10 +2981,7 @@ function previewCurrent(){
 
     if(!playerId){
 
-        alert(
-            "Chagua mchezaji kwanza."
-        );
-
+        alert("Chagua mchezaji kwanza.");
         return;
 
     }
@@ -3019,21 +3036,32 @@ function previewCurrent(){
 
 /* =========================================================
    CLOSE CONTRACT
-   ========================================================= */
+========================================================= */
 
 function closeContract(){
 
     $("contractModal")
-    .classList.remove("show");
+        .classList.remove("show");
 
 }
 
 
 /* =========================================================
-   EDIT TRANSFER
-   ========================================================= */
+   PRINT A4
+========================================================= */
 
-async function editTransfer(id){
+function printA4(){
+
+    window.print();
+
+}
+
+
+/* =========================================================
+   EDIT
+========================================================= */
+
+function editTransfer(id){
 
     const t =
         transfers.find(
@@ -3044,19 +3072,13 @@ async function editTransfer(id){
 
     if(!t){
 
-        alert(
-            "Transfer haijapatikana."
-        );
-
+        alert("Transfer haijapatikana.");
         return;
 
     }
 
-    editingId =
-        t.id;
-
-    currentTransfer =
-        t;
+    editingId = t.id;
+    currentTransfer = t;
 
     showTab(
         "newTransfer",
@@ -3083,6 +3105,15 @@ async function editTransfer(id){
 
     const meta =
         readNotes(t.notes);
+
+    $("contractStart").value =
+        meta.contract_start || "";
+
+    $("contractEnd").value =
+        meta.contract_end || "";
+
+    $("contractYears").value =
+        meta.contract_years || "";
 
     $("loanType").value =
         meta.loan_type || "";
@@ -3127,7 +3158,7 @@ async function editTransfer(id){
         "Existing Transfer";
 
     showMessage(
-        "✏️ Unahariri Transfer " +
+        "✏️ Unahariri Transfer + Contract " +
         (t.transfer_number || ""),
         "notice"
     );
@@ -3136,20 +3167,10 @@ async function editTransfer(id){
 
 
 /* =========================================================
-   DELETE TRANSFER
-   ========================================================= */
+   DELETE
+========================================================= */
 
 async function deleteTransfer(id){
-
-    if(!id){
-
-        alert(
-            "❌ Transfer ID haijapatikana."
-        );
-
-        return;
-
-    }
 
     const t =
         transfers.find(
@@ -3160,10 +3181,7 @@ async function deleteTransfer(id){
 
     if(!t){
 
-        alert(
-            "❌ Transfer haijapatikana."
-        );
-
+        alert("❌ Transfer haijapatikana.");
         return;
 
     }
@@ -3174,23 +3192,11 @@ async function deleteTransfer(id){
     const yes =
         confirm(
             "⚠️ UNATAKA KUFUTA TRANSFER HII?\n\n" +
-
             "Mchezaji: " +
             playerName(p) +
-
             "\nTransfer ID: " +
-            (
-                t.transfer_number ||
-                t.id
-            ) +
-
-            "\n\n" +
-
-            "Transfer hii itaondolewa kabisa kwenye database ya transfers.\n" +
-
-            "Mchezaji mwenyewe hatafutwa kwenye Players.\n\n" +
-
-            "Endelea?"
+            (t.transfer_number || t.id) +
+            "\n\nTransfer na taarifa zake zitaondolewa kwenye database.\n\nEndelea?"
         );
 
     if(!yes)
@@ -3205,8 +3211,6 @@ async function deleteTransfer(id){
 
 
     if(error){
-
-        console.error(error);
 
         alert(
             "❌ Imeshindikana kufuta Transfer:\n\n" +
@@ -3252,9 +3256,8 @@ async function deleteTransfer(id){
 
     closeContract();
 
-
     alert(
-        "✅ Transfer imefutwa kabisa kwenye database."
+        "✅ Transfer imefutwa."
     );
 
 }
@@ -3262,14 +3265,12 @@ async function deleteTransfer(id){
 
 /* =========================================================
    RENDER
-   ========================================================= */
+========================================================= */
 
 function renderAll(){
 
     renderDashboard();
-
     renderHistory();
-
     renderReport();
 
 }
@@ -3277,7 +3278,7 @@ function renderAll(){
 
 /* =========================================================
    DASHBOARD
-   ========================================================= */
+========================================================= */
 
 function renderDashboard(){
 
@@ -3326,7 +3327,7 @@ function renderDashboard(){
 
 /* =========================================================
    HISTORY
-   ========================================================= */
+========================================================= */
 
 function renderHistory(){
 
@@ -3354,17 +3355,11 @@ function renderHistory(){
             const text = [
 
                 playerName(p),
-
                 p?.afrn_player_id,
-
                 t.transfer_number,
-
                 from,
-
                 to,
-
                 t.transfer_type,
-
                 t.status
 
             ]
@@ -3384,7 +3379,7 @@ function renderHistory(){
 
 /* =========================================================
    TABLE
-   ========================================================= */
+========================================================= */
 
 function buildTable(list){
 
@@ -3411,6 +3406,8 @@ function buildTable(list){
             const to =
                 clubName(t.to_club_id);
 
+            const meta =
+                readNotes(t.notes);
 
             return `
 
@@ -3423,7 +3420,6 @@ ${escapeHTML(
 )}
 </td>
 
-
 <td>
 
 <b>
@@ -3434,50 +3430,73 @@ ${escapeHTML(playerName(p))}
 
 <small>
 ${escapeHTML(
-    p?.afrn_player_id ||
-    ""
+    p?.afrn_player_id || ""
 )}
 </small>
 
 </td>
 
-
 <td>
 ${escapeHTML(from)}
 </td>
-
 
 <td>
 ${escapeHTML(to)}
 </td>
 
-
 <td>
 ${escapeHTML(
     t.transfer_type ===
     "Permanent Transfer"
-    ?
-    "Uhamisho wa Kudumu"
+    ? "Uhamisho wa Kudumu"
     :
     t.transfer_type ===
     "Loan Transfer"
-    ?
-    "Uhamisho wa Mkopo"
+    ? "Uhamisho wa Mkopo"
     :
-    t.transfer_type
+    t.transfer_type ===
+    "Free Transfer"
+    ? "Uhamisho wa Bure"
+    :
+    "Kurudi kutoka Mkopo"
 )}
 </td>
-
 
 <td>
 ${escapeHTML(t.transfer_date)}
 </td>
 
+<td>
+
+${
+meta.contract_start
+?
+`
+<small>
+Contract:
+${escapeHTML(meta.contract_start)}
+ →
+${escapeHTML(meta.contract_end)}
+</small>
+`
+:
+meta.loan_end_date
+?
+`
+<small>
+Loan End:
+${escapeHTML(meta.loan_end_date)}
+</small>
+`
+:
+"—"
+}
+
+</td>
 
 <td>
 ${statusBadge(t.status)}
 </td>
-
 
 <td>
 
@@ -3485,9 +3504,8 @@ ${statusBadge(t.status)}
     class="btn primary"
     onclick="openContractById('${String(t.id)}')"
 >
-👁️ Mkataba
+👁️ A4
 </button>
-
 
 <button
     class="btn warning"
@@ -3496,14 +3514,12 @@ ${statusBadge(t.status)}
 ✏️ Edit
 </button>
 
-
 <button
     class="btn success"
     onclick="generateLicenseById('${String(t.id)}')"
 >
 🎫 Licence
 </button>
-
 
 <button
     class="btn danger"
@@ -3531,19 +3547,13 @@ ${statusBadge(t.status)}
 <tr>
 
 <th>Transfer ID</th>
-
 <th>Mchezaji</th>
-
 <th>Klabu Anayotoka</th>
-
-<th>Klabu ya Sasa</th>
-
+<th>Klabu Mpya</th>
 <th>Aina</th>
-
 <th>Tarehe</th>
-
+<th>Contract / Loan</th>
 <th>Status</th>
-
 <th>Vitendo</th>
 
 </tr>
@@ -3564,8 +3574,8 @@ ${rows}
 
 
 /* =========================================================
-   OPEN CONTRACT BY ID
-   ========================================================= */
+   OPEN CONTRACT
+========================================================= */
 
 function openContractById(id){
 
@@ -3578,10 +3588,7 @@ function openContractById(id){
 
     if(!t){
 
-        alert(
-            "Transfer haijapatikana."
-        );
-
+        alert("Transfer haijapatikana.");
         return;
 
     }
@@ -3592,8 +3599,8 @@ function openContractById(id){
 
 
 /* =========================================================
-   LICENSE
-   ========================================================= */
+   LICENCE
+========================================================= */
 
 async function generateLicenseById(id){
 
@@ -3606,10 +3613,7 @@ async function generateLicenseById(id){
 
     if(!t){
 
-        alert(
-            "Transfer haijapatikana."
-        );
-
+        alert("Transfer haijapatikana.");
         return;
 
     }
@@ -3668,6 +3672,8 @@ async function generateLicenseById(id){
             today(),
 
         expiry_date:
+            meta.contract_end ||
+            meta.loan_end_date ||
             null,
 
         photo_url:
@@ -3682,18 +3688,15 @@ async function generateLicenseById(id){
                     meta.league_name || null,
 
                 loan_months:
-                    meta.loan_months || null
+                    meta.loan_months || null,
+
+                transfer_number:
+                    t.transfer_number || null
 
             })
 
     };
 
-
-    /*
-       Tunajaribu kuhifadhi licence.
-       Kama licence tayari ipo kwa transfer hii,
-       UI bado itaonyeshwa.
-    */
 
     try{
 
@@ -3707,14 +3710,11 @@ async function generateLicenseById(id){
                 }
             );
 
-        if(error){
-
+        if(error)
             console.warn(
                 "Licence haijahifadhiwa:",
                 error.message
             );
-
-        }
 
     }catch(e){
 
@@ -3736,7 +3736,7 @@ async function generateLicenseById(id){
 
 /* =========================================================
    LICENSE HTML
-   ========================================================= */
+========================================================= */
 
 function openLicense(
     license,
@@ -3764,11 +3764,19 @@ function openLicense(
         type =
             "Uhamisho wa Mkopo";
 
+    }else if(
+        license.registration_type ===
+        "Free Transfer"
+    ){
+
+        type =
+            "Uhamisho wa Bure";
+
     }
 
 
     let duration =
-        "—";
+        "Kudumu";
 
 
     if(
@@ -3791,11 +3799,6 @@ function openLicense(
                 "—"
             ) +
             " Miezi";
-
-    }else{
-
-        duration =
-            "Kudumu";
 
     }
 
@@ -3823,7 +3826,10 @@ SHIRIKISHO LA MPIRA WA MIGUU KAMBINI NYARUGUSU
 
 <img
     class="licensePhoto"
-    src="${escapeHTML(photo || placeholderPhoto())}"
+    src="${escapeHTML(
+        photo ||
+        placeholderPhoto()
+    )}"
 >
 
 
@@ -3883,31 +3889,41 @@ AFRN OFFICIAL
 `;
 
     $("licenseModal")
-    .classList.add("show");
+        .classList.add("show");
 
 }
 
 
 /* =========================================================
    CLOSE LICENSE
-   ========================================================= */
+========================================================= */
 
 function closeLicense(){
 
     $("licenseModal")
-    .classList.remove("show");
+        .classList.remove("show");
 
 }
 
 
 /* =========================================================
-   RESET FORM
-   ========================================================= */
+   PRINT LICENCE
+========================================================= */
+
+function printLicense(){
+
+    window.print();
+
+}
+
+
+/* =========================================================
+   RESET
+========================================================= */
 
 function resetForm(){
 
     editingId = null;
-
     currentTransfer = null;
 
     $("playerId").value = "";
@@ -3982,7 +3998,7 @@ function resetForm(){
 
 /* =========================================================
    REPORT
-   ========================================================= */
+========================================================= */
 
 function filterReport(){
 
@@ -3994,7 +4010,6 @@ function filterReport(){
 function clearReportFilter(){
 
     $("reportStart").value = "";
-
     $("reportEnd").value = "";
 
     renderReport();
@@ -4009,7 +4024,6 @@ function renderReport(){
 
     const end =
         $("reportEnd")?.value || "";
-
 
     let list =
         [...transfers];
@@ -4068,7 +4082,7 @@ function renderReport(){
 
 /* =========================================================
    CSV
-   ========================================================= */
+========================================================= */
 
 function csvEscape(v){
 
@@ -4085,7 +4099,6 @@ function downloadCSV(){
 
     const end =
         $("reportEnd")?.value || "";
-
 
     let list =
         [...transfers];
@@ -4116,13 +4129,16 @@ function downloadCSV(){
 
 
     let csv =
-        "Transfer ID,Player ID,Player Name,Klabu Anayotoka,Klabu ya Sasa,Aina,Tarehe,Status\n";
+        "Transfer ID,Player ID,Player Name,Klabu Anayotoka,Klabu Mpya,Aina,Tarehe,Contract Start,Contract End,Contract Years,Loan End,Status\n";
 
 
     list.forEach(t => {
 
         const p =
             getPlayer(t.player_id);
+
+        const meta =
+            readNotes(t.notes);
 
 
         csv += [
@@ -4144,12 +4160,19 @@ function downloadCSV(){
 
             t.transfer_date,
 
+            meta.contract_start,
+
+            meta.contract_end,
+
+            meta.contract_years,
+
+            meta.loan_end_date,
+
             t.status
 
         ]
         .map(csvEscape)
         .join(",");
-
 
         csv += "\n";
 
@@ -4173,14 +4196,10 @@ function downloadCSV(){
     const a =
         document.createElement("a");
 
-
-    a.href =
-        url;
-
+    a.href = url;
 
     a.download =
-        "AFRN-Transfer-Report.csv";
-
+        "AFRN-Transfer-Contract-Report.csv";
 
     document.body.appendChild(a);
 
@@ -4199,15 +4218,15 @@ function downloadCSV(){
 
 
 /* =========================================================
-   DOWNLOAD CONTRACT
-   ========================================================= */
+   DOWNLOAD A4 CONTRACT
+========================================================= */
 
 function downloadContract(){
 
     if(!currentTransfer){
 
         alert(
-            "Hakuna mkataba wa kupakua."
+            "Hakuna Transfer Agreement ya kupakua."
         );
 
         return;
@@ -4290,10 +4309,7 @@ ${agreementHTML(
     const a =
         document.createElement("a");
 
-
-    a.href =
-        url;
-
+    a.href = url;
 
     a.download =
         "AFRN-Transfer-Agreement-" +
@@ -4302,7 +4318,6 @@ ${agreementHTML(
             t.id
         ) +
         ".html";
-
 
     document.body.appendChild(a);
 
@@ -4322,60 +4337,104 @@ ${agreementHTML(
 
 /* =========================================================
    EVENTS
-   ========================================================= */
+========================================================= */
 
 $("playerId")
-.addEventListener(
-    "change",
-    playerSelected
-);
+    .addEventListener(
+        "change",
+        playerSelected
+    );
 
 
 $("contractStart")
-.addEventListener(
-    "change",
-    calculateYears
-);
+    .addEventListener(
+        "change",
+        calculateYears
+    );
 
 
 $("contractEnd")
-.addEventListener(
-    "change",
-    calculateYears
-);
+    .addEventListener(
+        "change",
+        calculateYears
+    );
 
 
 $("toClub")
-.addEventListener(
-    "change",
-    validateTransfer
-);
+    .addEventListener(
+        "change",
+        validateTransfer
+    );
 
 
 $("transferType")
-.addEventListener(
-    "change",
-    updateTransferTypeUI
-);
+    .addEventListener(
+        "change",
+        updateTransferTypeUI
+    );
 
 
 $("loanType")
-.addEventListener(
-    "change",
-    updateLoanTypeUI
-);
+    .addEventListener(
+        "change",
+        updateLoanTypeUI
+    );
+
+
+$("loanMonths")
+    .addEventListener(
+        "input",
+        () => {
+            if(
+                $("transferType").value ===
+                "Loan Transfer"
+            ){
+                const end =
+                    calculateLoanEndDate();
+
+                console.log(
+                    "Loan End Date:",
+                    end
+                );
+            }
+        }
+    );
+
+
+$("transferDate")
+    .addEventListener(
+        "change",
+        () => {
+
+            if(
+                $("transferType").value ===
+                "Loan Transfer"
+            ){
+
+                const end =
+                    calculateLoanEndDate();
+
+                console.log(
+                    "Loan End Date:",
+                    end
+                );
+
+            }
+
+        }
+    );
 
 
 $("search")
-.addEventListener(
-    "input",
-    renderHistory
-);
+    .addEventListener(
+        "input",
+        renderHistory
+    );
 
 
 /* =========================================================
    INITIALIZE
-   ========================================================= */
+========================================================= */
 
 async function init(){
 
@@ -4394,13 +4453,10 @@ async function init(){
     $("transferDate").value =
         today();
 
-
     $("contractStart").value =
         today();
 
-
     updateTransferTypeUI();
-
 
     $("transferIdDisplay").textContent =
         "⏳ Inatengeneza...";
@@ -4418,7 +4474,7 @@ async function init(){
 
 
     console.log(
-        "AFRN Transfer Management initialized."
+        "AFRN Transfer + Contract Management initialized."
     );
 
 }
