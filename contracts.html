@@ -5,115 +5,38 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
-<title>AFRN - Player Contract</title>
+<title>AFRN Football Management - Contract Management</title>
+
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 
 <style>
+:root{
+    --navy:#071a33;
+    --navy2:#0b2548;
+    --blue:#0d47a1;
+    --blue2:#1565c0;
+    --gold:#d4af37;
+    --green:#16803c;
+    --red:#c62828;
+    --orange:#e67e22;
+    --bg:#eef2f7;
+    --white:#fff;
+    --text:#172033;
+    --muted:#667085;
+    --border:#d9e1ec;
+    --light:#f7f9fc;
+    --shadow:0 8px 28px rgba(7,26,51,.10);
+}
+
 *{
     box-sizing:border-box;
 }
 
-:root{
-    --navy:#071a33;
-    --blue:#0d47a1;
-    --gold:#d4af37;
-    --text:#172033;
-    --muted:#667085;
-    --border:#dce3ed;
-    --light:#f5f7fa;
-}
-
 body{
     margin:0;
-    background:#e9edf3;
-    font-family:Arial, Helvetica, sans-serif;
+    background:var(--bg);
+    font-family:Arial,Helvetica,sans-serif;
     color:var(--text);
-}
-
-/* =========================================================
-   TOOLBAR
-========================================================= */
-
-.toolbar{
-    width:210mm;
-    margin:20px auto 0;
-    display:flex;
-    justify-content:flex-end;
-    gap:8px;
-}
-
-.toolbar button{
-    border:0;
-    padding:10px 16px;
-    border-radius:6px;
-    cursor:pointer;
-    font-size:12px;
-    font-weight:700;
-}
-
-.btn-print{
-    background:var(--navy);
-    color:white;
-}
-
-.btn-close{
-    background:white;
-    border:1px solid var(--border) !important;
-    color:var(--text);
-}
-
-/* =========================================================
-   A4 PAGE
-========================================================= */
-
-.a4{
-    width:210mm;
-    min-height:297mm;
-    margin:15px auto 25px;
-    background:white;
-    padding:13mm 15mm 22mm;
-    box-shadow:0 8px 35px rgba(0,0,0,.18);
-    position:relative;
-    overflow:hidden;
-}
-
-/* =========================================================
-   WATERMARK
-========================================================= */
-
-.a4::before{
-    content:"AFRN";
-    position:absolute;
-    top:105mm;
-    left:25mm;
-    font-size:110px;
-    font-weight:900;
-    letter-spacing:15px;
-    color:rgba(13,71,161,.035);
-    transform:rotate(-25deg);
-    pointer-events:none;
-    z-index:0;
-}
-
-/* Keep content above watermark */
-
-.a4 > *{
-    position:relative;
-    z-index:1;
-}
-
-/* =========================================================
-   TOP LINE
-========================================================= */
-
-.top-line{
-    height:5px;
-    background:linear-gradient(
-        90deg,
-        var(--navy) 0%,
-        var(--blue) 55%,
-        var(--gold) 100%
-    );
-    margin:-13mm -15mm 10px;
 }
 
 /* =========================================================
@@ -121,457 +44,941 @@ body{
 ========================================================= */
 
 .header{
+    background:linear-gradient(135deg,var(--navy),var(--navy2));
+    color:white;
+    min-height:76px;
     display:flex;
     align-items:center;
-    border-bottom:1.5px solid var(--navy);
-    padding-bottom:9px;
+    padding:10px 24px;
+    box-shadow:0 3px 12px rgba(0,0,0,.15);
 }
 
 .logo{
-    width:68px;
-    height:68px;
+    width:55px;
+    height:55px;
     object-fit:contain;
-    margin-right:12px;
+    margin-right:14px;
+    background:white;
+    border-radius:8px;
 }
 
-.header-center{
+.header-text h1{
+    margin:0;
+    font-size:18px;
+    font-weight:900;
+}
+
+.header-text h2{
+    margin:4px 0 0;
+    font-size:12px;
+    color:#dbe8ff;
+}
+
+.header-right{
+    margin-left:auto;
+    text-align:right;
+}
+
+.header-right small{
+    display:block;
+    color:#b9c8dd;
+    font-size:10px;
+}
+
+/* =========================================================
+   MAIN
+========================================================= */
+
+.container{
+    max-width:1450px;
+    margin:0 auto;
+    padding:22px;
+}
+
+.page-heading{
+    display:flex;
+    align-items:center;
+    justify-content:space-between;
+    margin-bottom:18px;
+}
+
+.page-heading h1{
+    margin:0;
+    color:var(--navy);
+    font-size:24px;
+}
+
+.page-heading p{
+    margin:5px 0 0;
+    color:var(--muted);
+    font-size:12px;
+}
+
+/* =========================================================
+   BUTTONS
+========================================================= */
+
+button{
+    font-family:inherit;
+}
+
+.btn{
+    border:0;
+    border-radius:7px;
+    padding:10px 15px;
+    cursor:pointer;
+    font-size:12px;
+    font-weight:800;
+    transition:.2s;
+}
+
+.btn:hover{
+    transform:translateY(-1px);
+}
+
+.btn-primary{
+    background:var(--blue);
+    color:white;
+}
+
+.btn-primary:hover{
+    background:#083b88;
+}
+
+.btn-dark{
+    background:var(--navy);
+    color:white;
+}
+
+.btn-light{
+    background:white;
+    color:var(--text);
+    border:1px solid var(--border);
+}
+
+.btn-success{
+    background:var(--green);
+    color:white;
+}
+
+.btn-warning{
+    background:var(--orange);
+    color:white;
+}
+
+.btn-danger{
+    background:var(--red);
+    color:white;
+}
+
+/* =========================================================
+   STATISTICS
+========================================================= */
+
+.stats{
+    display:grid;
+    grid-template-columns:repeat(4,1fr);
+    gap:14px;
+    margin-bottom:18px;
+}
+
+.stat{
+    background:white;
+    border:1px solid var(--border);
+    border-radius:10px;
+    padding:16px;
+    box-shadow:var(--shadow);
+    position:relative;
+    overflow:hidden;
+}
+
+.stat:after{
+    content:"";
+    position:absolute;
+    right:-25px;
+    bottom:-25px;
+    width:80px;
+    height:80px;
+    background:rgba(13,71,161,.05);
+    border-radius:50%;
+}
+
+.stat-label{
+    color:var(--muted);
+    font-size:11px;
+    font-weight:700;
+}
+
+.stat-number{
+    font-size:26px;
+    font-weight:900;
+    color:var(--navy);
+    margin-top:5px;
+}
+
+.stat.active .stat-number{
+    color:var(--green);
+}
+
+.stat.expiring .stat-number{
+    color:var(--orange);
+}
+
+.stat.expired .stat-number{
+    color:var(--red);
+}
+
+/* =========================================================
+   TOOLBAR
+========================================================= */
+
+.card{
+    background:white;
+    border:1px solid var(--border);
+    border-radius:10px;
+    box-shadow:var(--shadow);
+}
+
+.filters{
+    padding:15px;
+    display:grid;
+    grid-template-columns:2fr 1fr 1fr 1fr auto;
+    gap:10px;
+    align-items:center;
+}
+
+.input,
+.select{
+    width:100%;
+    border:1px solid var(--border);
+    background:#fff;
+    border-radius:7px;
+    padding:10px 11px;
+    font-size:12px;
+    outline:none;
+}
+
+.input:focus,
+.select:focus{
+    border-color:var(--blue);
+    box-shadow:0 0 0 3px rgba(13,71,161,.08);
+}
+
+/* =========================================================
+   TABLE
+========================================================= */
+
+.table-card{
+    margin-top:18px;
+    overflow:hidden;
+}
+
+.table-header{
+    padding:14px 16px;
+    border-bottom:1px solid var(--border);
+    display:flex;
+    align-items:center;
+    justify-content:space-between;
+}
+
+.table-header strong{
+    color:var(--navy);
+    font-size:13px;
+}
+
+.table-header span{
+    font-size:10px;
+    color:var(--muted);
+}
+
+.table-wrap{
+    overflow-x:auto;
+}
+
+table{
+    width:100%;
+    border-collapse:collapse;
+    min-width:980px;
+}
+
+thead{
+    background:#f4f7fb;
+}
+
+th{
+    text-align:left;
+    padding:11px 12px;
+    font-size:9px;
+    color:var(--muted);
+    text-transform:uppercase;
+    border-bottom:1px solid var(--border);
+}
+
+td{
+    padding:11px 12px;
+    font-size:11px;
+    border-bottom:1px solid #edf1f6;
+    vertical-align:middle;
+}
+
+tbody tr:hover{
+    background:#f9fbfe;
+}
+
+.player{
+    display:flex;
+    align-items:center;
+    gap:10px;
+}
+
+.player-photo{
+    width:40px;
+    height:46px;
+    border-radius:6px;
+    object-fit:cover;
+    border:1px solid var(--border);
+    background:#eef2f6;
+}
+
+.player-name{
+    font-weight:800;
+    color:var(--navy);
+}
+
+.player-id{
+    margin-top:3px;
+    font-size:9px;
+    color:var(--muted);
+}
+
+.club-name{
+    font-weight:700;
+}
+
+.date{
+    white-space:nowrap;
+}
+
+.actions{
+    display:flex;
+    gap:5px;
+    flex-wrap:wrap;
+}
+
+.action{
+    border:1px solid var(--border);
+    background:white;
+    padding:6px 8px;
+    border-radius:5px;
+    cursor:pointer;
+    font-size:9px;
+    font-weight:800;
+}
+
+.action:hover{
+    background:#f1f5fa;
+}
+
+.action.view{
+    color:var(--blue);
+}
+
+.action.edit{
+    color:#7b4f00;
+}
+
+.action.renew{
+    color:var(--green);
+}
+
+/* =========================================================
+   STATUS
+========================================================= */
+
+.status{
+    display:inline-flex;
+    align-items:center;
+    gap:5px;
+    padding:5px 8px;
+    border-radius:20px;
+    font-size:8px;
+    font-weight:900;
+}
+
+.status:before{
+    content:"";
+    width:6px;
+    height:6px;
+    border-radius:50%;
+    background:currentColor;
+}
+
+.status.active{
+    background:#e8f7ee;
+    color:var(--green);
+}
+
+.status.expiring{
+    background:#fff4e5;
+    color:var(--orange);
+}
+
+.status.expired{
+    background:#fdecec;
+    color:var(--red);
+}
+
+.status.free{
+    background:#f0f2f5;
+    color:#667085;
+}
+
+/* =========================================================
+   MODAL
+========================================================= */
+
+.modal{
+    position:fixed;
+    inset:0;
+    background:rgba(4,15,30,.68);
+    display:none;
+    align-items:center;
+    justify-content:center;
+    z-index:1000;
+    padding:20px;
+}
+
+.modal.show{
+    display:flex;
+}
+
+.modal-box{
+    width:min(760px,100%);
+    max-height:92vh;
+    overflow:auto;
+    background:white;
+    border-radius:12px;
+    box-shadow:0 20px 70px rgba(0,0,0,.3);
+}
+
+.modal-head{
+    background:var(--navy);
+    color:white;
+    padding:15px 18px;
+    display:flex;
+    align-items:center;
+    justify-content:space-between;
+}
+
+.modal-head h2{
+    margin:0;
+    font-size:15px;
+}
+
+.close{
+    background:transparent;
+    border:0;
+    color:white;
+    font-size:22px;
+    cursor:pointer;
+}
+
+.modal-body{
+    padding:18px;
+}
+
+.form-grid{
+    display:grid;
+    grid-template-columns:1fr 1fr;
+    gap:13px;
+}
+
+.form-group label{
+    display:block;
+    font-size:9px;
+    color:var(--muted);
+    font-weight:800;
+    margin-bottom:5px;
+    text-transform:uppercase;
+}
+
+.form-group.full{
+    grid-column:1/-1;
+}
+
+.modal-footer{
+    border-top:1px solid var(--border);
+    padding:12px 18px;
+    display:flex;
+    justify-content:flex-end;
+    gap:8px;
+}
+
+/* =========================================================
+   PLAYER SELECT CARD
+========================================================= */
+
+.selected-player{
+    display:none;
+    background:#f5f8fd;
+    border:1px solid #d9e5f6;
+    border-radius:8px;
+    padding:10px;
+    margin-top:10px;
+}
+
+.selected-player.show{
+    display:flex;
+    align-items:center;
+    gap:10px;
+}
+
+.selected-player img{
+    width:45px;
+    height:52px;
+    object-fit:cover;
+    border-radius:6px;
+}
+
+.selected-player strong{
+    display:block;
+    color:var(--navy);
+    font-size:12px;
+}
+
+.selected-player small{
+    color:var(--muted);
+    font-size:9px;
+}
+
+/* =========================================================
+   CONTRACT PREVIEW MODAL
+========================================================= */
+
+.preview-modal .modal-box{
+    width:min(1000px,100%);
+    max-height:96vh;
+}
+
+.preview-modal .modal-body{
+    background:#e9edf3;
+    padding:20px;
+}
+
+/* =========================================================
+   A4 CONTRACT
+========================================================= */
+
+.a4{
+    width:210mm;
+    min-height:297mm;
+    margin:0 auto;
+    background:white;
+    padding:11mm 14mm 18mm;
+    position:relative;
+    box-shadow:0 5px 25px rgba(0,0,0,.15);
+    overflow:hidden;
+}
+
+.a4:before{
+    content:"AFRN";
+    position:absolute;
+    top:100mm;
+    left:28mm;
+    font-size:100px;
+    font-weight:900;
+    letter-spacing:15px;
+    color:rgba(13,71,161,.035);
+    transform:rotate(-25deg);
+    pointer-events:none;
+}
+
+.contract-content{
+    position:relative;
+    z-index:1;
+}
+
+.contract-top{
+    height:4px;
+    background:linear-gradient(
+        90deg,
+        var(--navy),
+        var(--blue),
+        var(--gold)
+    );
+    margin:-11mm -14mm 9px;
+}
+
+.contract-header{
+    display:flex;
+    align-items:center;
+    border-bottom:1.5px solid var(--navy);
+    padding-bottom:8px;
+}
+
+.contract-header img{
+    width:60px;
+    height:60px;
+    object-fit:contain;
+    margin-right:10px;
+}
+
+.contract-header-center{
     flex:1;
     text-align:center;
 }
 
-.header-center h1{
+.contract-header-center h1{
     margin:0;
-    font-size:16px;
-    font-weight:900;
+    font-size:15px;
     color:var(--navy);
+    font-weight:900;
 }
 
-.header-center h2{
-    margin:4px 0;
-    font-size:12px;
-    font-weight:900;
+.contract-header-center h2{
+    margin:3px 0;
+    font-size:11px;
     color:var(--blue);
 }
 
-.header-center p{
+.contract-header-center p{
     margin:0;
-    font-size:8px;
-    letter-spacing:.6px;
+    font-size:7px;
     color:var(--muted);
+    letter-spacing:.5px;
 }
-
-/* =========================================================
-   CONTRACT META
-========================================================= */
 
 .contract-meta{
     display:grid;
     grid-template-columns:1fr 1fr;
-    gap:10px;
-    margin-top:10px;
-    font-size:9px;
+    gap:8px;
+    margin-top:9px;
 }
 
-.meta-box{
-    border:1px solid #cfd8e3;
-    padding:7px 9px;
-    background:#f8fafc;
+.meta{
+    background:#f7f9fc;
+    border:1px solid var(--border);
+    padding:6px 8px;
+    font-size:8px;
 }
 
-.meta-box strong{
+.meta strong{
     color:var(--navy);
 }
 
-/* =========================================================
-   TITLE
-========================================================= */
-
-.title{
+.contract-title{
     text-align:center;
-    margin:15px 0 12px;
+    margin:11px 0 9px;
 }
 
-.title h1{
+.contract-title h1{
     margin:0;
-    font-size:20px;
+    font-size:18px;
     color:var(--navy);
-    letter-spacing:.8px;
 }
 
-.title h2{
-    margin:5px 0 0;
-    font-size:10px;
+.contract-title p{
+    margin:4px 0 0;
     color:var(--blue);
+    font-size:8px;
     letter-spacing:1px;
+    font-weight:800;
 }
 
-/* =========================================================
-   INTRO
-========================================================= */
-
-.intro{
+.contract-intro{
     border-left:4px solid var(--gold);
     background:#f7f9fc;
-    padding:9px 11px;
-    font-size:9.5px;
-    line-height:1.5;
+    padding:7px 9px;
+    font-size:8px;
+    line-height:1.45;
     text-align:justify;
-    margin-bottom:12px;
 }
 
-/* =========================================================
-   SECTION TITLE
-========================================================= */
+.contract-section{
+    margin-top:8px;
+}
 
-.section-title{
+.contract-section-title{
     background:var(--navy);
     color:white;
-    padding:7px 10px;
-    font-size:10px;
+    padding:6px 8px;
+    font-size:8px;
     font-weight:900;
-    letter-spacing:.5px;
-    margin-top:10px;
 }
 
-/* =========================================================
-   PLAYER AREA
-========================================================= */
-
-.player-area{
+.player-contract-area{
     display:grid;
-    grid-template-columns:80px 1fr;
-    gap:12px;
+    grid-template-columns:70px 1fr;
+    gap:10px;
     border:1px solid var(--border);
-    border-top:none;
-    padding:10px;
+    border-top:0;
+    padding:8px;
 }
 
-.player-photo{
-    width:70px;
-    height:82px;
+.player-contract-photo{
+    width:62px;
+    height:72px;
     object-fit:cover;
     border:1px solid var(--navy);
     background:#eef2f6;
 }
 
-.player-info{
+.contract-player-grid{
     display:grid;
     grid-template-columns:1fr 1fr;
-    gap:7px 12px;
+    gap:5px 10px;
 }
 
-.field{
+.c-field{
     border-bottom:1px solid var(--border);
-    padding-bottom:4px;
+    padding-bottom:3px;
 }
 
-.field label{
+.c-field label{
     display:block;
-    font-size:7px;
     color:var(--muted);
+    font-size:6px;
     text-transform:uppercase;
-    font-weight:bold;
+    font-weight:800;
 }
 
-.field strong{
-    display:block;
-    font-size:9px;
-    margin-top:2px;
+.c-field strong{
+    font-size:8px;
 }
 
-/* =========================================================
-   CONTRACT DETAILS
-========================================================= */
-
-.details{
-    border:1px solid var(--border);
-    border-top:none;
+.contract-details{
     display:grid;
     grid-template-columns:1fr 1fr;
+    border:1px solid var(--border);
+    border-top:0;
 }
 
-.detail{
-    padding:8px 10px;
+.c-detail{
+    padding:6px 8px;
     border-right:1px solid var(--border);
     border-bottom:1px solid var(--border);
 }
 
-.detail:nth-child(even){
-    border-right:none;
+.c-detail:nth-child(even){
+    border-right:0;
 }
 
-.detail label{
+.c-detail label{
     display:block;
-    font-size:7px;
+    font-size:6px;
     color:var(--muted);
-    font-weight:bold;
+    font-weight:800;
     text-transform:uppercase;
-    margin-bottom:2px;
 }
 
-.detail strong{
-    font-size:9.5px;
+.c-detail strong{
+    font-size:8px;
 }
 
-/* =========================================================
-   AGREEMENT
-========================================================= */
-
-.agreement{
-    font-size:9.5px;
-    line-height:1.5;
+.contract-articles{
+    font-size:8px;
+    line-height:1.42;
     text-align:justify;
 }
 
-.agreement p{
-    margin:7px 0;
+.contract-articles p{
+    margin:5px 0;
 }
 
-.article-number{
-    font-weight:900;
+.article{
     color:var(--navy);
+    font-weight:900;
 }
 
-/* =========================================================
-   HIGHLIGHT
-========================================================= */
-
-.highlight{
-    margin-top:10px;
-    padding:9px 11px;
+.contract-highlight{
+    margin-top:7px;
+    padding:7px 8px;
     background:#f4f7fb;
     border:1px solid var(--border);
-    font-size:9px;
-    line-height:1.45;
+    font-size:7.5px;
+    line-height:1.4;
 }
 
-.highlight strong{
+.contract-highlight strong{
     color:var(--blue);
 }
 
-/* =========================================================
-   PAGE 2
-========================================================= */
-
-.page-break{
-    page-break-before:always;
-}
-
-.page-title{
-    margin:5px 0 10px;
-    text-align:center;
-}
-
-.page-title h2{
-    margin:0;
-    font-size:14px;
-    color:var(--navy);
-}
-
-.page-title p{
-    margin:4px 0;
-    font-size:8px;
-    color:var(--muted);
-}
-
-/* =========================================================
-   CLAUSES
-========================================================= */
-
-.clauses{
-    font-size:9.3px;
-    line-height:1.48;
-    text-align:justify;
-}
-
-.clauses p{
-    margin:7px 0;
-}
-
-.clause-title{
-    font-weight:900;
-    color:var(--navy);
-}
-
-/* =========================================================
-   DECLARATION
-========================================================= */
-
-.declaration{
-    margin-top:10px;
-    border:1px solid var(--border);
-    background:#f8fafc;
-    padding:10px;
-    font-size:9.2px;
-    line-height:1.5;
-    text-align:justify;
-}
-
-/* =========================================================
-   SIGNATURES
-========================================================= */
-
-.signature-section{
-    margin-top:13px;
-}
-
-.signature-title{
-    background:var(--navy);
-    color:white;
-    padding:7px 10px;
-    font-size:10px;
-    font-weight:900;
-}
-
-.signatures{
+.contract-signatures{
     display:grid;
     grid-template-columns:1fr 1fr;
-    gap:15px;
-    margin-top:10px;
+    gap:12px;
+    margin-top:9px;
 }
 
-.signature-box{
+.signature{
     border:1px solid var(--border);
-    min-height:105px;
-    padding:9px;
+    padding:7px;
+    min-height:73px;
 }
 
-.signature-box h4{
-    margin:0 0 25px;
+.signature h4{
+    margin:0;
     text-align:center;
-    font-size:9px;
+    font-size:7px;
     color:var(--navy);
 }
 
 .signature-line{
     border-top:1px solid #172033;
-    margin-top:28px;
-    padding-top:4px;
-    font-size:7px;
-    color:var(--muted);
+    margin-top:30px;
+    padding-top:3px;
     text-align:center;
+    font-size:6px;
+    color:var(--muted);
 }
 
-.signature-date{
-    margin-top:8px;
-    font-size:7px;
+.contract-footer{
+    position:absolute;
+    bottom:7mm;
+    left:14mm;
+    right:14mm;
+    border-top:1px solid #cfd8e3;
+    padding-top:4px;
+    display:flex;
+    justify-content:space-between;
+    font-size:6px;
     color:var(--muted);
 }
 
 /* =========================================================
-   AFRN VERIFICATION
+   EMPTY STATE
 ========================================================= */
 
-.verification{
-    margin-top:12px;
-    border:1.5px solid var(--blue);
-    padding:10px;
-    background:#f5f8fd;
+.empty{
+    text-align:center;
+    padding:45px 20px;
+    color:var(--muted);
 }
 
-.verification-header{
-    display:flex;
-    justify-content:space-between;
-    align-items:center;
+.empty-icon{
+    font-size:35px;
     margin-bottom:8px;
 }
 
-.verification-header strong{
-    font-size:10px;
-    color:var(--navy);
-}
-
-.verified-badge{
-    background:#0d47a1;
-    color:white;
-    padding:4px 8px;
-    font-size:7px;
-    font-weight:900;
-    border-radius:3px;
-}
-
-.verification-grid{
-    display:grid;
-    grid-template-columns:1fr 1fr;
-    gap:7px 12px;
-}
-
-.verify-field{
-    border-bottom:1px solid var(--border);
-    padding-bottom:4px;
-}
-
-.verify-field label{
+.empty strong{
     display:block;
-    font-size:6.5px;
-    color:var(--muted);
-    font-weight:bold;
-    text-transform:uppercase;
-}
-
-.verify-field strong{
-    font-size:8px;
-}
-
-/* =========================================================
-   QR PLACEHOLDER
-========================================================= */
-
-.qr-area{
-    display:flex;
-    align-items:center;
-    gap:10px;
-    margin-top:8px;
-}
-
-.qr{
-    width:55px;
-    height:55px;
-    border:2px solid var(--navy);
-    display:flex;
-    align-items:center;
-    justify-content:center;
-    font-size:7px;
-    font-weight:bold;
     color:var(--navy);
-}
-
-.qr-text{
-    font-size:7px;
-    color:var(--muted);
+    margin-bottom:4px;
 }
 
 /* =========================================================
-   FOOTER
+   LOADING
 ========================================================= */
 
-.footer{
-    position:absolute;
-    bottom:9mm;
-    left:15mm;
-    right:15mm;
-    border-top:1px solid #cfd8e3;
-    padding-top:6px;
-    display:flex;
-    justify-content:space-between;
-    font-size:7px;
+.loading{
+    text-align:center;
+    padding:30px;
     color:var(--muted);
-}
-
-.footer strong{
-    color:var(--navy);
+    font-size:12px;
 }
 
 /* =========================================================
-   PAGE NUMBER
+   TOAST
 ========================================================= */
 
-.page-number{
-    position:absolute;
-    right:15mm;
-    bottom:4mm;
-    font-size:7px;
-    color:var(--muted);
+.toast{
+    position:fixed;
+    right:20px;
+    bottom:20px;
+    background:var(--navy);
+    color:white;
+    padding:12px 16px;
+    border-radius:7px;
+    box-shadow:0 8px 30px rgba(0,0,0,.2);
+    font-size:11px;
+    z-index:2000;
+    display:none;
+}
+
+.toast.show{
+    display:block;
+}
+
+/* =========================================================
+   RESPONSIVE
+========================================================= */
+
+@media(max-width:900px){
+
+    .stats{
+        grid-template-columns:1fr 1fr;
+    }
+
+    .filters{
+        grid-template-columns:1fr 1fr;
+    }
+
+    .filters .search{
+        grid-column:1/-1;
+    }
+
+}
+
+@media(max-width:600px){
+
+    .header{
+        padding:10px 14px;
+    }
+
+    .header-right{
+        display:none;
+    }
+
+    .container{
+        padding:13px;
+    }
+
+    .page-heading{
+        align-items:flex-start;
+        gap:10px;
+    }
+
+    .page-heading h1{
+        font-size:19px;
+    }
+
+    .page-heading .btn{
+        padding:9px 10px;
+    }
+
+    .stats{
+        grid-template-columns:1fr 1fr;
+        gap:8px;
+    }
+
+    .stat{
+        padding:12px;
+    }
+
+    .stat-number{
+        font-size:22px;
+    }
+
+    .filters{
+        grid-template-columns:1fr;
+    }
+
+    .filters .search{
+        grid-column:auto;
+    }
+
+    .form-grid{
+        grid-template-columns:1fr;
+    }
+
+    .form-group.full{
+        grid-column:auto;
+    }
+
+    .a4{
+        transform-origin:top left;
+    }
+
 }
 
 /* =========================================================
@@ -589,20 +996,19 @@ body{
         background:white;
     }
 
-    .toolbar{
-        display:none;
+    body > *{
+        display:none !important;
     }
 
-    .a4{
-        margin:0;
+    #printArea{
+        display:block !important;
+    }
+
+    #printArea .a4{
         box-shadow:none;
+        margin:0;
         width:210mm;
         min-height:297mm;
-        page-break-after:always;
-    }
-
-    .a4:last-of-type{
-        page-break-after:auto;
     }
 }
 </style>
@@ -611,722 +1017,642 @@ body{
 <body>
 
 <!-- =====================================================
-     TOOLBAR
+     AFRN HEADER
 ===================================================== -->
 
-<div class="toolbar">
+<header class="header">
 
-    <button class="btn-close" onclick="window.history.back()">
-        ← Rudi
-    </button>
+    <img
+        class="logo"
+        src="https://raw.githubusercontent.com/enyonyiab94-eng/AFRN-FOOTBALL-MANAGEMENT/main/IMG-20260319-WA0093.jpg"
+        alt="AFRN Logo">
 
-    <button class="btn-print" onclick="window.print()">
-        🖨 PRINT / PDF
-    </button>
+    <div class="header-text">
 
-</div>
-
-
-<!-- =====================================================
-     PAGE 1
-===================================================== -->
-
-<div class="a4">
-
-    <div class="top-line"></div>
-
-    <!-- HEADER -->
-
-    <div class="header">
-
-        <img
-            class="logo"
-            src="https://raw.githubusercontent.com/enyonyiabemba94-eng/AFRN-FOOTBALL-MANAGEMENT/main/IMG-20260319-WA0093.jpg"
-            alt="AFRN Logo">
-
-        <div class="header-center">
-
-            <h1>
-                SHIRIKISHO LA MPIRA WA MIGUU
-            </h1>
-
-            <h2>
-                KAMBINI NYARUGUSU
-            </h2>
-
-            <p>
-                AFRN FOOTBALL MANAGEMENT
-            </p>
-
-        </div>
-
-    </div>
-
-
-    <!-- CONTRACT META -->
-
-    <div class="contract-meta">
-
-        <div class="meta-box">
-
-            <strong>CONTRACT NO:</strong>
-
-            <span id="contractNumber">
-                AFRN/CTR/2026/0001
-            </span>
-
-        </div>
-
-        <div class="meta-box">
-
-            <strong>DATE OF ISSUE:</strong>
-
-            <span id="issueDate">
-                28/08/2026
-            </span>
-
-        </div>
-
-    </div>
-
-
-    <!-- TITLE -->
-
-    <div class="title">
-
-        <h1>
-            MKATABA WA MCHEZAJI
-        </h1>
+        <h1>AFRN FOOTBALL MANAGEMENT</h1>
 
         <h2>
-            PLAYER REGISTRATION & CONTRACT AGREEMENT
+            SHIRIKISHO LA MPIRA WA MIGUU KAMBINI NYARUGUSU
         </h2>
 
     </div>
 
+    <div class="header-right">
 
-    <!-- INTRO -->
-
-    <div class="intro">
-
-        Mkataba huu ni makubaliano rasmi kati ya
-        <strong>Mchezaji</strong> na
-        <strong>Klabu</strong>, unaotambuliwa na
-        <strong>Shirikisho la Mpira wa Miguu Kambini
-        Nyarugusu (AFRN)</strong>. Pande zote zinakubaliana
-        kutekeleza haki na wajibu wao kwa mujibu wa masharti
-        ya mkataba huu pamoja na kanuni na taratibu
-        zinazotumika katika uendeshaji wa mpira wa miguu
-        chini ya AFRN.
+        <small>CONTRACT MANAGEMENT</small>
+        <small id="systemDate"></small>
 
     </div>
 
+</header>
 
-    <!-- PLAYER INFORMATION -->
 
-    <div class="section-title">
-        01 — TAARIFA ZA MCHEZAJI / PLAYER INFORMATION
-    </div>
+<!-- =====================================================
+     MAIN
+===================================================== -->
 
-    <div class="player-area">
+<main class="container">
+
+    <div class="page-heading">
 
         <div>
-
-            <img
-                class="player-photo"
-                id="playerPhoto"
-                src=""
-                alt="Player Photo">
-
-        </div>
-
-        <div class="player-info">
-
-            <div class="field">
-
-                <label>AFRN Player ID</label>
-
-                <strong id="playerId">
-                    AFRN-PLY-0001
-                </strong>
-
-            </div>
-
-            <div class="field">
-
-                <label>Jina Kamili</label>
-
-                <strong id="playerName">
-                    JOHN CHRISTOPHER
-                </strong>
-
-            </div>
-
-            <div class="field">
-
-                <label>Tarehe ya Kuzaliwa</label>
-
-                <strong id="dob">
-                    15/05/2005
-                </strong>
-
-            </div>
-
-            <div class="field">
-
-                <label>Nationality</label>
-
-                <strong id="nationality">
-                    BURUNDIAN
-                </strong>
-
-            </div>
-
-            <div class="field">
-
-                <label>Nafasi</label>
-
-                <strong id="position">
-                    MIDFIELDER
-                </strong>
-
-            </div>
-
-            <div class="field">
-
-                <label>Player Status</label>
-
-                <strong id="playerStatus">
-                    REGISTERED
-                </strong>
-
-            </div>
-
-        </div>
-
-    </div>
-
-
-    <!-- CONTRACT DETAILS -->
-
-    <div class="section-title">
-        02 — TAARIFA ZA MKATABA / CONTRACT DETAILS
-    </div>
-
-    <div class="details">
-
-        <div class="detail">
-
-            <label>Klabu</label>
-
-            <strong id="clubName">
-                D1 UMOJA FC
-            </strong>
-
-        </div>
-
-        <div class="detail">
-
-            <label>Division</label>
-
-            <strong id="division">
-                DARAJA LA KWANZA
-            </strong>
-
-        </div>
-
-        <div class="detail">
-
-            <label>Aina ya Mkataba</label>
-
-            <strong id="contractType">
-                PERMANENT
-            </strong>
-
-        </div>
-
-        <div class="detail">
-
-            <label>Status</label>
-
-            <strong id="contractStatus">
-                ACTIVE
-            </strong>
-
-        </div>
-
-        <div class="detail">
-
-            <label>Tarehe ya Kuanza</label>
-
-            <strong id="startDate">
-                01/09/2026
-            </strong>
-
-        </div>
-
-        <div class="detail">
-
-            <label>Tarehe ya Kumaliza</label>
-
-            <strong id="endDate">
-                31/08/2027
-            </strong>
-
-        </div>
-
-    </div>
-
-
-    <!-- AGREEMENT -->
-
-    <div class="section-title">
-        03 — MAKUBALIANO YA PANDE ZOTE
-    </div>
-
-    <div class="agreement">
-
-        <p>
-            <span class="article-number">3.1</span>
-            Klabu inakubali kumsajili Mchezaji aliyetajwa
-            katika Mkataba huu na Mchezaji anakubali
-            kuichezea Klabu kwa kipindi kilichoainishwa
-            katika hati hii.
-        </p>
-
-        <p>
-            <span class="article-number">3.2</span>
-            Mchezaji anakubali kuheshimu kanuni za AFRN,
-            taratibu za Klabu, maelekezo halali ya viongozi
-            na benchi la ufundi, pamoja na kuheshimu waamuzi,
-            wachezaji wenzake na washiriki wengine wa mpira
-            wa miguu.
-        </p>
-
-        <p>
-            <span class="article-number">3.3</span>
-            Klabu inawajibika kumtambua Mchezaji kama
-            mchezaji wake rasmi kwa kipindi cha uhalali wa
-            Mkataba huu na kuhakikisha usajili wake
-            unawasilishwa na kuthibitishwa kwa mujibu wa
-            taratibu za AFRN.
-        </p>
-
-        <p>
-            <span class="article-number">3.4</span>
-            Mchezaji hataruhusiwa kuhamia au kuchezea Klabu
-            nyingine wakati Mkataba huu ukiwa hai isipokuwa
-            kwa kufuata utaratibu rasmi wa uhamisho au mkopo
-            unaotambuliwa na AFRN.
-        </p>
-
-    </div>
-
-
-    <!-- IMPORTANT NOTICE -->
-
-    <div class="highlight">
-
-        <strong>UTHIBITISHO WA MKATABA:</strong>
-
-        Mkataba huu unatambuliwa kama hati rasmi ya
-        usajili wa Mchezaji baada ya taarifa za Mchezaji
-        na Klabu kuthibitishwa katika mfumo rasmi wa AFRN
-        na kukamilika kwa taratibu zinazohitajika.
-
-    </div>
-
-
-    <!-- FOOTER -->
-
-    <div class="footer">
-
-        <span>
-            <strong>AFRN FOOTBALL MANAGEMENT</strong>
-        </span>
-
-        <span>
-            CONTRACT NO: AFRN/CTR/2026/0001
-        </span>
-
-        <span>
-            OFFICIAL DOCUMENT
-        </span>
-
-    </div>
-
-    <div class="page-number">
-        PAGE 1 OF 2
-    </div>
-
-</div>
-
-
-
-<!-- =====================================================
-     PAGE 2
-===================================================== -->
-
-<div class="a4 page-break">
-
-    <div class="top-line"></div>
-
-    <!-- HEADER -->
-
-    <div class="header">
-
-        <img
-            class="logo"
-            src="https://raw.githubusercontent.com/enyonyiab94-eng/AFRN-FOOTBALL-MANAGEMENT/main/IMG-20260319-WA0093.jpg"
-            alt="AFRN Logo">
-
-        <div class="header-center">
-
-            <h1>
-                SHIRIKISHO LA MPIRA WA MIGUU
-            </h1>
-
-            <h2>
-                KAMBINI NYARUGUSU
-            </h2>
+            <h1>📄 Mikataba ya Wachezaji</h1>
 
             <p>
-                AFRN FOOTBALL MANAGEMENT
+                Simamia usajili, mikataba, renewal na hali ya mikataba
+                ya wachezaji wa AFRN.
             </p>
-
         </div>
 
-    </div>
+        <button
+            class="btn btn-primary"
+            onclick="openNewContract()">
 
+            ＋ NEW CONTRACT
 
-    <!-- PAGE TITLE -->
-
-    <div class="page-title">
-
-        <h2>
-            MKATABA WA MCHEZAJI — MASHARTI NA UTHIBITISHO
-        </h2>
-
-        <p>
-            CONTRACT TERMS, DECLARATION & OFFICIAL VERIFICATION
-        </p>
+        </button>
 
     </div>
 
 
-    <!-- TERMS -->
+    <!-- =================================================
+         STATISTICS
+    ================================================== -->
 
-    <div class="section-title">
-        04 — WAJIBU WA MCHEZAJI
-    </div>
+    <section class="stats">
 
-    <div class="clauses">
+        <div class="stat active">
 
-        <p>
-            <span class="clause-title">4.1</span>
-            Mchezaji anatakiwa kushiriki katika mazoezi,
-            michezo na shughuli rasmi za Klabu kwa mujibu
-            wa ratiba na maelekezo halali ya benchi la ufundi.
-        </p>
-
-        <p>
-            <span class="clause-title">4.2</span>
-            Mchezaji anatakiwa kuzingatia nidhamu, kanuni
-            za mashindano, sheria za mchezo na maamuzi ya
-            waamuzi pamoja na viongozi wenye mamlaka.
-        </p>
-
-        <p>
-            <span class="clause-title">4.3</span>
-            Mchezaji hatatumia usajili wake kwa Klabu hii
-            kuchezea Klabu nyingine bila kupata idhini na
-            kukamilisha taratibu rasmi za AFRN.
-        </p>
-
-    </div>
-
-
-    <div class="section-title">
-        05 — WAJIBU WA KLABU
-    </div>
-
-    <div class="clauses">
-
-        <p>
-            <span class="clause-title">5.1</span>
-            Klabu itahakikisha kuwa taarifa za Mchezaji
-            zinawasilishwa kwa usahihi na kwa wakati kwa
-            AFRN.
-        </p>
-
-        <p>
-            <span class="clause-title">5.2</span>
-            Klabu itamhudumia Mchezaji kwa mujibu wa
-            makubaliano yaliyopo katika Mkataba huu na
-            kanuni zinazotumika.
-        </p>
-
-        <p>
-            <span class="clause-title">5.3</span>
-            Klabu haitafanya mabadiliko makubwa katika
-            taarifa za mkataba bila kufuata utaratibu
-            rasmi wa AFRN.
-        </p>
-
-    </div>
-
-
-    <div class="section-title">
-        06 — MUDA, KUSITISHWA NA UHAMISHO
-    </div>
-
-    <div class="clauses">
-
-        <p>
-            <span class="clause-title">6.1</span>
-            Mkataba huu utaanza kutumika kuanzia tarehe
-            iliyoainishwa katika sehemu ya Contract Details
-            na utaendelea hadi tarehe ya mwisho isipokuwa
-            kama utasitishwa kwa mujibu wa taratibu halali.
-        </p>
-
-        <p>
-            <span class="clause-title">6.2</span>
-            Mkataba unaweza kusitishwa kwa makubaliano ya
-            pande zote au kwa sababu nyingine inayotambuliwa
-            na kanuni za AFRN.
-        </p>
-
-        <p>
-            <span class="clause-title">6.3</span>
-            Uhamisho wa Mchezaji kwenda Klabu nyingine
-            utafanyika kwa kufuata utaratibu rasmi wa
-            uhamisho unaotambuliwa na AFRN.
-        </p>
-
-    </div>
-
-
-    <div class="section-title">
-        07 — UTATUZI WA MIGOGORO
-    </div>
-
-    <div class="clauses">
-
-        <p>
-            <span class="clause-title">7.1</span>
-            Mzozo wowote unaohusiana na Mkataba huu
-            utashughulikiwa kwanza kwa majadiliano kati ya
-            pande husika.
-        </p>
-
-        <p>
-            <span class="clause-title">7.2</span>
-            Endapo suluhisho halitapatikana, suala linaweza
-            kuwasilishwa kwa mamlaka husika ya AFRN kwa
-            mujibu wa kanuni na taratibu zake.
-        </p>
-
-    </div>
-
-
-    <!-- DECLARATION -->
-
-    <div class="section-title">
-        08 — TAMKO LA PANDE ZOTE
-    </div>
-
-    <div class="declaration">
-
-        Sisi, Mchezaji na mwakilishi halali wa Klabu
-        waliotajwa katika Mkataba huu, tunathibitisha kuwa
-        tumesoma, tumeelewa na tumekubaliana na masharti
-        yaliyomo katika hati hii. Tunakubali kuheshimu
-        sheria, kanuni na taratibu za Shirikisho la Mpira
-        wa Miguu Kambini Nyarugusu (AFRN).
-
-        <br><br>
-
-        Taarifa zote zilizotolewa kwa ajili ya mkataba huu
-        zinapaswa kuwa za kweli na sahihi. Uthibitisho wa
-        mwisho wa usajili unatokana na rekodi rasmi ya AFRN.
-
-    </div>
-
-
-    <!-- SIGNATURES -->
-
-    <div class="signature-section">
-
-        <div class="signature-title">
-            09 — SAHIHI ZA PANDE ZOTE / SIGNATURES
-        </div>
-
-        <div class="signatures">
-
-            <!-- PLAYER -->
-
-            <div class="signature-box">
-
-                <h4>
-                    MCHEZAJI / PLAYER
-                </h4>
-
-                <div class="signature-line">
-                    SAHIHI YA MCHEZAJI
-                </div>
-
-                <div class="signature-date">
-                    Jina: <strong id="signaturePlayerName">
-                        JOHN CHRISTOPHER
-                    </strong>
-                </div>
-
-                <div class="signature-date">
-                    Tarehe: __________________
-                </div>
-
+            <div class="stat-label">
+                ACTIVE CONTRACTS
             </div>
 
+            <div
+                class="stat-number"
+                id="activeCount">
 
-            <!-- CLUB -->
-
-            <div class="signature-box">
-
-                <h4>
-                    MWAKILISHI WA KLABU / CLUB REPRESENTATIVE
-                </h4>
-
-                <div class="signature-line">
-                    SAHIHI NA MUHURI WA KLABU
-                </div>
-
-                <div class="signature-date">
-                    Klabu: <strong id="signatureClub">
-                        D1 UMOJA FC
-                    </strong>
-                </div>
-
-                <div class="signature-date">
-                    Tarehe: __________________
-                </div>
+                0
 
             </div>
 
         </div>
 
-    </div>
+
+        <div class="stat expiring">
+
+            <div class="stat-label">
+                EXPIRING SOON
+            </div>
+
+            <div
+                class="stat-number"
+                id="expiringCount">
+
+                0
+
+            </div>
+
+        </div>
 
 
-    <!-- AFRN VERIFICATION -->
+        <div class="stat expired">
 
-    <div class="verification">
+            <div class="stat-label">
+                EXPIRED
+            </div>
 
-        <div class="verification-header">
+            <div
+                class="stat-number"
+                id="expiredCount">
+
+                0
+
+            </div>
+
+        </div>
+
+
+        <div class="stat">
+
+            <div class="stat-label">
+                FREE AGENTS
+            </div>
+
+            <div
+                class="stat-number"
+                id="freeCount">
+
+                0
+
+            </div>
+
+        </div>
+
+    </section>
+
+
+    <!-- =================================================
+         FILTERS
+    ================================================== -->
+
+    <section class="card">
+
+        <div class="filters">
+
+            <div class="search">
+
+                <input
+                    id="searchInput"
+                    class="input"
+                    type="text"
+                    placeholder="🔎 Search Player ID, jina la mchezaji au klabu..."
+                    oninput="applyFilters()">
+
+            </div>
+
+
+            <select
+                id="clubFilter"
+                class="select"
+                onchange="applyFilters()">
+
+                <option value="">Vilabu Vyote</option>
+
+            </select>
+
+
+            <select
+                id="divisionFilter"
+                class="select"
+                onchange="applyFilters()">
+
+                <option value="">Madara yote</option>
+                <option value="DARAJA LA KWANZA">
+                    DARAJA LA KWANZA
+                </option>
+                <option value="DARAJA LA PILI">
+                    DARAJA LA PILI
+                </option>
+                <option value="DARAJA LA TATU">
+                    DARAJA LA TATU
+                </option>
+                <option value="DARAJA LA NNE">
+                    DARAJA LA NNE
+                </option>
+
+            </select>
+
+
+            <select
+                id="statusFilter"
+                class="select"
+                onchange="applyFilters()">
+
+                <option value="">Status Zote</option>
+                <option value="ACTIVE">ACTIVE</option>
+                <option value="EXPIRING">EXPIRING</option>
+                <option value="EXPIRED">EXPIRED</option>
+                <option value="FREE AGENT">FREE AGENT</option>
+
+            </select>
+
+
+            <button
+                class="btn btn-light"
+                onclick="resetFilters()">
+
+                ↻ Reset
+
+            </button>
+
+        </div>
+
+    </section>
+
+
+    <!-- =================================================
+         CONTRACT TABLE
+    ================================================== -->
+
+    <section class="card table-card">
+
+        <div class="table-header">
 
             <strong>
-                10 — AFRN OFFICIAL VERIFICATION
+                ORODHA YA WACHEZAJI NA MIKATABA
             </strong>
 
-            <span class="verified-badge">
-                VERIFIED
+            <span id="resultCount">
+                0 players
             </span>
 
         </div>
 
 
-        <div class="verification-grid">
+        <div class="table-wrap">
 
-            <div class="verify-field">
+            <table>
 
-                <label>Contract Number</label>
+                <thead>
 
-                <strong>
-                    AFRN/CTR/2026/0001
-                </strong>
+                    <tr>
 
-            </div>
+                        <th>PLAYER</th>
 
-            <div class="verify-field">
+                        <th>CLUB</th>
 
-                <label>Verification Status</label>
+                        <th>DIVISION</th>
 
-                <strong>
-                    VERIFIED / OFFICIAL
-                </strong>
+                        <th>CONTRACT</th>
 
-            </div>
+                        <th>START DATE</th>
 
-            <div class="verify-field">
+                        <th>END DATE</th>
 
-                <label>Verified By</label>
+                        <th>STATUS</th>
 
-                <strong>
-                    AFRN REGISTRATION OFFICER
-                </strong>
+                        <th>ACTIONS</th>
 
-            </div>
+                    </tr>
 
-            <div class="verify-field">
+                </thead>
 
-                <label>Verification Date</label>
+                <tbody id="contractsTable">
 
-                <strong>
-                    28/08/2026
-                </strong>
+                    <tr>
+
+                        <td colspan="8">
+
+                            <div class="loading">
+                                Inapakia wachezaji...
+                            </div>
+
+                        </td>
+
+                    </tr>
+
+                </tbody>
+
+            </table>
+
+        </div>
+
+    </section>
+
+</main>
+
+
+<!-- =====================================================
+     NEW / EDIT CONTRACT MODAL
+===================================================== -->
+
+<div
+    id="contractModal"
+    class="modal">
+
+    <div class="modal-box">
+
+        <div class="modal-head">
+
+            <h2 id="contractModalTitle">
+                NEW PLAYER CONTRACT
+            </h2>
+
+            <button
+                class="close"
+                onclick="closeModal('contractModal')">
+
+                ×
+
+            </button>
+
+        </div>
+
+
+        <div class="modal-body">
+
+            <form id="contractForm">
+
+                <input
+                    type="hidden"
+                    id="editingContractId">
+
+
+                <div class="form-grid">
+
+                    <!-- PLAYER -->
+
+                    <div class="form-group full">
+
+                        <label>
+                            Chagua Mchezaji *
+                        </label>
+
+                        <select
+                            id="playerSelect"
+                            class="select"
+                            required
+                            onchange="showSelectedPlayer()">
+
+                            <option value="">
+                                -- Chagua Mchezaji --
+                            </option>
+
+                        </select>
+
+
+                        <div
+                            id="selectedPlayer"
+                            class="selected-player">
+
+                            <img
+                                id="selectedPlayerPhoto"
+                                src=""
+                                alt="Player">
+
+                            <div>
+
+                                <strong id="selectedPlayerName">
+                                    —
+                                </strong>
+
+                                <small id="selectedPlayerDetails">
+                                    —
+                                </small>
+
+                            </div>
+
+                        </div>
+
+                    </div>
+
+
+                    <!-- CLUB -->
+
+                    <div class="form-group">
+
+                        <label>
+                            Klabu *
+                        </label>
+
+                        <select
+                            id="contractClub"
+                            class="select"
+                            required>
+
+                            <option value="">
+                                -- Chagua Klabu --
+                            </option>
+
+                        </select>
+
+                    </div>
+
+
+                    <!-- DIVISION -->
+
+                    <div class="form-group">
+
+                        <label>
+                            Division
+                        </label>
+
+                        <select
+                            id="contractDivision"
+                            class="select">
+
+                            <option value="">
+                                -- Division --
+                            </option>
+
+                            <option value="DARAJA LA KWANZA">
+                                DARAJA LA KWANZA
+                            </option>
+
+                            <option value="DARAJA LA PILI">
+                                DARAJA LA PILI
+                            </option>
+
+                            <option value="DARAJA LA TATU">
+                                DARAJA LA TATU
+                            </option>
+
+                            <option value="DARAJA LA NNE">
+                                DARAJA LA NNE
+                            </option>
+
+                        </select>
+
+                    </div>
+
+
+                    <!-- TYPE -->
+
+                    <div class="form-group">
+
+                        <label>
+                            Aina ya Mkataba *
+                        </label>
+
+                        <select
+                            id="contractTypeInput"
+                            class="select"
+                            required>
+
+                            <option value="PERMANENT">
+                                PERMANENT
+                            </option>
+
+                            <option value="LOAN">
+                                LOAN
+                            </option>
+
+                            <option value="AMATEUR">
+                                AMATEUR
+                            </option>
+
+                        </select>
+
+                    </div>
+
+
+                    <!-- STATUS -->
+
+                    <div class="form-group">
+
+                        <label>
+                            Contract Status
+                        </label>
+
+                        <select
+                            id="contractStatusInput"
+                            class="select">
+
+                            <option value="ACTIVE">
+                                ACTIVE
+                            </option>
+
+                            <option value="DRAFT">
+                                DRAFT
+                            </option>
+
+                            <option value="TERMINATED">
+                                TERMINATED
+                            </option>
+
+                        </select>
+
+                    </div>
+
+
+                    <!-- START -->
+
+                    <div class="form-group">
+
+                        <label>
+                            Tarehe ya Kuanza *
+                        </label>
+
+                        <input
+                            id="startDateInput"
+                            class="input"
+                            type="date"
+                            required>
+
+                    </div>
+
+
+                    <!-- END -->
+
+                    <div class="form-group">
+
+                        <label>
+                            Tarehe ya Kumaliza *
+                        </label>
+
+                        <input
+                            id="endDateInput"
+                            class="input"
+                            type="date"
+                            required>
+
+                    </div>
+
+
+                    <!-- NOTES -->
+
+                    <div class="form-group full">
+
+                        <label>
+                            Notes
+                        </label>
+
+                        <textarea
+                            id="contractNotes"
+                            class="input"
+                            rows="3"
+                            placeholder="Maelezo ya ziada kuhusu mkataba..."></textarea>
+
+                    </div>
+
+                </div>
+
+            </form>
+
+        </div>
+
+
+        <div class="modal-footer">
+
+            <button
+                class="btn btn-light"
+                onclick="closeModal('contractModal')">
+
+                Cancel
+
+            </button>
+
+            <button
+                class="btn btn-primary"
+                onclick="saveContract()">
+
+                💾 SAVE CONTRACT
+
+            </button>
+
+        </div>
+
+    </div>
+
+</div>
+
+
+<!-- =====================================================
+     CONTRACT PREVIEW
+===================================================== -->
+
+<div
+    id="previewModal"
+    class="modal preview-modal">
+
+    <div class="modal-box">
+
+        <div class="modal-head">
+
+            <h2>
+                CONTRACT PREVIEW
+            </h2>
+
+            <div>
+
+                <button
+                    class="btn btn-light"
+                    onclick="printContract()">
+
+                    🖨 PRINT / PDF
+
+                </button>
+
+                <button
+                    class="close"
+                    onclick="closeModal('previewModal')">
+
+                    ×
+
+                </button>
 
             </div>
 
         </div>
 
 
-        <div class="qr-area">
+        <div class="modal-body">
 
-            <div class="qr">
-                AFRN<br>
-                QR
-            </div>
-
-            <div class="qr-text">
-
-                Hati hii inaweza kuthibitishwa kupitia
-                mfumo rasmi wa AFRN kwa kutumia Contract
-                Number iliyoainishwa hapo juu.
-
-                <br><br>
-
-                <strong>
-                    AFRN/CTR/2026/0001
-                </strong>
-
-            </div>
+            <div id="contractPreview"></div>
 
         </div>
 
     </div>
 
+</div>
 
-    <!-- FOOTER -->
 
-    <div class="footer">
+<!-- =====================================================
+     PRINT AREA
+===================================================== -->
 
-        <span>
-            <strong>AFRN FOOTBALL MANAGEMENT</strong>
-        </span>
+<div id="printArea"></div>
 
-        <span>
-            CONTRACT NO: AFRN/CTR/2026/0001
-        </span>
 
-        <span>
-            OFFICIAL DOCUMENT
-        </span>
+<!-- =====================================================
+     TOAST
+===================================================== -->
 
-    </div>
+<div
+    id="toast"
+    class="toast">
 
-    <div class="page-number">
-        PAGE 2 OF 2
-    </div>
+    Done
 
 </div>
 
@@ -1334,10 +1660,2375 @@ body{
 <script>
 
 /* =========================================================
-   BASIC PRINT
+   SUPABASE CONFIGURATION
+   WE WILL REPLACE THESE WITH YOUR EXISTING PROJECT VALUES
+========================================================= */
+
+const SUPABASE_URL =
+    "YOUR_SUPABASE_URL";
+
+const SUPABASE_ANON_KEY =
+    "YOUR_SUPABASE_ANON_KEY";
+
+let supabaseClient = null;
+
+if(
+    SUPABASE_URL !== "YOUR_SUPABASE_URL" &&
+    SUPABASE_ANON_KEY !== "YOUR_SUPABASE_ANON_KEY"
+){
+
+    supabaseClient =
+        window.supabase.createClient(
+            SUPABASE_URL,
+            SUPABASE_ANON_KEY
+        );
+
+}
+
+
+/* =========================================================
+   GLOBAL DATA
+========================================================= */
+
+let players = [];
+
+let clubs = [];
+
+let contracts = [];
+
+let filteredContracts = [];
+
+
+/* =========================================================
+   SYSTEM DATE
+========================================================= */
+
+document.getElementById("systemDate").textContent =
+    new Date().toLocaleDateString(
+        "sw-TZ",
+        {
+            day:"2-digit",
+            month:"2-digit",
+            year:"numeric"
+        }
+    );
+
+
+/* =========================================================
+   SAMPLE DATA
+   REMOVE WHEN SUPABASE IS CONNECTED
+========================================================= */
+
+function loadDemoData(){
+
+    players = [
+
+        {
+            id:"p1",
+            player_id:"AFRN-PLY-0001",
+            full_name:"JOHN CHRISTOPHER",
+            date_of_birth:"2005-05-15",
+            nationality:"BURUNDIAN",
+            position:"MIDFIELDER",
+            photo_url:"",
+            club_id:"c1",
+            status:"REGISTERED"
+        },
+
+        {
+            id:"p2",
+            player_id:"AFRN-PLY-0002",
+            full_name:"JEAN CLAUDE",
+            date_of_birth:"2004-08-11",
+            nationality:"BURUNDIAN",
+            position:"FORWARD",
+            photo_url:"",
+            club_id:"c2",
+            status:"REGISTERED"
+        },
+
+        {
+            id:"p3",
+            player_id:"AFRN-PLY-0003",
+            full_name:"PATRICK AMANI",
+            date_of_birth:"2003-03-22",
+            nationality:"CONGOLESE",
+            position:"DEFENDER",
+            photo_url:"",
+            club_id:"c3",
+            status:"REGISTERED"
+        }
+
+    ];
+
+
+    clubs = [
+
+        {
+            id:"c1",
+            name:"D1 UMOJA FC",
+            division:"DARAJA LA KWANZA"
+        },
+
+        {
+            id:"c2",
+            name:"GIRAFFE FC",
+            division:"DARAJA LA KWANZA"
+        },
+
+        {
+            id:"c3",
+            name:"AB1 SIMBA",
+            division:"DARAJA LA KWANZA"
+        }
+
+    ];
+
+
+    contracts = [
+
+        {
+            id:"ctr1",
+            contract_number:"AFRN/CTR/2026/0001",
+            player_id:"p1",
+            club_id:"c1",
+            division:"DARAJA LA KWANZA",
+            contract_type:"PERMANENT",
+            status:"ACTIVE",
+            start_date:"2026-09-01",
+            end_date:"2027-08-31",
+            notes:""
+        },
+
+        {
+            id:"ctr2",
+            contract_number:"AFRN/CTR/2026/0002",
+            player_id:"p2",
+            club_id:"c2",
+            division:"DARAJA LA KWANZA",
+            contract_type:"PERMANENT",
+            status:"ACTIVE",
+            start_date:"2026-08-01",
+            end_date:"2027-07-31",
+            notes:""
+        },
+
+        {
+            id:"ctr3",
+            contract_number:"AFRN/CTR/2026/0003",
+            player_id:"p3",
+            club_id:"c3",
+            division:"DARAJA LA KWANZA",
+            contract_type:"PERMANENT",
+            status:"ACTIVE",
+            start_date:"2025-01-01",
+            end_date:"2026-07-31",
+            notes:""
+        }
+
+    ];
+
+}
+
+
+/* =========================================================
+   INIT
+========================================================= */
+
+async function init(){
+
+    if(supabaseClient){
+
+        await loadSupabaseData();
+
+    }else{
+
+        loadDemoData();
+
+    }
+
+    populatePlayerSelect();
+
+    populateClubFilters();
+
+    renderContracts();
+
+    updateStatistics();
+
+}
+
+
+/* =========================================================
+   SUPABASE LOAD
+========================================================= */
+
+async function loadSupabaseData(){
+
+    try{
+
+        const [
+            playersResponse,
+            clubsResponse,
+            contractsResponse
+        ] = await Promise.all([
+
+            supabaseClient
+                .from("players")
+                .select("*")
+                .order("full_name"),
+
+            supabaseClient
+                .from("clubs")
+                .select("*")
+                .order("name"),
+
+            supabaseClient
+                .from("player_contracts")
+                .select("*")
+                .order("created_at",{ascending:false})
+
+        ]);
+
+
+        if(playersResponse.error)
+            throw playersResponse.error;
+
+        if(clubsResponse.error)
+            throw clubsResponse.error;
+
+        if(contractsResponse.error)
+            throw contractsResponse.error;
+
+
+        players =
+            playersResponse.data || [];
+
+        clubs =
+            clubsResponse.data || [];
+
+        contracts =
+            contractsResponse.data || [];
+
+
+    }catch(error){
+
+        console.error(error);
+
+        showToast(
+            "Imeshindikana kupakia data kutoka Supabase."
+        );
+
+        loadDemoData();
+
+    }
+
+}
+
+
+/* =========================================================
+   PLAYER HELPERS
+========================================================= */
+
+function getPlayer(id){
+
+    return players.find(
+        p => String(p.id) === String(id)
+    );
+
+}
+
+
+function getClub(id){
+
+    return clubs.find(
+        c => String(c.id) === String(id)
+    );
+
+}
+
+
+function playerName(player){
+
+    return player?.full_name ||
+           player?.name ||
+           "Unknown Player";
+
+}
+
+
+function clubName(club){
+
+    return club?.name ||
+           club?.club_name ||
+           "Unknown Club";
+
+}
+
+
+/* =========================================================
+   FORMAT DATE
+========================================================= */
+
+function formatDate(value){
+
+    if(!value) return "—";
+
+    const d = new Date(value);
+
+    if(isNaN(d)) return value;
+
+    return d.toLocaleDateString(
+        "en-GB",
+        {
+            day:"2-digit",
+            month:"2-digit",
+            year:"numeric"
+        }
+    );
+
+}
+
+
+/* =========================================================
+   CALCULATE STATUS
+========================================================= */
+
+function calculateStatus(contract){
+
+    if(!contract)
+        return "FREE AGENT";
+
+
+    if(
+        contract.status === "TERMINATED" ||
+        contract.status === "CANCELLED"
+    ){
+
+        return contract.status;
+
+    }
+
+
+    if(!contract.end_date)
+        return contract.status || "ACTIVE";
+
+
+    const today =
+        new Date();
+
+    today.setHours(0,0,0,0);
+
+
+    const end =
+        new Date(contract.end_date);
+
+    end.setHours(0,0,0,0);
+
+
+    if(end < today){
+
+        return "EXPIRED";
+
+    }
+
+
+    const diff =
+        Math.ceil(
+            (end - today) /
+            (1000*60*60*24)
+        );
+
+
+    if(diff <= 30){
+
+        return "EXPIRING";
+
+    }
+
+
+    return "ACTIVE";
+
+}
+
+
+/* =========================================================
+   STATUS CLASS
+========================================================= */
+
+function statusClass(status){
+
+    if(status === "ACTIVE")
+        return "active";
+
+    if(status === "EXPIRING")
+        return "expiring";
+
+    if(status === "EXPIRED")
+        return "expired";
+
+    return "free";
+
+}
+
+
+/* =========================================================
+   GET CURRENT CONTRACT FOR PLAYER
+========================================================= */
+
+function getCurrentContract(playerId){
+
+    const list =
+        contracts
+        .filter(
+            c =>
+                String(c.player_id) ===
+                String(playerId)
+        )
+        .sort(
+            (a,b) =>
+                new Date(b.end_date || 0) -
+                new Date(a.end_date || 0)
+        );
+
+
+    return list[0] || null;
+
+}
+
+
+/* =========================================================
+   RENDER CONTRACTS
+========================================================= */
+
+function renderContracts(){
+
+    const tbody =
+        document.getElementById("contractsTable");
+
+
+    let rows = [];
+
+
+    players.forEach(player => {
+
+        const contract =
+            getCurrentContract(player.id);
+
+
+        const club =
+            contract
+            ? getClub(contract.club_id)
+            : getClub(player.club_id);
+
+
+        const status =
+            calculateStatus(contract);
+
+
+        rows.push({
+
+            player,
+            contract,
+            club,
+            status
+
+        });
+
+    });
+
+
+    filteredContracts =
+        applyFilterData(rows);
+
+
+    document.getElementById("resultCount").textContent =
+        `${filteredContracts.length} players`;
+
+
+    if(filteredContracts.length === 0){
+
+        tbody.innerHTML = `
+
+            <tr>
+
+                <td colspan="8">
+
+                    <div class="empty">
+
+                        <div class="empty-icon">
+                            📄
+                        </div>
+
+                        <strong>
+                            Hakuna taarifa
+                        </strong>
+
+                        Hakuna mchezaji anayelingana na filter ulizoweka.
+
+                    </div>
+
+                </td>
+
+            </tr>
+
+        `;
+
+        return;
+
+    }
+
+
+    tbody.innerHTML =
+        filteredContracts
+        .map(item => {
+
+            const p =
+                item.player;
+
+            const c =
+                item.contract;
+
+            const club =
+                item.club;
+
+
+            const photo =
+                p.photo_url ||
+                "";
+
+
+            if(!c){
+
+                return `
+
+                <tr>
+
+                    <td>
+
+                        <div class="player">
+
+                            <img
+                                class="player-photo"
+                                src="${photo}"
+                                onerror="this.style.display='none'">
+
+                            <div>
+
+                                <div class="player-name">
+                                    ${escapeHtml(playerName(p))}
+                                </div>
+
+                                <div class="player-id">
+                                    ${escapeHtml(
+                                        p.player_id || p.id || "—"
+                                    )}
+                                </div>
+
+                            </div>
+
+                        </div>
+
+                    </td>
+
+
+                    <td>
+                        ${escapeHtml(
+                            clubName(club)
+                        )}
+                    </td>
+
+
+                    <td>
+                        ${escapeHtml(
+                            club?.division || "—"
+                        )}
+                    </td>
+
+
+                    <td>—</td>
+
+                    <td>—</td>
+
+                    <td>—</td>
+
+
+                    <td>
+
+                        <span class="status free">
+                            FREE AGENT
+                        </span>
+
+                    </td>
+
+
+                    <td>
+
+                        <div class="actions">
+
+                            <button
+                                class="action view"
+                                onclick="openNewContract('${p.id}')">
+
+                                + CONTRACT
+
+                            </button>
+
+                        </div>
+
+                    </td>
+
+                </tr>
+
+                `;
+
+            }
+
+
+            return `
+
+            <tr>
+
+                <td>
+
+                    <div class="player">
+
+                        <img
+                            class="player-photo"
+                            src="${photo}"
+                            onerror="this.style.display='none'">
+
+                        <div>
+
+                            <div class="player-name">
+                                ${escapeHtml(playerName(p))}
+                            </div>
+
+                            <div class="player-id">
+                                ${escapeHtml(
+                                    p.player_id || p.id || "—"
+                                )}
+                            </div>
+
+                        </div>
+
+                    </div>
+
+                </td>
+
+
+                <td>
+
+                    <div class="club-name">
+                        ${escapeHtml(clubName(club))}
+                    </div>
+
+                </td>
+
+
+                <td>
+
+                    ${escapeHtml(
+                        c.division ||
+                        club?.division ||
+                        "—"
+                    )}
+
+                </td>
+
+
+                <td>
+
+                    <strong>
+                        ${escapeHtml(
+                            c.contract_type ||
+                            "PERMANENT"
+                        )}
+                    </strong>
+
+                </td>
+
+
+                <td class="date">
+                    ${formatDate(c.start_date)}
+                </td>
+
+
+                <td class="date">
+                    ${formatDate(c.end_date)}
+                </td>
+
+
+                <td>
+
+                    <span
+                        class="status ${statusClass(item.status)}">
+
+                        ${escapeHtml(item.status)}
+
+                    </span>
+
+                </td>
+
+
+                <td>
+
+                    <div class="actions">
+
+                        <button
+                            class="action view"
+                            onclick="viewContract('${c.id}')">
+
+                            VIEW
+
+                        </button>
+
+
+                        <button
+                            class="action edit"
+                            onclick="editContract('${c.id}')">
+
+                            EDIT
+
+                        </button>
+
+
+                        <button
+                            class="action renew"
+                            onclick="renewContract('${c.id}')">
+
+                            RENEW
+
+                        </button>
+
+                    </div>
+
+                </td>
+
+            </tr>
+
+            `;
+
+        })
+        .join("");
+
+}
+
+
+/* =========================================================
+   FILTER DATA
+========================================================= */
+
+function applyFilterData(rows){
+
+    const search =
+        document.getElementById(
+            "searchInput"
+        ).value
+        .trim()
+        .toLowerCase();
+
+
+    const club =
+        document.getElementById(
+            "clubFilter"
+        ).value;
+
+
+    const division =
+        document.getElementById(
+            "divisionFilter"
+        ).value;
+
+
+    const status =
+        document.getElementById(
+            "statusFilter"
+        ).value;
+
+
+    return rows.filter(item => {
+
+        const p =
+            item.player;
+
+        const c =
+            item.contract;
+
+        const cl =
+            item.club;
+
+
+        const searchText =
+            `
+            ${playerName(p)}
+            ${p.player_id || ""}
+            ${clubName(cl)}
+            ${c?.contract_number || ""}
+            `.toLowerCase();
+
+
+        if(
+            search &&
+            !searchText.includes(search)
+        ){
+
+            return false;
+
+        }
+
+
+        if(
+            club &&
+            String(c?.club_id || p.club_id) !==
+            String(club)
+        ){
+
+            return false;
+
+        }
+
+
+        if(
+            division &&
+            (
+                c?.division ||
+                cl?.division
+            ) !== division
+        ){
+
+            return false;
+
+        }
+
+
+        if(
+            status &&
+            item.status !== status
+        ){
+
+            return false;
+
+        }
+
+
+        return true;
+
+    });
+
+}
+
+
+/* =========================================================
+   APPLY FILTERS
+========================================================= */
+
+function applyFilters(){
+
+    renderContracts();
+
+}
+
+
+/* =========================================================
+   RESET
+========================================================= */
+
+function resetFilters(){
+
+    document.getElementById(
+        "searchInput"
+    ).value = "";
+
+    document.getElementById(
+        "clubFilter"
+    ).value = "";
+
+    document.getElementById(
+        "divisionFilter"
+    ).value = "";
+
+    document.getElementById(
+        "statusFilter"
+    ).value = "";
+
+    renderContracts();
+
+}
+
+
+/* =========================================================
+   STATISTICS
+========================================================= */
+
+function updateStatistics(){
+
+    let active = 0;
+
+    let expiring = 0;
+
+    let expired = 0;
+
+    let free = 0;
+
+
+    players.forEach(player => {
+
+        const contract =
+            getCurrentContract(player.id);
+
+
+        const status =
+            calculateStatus(contract);
+
+
+        if(status === "ACTIVE")
+            active++;
+
+        else if(status === "EXPIRING")
+            expiring++;
+
+        else if(status === "EXPIRED")
+            expired++;
+
+        else
+            free++;
+
+    });
+
+
+    document.getElementById(
+        "activeCount"
+    ).textContent = active;
+
+
+    document.getElementById(
+        "expiringCount"
+    ).textContent = expiring;
+
+
+    document.getElementById(
+        "expiredCount"
+    ).textContent = expired;
+
+
+    document.getElementById(
+        "freeCount"
+    ).textContent = free;
+
+}
+
+
+/* =========================================================
+   POPULATE PLAYER SELECT
+========================================================= */
+
+function populatePlayerSelect(){
+
+    const select =
+        document.getElementById(
+            "playerSelect"
+        );
+
+
+    select.innerHTML = `
+
+        <option value="">
+            -- Chagua Mchezaji --
+        </option>
+
+    `;
+
+
+    players.forEach(player => {
+
+        const option =
+            document.createElement("option");
+
+
+        option.value =
+            player.id;
+
+
+        option.textContent =
+            `${playerName(player)}
+             — ${player.player_id || player.id}`;
+
+
+        select.appendChild(option);
+
+    });
+
+}
+
+
+/* =========================================================
+   POPULATE CLUBS
+========================================================= */
+
+function populateClubFilters(){
+
+    const filter =
+        document.getElementById(
+            "clubFilter"
+        );
+
+
+    const contractClub =
+        document.getElementById(
+            "contractClub"
+        );
+
+
+    clubs.forEach(club => {
+
+        const option1 =
+            document.createElement("option");
+
+        option1.value =
+            club.id;
+
+        option1.textContent =
+            clubName(club);
+
+        filter.appendChild(option1);
+
+
+        const option2 =
+            option1.cloneNode(true);
+
+        contractClub.appendChild(option2);
+
+    });
+
+}
+
+
+/* =========================================================
+   SELECTED PLAYER
+========================================================= */
+
+function showSelectedPlayer(){
+
+    const id =
+        document.getElementById(
+            "playerSelect"
+        ).value;
+
+
+    const player =
+        getPlayer(id);
+
+
+    const box =
+        document.getElementById(
+            "selectedPlayer"
+        );
+
+
+    if(!player){
+
+        box.classList.remove("show");
+
+        return;
+
+    }
+
+
+    box.classList.add("show");
+
+
+    document.getElementById(
+        "selectedPlayerName"
+    ).textContent =
+        playerName(player);
+
+
+    document.getElementById(
+        "selectedPlayerDetails"
+    ).textContent =
+        `${player.player_id || "—"} •
+         ${player.position || "—"} •
+         ${player.nationality || "—"}`;
+
+
+    document.getElementById(
+        "selectedPlayerPhoto"
+    ).src =
+        player.photo_url || "";
+
+
+    if(player.club_id){
+
+        document.getElementById(
+            "contractClub"
+        ).value =
+            player.club_id;
+
+    }
+
+
+}
+
+
+/* =========================================================
+   OPEN NEW CONTRACT
+========================================================= */
+
+function openNewContract(playerId=""){
+
+    document.getElementById(
+        "contractModalTitle"
+    ).textContent =
+        "NEW PLAYER CONTRACT";
+
+
+    document.getElementById(
+        "editingContractId"
+    ).value = "";
+
+
+    document.getElementById(
+        "contractForm"
+    ).reset();
+
+
+    document.getElementById(
+        "selectedPlayer"
+    ).classList.remove("show");
+
+
+    document.getElementById(
+        "contractStatusInput"
+    ).value =
+        "ACTIVE";
+
+
+    if(playerId){
+
+        document.getElementById(
+            "playerSelect"
+        ).value =
+            playerId;
+
+        showSelectedPlayer();
+
+    }
+
+
+    document.getElementById(
+        "contractModal"
+    ).classList.add("show");
+
+}
+
+
+/* =========================================================
+   EDIT CONTRACT
+========================================================= */
+
+function editContract(id){
+
+    const contract =
+        contracts.find(
+            c => String(c.id) === String(id)
+        );
+
+
+    if(!contract)
+        return;
+
+
+    document.getElementById(
+        "contractModalTitle"
+    ).textContent =
+        "EDIT PLAYER CONTRACT";
+
+
+    document.getElementById(
+        "editingContractId"
+    ).value =
+        contract.id;
+
+
+    document.getElementById(
+        "playerSelect"
+    ).value =
+        contract.player_id;
+
+
+    document.getElementById(
+        "contractClub"
+    ).value =
+        contract.club_id || "";
+
+
+    document.getElementById(
+        "contractDivision"
+    ).value =
+        contract.division || "";
+
+
+    document.getElementById(
+        "contractTypeInput"
+    ).value =
+        contract.contract_type || "PERMANENT";
+
+
+    document.getElementById(
+        "contractStatusInput"
+    ).value =
+        contract.status || "ACTIVE";
+
+
+    document.getElementById(
+        "startDateInput"
+    ).value =
+        contract.start_date || "";
+
+
+    document.getElementById(
+        "endDateInput"
+    ).value =
+        contract.end_date || "";
+
+
+    document.getElementById(
+        "contractNotes"
+    ).value =
+        contract.notes || "";
+
+
+    showSelectedPlayer();
+
+
+    document.getElementById(
+        "contractModal"
+    ).classList.add("show");
+
+}
+
+
+/* =========================================================
+   RENEW CONTRACT
+========================================================= */
+
+function renewContract(id){
+
+    const oldContract =
+        contracts.find(
+            c => String(c.id) === String(id)
+        );
+
+
+    if(!oldContract)
+        return;
+
+
+    const oldEnd =
+        new Date(oldContract.end_date);
+
+
+    const newStart =
+        new Date(oldEnd);
+
+    newStart.setDate(
+        newStart.getDate()+1
+    );
+
+
+    const newEnd =
+        new Date(newStart);
+
+    newEnd.setFullYear(
+        newEnd.getFullYear()+1
+    );
+
+    newEnd.setDate(
+        newEnd.getDate()-1
+    );
+
+
+    openNewContract(
+        oldContract.player_id
+    );
+
+
+    document.getElementById(
+        "contractClub"
+    ).value =
+        oldContract.club_id;
+
+
+    document.getElementById(
+        "contractDivision"
+    ).value =
+        oldContract.division || "";
+
+
+    document.getElementById(
+        "contractTypeInput"
+    ).value =
+        oldContract.contract_type || "PERMANENT";
+
+
+    document.getElementById(
+        "startDateInput"
+    ).value =
+        dateForInput(newStart);
+
+
+    document.getElementById(
+        "endDateInput"
+    ).value =
+        dateForInput(newEnd);
+
+
+    document.getElementById(
+        "contractNotes"
+    ).value =
+        `Renewal of ${oldContract.contract_number || ""}`;
+
+}
+
+
+/* =========================================================
+   DATE FOR INPUT
+========================================================= */
+
+function dateForInput(date){
+
+    return date.toISOString()
+        .split("T")[0];
+
+}
+
+
+/* =========================================================
+   SAVE CONTRACT
+========================================================= */
+
+async function saveContract(){
+
+    const playerId =
+        document.getElementById(
+            "playerSelect"
+        ).value;
+
+
+    const clubId =
+        document.getElementById(
+            "contractClub"
+        ).value;
+
+
+    const division =
+        document.getElementById(
+            "contractDivision"
+        ).value;
+
+
+    const type =
+        document.getElementById(
+            "contractTypeInput"
+        ).value;
+
+
+    const status =
+        document.getElementById(
+            "contractStatusInput"
+        ).value;
+
+
+    const startDate =
+        document.getElementById(
+            "startDateInput"
+        ).value;
+
+
+    const endDate =
+        document.getElementById(
+            "endDateInput"
+        ).value;
+
+
+    const notes =
+        document.getElementById(
+            "contractNotes"
+        ).value;
+
+
+    const editingId =
+        document.getElementById(
+            "editingContractId"
+        ).value;
+
+
+    if(!playerId ||
+       !clubId ||
+       !startDate ||
+       !endDate){
+
+        showToast(
+            "Jaza taarifa zote muhimu."
+        );
+
+        return;
+
+    }
+
+
+    if(
+        new Date(endDate) <
+        new Date(startDate)
+    ){
+
+        showToast(
+            "Tarehe ya kumaliza haiwezi kuwa kabla ya tarehe ya kuanza."
+        );
+
+        return;
+
+    }
+
+
+    /* ================================================
+       PREVENT DUPLICATE ACTIVE CONTRACT
+    ================================================= */
+
+    const duplicate =
+        contracts.find(c =>
+
+            String(c.player_id) ===
+            String(playerId)
+
+            &&
+
+            c.status === "ACTIVE"
+
+            &&
+
+            String(c.id) !==
+            String(editingId)
+
+        );
+
+
+    if(duplicate){
+
+        showToast(
+            "Mchezaji tayari ana ACTIVE contract."
+        );
+
+        return;
+
+    }
+
+
+    if(supabaseClient){
+
+        try{
+
+            if(editingId){
+
+                const {error} =
+                    await supabaseClient
+                    .from("player_contracts")
+                    .update({
+
+                        club_id:clubId,
+                        division:division,
+                        contract_type:type,
+                        status:status,
+                        start_date:startDate,
+                        end_date:endDate,
+                        notes:notes
+
+                    })
+                    .eq(
+                        "id",
+                        editingId
+                    );
+
+
+                if(error)
+                    throw error;
+
+
+                showToast(
+                    "Mkataba umeboreshwa."
+                );
+
+
+            }else{
+
+                const contractNumber =
+                    await generateContractNumber();
+
+
+                const {error} =
+                    await supabaseClient
+                    .from("player_contracts")
+                    .insert({
+
+                        contract_number:
+                            contractNumber,
+
+                        player_id:
+                            playerId,
+
+                        club_id:
+                            clubId,
+
+                        division:
+                            division,
+
+                        contract_type:
+                            type,
+
+                        status:
+                            status,
+
+                        start_date:
+                            startDate,
+
+                        end_date:
+                            endDate,
+
+                        notes:
+                            notes
+
+                    });
+
+
+                if(error)
+                    throw error;
+
+
+                showToast(
+                    "Mkataba umehifadhiwa."
+                );
+
+            }
+
+
+            await loadSupabaseData();
+
+        }catch(error){
+
+            console.error(error);
+
+            showToast(
+                "Kuna tatizo wakati wa kuhifadhi mkataba."
+            );
+
+            return;
+
+        }
+
+    }else{
+
+        if(editingId){
+
+            const index =
+                contracts.findIndex(
+                    c =>
+                        String(c.id) ===
+                        String(editingId)
+                );
+
+
+            if(index >= 0){
+
+                contracts[index] = {
+
+                    ...contracts[index],
+
+                    club_id:clubId,
+                    division:division,
+                    contract_type:type,
+                    status:status,
+                    start_date:startDate,
+                    end_date:endDate,
+                    notes:notes
+
+                };
+
+            }
+
+        }else{
+
+            contracts.push({
+
+                id:
+                    "ctr" +
+                    Date.now(),
+
+                contract_number:
+                    generateDemoContractNumber(),
+
+                player_id:
+                    playerId,
+
+                club_id:
+                    clubId,
+
+                division:
+                    division,
+
+                contract_type:
+                    type,
+
+                status:
+                    status,
+
+                start_date:
+                    startDate,
+
+                end_date:
+                    endDate,
+
+                notes:
+                    notes
+
+            });
+
+        }
+
+    }
+
+
+    closeModal("contractModal");
+
+    renderContracts();
+
+    updateStatistics();
+
+}
+
+
+/* =========================================================
+   GENERATE CONTRACT NUMBER
+========================================================= */
+
+async function generateContractNumber(){
+
+    const year =
+        new Date()
+        .getFullYear();
+
+
+    if(!supabaseClient){
+
+        return generateDemoContractNumber();
+
+    }
+
+
+    const {data,error} =
+        await supabaseClient
+        .from("player_contracts")
+        .select("contract_number")
+        .ilike(
+            "contract_number",
+            `AFRN/CTR/${year}/%`
+        );
+
+
+    if(error){
+
+        console.error(error);
+
+        return `AFRN/CTR/${year}/0001`;
+
+    }
+
+
+    let max = 0;
+
+
+    (data || []).forEach(row => {
+
+        const match =
+            String(row.contract_number || "")
+            .match(
+                /AFRN\/CTR\/\d{4}\/(\d+)/
+            );
+
+
+        if(match){
+
+            max =
+                Math.max(
+                    max,
+                    parseInt(match[1],10)
+                );
+
+        }
+
+    });
+
+
+    return `AFRN/CTR/${year}/${
+        String(max+1).padStart(4,"0")
+    }`;
+
+}
+
+
+/* =========================================================
+   DEMO CONTRACT NUMBER
+========================================================= */
+
+function generateDemoContractNumber(){
+
+    const year =
+        new Date()
+        .getFullYear();
+
+
+    const numbers =
+        contracts
+        .map(
+            c =>
+                String(c.contract_number || "")
+                .match(
+                    /AFRN\/CTR\/\d{4}\/(\d+)/
+                )
+        )
+        .filter(Boolean)
+        .map(
+            m => parseInt(m[1],10)
+        );
+
+
+    const max =
+        numbers.length
+        ? Math.max(...numbers)
+        : 0;
+
+
+    return `AFRN/CTR/${year}/${
+        String(max+1).padStart(4,"0")
+    }`;
+
+}
+
+
+/* =========================================================
+   VIEW CONTRACT
+========================================================= */
+
+function viewContract(id){
+
+    const contract =
+        contracts.find(
+            c =>
+                String(c.id) ===
+                String(id)
+        );
+
+
+    if(!contract)
+        return;
+
+
+    const player =
+        getPlayer(
+            contract.player_id
+        );
+
+
+    const club =
+        getClub(
+            contract.club_id
+        );
+
+
+    const html =
+        buildContractHTML(
+            contract,
+            player,
+            club
+        );
+
+
+    document.getElementById(
+        "contractPreview"
+    ).innerHTML =
+        html;
+
+
+    document.getElementById(
+        "previewModal"
+    ).classList.add("show");
+
+}
+
+
+/* =========================================================
+   BUILD A4 CONTRACT
+========================================================= */
+
+function buildContractHTML(
+    contract,
+    player,
+    club
+){
+
+    const status =
+        calculateStatus(contract);
+
+
+    const photo =
+        player?.photo_url || "";
+
+
+    const contractNumber =
+        contract.contract_number ||
+        "AFRN/CTR/2026/0001";
+
+
+    return `
+
+    <div class="a4">
+
+        <div class="contract-content">
+
+            <div class="contract-top"></div>
+
+
+            <!-- HEADER -->
+
+            <div class="contract-header">
+
+                <img
+                    src="https://raw.githubusercontent.com/enyonyiab94-eng/AFRN-FOOTBALL-MANAGEMENT/main/IMG-20260319-WA0093.jpg"
+                    alt="AFRN Logo">
+
+
+                <div class="contract-header-center">
+
+                    <h1>
+                        SHIRIKISHO LA MPIRA WA MIGUU
+                    </h1>
+
+                    <h2>
+                        KAMBINI NYARUGUSU
+                    </h2>
+
+                    <p>
+                        AFRN FOOTBALL MANAGEMENT
+                    </p>
+
+                </div>
+
+            </div>
+
+
+            <!-- META -->
+
+            <div class="contract-meta">
+
+                <div class="meta">
+
+                    <strong>
+                        CONTRACT NO:
+                    </strong>
+
+                    ${escapeHtml(contractNumber)}
+
+                </div>
+
+
+                <div class="meta">
+
+                    <strong>
+                        DATE OF ISSUE:
+                    </strong>
+
+                    ${formatDate(
+                        contract.created_at ||
+                        new Date()
+                    )}
+
+                </div>
+
+            </div>
+
+
+            <!-- TITLE -->
+
+            <div class="contract-title">
+
+                <h1>
+                    MKATABA WA MCHEZAJI
+                </h1>
+
+                <p>
+                    PLAYER REGISTRATION & CONTRACT AGREEMENT
+                </p>
+
+            </div>
+
+
+            <!-- INTRO -->
+
+            <div class="contract-intro">
+
+                Mkataba huu ni makubaliano rasmi kati ya
+                <strong>Mchezaji</strong> na
+                <strong>Klabu</strong>, unaotambuliwa na
+                <strong>Shirikisho la Mpira wa Miguu Kambini
+                Nyarugusu (AFRN)</strong>. Pande zote zinakubaliana
+                kutekeleza haki na wajibu wao kwa mujibu wa masharti
+                ya mkataba huu pamoja na kanuni na taratibu
+                zinazotumika katika uendeshaji wa mpira wa miguu
+                chini ya AFRN.
+
+            </div>
+
+
+            <!-- PLAYER -->
+
+            <div class="contract-section">
+
+                <div class="contract-section-title">
+
+                    01 — TAARIFA ZA MCHEZAJI / PLAYER INFORMATION
+
+                </div>
+
+
+                <div class="player-contract-area">
+
+                    <div>
+
+                        <img
+                            class="player-contract-photo"
+                            src="${photo}"
+                            onerror="this.style.objectFit='contain'"
+                            alt="Player">
+
+                    </div>
+
+
+                    <div class="contract-player-grid">
+
+                        <div class="c-field">
+
+                            <label>
+                                AFRN Player ID
+                            </label>
+
+                            <strong>
+                                ${escapeHtml(
+                                    player?.player_id ||
+                                    player?.id ||
+                                    "—"
+                                )}
+                            </strong>
+
+                        </div>
+
+
+                        <div class="c-field">
+
+                            <label>
+                                Jina Kamili
+                            </label>
+
+                            <strong>
+                                ${escapeHtml(
+                                    playerName(player)
+                                )}
+                            </strong>
+
+                        </div>
+
+
+                        <div class="c-field">
+
+                            <label>
+                                Tarehe ya Kuzaliwa
+                            </label>
+
+                            <strong>
+                                ${formatDate(
+                                    player?.date_of_birth
+                                )}
+                            </strong>
+
+                        </div>
+
+
+                        <div class="c-field">
+
+                            <label>
+                                Nationality
+                            </label>
+
+                            <strong>
+                                ${escapeHtml(
+                                    player?.nationality ||
+                                    "—"
+                                )}
+                            </strong>
+
+                        </div>
+
+
+                        <div class="c-field">
+
+                            <label>
+                                Nafasi
+                            </label>
+
+                            <strong>
+                                ${escapeHtml(
+                                    player?.position ||
+                                    "—"
+                                )}
+                            </strong>
+
+                        </div>
+
+
+                        <div class="c-field">
+
+                            <label>
+                                Player Status
+                            </label>
+
+                            <strong>
+                                ${escapeHtml(
+                                    player?.status ||
+                                    "REGISTERED"
+                                )}
+                            </strong>
+
+                        </div>
+
+                    </div>
+
+                </div>
+
+            </div>
+
+
+            <!-- CONTRACT DETAILS -->
+
+            <div class="contract-section">
+
+                <div class="contract-section-title">
+
+                    02 — TAARIFA ZA MKATABA / CONTRACT DETAILS
+
+                </div>
+
+
+                <div class="contract-details">
+
+                    <div class="c-detail">
+
+                        <label>
+                            Klabu
+                        </label>
+
+                        <strong>
+                            ${escapeHtml(
+                                clubName(club)
+                            )}
+                        </strong>
+
+                    </div>
+
+
+                    <div class="c-detail">
+
+                        <label>
+                            Division
+                        </label>
+
+                        <strong>
+                            ${escapeHtml(
+                                contract.division ||
+                                club?.division ||
+                                "—"
+                            )}
+                        </strong>
+
+                    </div>
+
+
+                    <div class="c-detail">
+
+                        <label>
+                            Aina ya Mkataba
+                        </label>
+
+                        <strong>
+                            ${escapeHtml(
+                                contract.contract_type ||
+                                "PERMANENT"
+                            )}
+                        </strong>
+
+                    </div>
+
+
+                    <div class="c-detail">
+
+                        <label>
+                            Status
+                        </label>
+
+                        <strong>
+                            ${escapeHtml(status)}
+                        </strong>
+
+                    </div>
+
+
+                    <div class="c-detail">
+
+                        <label>
+                            Tarehe ya Kuanza
+                        </label>
+
+                        <strong>
+                            ${formatDate(
+                                contract.start_date
+                            )}
+                        </strong>
+
+                    </div>
+
+
+                    <div class="c-detail">
+
+                        <label>
+                            Tarehe ya Kumaliza
+                        </label>
+
+                        <strong>
+                            ${formatDate(
+                                contract.end_date
+                            )}
+                        </strong>
+
+                    </div>
+
+                </div>
+
+            </div>
+
+
+            <!-- AGREEMENT -->
+
+            <div class="contract-section">
+
+                <div class="contract-section-title">
+
+                    03 — MAKUBALIANO YA PANDE ZOTE
+
+                </div>
+
+
+                <div class="contract-articles">
+
+                    <p>
+
+                        <span class="article">
+                            3.1
+                        </span>
+
+                        Klabu inakubali kumsajili Mchezaji
+                        aliyetajwa katika Mkataba huu na
+                        Mchezaji anakubali kuichezea Klabu
+                        kwa kipindi kilichoainishwa katika
+                        hati hii.
+
+                    </p>
+
+
+                    <p>
+
+                        <span class="article">
+                            3.2
+                        </span>
+
+                        Mchezaji anakubali kuheshimu kanuni
+                        za AFRN, taratibu za Klabu, maelekezo
+                        halali ya viongozi na benchi la ufundi,
+                        pamoja na kuheshimu waamuzi,
+                        wachezaji wenzake na washiriki wengine
+                        wa mpira wa miguu.
+
+                    </p>
+
+
+                    <p>
+
+                        <span class="article">
+                            3.3
+                        </span>
+
+                        Klabu inawajibika kumtambua Mchezaji
+                        kama mchezaji wake rasmi kwa kipindi
+                        cha uhalali wa Mkataba huu na
+                        kuhakikisha usajili wake unawasilishwa
+                        na kuthibitishwa kwa mujibu wa taratibu
+                        za AFRN.
+
+                    </p>
+
+
+                    <p>
+
+                        <span class="article">
+                            3.4
+                        </span>
+
+                        Mchezaji hataruhusiwa kuhamia au
+                        kuchezea Klabu nyingine wakati
+                        Mkataba huu ukiwa hai isipokuwa kwa
+                        kufuata utaratibu rasmi wa uhamisho
+                        au mkopo unaotambuliwa na AFRN.
+
+                    </p>
+
+
+                    <p>
+
+                        <span class="article">
+                            3.5
+                        </span>
+
+                        Mkataba huu unaweza kusitishwa au
+                        kurekebishwa kwa makubaliano ya pande
+                        zote au kwa mujibu wa kanuni na taratibu
+                        zinazotambuliwa na AFRN.
+
+                    </p>
+
+                </div>
+
+            </div>
+
+
+            <!-- NOTICE -->
+
+            <div class="contract-highlight">
+
+                <strong>
+                    UTHIBITISHO WA MKATABA:
+                </strong>
+
+                Mkataba huu unatambuliwa kama hati rasmi
+                ya usajili wa Mchezaji baada ya taarifa za
+                Mchezaji na Klabu kuthibitishwa katika mfumo
+                rasmi wa AFRN na kukamilika kwa taratibu
+                zinazohitajika.
+
+            </div>
+
+
+            <!-- SIGNATURES -->
+
+            <div class="contract-signatures">
+
+                <div class="signature">
+
+                    <h4>
+                        MCHEZAJI / PLAYER
+                    </h4>
+
+                    <div class="signature-line">
+                        SAHIHI YA MCHEZAJI
+                    </div>
+
+                    <div style="font-size:6px;margin-top:4px;">
+                        Jina:
+                        ${escapeHtml(
+                            playerName(player)
+                        )}
+                    </div>
+
+                </div>
+
+
+                <div class="signature">
+
+                    <h4>
+                        MWAKILISHI WA KLABU / CLUB
+                    </h4>
+
+                    <div class="signature-line">
+                        SAHIHI NA MUHURI WA KLABU
+                    </div>
+
+                    <div style="font-size:6px;margin-top:4px;">
+                        Klabu:
+                        ${escapeHtml(
+                            clubName(club)
+                        )}
+                    </div>
+
+                </div>
+
+            </div>
+
+        </div>
+
+
+        <!-- FOOTER -->
+
+        <div class="contract-footer">
+
+            <span>
+                <strong>
+                    AFRN FOOTBALL MANAGEMENT
+                </strong>
+            </span>
+
+            <span>
+                ${escapeHtml(contractNumber)}
+            </span>
+
+            <span>
+                OFFICIAL DOCUMENT
+            </span>
+
+            <span>
+                PAGE 1 OF 1
+            </span>
+
+        </div>
+
+    </div>
+
+    `;
+
+}
+
+
+/* =========================================================
+   PRINT CONTRACT
 ========================================================= */
 
 function printContract(){
+
+    const preview =
+        document.getElementById(
+            "contractPreview"
+        ).innerHTML;
+
+
+    document.getElementById(
+        "printArea"
+    ).innerHTML =
+        preview;
+
 
     window.print();
 
@@ -1345,199 +4036,106 @@ function printContract(){
 
 
 /* =========================================================
-   IMAGE FALLBACK
+   CLOSE MODAL
 ========================================================= */
 
-const playerPhoto =
-    document.getElementById("playerPhoto");
+function closeModal(id){
 
-if(playerPhoto){
+    document.getElementById(
+        id
+    ).classList.remove("show");
 
-    playerPhoto.addEventListener("error", function(){
+}
 
-        this.style.objectFit = "contain";
 
-        this.src =
-        "data:image/svg+xml;charset=UTF-8," +
-        encodeURIComponent(`
-            <svg xmlns="http://www.w3.org/2000/svg"
-                 width="70"
-                 height="82">
+/* =========================================================
+   TOAST
+========================================================= */
 
-                <rect width="100%"
-                      height="100%"
-                      fill="#eef2f6"/>
+function showToast(message){
 
-                <text x="50%"
-                      y="50%"
-                      dominant-baseline="middle"
-                      text-anchor="middle"
-                      font-size="8"
-                      fill="#667085">
+    const toast =
+        document.getElementById(
+            "toast"
+        );
 
-                    NO PHOTO
 
-                </text>
+    toast.textContent =
+        message;
 
-            </svg>
-        `);
+
+    toast.classList.add("show");
+
+
+    setTimeout(() => {
+
+        toast.classList.remove("show");
+
+    },3000);
+
+}
+
+
+/* =========================================================
+   ESCAPE HTML
+========================================================= */
+
+function escapeHtml(value){
+
+    if(value === null ||
+       value === undefined){
+
+        return "";
+
+    }
+
+
+    return String(value)
+
+        .replaceAll("&","&amp;")
+
+        .replaceAll("<","&lt;")
+
+        .replaceAll(">","&gt;")
+
+        .replaceAll('"',"&quot;")
+
+        .replaceAll("'","&#039;");
+
+}
+
+
+/* =========================================================
+   CLOSE MODALS WHEN CLICKING BACKGROUND
+========================================================= */
+
+document
+    .querySelectorAll(".modal")
+    .forEach(modal => {
+
+        modal.addEventListener(
+            "click",
+            function(e){
+
+                if(e.target === modal){
+
+                    modal.classList.remove(
+                        "show"
+                    );
+
+                }
+
+            }
+        );
 
     });
 
-}
-
 
 /* =========================================================
-   AUTOMATIC DATE DISPLAY
+   START
 ========================================================= */
 
-function formatDate(date){
-
-    const day =
-        String(date.getDate()).padStart(2,"0");
-
-    const month =
-        String(date.getMonth()+1).padStart(2,"0");
-
-    const year =
-        date.getFullYear();
-
-    return `${day}/${month}/${year}`;
-
-}
-
-
-/* =========================================================
-   CONTRACT DATA OBJECT
-   LATER THIS WILL COME FROM SUPABASE
-========================================================= */
-
-const contractData = {
-
-    contractNumber:
-        "AFRN/CTR/2026/0001",
-
-    issueDate:
-        "28/08/2026",
-
-    playerId:
-        "AFRN-PLY-0001",
-
-    playerName:
-        "JOHN CHRISTOPHER",
-
-    dob:
-        "15/05/2005",
-
-    nationality:
-        "BURUNDIAN",
-
-    position:
-        "MIDFIELDER",
-
-    playerStatus:
-        "REGISTERED",
-
-    clubName:
-        "D1 UMOJA FC",
-
-    division:
-        "DARAJA LA KWANZA",
-
-    contractType:
-        "PERMANENT",
-
-    contractStatus:
-        "ACTIVE",
-
-    startDate:
-        "01/09/2026",
-
-    endDate:
-        "31/08/2027"
-
-};
-
-
-/* =========================================================
-   RENDER CONTRACT DATA
-========================================================= */
-
-function renderContract(data){
-
-    const fields = {
-
-        contractNumber:
-            data.contractNumber,
-
-        issueDate:
-            data.issueDate,
-
-        playerId:
-            data.playerId,
-
-        playerName:
-            data.playerName,
-
-        dob:
-            data.dob,
-
-        nationality:
-            data.nationality,
-
-        position:
-            data.position,
-
-        playerStatus:
-            data.playerStatus,
-
-        clubName:
-            data.clubName,
-
-        division:
-            data.division,
-
-        contractType:
-            data.contractType,
-
-        contractStatus:
-            data.contractStatus,
-
-        startDate:
-            data.startDate,
-
-        endDate:
-            data.endDate,
-
-        signaturePlayerName:
-            data.playerName,
-
-        signatureClub:
-            data.clubName
-
-    };
-
-
-    Object.keys(fields).forEach(id => {
-
-        const element =
-            document.getElementById(id);
-
-        if(element){
-
-            element.textContent =
-                fields[id] || "—";
-
-        }
-
-    });
-
-}
-
-
-/* Render example data */
-
-renderContract(contractData);
+init();
 
 </script>
 
