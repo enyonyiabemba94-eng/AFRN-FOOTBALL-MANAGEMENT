@@ -2,11 +2,8 @@
 <html lang="sw">
 
 <head>
-
 <meta charset="UTF-8">
-
-<meta name="viewport"
-content="width=device-width, initial-scale=1.0">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
 
 <title>AFRN Football Management - Players</title>
 
@@ -15,356 +12,557 @@ content="width=device-width, initial-scale=1.0">
 <style>
 
 :root{
---navy:#071a33;
---blue:#0d47a1;
---gold:#f5b400;
---bg:#f4f7fb;
---white:#fff;
---text:#172033;
---muted:#687386;
---danger:#c62828;
---ok:#16834b;
+  --navy:#071a33;
+  --blue:#0d47a1;
+  --blue2:#1565c0;
+  --gold:#f5b400;
+  --bg:#f4f7fb;
+  --white:#fff;
+  --text:#172033;
+  --muted:#687386;
+  --danger:#c62828;
+  --ok:#16834b;
+  --warning:#b26a00;
+  --border:#dce2ea;
 }
 
 *{
-box-sizing:border-box;
+  box-sizing:border-box;
 }
 
 body{
-margin:0;
-background:var(--bg);
-font-family:Arial,Helvetica,sans-serif;
-color:var(--text);
+  margin:0;
+  background:var(--bg);
+  font-family:Arial,Helvetica,sans-serif;
+  color:var(--text);
 }
 
+/* =========================
+   HEADER
+========================= */
+
 header{
-background:linear-gradient(
-135deg,#06152b,#0d47a1);
-color:white;
-padding:18px 16px;
-position:sticky;
-top:0;
-z-index:10;
-box-shadow:0 3px 12px #0002;
+  background:linear-gradient(135deg,#06152b,#0d47a1);
+  color:white;
+  padding:18px 16px;
+  position:sticky;
+  top:0;
+  z-index:10;
+  box-shadow:0 3px 12px #0002;
 }
 
 header h1{
-margin:0;
-font-size:20px;
+  margin:0;
+  font-size:20px;
 }
 
 header p{
-margin:5px 0 0;
-font-size:12px;
-opacity:.82;
+  margin:5px 0 0;
+  font-size:12px;
+  opacity:.85;
 }
 
+/* =========================
+   NAV
+========================= */
+
 nav{
-background:#fff;
-padding:10px;
-display:flex;
-gap:7px;
-overflow-x:auto;
-border-bottom:1px solid #ddd;
+  background:#fff;
+  padding:10px;
+  display:flex;
+  gap:7px;
+  overflow-x:auto;
+  border-bottom:1px solid #ddd;
+  scrollbar-width:none;
+}
+
+nav::-webkit-scrollbar{
+  display:none;
 }
 
 nav a{
-text-decoration:none;
-white-space:nowrap;
-padding:9px 12px;
-border-radius:9px;
-color:#172033;
-font-size:13px;
-font-weight:bold;
+  text-decoration:none;
+  white-space:nowrap;
+  padding:9px 12px;
+  border-radius:9px;
+  color:#172033;
+  font-size:13px;
+  font-weight:bold;
+}
+
+nav a:hover{
+  background:#eef4ff;
 }
 
 nav a.active{
-background:var(--blue);
-color:white;
+  background:var(--blue);
+  color:white;
 }
+
+/* =========================
+   MAIN
+========================= */
 
 main{
-max-width:1100px;
-margin:auto;
-padding:16px;
+  max-width:1100px;
+  margin:auto;
+  padding:16px;
 }
 
+/* =========================
+   STATUS
+========================= */
+
+.status{
+  padding:11px 13px;
+  border-radius:10px;
+  background:white;
+  margin-bottom:15px;
+  font-size:13px;
+  border-left:4px solid var(--blue);
+  box-shadow:0 2px 8px #14213d08;
+}
+
+.status.ok{
+  border-left-color:var(--ok);
+}
+
+.status.err{
+  border-left-color:var(--danger);
+  color:var(--danger);
+}
+
+.status.warning{
+  border-left-color:var(--warning);
+}
+
+/* =========================
+   TOOLBAR
+========================= */
+
 .toolbar{
-display:flex;
-gap:10px;
-flex-wrap:wrap;
-margin-bottom:16px;
+  display:flex;
+  gap:10px;
+  flex-wrap:wrap;
+  margin-bottom:18px;
 }
 
 .toolbar input,
 .toolbar select{
-flex:1;
-min-width:150px;
-padding:12px;
-border:1px solid #d6dce5;
-border-radius:10px;
-background:white;
+  flex:1;
+  min-width:150px;
+  padding:12px;
+  border:1px solid #d6dce5;
+  border-radius:10px;
+  background:white;
+  color:var(--text);
+  outline:none;
+}
+
+.toolbar input:focus,
+.toolbar select:focus{
+  border-color:var(--blue);
+  box-shadow:0 0 0 3px #0d47a115;
 }
 
 button{
-border:0;
-border-radius:10px;
-padding:11px 15px;
-font-weight:700;
-cursor:pointer;
+  border:0;
+  border-radius:10px;
+  padding:11px 15px;
+  font-weight:700;
+  cursor:pointer;
+  transition:.2s;
+}
+
+button:hover{
+  transform:translateY(-1px);
+}
+
+button:disabled{
+  opacity:.6;
+  cursor:not-allowed;
+  transform:none;
 }
 
 .primary{
-background:var(--blue);
-color:white;
+  background:var(--blue);
+  color:white;
+}
+
+.primary:hover{
+  background:var(--blue2);
 }
 
 .gold{
-background:var(--gold);
-color:#161616;
+  background:var(--gold);
+  color:#161616;
 }
 
 .danger{
-background:#fee;
-color:var(--danger);
+  background:#fee;
+  color:var(--danger);
 }
 
 .secondary{
-background:#e9eef6;
-color:#172033;
+  background:#e9eef6;
+  color:#172033;
 }
 
-.status{
-padding:10px 12px;
-border-radius:10px;
-background:white;
-margin-bottom:15px;
-font-size:13px;
-border-left:4px solid var(--blue);
-}
+/* =========================
+   DIVISION
+========================= */
 
-.status.ok{
-border-left-color:var(--ok);
-}
-
-.status.err{
-border-left-color:var(--danger);
-color:var(--danger);
-}
-  .division{
-margin:22px 0;
+.division{
+  margin:22px 0;
 }
 
 .division-title{
-display:flex;
-align-items:center;
-justify-content:space-between;
-margin-bottom:10px;
+  display:flex;
+  align-items:center;
+  justify-content:space-between;
+  margin-bottom:10px;
 }
 
 .division-title h2{
-font-size:17px;
-margin:0;
+  font-size:17px;
+  margin:0;
 }
 
 .count{
-font-size:12px;
-color:var(--muted);
+  font-size:12px;
+  color:var(--muted);
 }
+
+/* =========================
+   GRID
+========================= */
 
 .grid{
-display:grid;
-grid-template-columns:
-repeat(auto-fill,minmax(280px,1fr));
-gap:12px;
+  display:grid;
+  grid-template-columns:
+    repeat(auto-fill,minmax(280px,1fr));
+  gap:12px;
 }
 
+/* =========================
+   PLAYER CARD
+========================= */
+
 .card{
-background:white;
-border-radius:16px;
-padding:14px;
-box-shadow:0 3px 12px #14213d10;
-border:1px solid #e7ebf1;
+  background:white;
+  border-radius:16px;
+  padding:14px;
+  box-shadow:0 3px 12px #14213d10;
+  border:1px solid #e7ebf1;
 }
 
 .player-top{
-display:flex;
-gap:12px;
-align-items:center;
+  display:flex;
+  gap:12px;
+  align-items:center;
 }
 
 .photo{
-width:70px;
-height:70px;
-border-radius:14px;
-object-fit:cover;
-background:#f0f3f8;
-border:1px solid #e2e7ef;
-padding:3px;
+  width:70px;
+  height:70px;
+  border-radius:14px;
+  object-fit:cover;
+  background:#f0f3f8;
+  border:1px solid #e2e7ef;
+  padding:3px;
+  flex-shrink:0;
+}
+
+.photo-placeholder{
+  width:70px;
+  height:70px;
+  border-radius:14px;
+  background:#eef2f7;
+  border:1px solid #e2e7ef;
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  font-size:28px;
+  flex-shrink:0;
 }
 
 .player-name{
-font-size:17px;
-font-weight:800;
-margin:0;
+  font-size:17px;
+  font-weight:800;
+  margin:0;
 }
 
 .player-id{
-font-size:11px;
-color:var(--muted);
-margin-top:4px;
-word-break:break-all;
+  font-size:11px;
+  color:var(--muted);
+  margin-top:4px;
+  word-break:break-all;
 }
 
 .chips{
-display:flex;
-gap:6px;
-flex-wrap:wrap;
-margin:11px 0;
+  display:flex;
+  gap:6px;
+  flex-wrap:wrap;
+  margin:11px 0;
 }
 
 .chip{
-background:#eef4ff;
-color:#174ea6;
-padding:5px 8px;
-border-radius:999px;
-font-size:11px;
-font-weight:700;
+  background:#eef4ff;
+  color:#174ea6;
+  padding:5px 8px;
+  border-radius:999px;
+  font-size:11px;
+  font-weight:700;
 }
 
 .details{
-display:grid;
-grid-template-columns:1fr 1fr;
-gap:7px;
-font-size:12px;
+  display:grid;
+  grid-template-columns:1fr 1fr;
+  gap:7px;
+  font-size:12px;
 }
 
 .detail{
-background:#f7f9fc;
-border-radius:9px;
-padding:8px;
+  background:#f7f9fc;
+  border-radius:9px;
+  padding:8px;
 }
 
 .detail b{
-display:block;
-font-size:10px;
-color:var(--muted);
-margin-bottom:3px;
+  display:block;
+  font-size:10px;
+  color:var(--muted);
+  margin-bottom:3px;
 }
 
 .actions{
-display:flex;
-gap:8px;
-margin-top:12px;
+  display:flex;
+  gap:8px;
+  margin-top:12px;
 }
 
 .actions button{
-flex:1;
-padding:9px;
+  flex:1;
+  padding:9px;
 }
+
+/* =========================
+   EMPTY
+========================= */
 
 .empty{
-background:white;
-border:1px dashed #cbd3df;
-padding:25px;
-text-align:center;
-border-radius:14px;
-color:var(--muted);
+  background:white;
+  border:1px dashed #cbd3df;
+  padding:25px;
+  text-align:center;
+  border-radius:14px;
+  color:var(--muted);
 }
 
+/* =========================
+   DIALOG
+========================= */
+
 dialog{
-width:min(650px,94vw);
-border:0;
-border-radius:18px;
-padding:0;
-box-shadow:0 20px 60px #0005;
+  width:min(650px,94vw);
+  max-height:92vh;
+  overflow:auto;
+  border:0;
+  border-radius:18px;
+  padding:0;
+  box-shadow:0 20px 60px #0005;
 }
 
 dialog::backdrop{
-background:#00112a99;
+  background:#00112a99;
 }
 
 .modal{
-padding:18px;
+  padding:18px;
 }
 
 .modal h2{
-margin:0 0 15px;
+  margin:0 0 15px;
 }
 
+/* =========================
+   FORM
+========================= */
+
 form{
-display:grid;
-grid-template-columns:1fr 1fr;
-gap:12px;
+  display:grid;
+  grid-template-columns:1fr 1fr;
+  gap:12px;
 }
 
 .full{
-grid-column:1/-1;
+  grid-column:1/-1;
 }
 
 label{
-font-size:12px;
-font-weight:700;
+  font-size:12px;
+  font-weight:700;
 }
 
 .field{
-margin-top:5px;
-width:100%;
-padding:11px;
-border:1px solid #d4dbe6;
-border-radius:9px;
-background:#fff;
+  margin-top:5px;
+  width:100%;
+  padding:11px;
+  border:1px solid #d4dbe6;
+  border-radius:9px;
+  background:#fff;
+  color:var(--text);
+  outline:none;
+}
+
+.field:focus{
+  border-color:var(--blue);
+  box-shadow:0 0 0 3px #0d47a115;
 }
 
 .form-actions{
-display:flex;
-justify-content:flex-end;
-gap:8px;
-margin-top:8px;
+  display:flex;
+  justify-content:flex-end;
+  gap:8px;
+  margin-top:8px;
+}
+
+/* =========================
+   PHOTO UPLOAD
+========================= */
+
+.photo-upload-box{
+  background:#f7f9fc;
+  border:1px dashed #c8d1df;
+  border-radius:14px;
+  padding:14px;
 }
 
 .photo-preview{
-margin-top:10px;
-display:none;
-text-align:center;
+  margin-top:12px;
+  display:none;
+  text-align:center;
 }
 
 .photo-preview img{
-width:120px;
-height:120px;
-object-fit:cover;
-border-radius:15px;
-border:1px solid #ddd;
-padding:5px;
-background:#f7f9fc;
+  width:150px;
+  height:150px;
+  object-fit:cover;
+  border-radius:18px;
+  border:1px solid #d9dfe8;
+  padding:5px;
+  background:#fff;
+  box-shadow:0 4px 15px #0001;
+}
+
+.photo-current{
+  margin-top:10px;
+  text-align:center;
+  display:none;
+}
+
+.photo-current img{
+  width:110px;
+  height:110px;
+  object-fit:cover;
+  border-radius:14px;
+  border:1px solid #ddd;
+  padding:4px;
+}
+
+.upload-info{
+  margin-top:9px;
+  padding:9px;
+  border-radius:9px;
+  background:#eef4ff;
+  color:#174ea6;
+  font-size:11px;
+  line-height:1.5;
+}
+
+.upload-progress{
+  display:none;
+  margin-top:10px;
+}
+
+.progress-track{
+  width:100%;
+  height:8px;
+  background:#e2e7ef;
+  border-radius:999px;
+  overflow:hidden;
+}
+
+.progress-bar{
+  width:0%;
+  height:100%;
+  background:var(--blue);
+  transition:.25s;
+}
+
+.progress-text{
+  font-size:11px;
+  color:var(--muted);
+  margin-top:5px;
 }
 
 .hint{
-font-size:11px;
-color:var(--muted);
-line-height:1.4;
-margin-top:5px;
+  font-size:11px;
+  color:var(--muted);
+  line-height:1.4;
+  margin-top:5px;
 }
+
+/* =========================
+   RESPONSIVE
+========================= */
 
 @media(max-width:600px){
 
-form{
-grid-template-columns:1fr;
-}
+  header h1{
+    font-size:18px;
+  }
 
-.full{
-grid-column:auto;
-}
+  main{
+    padding:12px;
+  }
 
-.details{
-grid-template-columns:1fr 1fr;
-}
+  form{
+    grid-template-columns:1fr;
+  }
+
+  .full{
+    grid-column:auto;
+  }
+
+  .details{
+    grid-template-columns:1fr 1fr;
+  }
+
+  .toolbar{
+    flex-direction:column;
+  }
+
+  .toolbar input,
+  .toolbar select,
+  .toolbar button{
+    width:100%;
+  }
+
+  .form-actions{
+    flex-direction:column-reverse;
+  }
+
+  .form-actions button{
+    width:100%;
+  }
 
 }
 
 </style>
 
 </head>
+
 <body>
 
 <header>
@@ -390,18 +588,12 @@ Players / Wachezaji — Usajili na Kumbukumbu za Wachezaji
 ⚽ Vilabu
 </a>
 
-<a
-href="./players.html"
-class="active">
+<a href="./players.html" class="active">
 👤 Wachezaji
 </a>
 
-<a href="./contracts.html">
-📄 Mikataba
-</a>
-
 <a href="./transfers.html">
-🔄 Uhamisho
+🔄 Uhamisho + Mikataba
 </a>
 
 <a href="./competitions.html">
@@ -421,12 +613,8 @@ class="active">
 
 <main>
 
-<div
-id="status"
-class="status">
-
+<div id="status" class="status">
 ⏳ Inaunganisha na Supabase...
-
 </div>
 
 
@@ -435,8 +623,8 @@ class="status">
 <input
 id="search"
 type="search"
-placeholder="🔎 Tafuta jina au Player ID">
-
+placeholder="🔎 Tafuta jina au Player ID"
+>
 
 <select id="filterClub">
 
@@ -512,15 +700,18 @@ type="button">
 <div id="playersContainer">
 
 <div class="empty">
-
 ⏳ Inapakia wachezaji...
-
 </div>
 
 </div>
-
 
 </main>
+
+
+<!-- =========================
+     PLAYER DIALOG
+========================= -->
+
 <dialog id="playerDialog">
 
 <div class="modal">
@@ -534,20 +725,28 @@ type="button">
 
 <input
 type="hidden"
-id="editId">
+id="editId"
+>
 
+
+<!-- =========================
+     PHOTO
+========================= -->
 
 <div class="full">
 
 <label>
-Picha ya Mchezaji
+📷 Picha ya Mchezaji
 </label>
+
+<div class="photo-upload-box">
 
 <input
 class="field"
 id="photoFile"
 type="file"
-accept="image/*">
+accept="image/jpeg,image/jpg,image/png,image/webp"
+>
 
 
 <div
@@ -557,19 +756,81 @@ class="photo-preview">
 <img
 id="photoPreviewImage"
 src=""
-alt="Picha">
+alt="Picha mpya ya mchezaji"
+>
 
 </div>
+
+
+<div
+id="currentPhoto"
+class="photo-current">
+
+<div class="hint">
+Picha iliyopo:
+</div>
+
+<img
+id="currentPhotoImage"
+src=""
+alt="Picha iliyopo"
+>
+
+</div>
+
+
+<div class="upload-info">
+
+<b>Storage:</b> AFRN PLAYER PHOTOS<br>
+
+<b>Folder:</b> players<br>
+
+<b>Format:</b> JPG, PNG, WEBP<br>
+
+<b>Maximum:</b> 5MB
+
+</div>
+
+
+<div
+id="uploadProgress"
+class="upload-progress">
+
+<div class="progress-track">
+
+<div
+id="progressBar"
+class="progress-bar">
+</div>
+
+</div>
+
+<div
+id="progressText"
+class="progress-text">
+
+Inasubiri upload...
+
+</div>
+
+</div>
+
 
 <div class="hint">
 
-Chagua picha kutoka kwenye simu.
-Itahifadhiwa kwenye Supabase Storage.
+Chagua picha kutoka kwenye simu au computer.
+Picha itahifadhiwa moja kwa moja kwenye Supabase Storage.
 
 </div>
 
 </div>
 
+</div>
+
+
+<!-- =========================
+     PLAYER ID
+========================= -->
 
 <div>
 
@@ -581,10 +842,15 @@ Player ID Number
 class="field"
 id="playerIdNumber"
 readonly
-placeholder="Itatengenezwa automatic">
+placeholder="Itatengenezwa automatic"
+>
 
 </div>
 
+
+<!-- =========================
+     FIRST NAME
+========================= -->
 
 <div>
 
@@ -595,10 +861,15 @@ Jina la Kwanza *
 <input
 class="field"
 id="firstName"
-required>
+required
+>
 
 </div>
 
+
+<!-- =========================
+     MIDDLE NAME
+========================= -->
 
 <div>
 
@@ -608,10 +879,15 @@ Jina la Kati
 
 <input
 class="field"
-id="middleName">
+id="middleName"
+>
 
 </div>
 
+
+<!-- =========================
+     LAST NAME
+========================= -->
 
 <div>
 
@@ -622,10 +898,15 @@ Jina la Mwisho *
 <input
 class="field"
 id="lastName"
-required>
+required
+>
 
 </div>
 
+
+<!-- =========================
+     DOB
+========================= -->
 
 <div>
 
@@ -636,10 +917,15 @@ Tarehe ya Kuzaliwa
 <input
 class="field"
 id="dateOfBirth"
-type="date">
+type="date"
+>
 
 </div>
 
+
+<!-- =========================
+     NATIONALITY
+========================= -->
 
 <div>
 
@@ -650,10 +936,15 @@ Nationality
 <input
 class="field"
 id="nationality"
-placeholder="Mfano: Congo">
+placeholder="Mfano: Congo"
+>
 
 </div>
 
+
+<!-- =========================
+     CLUB
+========================= -->
 
 <div>
 
@@ -664,7 +955,8 @@ Klabu *
 <select
 class="field"
 id="clubId"
-required>
+required
+>
 
 <option value="">
 Chagua klabu
@@ -675,6 +967,10 @@ Chagua klabu
 </div>
 
 
+<!-- =========================
+     POSITION
+========================= -->
+
 <div>
 
 <label>
@@ -684,7 +980,8 @@ Nafasi *
 <select
 class="field"
 id="position"
-required>
+required
+>
 
 <option value="">
 Chagua nafasi
@@ -711,6 +1008,10 @@ Forward
 </div>
 
 
+<!-- =========================
+     JERSEY
+========================= -->
+
 <div>
 
 <label>
@@ -722,10 +1023,15 @@ class="field"
 id="jerseyNumber"
 type="number"
 min="1"
-max="99">
+max="99"
+>
 
 </div>
 
+
+<!-- =========================
+     PHONE
+========================= -->
 
 <div>
 
@@ -736,10 +1042,15 @@ Simu
 <input
 class="field"
 id="phone"
-type="tel">
+type="tel"
+>
 
 </div>
 
+
+<!-- =========================
+     ADDRESS
+========================= -->
 
 <div class="full">
 
@@ -749,10 +1060,15 @@ Anwani
 
 <input
 class="field"
-id="address">
+id="address"
+>
 
 </div>
 
+
+<!-- =========================
+     STATUS
+========================= -->
 
 <div>
 
@@ -763,7 +1079,8 @@ Status *
 <select
 class="field"
 id="statusField"
-required>
+required
+>
 
 <option value="Active">
 Active
@@ -786,6 +1103,10 @@ Retired
 </div>
 
 
+<!-- =========================
+     PHOTO URL
+========================= -->
+
 <div class="full">
 
 <label>
@@ -796,10 +1117,22 @@ Photo URL
 class="field"
 id="photoUrl"
 type="url"
-placeholder="https://...">
+placeholder="Itajazwa automatic baada ya upload"
+>
+
+<div class="hint">
+
+Kwa kawaida usiandike hapa.
+URL itawekwa automatic baada ya picha kuhifadhiwa.
 
 </div>
 
+</div>
+
+
+<!-- =========================
+     ACTIONS
+========================= -->
 
 <div class="full form-actions">
 
@@ -815,6 +1148,7 @@ Ghairi
 
 <button
 class="primary"
+id="saveBtn"
 type="submit">
 
 💾 Hifadhi Mchezaji
@@ -828,14 +1162,21 @@ type="submit">
 
 </div>
 
-  </dialog>
-  <script>
+</dialog>
+
+
+<script>
+
+/* =====================================================
+   SUPABASE CONFIGURATION
+===================================================== */
 
 const SUPABASE_URL =
 "https://jjqhvruppafpumcthmwe.supabase.co";
 
 const SUPABASE_KEY =
 "sb_publishable_02hhRG8bgDOqSFxva8IMvQ_zWTLMa3G";
+
 
 const db =
 window.supabase.createClient(
@@ -844,20 +1185,49 @@ window.supabase.createClient(
 );
 
 
+/* =====================================================
+   DATABASE
+===================================================== */
+
 const PLAYERS_TABLE = "players";
+
 const CLUBS_TABLE = "clubs";
 
-const STORAGE_BUCKET = "AFRN PLAYER PHOTOS";
-const STORAGE_FOLDER = "players";
 
+/* =====================================================
+   STORAGE
+===================================================== */
+
+const STORAGE_BUCKET =
+"AFRN PLAYER PHOTOS";
+
+const STORAGE_FOLDER =
+"players";
+
+const MAX_FILE_SIZE =
+5 * 1024 * 1024;
+
+
+/* =====================================================
+   STATE
+===================================================== */
 
 let players = [];
+
 let clubs = [];
 
 
-const $ = id =>
-  document.getElementById(id);
+/* =====================================================
+   DOM HELPER
+===================================================== */
 
+const $ = id =>
+document.getElementById(id);
+
+
+/* =====================================================
+   STATUS
+===================================================== */
 
 function setStatus(
   message,
@@ -872,6 +1242,10 @@ function setStatus(
 
 }
 
+
+/* =====================================================
+   ESCAPE HTML
+===================================================== */
 
 function esc(value){
 
@@ -895,6 +1269,10 @@ function esc(value){
 }
 
 
+/* =====================================================
+   FULL NAME
+===================================================== */
+
 function fullName(player){
 
   return [
@@ -908,79 +1286,11 @@ function fullName(player){
 
 }
 
-async function getPlayerPhotoUrl(path){
 
-  if(!path) return "";
+/* =====================================================
+   CLUB NAME
+===================================================== */
 
-  try{
-
-    let filePath = path;
-
-    if(
-      path.includes(
-        "/storage/v1/object/public/"
-      )
-    ){
-
-      filePath =
-        path.split(
-          "/storage/v1/object/public/"
-        )[1];
-
-      filePath =
-        decodeURIComponent(filePath);
-
-      const bucketPrefix =
-        STORAGE_BUCKET + "/";
-
-      if(
-        filePath.startsWith(
-          bucketPrefix
-        )
-      ){
-
-        filePath =
-          filePath.substring(
-            bucketPrefix.length
-          );
-
-      }
-
-    }
-
-    const result =
-      await db.storage
-        .from(STORAGE_BUCKET)
-        .createSignedUrl(
-          filePath,
-          3600
-        );
-
-    if(result.error){
-
-      console.error(
-        "Photo URL error:",
-        result.error
-      );
-
-      return "";
-
-    }
-
-    return result.data?.signedUrl || "";
-
-  }catch(error){
-
-    console.error(
-      "Photo URL error:",
-      error
-    );
-
-    return "";
-
-  }
-
-        }
 function getClubName(id){
 
   const club =
@@ -997,6 +1307,10 @@ function getClubName(id){
 }
 
 
+/* =====================================================
+   CLUB DIVISION
+===================================================== */
+
 function getClubDivision(id){
 
   const club =
@@ -1012,6 +1326,249 @@ function getClubDivision(id){
 
 }
 
+
+/* =====================================================
+   EXTRACT STORAGE PATH
+===================================================== */
+
+function extractStoragePath(value){
+
+  if(!value){
+    return "";
+  }
+
+  let path =
+    String(value).trim();
+
+  /*
+    Example:
+
+    https://xxx.supabase.co/storage/v1/object/public/AFRN%20PLAYER%20PHOTOS/players/player_123.jpg
+
+    becomes:
+
+    players/player_123.jpg
+  */
+
+  if(
+    path.includes(
+      "/storage/v1/object/public/"
+    )
+  ){
+
+    path =
+      path.split(
+        "/storage/v1/object/public/"
+      )[1];
+
+    path =
+      decodeURIComponent(path);
+
+    const bucketPrefix =
+      STORAGE_BUCKET + "/";
+
+    if(
+      path.startsWith(
+        bucketPrefix
+      )
+    ){
+
+      path =
+        path.substring(
+          bucketPrefix.length
+        );
+
+    }
+
+  }
+
+
+  /*
+    Signed URL
+  */
+
+  if(
+    path.includes(
+      "/storage/v1/object/sign/"
+    )
+  ){
+
+    path =
+      path.split(
+        "/storage/v1/object/sign/"
+      )[1];
+
+    path =
+      decodeURIComponent(path);
+
+    const bucketPrefix =
+      STORAGE_BUCKET + "/";
+
+    if(
+      path.startsWith(
+        bucketPrefix
+      )
+    ){
+
+      path =
+        path.substring(
+          bucketPrefix.length
+        );
+
+    }
+
+    path =
+      path.split("?")[0];
+
+  }
+
+
+  /*
+    If a complete URL was not supplied,
+    assume it is already a Storage path.
+  */
+
+  if(
+    path.startsWith(
+      "http://"
+    ) ||
+    path.startsWith(
+      "https://"
+    )
+  ){
+
+    return "";
+
+  }
+
+
+  return path;
+
+}
+
+
+/* =====================================================
+   GET PHOTO URL
+   WORKS WITH PUBLIC + PRIVATE BUCKET
+===================================================== */
+
+async function getPlayerPhotoUrl(
+  storedValue
+){
+
+  if(!storedValue){
+
+    return "";
+
+  }
+
+
+  /*
+    First try Storage path
+  */
+
+  const path =
+    extractStoragePath(
+      storedValue
+    );
+
+
+  if(path){
+
+    /*
+      Try signed URL first.
+      This works even if bucket is private.
+    */
+
+    try{
+
+      const result =
+        await db.storage
+          .from(STORAGE_BUCKET)
+          .createSignedUrl(
+            path,
+            3600
+          );
+
+
+      if(
+        !result.error &&
+        result.data?.signedUrl
+      ){
+
+        return result.data.signedUrl;
+
+      }
+
+    }catch(error){
+
+      console.warn(
+        "Signed URL failed:",
+        error
+      );
+
+    }
+
+
+    /*
+      Fallback to public URL.
+    */
+
+    try{
+
+      const publicResult =
+        db.storage
+          .from(STORAGE_BUCKET)
+          .getPublicUrl(
+            path
+          );
+
+
+      if(
+        publicResult.data?.publicUrl
+      ){
+
+        return publicResult.data.publicUrl;
+
+      }
+
+    }catch(error){
+
+      console.warn(
+        "Public URL failed:",
+        error
+      );
+
+    }
+
+  }
+
+
+  /*
+    If the stored value is already
+    an external URL, return it.
+  */
+
+  if(
+    String(storedValue)
+      .startsWith("http://") ||
+    String(storedValue)
+      .startsWith("https://")
+  ){
+
+    return storedValue;
+
+  }
+
+
+  return "";
+
+}
+
+
+/* =====================================================
+   LOAD CLUB OPTIONS
+===================================================== */
 
 function loadClubOptions(){
 
@@ -1057,6 +1614,10 @@ function loadClubOptions(){
 }
 
 
+/* =====================================================
+   LOAD DATA
+===================================================== */
+
 async function loadData(){
 
   setStatus(
@@ -1076,6 +1637,10 @@ async function loadData(){
 
 
   if(clubsResult.error){
+
+    console.error(
+      clubsResult.error
+    );
 
     setStatus(
       "❌ Vilabu: " +
@@ -1110,11 +1675,17 @@ async function loadData(){
       `)
       .order(
         "created_at",
-        {ascending:false}
+        {
+          ascending:false
+        }
       );
 
 
   if(playersResult.error){
+
+    console.error(
+      playersResult.error
+    );
 
     setStatus(
       "❌ Wachezaji: " +
@@ -1136,31 +1707,41 @@ async function loadData(){
 
   loadClubOptions();
 
-renderPlayers();
+  await renderPlayers();
 
 
-setStatus(
-  "✅ Supabase imeunganishwa • Wachezaji " +
-  players.length,
-  "ok"
-);
+  setStatus(
+    "✅ Supabase imeunganishwa • Wachezaji " +
+    players.length,
+    "ok"
+  );
 
-    }
-   async function renderPlayers(){
+}
+
+
+/* =====================================================
+   RENDER PLAYERS
+===================================================== */
+
+async function renderPlayers(){
 
   const container =
     $("playersContainer");
+
 
   const search =
     $("search").value
       .trim()
       .toLowerCase();
 
+
   const clubFilter =
     $("filterClub").value;
 
+
   const positionFilter =
     $("filterPosition").value;
+
 
   const statusFilter =
     $("filterStatus").value;
@@ -1172,6 +1753,7 @@ setStatus(
       const name =
         fullName(player)
           .toLowerCase();
+
 
       const id =
         String(
@@ -1212,37 +1794,42 @@ setStatus(
 
     container.innerHTML = `
       <div class="empty">
-        Hakuna mchezaji
-        anayepatikana.
+        Hakuna mchezaji anayepatikana.
       </div>
     `;
 
     return;
+
   }
 
 
   let html = "";
 
 
-  [1,2,3,4].forEach(
-    division => {
+  for(
+    const division of [1,2,3,4]
+  ){
 
-      const list =
-        filtered.filter(
-          player =>
-            String(
-              getClubDivision(
-                player.club_id
-              )
-            ) ===
-            String(division)
-        );
-
-
-      if(!list.length)return;
+    const list =
+      filtered.filter(
+        player =>
+          String(
+            getClubDivision(
+              player.club_id
+            )
+          ) ===
+          String(division)
+      );
 
 
-      html += `
+    if(!list.length){
+
+      continue;
+
+    }
+
+
+    html += `
 
       <section class="division">
 
@@ -1261,37 +1848,182 @@ setStatus(
         <div class="grid">
 
           ${list.map(
-  playerCard
-).join("")}
+            playerCard
+          ).join("")}
 
         </div>
 
       </section>
 
-      `;
+    `;
 
-    }
-  );
+  }
+
+
+  /*
+    Players with unknown division
+  */
+
+  const unknownDivision =
+    filtered.filter(
+      player =>
+        ![1,2,3,4].includes(
+          Number(
+            getClubDivision(
+              player.club_id
+            )
+          )
+        )
+    );
+
+
+  if(unknownDivision.length){
+
+    html += `
+
+      <section class="division">
+
+        <div class="division-title">
+
+          <h2>
+            ⚽ Bila Daraja
+          </h2>
+
+          <span class="count">
+            ${unknownDivision.length} wachezaji
+          </span>
+
+        </div>
+
+        <div class="grid">
+
+          ${unknownDivision.map(
+            playerCard
+          ).join("")}
+
+        </div>
+
+      </section>
+
+    `;
+
+  }
 
 
   container.innerHTML =
     html;
 
+
+  /*
+    Load Storage images after cards exist.
+  */
+
+  const images =
+    container.querySelectorAll(
+      "img[data-photo]"
+    );
+
+
+  await Promise.all(
+
+    Array.from(images)
+      .map(
+        async img => {
+
+          const stored =
+            img.dataset.photo;
+
+
+          const url =
+            await getPlayerPhotoUrl(
+              stored
+            );
+
+
+          if(url){
+
+            img.src =
+              url;
+
+            img.style.display =
+              "block";
+
+          }else{
+
+            img.style.display =
+              "none";
+
+            const placeholder =
+              img.parentElement
+                ?.querySelector(
+                  ".photo-placeholder"
+                );
+
+            if(placeholder){
+
+              placeholder.style.display =
+                "flex";
+
+            }
+
+          }
+
+        }
+      )
+
+  );
+
 }
 
 
- function playerCard(player){
+/* =====================================================
+   PLAYER CARD
+===================================================== */
 
-  const photo =
-    player.photo_url || "";
+function playerCard(player){
 
   const name =
     fullName(player);
+
 
   const club =
     getClubName(
       player.club_id
     );
+
+
+  const storedPhoto =
+    player.photo_url || "";
+
+
+  const photoHTML =
+    storedPhoto
+
+    ?
+
+    `
+      <img
+        class="photo"
+        data-photo="${esc(storedPhoto)}"
+        src=""
+        alt="Picha ya ${esc(name)}"
+      >
+
+      <div
+        class="photo-placeholder"
+        style="display:none;"
+      >
+        👤
+      </div>
+    `
+
+    :
+
+    `
+      <div class="photo-placeholder">
+        👤
+      </div>
+    `;
 
 
   return `
@@ -1300,32 +2032,7 @@ setStatus(
 
     <div class="player-top">
 
-      ${
-        photo
-
-        ?
-
-        `<img
-          class="photo"
-          src="${esc(photo)}"
-          alt="Picha ya mchezaji">`
-
-        :
-
-        `<div
-          class="photo"
-          style="
-          display:flex;
-          align-items:center;
-          justify-content:center;
-          font-size:25px;
-          ">
-
-          👤
-
-        </div>`
-      }
-
+      ${photoHTML}
 
       <div>
 
@@ -1334,12 +2041,16 @@ setStatus(
         </h3>
 
         <div class="player-id">
+
           Player ID:
+
           <b>
             ${esc(
-              player.player_id_number
+              player.player_id_number ||
+              "Haijawekwa"
             )}
           </b>
+
         </div>
 
       </div>
@@ -1349,187 +2060,684 @@ setStatus(
 
     <div class="chips">
 
-<span class="chip">
-⚽ ${esc(player.position || "-")}
-</span>
+      <span class="chip">
+        ⚽ ${esc(
+          player.position || "-"
+        )}
+      </span>
 
-<span class="chip">
-#${esc(player.jersey_number || "-")}
-</span>
+      <span class="chip">
+        #${esc(
+          player.jersey_number || "-"
+        )}
+      </span>
 
-<span class="chip">
-${esc(player.status || "-")}
-</span>
+      <span class="chip">
+        ${esc(
+          player.status || "-"
+        )}
+      </span>
 
-</div>
-
-
-<div class="details">
-
-<div class="detail">
-<b>KLABU</b>
-${esc(club)}
-</div>
-
-<div class="detail">
-<b>TAIFA</b>
-${esc(player.nationality || "-")}
-</div>
-
-<div class="detail">
-<b>KUZALIWA</b>
-${esc(player.date_of_birth || "-")}
-</div>
-
-<div class="detail">
-<b>SIMU</b>
-${esc(player.phone || "-")}
-</div>
-
-</div>
+    </div>
 
 
-<div class="actions">
+    <div class="details">
 
-<button
-class="secondary"
-onclick="editPlayer('${esc(player.id)}')">
-✏️ Hariri
-</button>
+      <div class="detail">
 
-<button
-class="danger"
-onclick="deletePlayer('${esc(player.id)}')">
-🗑️ Futa
-</button>
+        <b>KLABU</b>
 
-</div>
+        ${esc(club)}
 
-</article>
+      </div>
 
-`;
+
+      <div class="detail">
+
+        <b>TAIFA</b>
+
+        ${esc(
+          player.nationality || "-"
+        )}
+
+      </div>
+
+
+      <div class="detail">
+
+        <b>KUZALIWA</b>
+
+        ${esc(
+          player.date_of_birth || "-"
+        )}
+
+      </div>
+
+
+      <div class="detail">
+
+        <b>SIMU</b>
+
+        ${esc(
+          player.phone || "-"
+        )}
+
+      </div>
+
+    </div>
+
+
+    <div class="actions">
+
+      <button
+        class="secondary"
+        onclick="editPlayer('${esc(player.id)}')"
+      >
+
+        ✏️ Hariri
+
+      </button>
+
+
+      <button
+        class="danger"
+        onclick="deletePlayer('${esc(player.id)}')"
+      >
+
+        🗑️ Futa
+
+      </button>
+
+    </div>
+
+  </article>
+
+  `;
 
 }
 
 
-/* FILTERS */
+/* =====================================================
+   VALIDATE IMAGE
+===================================================== */
 
-$("search").oninput =
-renderPlayers;
+function validateImage(file){
 
-$("filterClub").onchange =
-renderPlayers;
+  if(!file){
 
-$("filterPosition").onchange =
-renderPlayers;
+    return {
+      ok:true
+    };
 
-$("filterStatus").onchange =
-renderPlayers;
-
-
-/* START */
-
-loadData();
+  }
 
 
-$("photoFile").addEventListener(
+  const allowedTypes = [
+
+    "image/jpeg",
+    "image/jpg",
+    "image/png",
+    "image/webp"
+
+  ];
+
+
+  if(
+    !allowedTypes.includes(
+      file.type
+    )
+  ){
+
+    return {
+
+      ok:false,
+
+      message:
+        "Aina ya picha hairuhusiwi. Tumia JPG, PNG au WEBP."
+
+    };
+
+  }
+
+
+  if(
+    file.size >
+    MAX_FILE_SIZE
+  ){
+
+    return {
+
+      ok:false,
+
+      message:
+        "Picha ni kubwa sana. Maximum ni 5MB."
+
+    };
+
+  }
+
+
+  return {
+    ok:true
+  };
+
+}
+
+
+/* =====================================================
+   CREATE STORAGE FILE PATH
+===================================================== */
+
+function createPhotoPath(file){
+
+  const originalName =
+    file.name || "photo";
+
+
+  const extension =
+    originalName
+      .split(".")
+      .pop()
+      .toLowerCase();
+
+
+  const unique =
+    Date.now() +
+    "_" +
+    Math.random()
+      .toString(36)
+      .substring(2,9);
+
+
+  return (
+
+    STORAGE_FOLDER +
+    "/player_" +
+    unique +
+    "." +
+    extension
+
+  );
+
+}
+
+
+/* =====================================================
+   UPLOAD PHOTO
+===================================================== */
+
+async function uploadPlayerPhoto(file){
+
+  if(!file){
+
+    return {
+
+      success:false,
+      skipped:true,
+      path:"",
+      url:""
+
+    };
+
+  }
+
+
+  const validation =
+    validateImage(file);
+
+
+  if(!validation.ok){
+
+    throw new Error(
+      validation.message
+    );
+
+  }
+
+
+  $("uploadProgress").style.display =
+    "block";
+
+
+  $("progressBar").style.width =
+    "10%";
+
+
+  $("progressText").textContent =
+    "⏳ Inaanza upload ya picha...";
+
+
+  const path =
+    createPhotoPath(file);
+
+
+  console.log(
+    "PHOTO BUCKET:",
+    STORAGE_BUCKET
+  );
+
+  console.log(
+    "PHOTO PATH:",
+    path
+  );
+
+  console.log(
+    "PHOTO FILE:",
+    file
+  );
+
+
+  $("progressBar").style.width =
+    "30%";
+
+
+  const upload =
+    await db.storage
+      .from(STORAGE_BUCKET)
+      .upload(
+        path,
+        file,
+        {
+          cacheControl:"3600",
+          upsert:false,
+          contentType:file.type
+        }
+      );
+
+
+  if(upload.error){
+
+    $("progressBar").style.width =
+      "0%";
+
+
+    $("progressText").textContent =
+      "❌ Upload imeshindikana.";
+
+
+    throw new Error(
+      upload.error.message
+    );
+
+  }
+
+
+  $("progressBar").style.width =
+    "70%";
+
+
+  $("progressText").textContent =
+    "⏳ Inatengeneza URL ya picha...";
+
+
+  /*
+    Try signed URL.
+  */
+
+  let photoUrl = "";
+
+
+  try{
+
+    const signed =
+      await db.storage
+        .from(STORAGE_BUCKET)
+        .createSignedUrl(
+          path,
+          3600
+        );
+
+
+    if(
+      !signed.error &&
+      signed.data?.signedUrl
+    ){
+
+      photoUrl =
+        signed.data.signedUrl;
+
+    }
+
+  }catch(error){
+
+    console.warn(
+      "Signed URL generation failed:",
+      error
+    );
+
+  }
+
+
+  /*
+    If signed URL unavailable,
+    get public URL.
+  */
+
+  if(!photoUrl){
+
+    const publicResult =
+      db.storage
+        .from(STORAGE_BUCKET)
+        .getPublicUrl(
+          path
+        );
+
+
+    photoUrl =
+      publicResult.data?.publicUrl ||
+      "";
+
+  }
+
+
+  $("progressBar").style.width =
+    "100%";
+
+
+  $("progressText").textContent =
+    "✅ Picha imehifadhiwa.";
+
+  return {
+
+    success:true,
+
+    skipped:false,
+
+    path:path,
+
+    url:photoUrl
+
+  };
+
+}
+
+
+/* =====================================================
+   DELETE STORAGE PHOTO
+===================================================== */
+
+async function deleteStoragePhoto(
+  storedValue
+){
+
+  const path =
+    extractStoragePath(
+      storedValue
+    );
+
+
+  if(!path){
+
+    return;
+
+  }
+
+
+  try{
+
+    const result =
+      await db.storage
+        .from(STORAGE_BUCKET)
+        .remove([
+          path
+        ]);
+
+
+    if(result.error){
+
+      console.warn(
+        "Storage photo delete failed:",
+        result.error
+      );
+
+    }else{
+
+      console.log(
+        "Storage photo deleted:",
+        path
+      );
+
+    }
+
+  }catch(error){
+
+    console.warn(
+      "Storage delete error:",
+      error
+    );
+
+  }
+
+}
+
+
+/* =====================================================
+   PHOTO PREVIEW
+===================================================== */
+
+$("photoFile")
+.addEventListener(
   "change",
   function(){
 
-    const file = this.files[0];
+    const file =
+      this.files[0];
 
-    if(!file) return;
+
+    if(!file){
+
+      $("photoPreview").style.display =
+        "none";
+
+      return;
+
+    }
+
+
+    const validation =
+      validateImage(file);
+
+
+    if(!validation.ok){
+
+      alert(
+        validation.message
+      );
+
+      this.value = "";
+
+      $("photoPreview").style.display =
+        "none";
+
+      return;
+
+    }
+
+
+    const objectUrl =
+      URL.createObjectURL(
+        file
+      );
+
 
     $("photoPreviewImage").src =
-      URL.createObjectURL(file);
+      objectUrl;
+
 
     $("photoPreview").style.display =
       "block";
+
   }
 );
 
 
-$("addBtn").onclick = function(){
+/* =====================================================
+   OPEN ADD PLAYER
+===================================================== */
+
+$("addBtn").onclick =
+function(){
 
   $("playerForm").reset();
 
   $("editId").value = "";
 
+  $("playerIdNumber").value = "";
+
+  $("photoUrl").value = "";
+
   $("modalTitle").textContent =
     "＋ Ongeza Mchezaji";
 
+
   $("photoPreview").style.display =
     "none";
+
+
+  $("currentPhoto").style.display =
+    "none";
+
+
+  $("uploadProgress").style.display =
+    "none";
+
+
+  $("progressBar").style.width =
+    "0%";
+
+
+  $("progressText").textContent =
+    "Inasubiri upload...";
+
 
   $("playerDialog").showModal();
 
 };
 
 
-$("cancelBtn").onclick = function(){
+/* =====================================================
+   CANCEL
+===================================================== */
+
+$("cancelBtn").onclick =
+function(){
 
   $("playerDialog").close();
 
 };
-    $("playerForm").onsubmit = async function(e){
+
+
+/* =====================================================
+   SAVE PLAYER
+===================================================== */
+
+$("playerForm").onsubmit =
+async function(e){
 
   e.preventDefault();
+
+
+  const saveButton =
+    $("saveBtn");
+
+
+  if(saveButton.disabled){
+
+    return;
+
+  }
+
 
   const editId =
     $("editId").value.trim();
 
+
   const firstName =
     $("firstName").value.trim();
+
 
   const middleName =
     $("middleName").value.trim();
 
+
   const lastName =
     $("lastName").value.trim();
 
-  const playerIdNumber = null;
+
   const clubId =
     $("clubId").value;
+
 
   const position =
     $("position").value;
 
+
   const dateOfBirth =
-    $("dateOfBirth").value || null;
+    $("dateOfBirth").value ||
+    null;
+
 
   const nationality =
     $("nationality").value.trim();
 
+
   const jerseyNumber =
     $("jerseyNumber").value
-      ? Number($("jerseyNumber").value)
+      ? Number(
+          $("jerseyNumber").value
+        )
       : null;
+
 
   const phone =
     $("phone").value.trim();
 
+
   const address =
     $("address").value.trim();
 
+
   const status =
     $("statusField").value;
+
 
   let photoUrl =
     $("photoUrl").value.trim();
 
 
+  /*
+    Existing player
+  */
+
+  const existingPlayer =
+    editId
+
+      ?
+
+      players.find(
+        p =>
+          String(p.id) ===
+          String(editId)
+      )
+
+      :
+
+      null;
+
+
   if(
-  !firstName ||
-  !lastName ||
-  !clubId ||
-  !position
-){
+    !firstName ||
+    !lastName ||
+    !clubId ||
+    !position
+  ){
 
     alert(
-      "Jina, Player ID, Klabu na Nafasi ni lazima."
+      "Jina la kwanza, jina la mwisho, klabu na nafasi ni lazima."
     );
 
     return;
+
   }
 
 
@@ -1537,238 +2745,444 @@ $("cancelBtn").onclick = function(){
     $("photoFile").files[0];
 
 
+  /*
+    Validate photo before
+    doing anything else.
+  */
+
   if(file){
 
-    setStatus(
-      "⏳ Inapakia picha..."
-    );
+    const validation =
+      validateImage(file);
 
 
-    const ext =
-      file.name
-        .split(".")
-        .pop()
-        .toLowerCase();
+    if(!validation.ok){
 
-
-    const fileName =
-      "player_" +
-      Date.now() +
-      "." +
-      ext;
-
-
-    const path =
-      STORAGE_FOLDER +
-      "/" +
-      fileName;
-
-
-    console.log("UPLOAD BUCKET:", STORAGE_BUCKET);
-console.log("UPLOAD PATH:", path);
-console.log("UPLOAD FILE:", file);
-console.log("UPLOAD TYPE:", file?.type);
-
-const upload =
-  await db.storage
-    .from(STORAGE_BUCKET)
-    .upload(
-      path,
-      file,
-      {
-        upsert:true,
-        contentType:file.type
-      }
-    );
-
-    if(upload.error){
-
-      setStatus(
-        "❌ Picha haijapakiwa: " +
-        upload.error.message,
-        "err"
+      alert(
+        validation.message
       );
 
       return;
+
+    }
+
+  }
+
+
+  saveButton.disabled =
+    true;
+
+
+  try{
+
+    /*
+      ============================================
+      UPLOAD NEW PHOTO
+      ============================================
+    */
+
+    let uploadedPhoto =
+      null;
+
+
+    if(file){
+
+      setStatus(
+        "⏳ Inapakia picha ya mchezaji..."
+      );
+
+
+      uploadedPhoto =
+        await uploadPlayerPhoto(
+          file
+        );
+
+
+      if(
+        uploadedPhoto.success &&
+        uploadedPhoto.url
+      ){
+
+        /*
+          Save storage URL/path.
+
+          We save the storage PATH rather than
+          a temporary signed URL.
+
+          This is important because signed URLs
+          expire.
+
+          The app generates a fresh signed URL
+          whenever displaying the photo.
+        */
+
+        photoUrl =
+          uploadedPhoto.path;
+
+      }
+
     }
 
 
-    const publicUrl =
-      db.storage
-        .from(STORAGE_BUCKET)
-        .getPublicUrl(path);
+    /*
+      ============================================
+      PAYLOAD
+      ============================================
+    */
+
+    const payload = {
+
+      club_id:
+        clubId,
+
+      first_name:
+        firstName,
+
+      middle_name:
+        middleName ||
+        null,
+
+      last_name:
+        lastName,
+
+      date_of_birth:
+        dateOfBirth,
+
+      nationality:
+        nationality ||
+        null,
+
+      position:
+        position,
+
+      jersey_number:
+        jerseyNumber,
+
+      photo_url:
+        photoUrl ||
+        null,
+
+      phone:
+        phone ||
+        null,
+
+      address:
+        address ||
+        null,
+
+      status:
+        status
+
+    };
 
 
-    photoUrl =
-      publicUrl.data.publicUrl;
+    /*
+      ============================================
+      DATABASE SAVE
+      ============================================
+    */
 
-  }
-
-
-  const payload = {
-
-    club_id:
-      clubId,
-
-    first_name:
-      firstName,
-
-    middle_name:
-      middleName || null,
-
-    last_name:
-      lastName,
-
-    date_of_birth:
-      dateOfBirth,
-
-    nationality:
-      nationality || null,
-
-    position:
-      position,
-
-    jersey_number:
-      jerseyNumber,
-
-    photo_url:
-      photoUrl || null,  
-
-    phone:
-      phone || null,
-
-    address:
-      address || null,
-
-    status:
-      status
-
-  };
+    setStatus(
+      editId
+        ? "⏳ Inasasisha mchezaji..."
+        : "⏳ Inahifadhi mchezaji..."
+    );
 
 
-  setStatus(
-    editId
-      ? "⏳ Inasasisha mchezaji..."
-      : "⏳ Inahifadhi mchezaji..."
-  );
+    let result;
 
 
-  let result;
+    if(editId){
+
+      result =
+        await db
+          .from(PLAYERS_TABLE)
+          .update(payload)
+          .eq(
+            "id",
+            editId
+          );
+
+    }else{
+
+      result =
+        await db
+          .from(PLAYERS_TABLE)
+          .insert(
+            payload
+          );
+
+    }
 
 
-  if(editId){
+    /*
+      ============================================
+      DATABASE ERROR
+      ============================================
+    */
 
-    result =
-      await db
-        .from(PLAYERS_TABLE)
-        .update(payload)
-        .eq("id",editId);
+    if(result.error){
 
-  }else{
-
-    result =
-      await db
-        .from(PLAYERS_TABLE)
-        .insert(payload);
-
-  }
+      console.error(
+        "DATABASE ERROR:",
+        result.error
+      );
 
 
-  if(result.error){
+      /*
+        If DB save fails after a new photo
+        was uploaded, remove the orphan photo.
+      */
+
+      if(
+        uploadedPhoto?.path
+      ){
+
+        await deleteStoragePhoto(
+          uploadedPhoto.path
+        );
+
+      }
+
+
+      throw new Error(
+        result.error.message
+      );
+
+    }
+
+
+    /*
+      ============================================
+      DELETE OLD PHOTO
+      ONLY AFTER DB SUCCESS
+      ============================================
+    */
+
+    if(
+      editId &&
+      file &&
+      existingPlayer?.photo_url &&
+      uploadedPhoto?.path
+    ){
+
+      const oldPath =
+        extractStoragePath(
+          existingPlayer.photo_url
+        );
+
+
+      if(
+        oldPath &&
+        oldPath !==
+        uploadedPhoto.path
+      ){
+
+        await deleteStoragePhoto(
+          oldPath
+        );
+
+      }
+
+    }
+
+
+    /*
+      ============================================
+      CLOSE + RESET
+      ============================================
+    */
+
+    $("playerDialog").close();
+
+    $("playerForm").reset();
+
+    $("photoPreview").style.display =
+      "none";
+
+    $("currentPhoto").style.display =
+      "none";
+
+    $("uploadProgress").style.display =
+      "none";
+
+
+    setStatus(
+      editId
+        ? "✅ Mchezaji amesasishwa kikamilifu."
+        : "✅ Mchezaji amehifadhiwa kikamilifu.",
+      "ok"
+    );
+
+
+    /*
+      Reload everything.
+    */
+
+    await loadData();
+
+
+  }catch(error){
 
     console.error(
-      result.error
+      "SAVE PLAYER ERROR:",
+      error
     );
+
 
     setStatus(
       "❌ " +
-      result.error.message,
+      (
+        error.message ||
+        "Kuna tatizo wakati wa kuhifadhi."
+      ),
       "err"
     );
 
+
     alert(
-      result.error.message
+      error.message ||
+      "Kuna tatizo wakati wa kuhifadhi."
     );
 
-    return;
+  }finally{
+
+    saveButton.disabled =
+      false;
+
   }
 
-
-  $("playerDialog").close();
-
-  $("playerForm").reset();
-
-  $("photoPreview").style.display =
-    "none";
-
-
-  await loadData();
-
 };
-    async function editPlayer(id){
+
+
+/* =====================================================
+   EDIT PLAYER
+===================================================== */
+
+async function editPlayer(id){
 
   const player =
     players.find(
-      p => String(p.id) === String(id)
+      p =>
+        String(p.id) ===
+        String(id)
     );
 
-  if(!player) return;
+
+  if(!player){
+
+    return;
+
+  }
 
 
   $("editId").value =
     player.id;
 
+
   $("firstName").value =
-    player.first_name || "";
+    player.first_name ||
+    "";
+
 
   $("middleName").value =
-    player.middle_name || "";
+    player.middle_name ||
+    "";
+
 
   $("lastName").value =
-    player.last_name || "";
+    player.last_name ||
+    "";
+
 
   $("playerIdNumber").value =
-    player.player_id_number || "";
+    player.player_id_number ||
+    "";
+
 
   $("clubId").value =
-    player.club_id || "";
+    player.club_id ||
+    "";
+
 
   $("position").value =
-    player.position || "";
+    player.position ||
+    "";
+
 
   $("dateOfBirth").value =
-    player.date_of_birth || "";
+    player.date_of_birth ||
+    "";
+
 
   $("nationality").value =
-    player.nationality || "";
+    player.nationality ||
+    "";
+
 
   $("jerseyNumber").value =
-    player.jersey_number || "";
+    player.jersey_number ||
+    "";
+
 
   $("phone").value =
-    player.phone || "";
+    player.phone ||
+    "";
+
 
   $("address").value =
-    player.address || "";
+    player.address ||
+    "";
+
 
   $("statusField").value =
-    player.status || "Active";
+    player.status ||
+    "Active";
+
 
   $("photoUrl").value =
-    player.photo_url || "";
+    player.photo_url ||
+    "";
 
+
+  $("photoPreview").style.display =
+    "none";
+
+
+  $("uploadProgress").style.display =
+    "none";
+
+
+  /*
+    Display current Storage photo.
+  */
 
   if(player.photo_url){
 
-    $("photoPreviewImage").src =
-      player.photo_url;
+    const currentUrl =
+      await getPlayerPhotoUrl(
+        player.photo_url
+      );
 
-    $("photoPreview").style.display =
-      "block";
+
+    if(currentUrl){
+
+      $("currentPhotoImage").src =
+        currentUrl;
+
+      $("currentPhoto").style.display =
+        "block";
+
+    }else{
+
+      $("currentPhoto").style.display =
+        "none";
+
+    }
 
   }else{
 
-    $("photoPreview").style.display =
+    $("currentPhoto").style.display =
       "none";
 
   }
@@ -1777,20 +3191,31 @@ const upload =
   $("modalTitle").textContent =
     "✏️ Hariri Mchezaji";
 
+
   $("playerDialog").showModal();
 
 }
 
 
+/* =====================================================
+   DELETE PLAYER
+===================================================== */
+
 async function deletePlayer(id){
 
   const player =
     players.find(
-      p => String(p.id) === String(id)
+      p =>
+        String(p.id) ===
+        String(id)
     );
 
 
-  if(!player) return;
+  if(!player){
+
+    return;
+
+  }
 
 
   const name =
@@ -1801,11 +3226,16 @@ async function deletePlayer(id){
     confirm(
       "Una uhakika unataka kufuta mchezaji:\n\n" +
       name +
-      "?"
+      "?\n\n" +
+      "Picha yake pia itaondolewa kwenye Supabase Storage."
     );
 
 
-  if(!confirmDelete) return;
+  if(!confirmDelete){
+
+    return;
+
+  }
 
 
   setStatus(
@@ -1813,40 +3243,124 @@ async function deletePlayer(id){
   );
 
 
-  const result =
-    await db
-      .from(PLAYERS_TABLE)
-      .delete()
-      .eq("id",id);
+  try{
+
+    /*
+      Delete database record first.
+    */
+
+    const result =
+      await db
+        .from(PLAYERS_TABLE)
+        .delete()
+        .eq(
+          "id",
+          id
+        );
 
 
-  if(result.error){
+    if(result.error){
+
+      throw new Error(
+        result.error.message
+      );
+
+    }
+
+
+    /*
+      Then delete Storage photo.
+    */
+
+    if(player.photo_url){
+
+      await deleteStoragePhoto(
+        player.photo_url
+      );
+
+    }
+
+
+    setStatus(
+      "✅ Mchezaji amefutwa.",
+      "ok"
+    );
+
+
+    await loadData();
+
+
+  }catch(error){
 
     console.error(
-      result.error
+      "DELETE PLAYER ERROR:",
+      error
     );
+
 
     setStatus(
       "❌ " +
-      result.error.message,
+      (
+        error.message ||
+        "Imeshindikana kufuta mchezaji."
+      ),
       "err"
     );
 
+
     alert(
-      result.error.message
+      error.message ||
+      "Imeshindikana kufuta mchezaji."
     );
 
-    return;
   }
-
-
-  await loadData();
 
 }
 
 
+/* =====================================================
+   FILTERS
+===================================================== */
+
+$("search").oninput =
+function(){
+
+  renderPlayers();
+
+};
+
+
+$("filterClub").onchange =
+function(){
+
+  renderPlayers();
+
+};
+
+
+$("filterPosition").onchange =
+function(){
+
+  renderPlayers();
+
+};
+
+
+$("filterStatus").onchange =
+function(){
+
+  renderPlayers();
+
+};
+
+
+/* =====================================================
+   INITIALIZE
+===================================================== */
+
+loadData();
+
 </script>
 
 </body>
-
 </html>
