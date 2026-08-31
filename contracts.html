@@ -1,3 +1,4 @@
+```html
 <!DOCTYPE html>
 <html lang="sw">
 <head>
@@ -7,32 +8,77 @@
 <title>AFRN - Player Contract</title>
 
 <style>
-
 *{
     box-sizing:border-box;
+}
+
+:root{
+    --navy:#071a33;
+    --blue:#0d47a1;
+    --gold:#d4af37;
+    --text:#172033;
+    --muted:#667085;
+    --border:#dce3ed;
+    --light:#f5f7fa;
 }
 
 body{
     margin:0;
     background:#e9edf3;
     font-family:Arial, Helvetica, sans-serif;
-    color:#172033;
+    color:var(--text);
 }
 
-/* ================= A4 ================= */
+/* =========================================================
+   TOOLBAR
+========================================================= */
+
+.toolbar{
+    width:210mm;
+    margin:20px auto 0;
+    display:flex;
+    justify-content:flex-end;
+    gap:8px;
+}
+
+.toolbar button{
+    border:0;
+    padding:10px 16px;
+    border-radius:6px;
+    cursor:pointer;
+    font-size:12px;
+    font-weight:700;
+}
+
+.btn-print{
+    background:var(--navy);
+    color:white;
+}
+
+.btn-close{
+    background:white;
+    border:1px solid var(--border) !important;
+    color:var(--text);
+}
+
+/* =========================================================
+   A4 PAGE
+========================================================= */
 
 .a4{
     width:210mm;
     min-height:297mm;
-    margin:25px auto;
-    background:#fff;
-    padding:13mm 15mm;
+    margin:15px auto 25px;
+    background:white;
+    padding:13mm 15mm 22mm;
     box-shadow:0 8px 35px rgba(0,0,0,.18);
     position:relative;
     overflow:hidden;
 }
 
-/* ================= WATERMARK ================= */
+/* =========================================================
+   WATERMARK
+========================================================= */
 
 .a4::before{
     content:"AFRN";
@@ -45,27 +91,39 @@ body{
     color:rgba(13,71,161,.035);
     transform:rotate(-25deg);
     pointer-events:none;
+    z-index:0;
 }
 
-/* ================= TOP GOLD LINE ================= */
+/* Keep content above watermark */
+
+.a4 > *{
+    position:relative;
+    z-index:1;
+}
+
+/* =========================================================
+   TOP LINE
+========================================================= */
 
 .top-line{
     height:5px;
     background:linear-gradient(
         90deg,
-        #071a33 0%,
-        #0d47a1 55%,
-        #d4af37 100%
+        var(--navy) 0%,
+        var(--blue) 55%,
+        var(--gold) 100%
     );
     margin:-13mm -15mm 10px;
 }
 
-/* ================= HEADER ================= */
+/* =========================================================
+   HEADER
+========================================================= */
 
 .header{
     display:flex;
     align-items:center;
-    border-bottom:1.5px solid #071a33;
+    border-bottom:1.5px solid var(--navy);
     padding-bottom:9px;
 }
 
@@ -85,44 +143,48 @@ body{
     margin:0;
     font-size:16px;
     font-weight:900;
-    color:#071a33;
+    color:var(--navy);
 }
 
 .header-center h2{
     margin:4px 0;
     font-size:12px;
     font-weight:900;
-    color:#0d47a1;
+    color:var(--blue);
 }
 
 .header-center p{
     margin:0;
     font-size:8px;
     letter-spacing:.6px;
-    color:#667085;
+    color:var(--muted);
 }
 
-/* ================= CONTRACT NUMBER ================= */
+/* =========================================================
+   CONTRACT META
+========================================================= */
 
 .contract-meta{
-    display:flex;
-    justify-content:space-between;
+    display:grid;
+    grid-template-columns:1fr 1fr;
+    gap:10px;
     margin-top:10px;
     font-size:9px;
 }
 
 .meta-box{
     border:1px solid #cfd8e3;
-    padding:6px 9px;
-    min-width:45%;
+    padding:7px 9px;
     background:#f8fafc;
 }
 
 .meta-box strong{
-    color:#071a33;
+    color:var(--navy);
 }
 
-/* ================= TITLE ================= */
+/* =========================================================
+   TITLE
+========================================================= */
 
 .title{
     text-align:center;
@@ -132,21 +194,23 @@ body{
 .title h1{
     margin:0;
     font-size:20px;
-    color:#071a33;
+    color:var(--navy);
     letter-spacing:.8px;
 }
 
 .title h2{
     margin:5px 0 0;
     font-size:10px;
-    color:#0d47a1;
+    color:var(--blue);
     letter-spacing:1px;
 }
 
-/* ================= INTRO ================= */
+/* =========================================================
+   INTRO
+========================================================= */
 
 .intro{
-    border-left:4px solid #d4af37;
+    border-left:4px solid var(--gold);
     background:#f7f9fc;
     padding:9px 11px;
     font-size:9.5px;
@@ -155,10 +219,12 @@ body{
     margin-bottom:12px;
 }
 
-/* ================= SECTION TITLE ================= */
+/* =========================================================
+   SECTION TITLE
+========================================================= */
 
 .section-title{
-    background:#071a33;
+    background:var(--navy);
     color:white;
     padding:7px 10px;
     font-size:10px;
@@ -167,13 +233,15 @@ body{
     margin-top:10px;
 }
 
-/* ================= PLAYER AREA ================= */
+/* =========================================================
+   PLAYER AREA
+========================================================= */
 
 .player-area{
     display:grid;
     grid-template-columns:80px 1fr;
     gap:12px;
-    border:1px solid #dce3ed;
+    border:1px solid var(--border);
     border-top:none;
     padding:10px;
 }
@@ -182,7 +250,7 @@ body{
     width:70px;
     height:82px;
     object-fit:cover;
-    border:1px solid #071a33;
+    border:1px solid var(--navy);
     background:#eef2f6;
 }
 
@@ -193,14 +261,14 @@ body{
 }
 
 .field{
-    border-bottom:1px solid #dce3ed;
+    border-bottom:1px solid var(--border);
     padding-bottom:4px;
 }
 
 .field label{
     display:block;
     font-size:7px;
-    color:#667085;
+    color:var(--muted);
     text-transform:uppercase;
     font-weight:bold;
 }
@@ -211,10 +279,12 @@ body{
     margin-top:2px;
 }
 
-/* ================= CONTRACT DETAILS ================= */
+/* =========================================================
+   CONTRACT DETAILS
+========================================================= */
 
 .details{
-    border:1px solid #dce3ed;
+    border:1px solid var(--border);
     border-top:none;
     display:grid;
     grid-template-columns:1fr 1fr;
@@ -222,8 +292,8 @@ body{
 
 .detail{
     padding:8px 10px;
-    border-right:1px solid #dce3ed;
-    border-bottom:1px solid #dce3ed;
+    border-right:1px solid var(--border);
+    border-bottom:1px solid var(--border);
 }
 
 .detail:nth-child(even){
@@ -233,16 +303,19 @@ body{
 .detail label{
     display:block;
     font-size:7px;
-    color:#667085;
+    color:var(--muted);
     font-weight:bold;
     text-transform:uppercase;
+    margin-bottom:2px;
 }
 
 .detail strong{
     font-size:9.5px;
 }
 
-/* ================= AGREEMENT ================= */
+/* =========================================================
+   AGREEMENT
+========================================================= */
 
 .agreement{
     font-size:9.5px;
@@ -256,25 +329,221 @@ body{
 
 .article-number{
     font-weight:900;
-    color:#071a33;
+    color:var(--navy);
 }
 
-/* ================= HIGHLIGHT ================= */
+/* =========================================================
+   HIGHLIGHT
+========================================================= */
 
 .highlight{
     margin-top:10px;
     padding:9px 11px;
     background:#f4f7fb;
-    border:1px solid #dce3ed;
+    border:1px solid var(--border);
     font-size:9px;
     line-height:1.45;
 }
 
 .highlight strong{
-    color:#0d47a1;
+    color:var(--blue);
 }
 
-/* ================= FOOTER ================= */
+/* =========================================================
+   PAGE 2
+========================================================= */
+
+.page-break{
+    page-break-before:always;
+}
+
+.page-title{
+    margin:5px 0 10px;
+    text-align:center;
+}
+
+.page-title h2{
+    margin:0;
+    font-size:14px;
+    color:var(--navy);
+}
+
+.page-title p{
+    margin:4px 0;
+    font-size:8px;
+    color:var(--muted);
+}
+
+/* =========================================================
+   CLAUSES
+========================================================= */
+
+.clauses{
+    font-size:9.3px;
+    line-height:1.48;
+    text-align:justify;
+}
+
+.clauses p{
+    margin:7px 0;
+}
+
+.clause-title{
+    font-weight:900;
+    color:var(--navy);
+}
+
+/* =========================================================
+   DECLARATION
+========================================================= */
+
+.declaration{
+    margin-top:10px;
+    border:1px solid var(--border);
+    background:#f8fafc;
+    padding:10px;
+    font-size:9.2px;
+    line-height:1.5;
+    text-align:justify;
+}
+
+/* =========================================================
+   SIGNATURES
+========================================================= */
+
+.signature-section{
+    margin-top:13px;
+}
+
+.signature-title{
+    background:var(--navy);
+    color:white;
+    padding:7px 10px;
+    font-size:10px;
+    font-weight:900;
+}
+
+.signatures{
+    display:grid;
+    grid-template-columns:1fr 1fr;
+    gap:15px;
+    margin-top:10px;
+}
+
+.signature-box{
+    border:1px solid var(--border);
+    min-height:105px;
+    padding:9px;
+}
+
+.signature-box h4{
+    margin:0 0 25px;
+    text-align:center;
+    font-size:9px;
+    color:var(--navy);
+}
+
+.signature-line{
+    border-top:1px solid #172033;
+    margin-top:28px;
+    padding-top:4px;
+    font-size:7px;
+    color:var(--muted);
+    text-align:center;
+}
+
+.signature-date{
+    margin-top:8px;
+    font-size:7px;
+    color:var(--muted);
+}
+
+/* =========================================================
+   AFRN VERIFICATION
+========================================================= */
+
+.verification{
+    margin-top:12px;
+    border:1.5px solid var(--blue);
+    padding:10px;
+    background:#f5f8fd;
+}
+
+.verification-header{
+    display:flex;
+    justify-content:space-between;
+    align-items:center;
+    margin-bottom:8px;
+}
+
+.verification-header strong{
+    font-size:10px;
+    color:var(--navy);
+}
+
+.verified-badge{
+    background:#0d47a1;
+    color:white;
+    padding:4px 8px;
+    font-size:7px;
+    font-weight:900;
+    border-radius:3px;
+}
+
+.verification-grid{
+    display:grid;
+    grid-template-columns:1fr 1fr;
+    gap:7px 12px;
+}
+
+.verify-field{
+    border-bottom:1px solid var(--border);
+    padding-bottom:4px;
+}
+
+.verify-field label{
+    display:block;
+    font-size:6.5px;
+    color:var(--muted);
+    font-weight:bold;
+    text-transform:uppercase;
+}
+
+.verify-field strong{
+    font-size:8px;
+}
+
+/* =========================================================
+   QR PLACEHOLDER
+========================================================= */
+
+.qr-area{
+    display:flex;
+    align-items:center;
+    gap:10px;
+    margin-top:8px;
+}
+
+.qr{
+    width:55px;
+    height:55px;
+    border:2px solid var(--navy);
+    display:flex;
+    align-items:center;
+    justify-content:center;
+    font-size:7px;
+    font-weight:bold;
+    color:var(--navy);
+}
+
+.qr-text{
+    font-size:7px;
+    color:var(--muted);
+}
+
+/* =========================================================
+   FOOTER
+========================================================= */
 
 .footer{
     position:absolute;
@@ -286,24 +555,28 @@ body{
     display:flex;
     justify-content:space-between;
     font-size:7px;
-    color:#667085;
+    color:var(--muted);
 }
 
 .footer strong{
-    color:#071a33;
+    color:var(--navy);
 }
 
-/* ================= PAGE NUMBER ================= */
+/* =========================================================
+   PAGE NUMBER
+========================================================= */
 
 .page-number{
     position:absolute;
     right:15mm;
     bottom:4mm;
     font-size:7px;
-    color:#667085;
+    color:var(--muted);
 }
 
-/* ================= PRINT ================= */
+/* =========================================================
+   PRINT
+========================================================= */
 
 @page{
     size:A4;
@@ -316,25 +589,389 @@ body{
         background:white;
     }
 
+    .toolbar{
+        display:none;
+    }
+
     .a4{
         margin:0;
         box-shadow:none;
         width:210mm;
         min-height:297mm;
+        page-break-after:always;
     }
 
+    .a4:last-of-type{
+        page-break-after:auto;
+    }
 }
-
 </style>
 </head>
 
 <body>
 
+<!-- =====================================================
+     TOOLBAR
+===================================================== -->
+
+<div class="toolbar">
+
+    <button class="btn-close" onclick="window.history.back()">
+        ← Rudi
+    </button>
+
+    <button class="btn-print" onclick="window.print()">
+        🖨 PRINT / PDF
+    </button>
+
+</div>
+
+
+<!-- =====================================================
+     PAGE 1
+===================================================== -->
+
 <div class="a4">
 
     <div class="top-line"></div>
 
-    <!-- ================= HEADER ================= -->
+    <!-- HEADER -->
+
+    <div class="header">
+
+        <img
+            class="logo"
+            src="https://raw.githubusercontent.com/enyonyiabemba94-eng/AFRN-FOOTBALL-MANAGEMENT/main/IMG-20260319-WA0093.jpg"
+            alt="AFRN Logo">
+
+        <div class="header-center">
+
+            <h1>
+                SHIRIKISHO LA MPIRA WA MIGUU
+            </h1>
+
+            <h2>
+                KAMBINI NYARUGUSU
+            </h2>
+
+            <p>
+                AFRN FOOTBALL MANAGEMENT
+            </p>
+
+        </div>
+
+    </div>
+
+
+    <!-- CONTRACT META -->
+
+    <div class="contract-meta">
+
+        <div class="meta-box">
+
+            <strong>CONTRACT NO:</strong>
+
+            <span id="contractNumber">
+                AFRN/CTR/2026/0001
+            </span>
+
+        </div>
+
+        <div class="meta-box">
+
+            <strong>DATE OF ISSUE:</strong>
+
+            <span id="issueDate">
+                28/08/2026
+            </span>
+
+        </div>
+
+    </div>
+
+
+    <!-- TITLE -->
+
+    <div class="title">
+
+        <h1>
+            MKATABA WA MCHEZAJI
+        </h1>
+
+        <h2>
+            PLAYER REGISTRATION & CONTRACT AGREEMENT
+        </h2>
+
+    </div>
+
+
+    <!-- INTRO -->
+
+    <div class="intro">
+
+        Mkataba huu ni makubaliano rasmi kati ya
+        <strong>Mchezaji</strong> na
+        <strong>Klabu</strong>, unaotambuliwa na
+        <strong>Shirikisho la Mpira wa Miguu Kambini
+        Nyarugusu (AFRN)</strong>. Pande zote zinakubaliana
+        kutekeleza haki na wajibu wao kwa mujibu wa masharti
+        ya mkataba huu pamoja na kanuni na taratibu
+        zinazotumika katika uendeshaji wa mpira wa miguu
+        chini ya AFRN.
+
+    </div>
+
+
+    <!-- PLAYER INFORMATION -->
+
+    <div class="section-title">
+        01 — TAARIFA ZA MCHEZAJI / PLAYER INFORMATION
+    </div>
+
+    <div class="player-area">
+
+        <div>
+
+            <img
+                class="player-photo"
+                id="playerPhoto"
+                src=""
+                alt="Player Photo">
+
+        </div>
+
+        <div class="player-info">
+
+            <div class="field">
+
+                <label>AFRN Player ID</label>
+
+                <strong id="playerId">
+                    AFRN-PLY-0001
+                </strong>
+
+            </div>
+
+            <div class="field">
+
+                <label>Jina Kamili</label>
+
+                <strong id="playerName">
+                    JOHN CHRISTOPHER
+                </strong>
+
+            </div>
+
+            <div class="field">
+
+                <label>Tarehe ya Kuzaliwa</label>
+
+                <strong id="dob">
+                    15/05/2005
+                </strong>
+
+            </div>
+
+            <div class="field">
+
+                <label>Nationality</label>
+
+                <strong id="nationality">
+                    BURUNDIAN
+                </strong>
+
+            </div>
+
+            <div class="field">
+
+                <label>Nafasi</label>
+
+                <strong id="position">
+                    MIDFIELDER
+                </strong>
+
+            </div>
+
+            <div class="field">
+
+                <label>Player Status</label>
+
+                <strong id="playerStatus">
+                    REGISTERED
+                </strong>
+
+            </div>
+
+        </div>
+
+    </div>
+
+
+    <!-- CONTRACT DETAILS -->
+
+    <div class="section-title">
+        02 — TAARIFA ZA MKATABA / CONTRACT DETAILS
+    </div>
+
+    <div class="details">
+
+        <div class="detail">
+
+            <label>Klabu</label>
+
+            <strong id="clubName">
+                D1 UMOJA FC
+            </strong>
+
+        </div>
+
+        <div class="detail">
+
+            <label>Division</label>
+
+            <strong id="division">
+                DARAJA LA KWANZA
+            </strong>
+
+        </div>
+
+        <div class="detail">
+
+            <label>Aina ya Mkataba</label>
+
+            <strong id="contractType">
+                PERMANENT
+            </strong>
+
+        </div>
+
+        <div class="detail">
+
+            <label>Status</label>
+
+            <strong id="contractStatus">
+                ACTIVE
+            </strong>
+
+        </div>
+
+        <div class="detail">
+
+            <label>Tarehe ya Kuanza</label>
+
+            <strong id="startDate">
+                01/09/2026
+            </strong>
+
+        </div>
+
+        <div class="detail">
+
+            <label>Tarehe ya Kumaliza</label>
+
+            <strong id="endDate">
+                31/08/2027
+            </strong>
+
+        </div>
+
+    </div>
+
+
+    <!-- AGREEMENT -->
+
+    <div class="section-title">
+        03 — MAKUBALIANO YA PANDE ZOTE
+    </div>
+
+    <div class="agreement">
+
+        <p>
+            <span class="article-number">3.1</span>
+            Klabu inakubali kumsajili Mchezaji aliyetajwa
+            katika Mkataba huu na Mchezaji anakubali
+            kuichezea Klabu kwa kipindi kilichoainishwa
+            katika hati hii.
+        </p>
+
+        <p>
+            <span class="article-number">3.2</span>
+            Mchezaji anakubali kuheshimu kanuni za AFRN,
+            taratibu za Klabu, maelekezo halali ya viongozi
+            na benchi la ufundi, pamoja na kuheshimu waamuzi,
+            wachezaji wenzake na washiriki wengine wa mpira
+            wa miguu.
+        </p>
+
+        <p>
+            <span class="article-number">3.3</span>
+            Klabu inawajibika kumtambua Mchezaji kama
+            mchezaji wake rasmi kwa kipindi cha uhalali wa
+            Mkataba huu na kuhakikisha usajili wake
+            unawasilishwa na kuthibitishwa kwa mujibu wa
+            taratibu za AFRN.
+        </p>
+
+        <p>
+            <span class="article-number">3.4</span>
+            Mchezaji hataruhusiwa kuhamia au kuchezea Klabu
+            nyingine wakati Mkataba huu ukiwa hai isipokuwa
+            kwa kufuata utaratibu rasmi wa uhamisho au mkopo
+            unaotambuliwa na AFRN.
+        </p>
+
+    </div>
+
+
+    <!-- IMPORTANT NOTICE -->
+
+    <div class="highlight">
+
+        <strong>UTHIBITISHO WA MKATABA:</strong>
+
+        Mkataba huu unatambuliwa kama hati rasmi ya
+        usajili wa Mchezaji baada ya taarifa za Mchezaji
+        na Klabu kuthibitishwa katika mfumo rasmi wa AFRN
+        na kukamilika kwa taratibu zinazohitajika.
+
+    </div>
+
+
+    <!-- FOOTER -->
+
+    <div class="footer">
+
+        <span>
+            <strong>AFRN FOOTBALL MANAGEMENT</strong>
+        </span>
+
+        <span>
+            CONTRACT NO: AFRN/CTR/2026/0001
+        </span>
+
+        <span>
+            OFFICIAL DOCUMENT
+        </span>
+
+    </div>
+
+    <div class="page-number">
+        PAGE 1 OF 2
+    </div>
+
+</div>
+
+
+
+<!-- =====================================================
+     PAGE 2
+===================================================== -->
+
+<div class="a4 page-break">
+
+    <div class="top-line"></div>
+
+    <!-- HEADER -->
 
     <div class="header">
 
@@ -361,274 +998,315 @@ body{
 
     </div>
 
-    <!-- ================= CONTRACT META ================= -->
 
-    <div class="contract-meta">
+    <!-- PAGE TITLE -->
 
-        <div class="meta-box">
-            <strong>CONTRACT NO:</strong>
-            <span id="contractNumber">
-                AFRN/CTR/2026/0001
-            </span>
-        </div>
-
-        <div class="meta-box">
-            <strong>DATE OF ISSUE:</strong>
-            <span id="issueDate">
-                28/08/2026
-            </span>
-        </div>
-
-    </div>
-
-    <!-- ================= TITLE ================= -->
-
-    <div class="title">
-
-        <h1>
-            MKATABA WA MCHEZAJI
-        </h1>
+    <div class="page-title">
 
         <h2>
-            PLAYER REGISTRATION & CONTRACT AGREEMENT
+            MKATABA WA MCHEZAJI — MASHARTI NA UTHIBITISHO
         </h2>
 
-    </div>
-
-    <!-- ================= INTRO ================= -->
-
-    <div class="intro">
-
-        Mkataba huu ni makubaliano rasmi kati ya
-        <strong>Mchezaji</strong> na
-        <strong>Klabu</strong>, unaotambuliwa na
-        <strong>Shirikisho la Mpira wa Miguu Kambini
-        Nyarugusu (AFRN)</strong>. Pande zote zinakubaliana
-        kutekeleza haki na wajibu wao kwa mujibu wa masharti
-        ya mkataba huu pamoja na kanuni na taratibu
-        zinazotumika katika uendeshaji wa mpira wa miguu
-        chini ya AFRN.
+        <p>
+            CONTRACT TERMS, DECLARATION & OFFICIAL VERIFICATION
+        </p>
 
     </div>
 
-    <!-- ================= PLAYER INFORMATION ================= -->
+
+    <!-- TERMS -->
 
     <div class="section-title">
-        01 — TAARIFA ZA MCHEZAJI / PLAYER INFORMATION
+        04 — WAJIBU WA MCHEZAJI
     </div>
 
-    <div class="player-area">
+    <div class="clauses">
 
-        <div>
+        <p>
+            <span class="clause-title">4.1</span>
+            Mchezaji anatakiwa kushiriki katika mazoezi,
+            michezo na shughuli rasmi za Klabu kwa mujibu
+            wa ratiba na maelekezo halali ya benchi la ufundi.
+        </p>
 
-            <img
-                class="player-photo"
-                src=""
-                alt="Player Photo">
+        <p>
+            <span class="clause-title">4.2</span>
+            Mchezaji anatakiwa kuzingatia nidhamu, kanuni
+            za mashindano, sheria za mchezo na maamuzi ya
+            waamuzi pamoja na viongozi wenye mamlaka.
+        </p>
 
-        </div>
-
-        <div class="player-info">
-
-            <div class="field">
-
-                <label>AFRN Player ID</label>
-
-                <strong>
-                    AFRN-PLY-0001
-                </strong>
-
-            </div>
-
-            <div class="field">
-
-                <label>Jina Kamili</label>
-
-                <strong>
-                    JOHN CHRISTOPHER
-                </strong>
-
-            </div>
-
-            <div class="field">
-
-                <label>Tarehe ya Kuzaliwa</label>
-
-                <strong>
-                    15/05/2005
-                </strong>
-
-            </div>
-
-            <div class="field">
-
-                <label>Nationality</label>
-
-                <strong>
-                    BURUNDIAN
-                </strong>
-
-            </div>
-
-            <div class="field">
-
-                <label>Nafasi</label>
-
-                <strong>
-                    MIDFIELDER
-                </strong>
-
-            </div>
-
-            <div class="field">
-
-                <label>Player Status</label>
-
-                <strong>
-                    REGISTERED
-                </strong>
-
-            </div>
-
-        </div>
+        <p>
+            <span class="clause-title">4.3</span>
+            Mchezaji hatatumia usajili wake kwa Klabu hii
+            kuchezea Klabu nyingine bila kupata idhini na
+            kukamilisha taratibu rasmi za AFRN.
+        </p>
 
     </div>
 
-    <!-- ================= CONTRACT INFORMATION ================= -->
 
     <div class="section-title">
-        02 — TAARIFA ZA MKATABA / CONTRACT DETAILS
+        05 — WAJIBU WA KLABU
     </div>
 
-    <div class="details">
+    <div class="clauses">
 
-        <div class="detail">
+        <p>
+            <span class="clause-title">5.1</span>
+            Klabu itahakikisha kuwa taarifa za Mchezaji
+            zinawasilishwa kwa usahihi na kwa wakati kwa
+            AFRN.
+        </p>
 
-            <label>Klabu</label>
+        <p>
+            <span class="clause-title">5.2</span>
+            Klabu itamhudumia Mchezaji kwa mujibu wa
+            makubaliano yaliyopo katika Mkataba huu na
+            kanuni zinazotumika.
+        </p>
 
-            <strong>
-                D1 UMOJA FC
-            </strong>
-
-        </div>
-
-        <div class="detail">
-
-            <label>Division</label>
-
-            <strong>
-                DARAJA LA KWANZA
-            </strong>
-
-        </div>
-
-        <div class="detail">
-
-            <label>Aina ya Mkataba</label>
-
-            <strong>
-                PERMANENT
-            </strong>
-
-        </div>
-
-        <div class="detail">
-
-            <label>Status</label>
-
-            <strong>
-                ACTIVE
-            </strong>
-
-        </div>
-
-        <div class="detail">
-
-            <label>Tarehe ya Kuanza</label>
-
-            <strong>
-                01/09/2026
-            </strong>
-
-        </div>
-
-        <div class="detail">
-
-            <label>Tarehe ya Kumaliza</label>
-
-            <strong>
-                31/08/2027
-            </strong>
-
-        </div>
+        <p>
+            <span class="clause-title">5.3</span>
+            Klabu haitafanya mabadiliko makubwa katika
+            taarifa za mkataba bila kufuata utaratibu
+            rasmi wa AFRN.
+        </p>
 
     </div>
 
-    <!-- ================= AGREEMENT ================= -->
 
     <div class="section-title">
-        03 — MAKUBALIANO YA PANDE ZOTE
+        06 — MUDA, KUSITISHWA NA UHAMISHO
     </div>
 
-    <div class="agreement">
+    <div class="clauses">
 
         <p>
-            <span class="article-number">
-                3.1
-            </span>
-            Klabu inakubali kumsajili Mchezaji aliyetajwa
-            katika Mkataba huu na Mchezaji anakubali
-            kuichezea Klabu kwa kipindi kilichoainishwa
-            katika hati hii.
+            <span class="clause-title">6.1</span>
+            Mkataba huu utaanza kutumika kuanzia tarehe
+            iliyoainishwa katika sehemu ya Contract Details
+            na utaendelea hadi tarehe ya mwisho isipokuwa
+            kama utasitishwa kwa mujibu wa taratibu halali.
         </p>
 
         <p>
-            <span class="article-number">
-                3.2
-            </span>
-            Mchezaji anakubali kuheshimu kanuni za AFRN,
-            taratibu za Klabu, maelekezo halali ya viongozi
-            na benchi la ufundi, pamoja na kuheshimu waamuzi,
-            wachezaji wenzake na washiriki wengine wa mpira
-            wa miguu.
+            <span class="clause-title">6.2</span>
+            Mkataba unaweza kusitishwa kwa makubaliano ya
+            pande zote au kwa sababu nyingine inayotambuliwa
+            na kanuni za AFRN.
         </p>
 
         <p>
-            <span class="article-number">
-                3.3
-            </span>
-            Klabu inawajibika kumtambua Mchezaji kama
-            mchezaji wake rasmi kwa kipindi cha uhalali wa
-            Mkataba huu na kuhakikisha usajili wake
-            unawasilishwa na kuthibitishwa kwa mujibu wa
-            taratibu za AFRN.
-        </p>
-
-        <p>
-            <span class="article-number">
-                3.4
-            </span>
-            Mchezaji hataruhusiwa kuhamia au kuchezea Klabu
-            nyingine wakati Mkataba huu ukiwa hai isipokuwa
-            kwa kufuata utaratibu rasmi wa uhamisho au mkopo
-            unaotambuliwa na AFRN.
+            <span class="clause-title">6.3</span>
+            Uhamisho wa Mchezaji kwenda Klabu nyingine
+            utafanyika kwa kufuata utaratibu rasmi wa
+            uhamisho unaotambuliwa na AFRN.
         </p>
 
     </div>
 
-    <!-- ================= IMPORTANT NOTICE ================= -->
 
-    <div class="highlight">
+    <div class="section-title">
+        07 — UTATUZI WA MIGOGORO
+    </div>
 
-        <strong>UTHIBITISHO WA MKATABA:</strong>
-        Mkataba huu unatambuliwa kama hati rasmi ya
-        usajili wa Mchezaji baada ya taarifa za Mchezaji
-        na Klabu kuthibitishwa katika mfumo rasmi wa AFRN
-        na kukamilika kwa taratibu zinazohitajika.
+    <div class="clauses">
+
+        <p>
+            <span class="clause-title">7.1</span>
+            Mzozo wowote unaohusiana na Mkataba huu
+            utashughulikiwa kwanza kwa majadiliano kati ya
+            pande husika.
+        </p>
+
+        <p>
+            <span class="clause-title">7.2</span>
+            Endapo suluhisho halitapatikana, suala linaweza
+            kuwasilishwa kwa mamlaka husika ya AFRN kwa
+            mujibu wa kanuni na taratibu zake.
+        </p>
 
     </div>
 
-    <!-- ================= FOOTER ================= -->
+
+    <!-- DECLARATION -->
+
+    <div class="section-title">
+        08 — TAMKO LA PANDE ZOTE
+    </div>
+
+    <div class="declaration">
+
+        Sisi, Mchezaji na mwakilishi halali wa Klabu
+        waliotajwa katika Mkataba huu, tunathibitisha kuwa
+        tumesoma, tumeelewa na tumekubaliana na masharti
+        yaliyomo katika hati hii. Tunakubali kuheshimu
+        sheria, kanuni na taratibu za Shirikisho la Mpira
+        wa Miguu Kambini Nyarugusu (AFRN).
+
+        <br><br>
+
+        Taarifa zote zilizotolewa kwa ajili ya mkataba huu
+        zinapaswa kuwa za kweli na sahihi. Uthibitisho wa
+        mwisho wa usajili unatokana na rekodi rasmi ya AFRN.
+
+    </div>
+
+
+    <!-- SIGNATURES -->
+
+    <div class="signature-section">
+
+        <div class="signature-title">
+            09 — SAHIHI ZA PANDE ZOTE / SIGNATURES
+        </div>
+
+        <div class="signatures">
+
+            <!-- PLAYER -->
+
+            <div class="signature-box">
+
+                <h4>
+                    MCHEZAJI / PLAYER
+                </h4>
+
+                <div class="signature-line">
+                    SAHIHI YA MCHEZAJI
+                </div>
+
+                <div class="signature-date">
+                    Jina: <strong id="signaturePlayerName">
+                        JOHN CHRISTOPHER
+                    </strong>
+                </div>
+
+                <div class="signature-date">
+                    Tarehe: __________________
+                </div>
+
+            </div>
+
+
+            <!-- CLUB -->
+
+            <div class="signature-box">
+
+                <h4>
+                    MWAKILISHI WA KLABU / CLUB REPRESENTATIVE
+                </h4>
+
+                <div class="signature-line">
+                    SAHIHI NA MUHURI WA KLABU
+                </div>
+
+                <div class="signature-date">
+                    Klabu: <strong id="signatureClub">
+                        D1 UMOJA FC
+                    </strong>
+                </div>
+
+                <div class="signature-date">
+                    Tarehe: __________________
+                </div>
+
+            </div>
+
+        </div>
+
+    </div>
+
+
+    <!-- AFRN VERIFICATION -->
+
+    <div class="verification">
+
+        <div class="verification-header">
+
+            <strong>
+                10 — AFRN OFFICIAL VERIFICATION
+            </strong>
+
+            <span class="verified-badge">
+                VERIFIED
+            </span>
+
+        </div>
+
+
+        <div class="verification-grid">
+
+            <div class="verify-field">
+
+                <label>Contract Number</label>
+
+                <strong>
+                    AFRN/CTR/2026/0001
+                </strong>
+
+            </div>
+
+            <div class="verify-field">
+
+                <label>Verification Status</label>
+
+                <strong>
+                    VERIFIED / OFFICIAL
+                </strong>
+
+            </div>
+
+            <div class="verify-field">
+
+                <label>Verified By</label>
+
+                <strong>
+                    AFRN REGISTRATION OFFICER
+                </strong>
+
+            </div>
+
+            <div class="verify-field">
+
+                <label>Verification Date</label>
+
+                <strong>
+                    28/08/2026
+                </strong>
+
+            </div>
+
+        </div>
+
+
+        <div class="qr-area">
+
+            <div class="qr">
+                AFRN<br>
+                QR
+            </div>
+
+            <div class="qr-text">
+
+                Hati hii inaweza kuthibitishwa kupitia
+                mfumo rasmi wa AFRN kwa kutumia Contract
+                Number iliyoainishwa hapo juu.
+
+                <br><br>
+
+                <strong>
+                    AFRN/CTR/2026/0001
+                </strong>
+
+            </div>
+
+        </div>
+
+    </div>
+
+
+    <!-- FOOTER -->
 
     <div class="footer">
 
@@ -647,10 +1325,222 @@ body{
     </div>
 
     <div class="page-number">
-        PAGE 1 OF 2
+        PAGE 2 OF 2
     </div>
 
 </div>
 
+
+<script>
+
+/* =========================================================
+   BASIC PRINT
+========================================================= */
+
+function printContract(){
+
+    window.print();
+
+}
+
+
+/* =========================================================
+   IMAGE FALLBACK
+========================================================= */
+
+const playerPhoto =
+    document.getElementById("playerPhoto");
+
+if(playerPhoto){
+
+    playerPhoto.addEventListener("error", function(){
+
+        this.style.objectFit = "contain";
+
+        this.src =
+        "data:image/svg+xml;charset=UTF-8," +
+        encodeURIComponent(`
+            <svg xmlns="http://www.w3.org/2000/svg"
+                 width="70"
+                 height="82">
+
+                <rect width="100%"
+                      height="100%"
+                      fill="#eef2f6"/>
+
+                <text x="50%"
+                      y="50%"
+                      dominant-baseline="middle"
+                      text-anchor="middle"
+                      font-size="8"
+                      fill="#667085">
+
+                    NO PHOTO
+
+                </text>
+
+            </svg>
+        `);
+
+    });
+
+}
+
+
+/* =========================================================
+   AUTOMATIC DATE DISPLAY
+========================================================= */
+
+function formatDate(date){
+
+    const day =
+        String(date.getDate()).padStart(2,"0");
+
+    const month =
+        String(date.getMonth()+1).padStart(2,"0");
+
+    const year =
+        date.getFullYear();
+
+    return `${day}/${month}/${year}`;
+
+}
+
+
+/* =========================================================
+   CONTRACT DATA OBJECT
+   LATER THIS WILL COME FROM SUPABASE
+========================================================= */
+
+const contractData = {
+
+    contractNumber:
+        "AFRN/CTR/2026/0001",
+
+    issueDate:
+        "28/08/2026",
+
+    playerId:
+        "AFRN-PLY-0001",
+
+    playerName:
+        "JOHN CHRISTOPHER",
+
+    dob:
+        "15/05/2005",
+
+    nationality:
+        "BURUNDIAN",
+
+    position:
+        "MIDFIELDER",
+
+    playerStatus:
+        "REGISTERED",
+
+    clubName:
+        "D1 UMOJA FC",
+
+    division:
+        "DARAJA LA KWANZA",
+
+    contractType:
+        "PERMANENT",
+
+    contractStatus:
+        "ACTIVE",
+
+    startDate:
+        "01/09/2026",
+
+    endDate:
+        "31/08/2027"
+
+};
+
+
+/* =========================================================
+   RENDER CONTRACT DATA
+========================================================= */
+
+function renderContract(data){
+
+    const fields = {
+
+        contractNumber:
+            data.contractNumber,
+
+        issueDate:
+            data.issueDate,
+
+        playerId:
+            data.playerId,
+
+        playerName:
+            data.playerName,
+
+        dob:
+            data.dob,
+
+        nationality:
+            data.nationality,
+
+        position:
+            data.position,
+
+        playerStatus:
+            data.playerStatus,
+
+        clubName:
+            data.clubName,
+
+        division:
+            data.division,
+
+        contractType:
+            data.contractType,
+
+        contractStatus:
+            data.contractStatus,
+
+        startDate:
+            data.startDate,
+
+        endDate:
+            data.endDate,
+
+        signaturePlayerName:
+            data.playerName,
+
+        signatureClub:
+            data.clubName
+
+    };
+
+
+    Object.keys(fields).forEach(id => {
+
+        const element =
+            document.getElementById(id);
+
+        if(element){
+
+            element.textContent =
+                fields[id] || "—";
+
+        }
+
+    });
+
+}
+
+
+/* Render example data */
+
+renderContract(contractData);
+
+</script>
+
 </body>
 </html>
+```
