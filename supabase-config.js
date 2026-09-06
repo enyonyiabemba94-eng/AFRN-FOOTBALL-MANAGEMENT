@@ -152,12 +152,6 @@ window.addEventListener("load", function(){
 
         const code = teamCode(to);
 
-        /*
-           IMPORTANT:
-           Count registrations for THIS TEAM + THIS YEAR.
-           We do not use players.id or transfers.id as the
-           registration sequence.
-        */
         const registrationsResult = await client
           .from("player_licenses")
           .select("id, player_id, license_number")
@@ -176,7 +170,6 @@ window.addEventListener("load", function(){
 
         if (existingLicense?.license_number) {
 
-          /* Reuse the existing licence for the same player/team/year. */
           licenseNumber = existingLicense.license_number;
 
           const match = String(licenseNumber)
@@ -193,7 +186,6 @@ window.addEventListener("load", function(){
           if (!registrationsResult.error) {
             count = (registrationsResult.data || []).length;
           } else {
-            /* If licence records cannot be read, count completed transfers. */
             const fallback = await client
               .from("transfers")
               .select("id")
@@ -239,7 +231,6 @@ window.addEventListener("load", function(){
           })
         };
 
-        /* Insert a new licence only when this registration does not exist. */
         if (!existingLicense) {
           const saveResult = await client
             .from("player_licenses")
@@ -260,11 +251,6 @@ window.addEventListener("load", function(){
       }
     };
 
-    /*
-       The old transfers.html contains its own generateLicenseById().
-       Replace the button handlers directly so the old UUID-based
-       function can no longer be called by the Licence buttons.
-    */
     document.querySelectorAll('button[onclick*="generateLicenseById"]').forEach(function(button){
       const match = button.getAttribute("onclick")?.match(/generateLicenseById\('([^']+)'\)/);
       if (!match) return;
@@ -282,4 +268,66 @@ window.addEventListener("load", function(){
 
   }, 0);
 
+});
+
+/* =========================================================
+   AFRN CLUB ID DISPLAY FIX
+   Database keeps clubs.id (UUID) internally.
+   The public/official identifier is clubs.afrn_club_id.
+   This observer watches the Matches table after its rows are
+   rendered and replaces displayed UUIDs with official Club IDs.
+========================================================= */
+
+window.addEventListener("load", function(){
+  const client = window.supabaseClient;
+  if (!client) return;
+
+  let clubMap = new Map();
+
+  async function loadOfficialClubIds(){
+    try {
+      const { data, error } = await client
+        .from("clubs")
+        .select("id, afrn_club_id");
+
+      if (error) {
+        console.warn("AFRN Club ID: haikuweza kusoma Club IDs rasmi:", error.message);
+        return;
+      }
+
+      clubMap = new Map(
+        (data || []).map(club => [
+          String(club.id),
+          club.afrn_club_id || null
+        ])
+      );
+
+      replaceMatchClubIds();
+    } catch (error) {
+      console.warn("AFRN Club ID error:", error);
+    }
+  }
+
+  function replaceMatchClubIds(){
+    document.querySelectorAll("#matchesTable .team-id").forEach(function(el){
+      const raw = String(el.textContent || "").replace(/^\s*ID:\s*/i, "").trim();
+      const official = clubMap.get(raw);
+
+      if (official) {
+        el.textContent = "Club ID: " + official;
+      }
+    });
+  }
+
+  loadOfficialClubIds();
+
+  const table = document.getElementById("matchesTable");
+  if (table) {
+    const observer = new MutationObserver(function(){
+      replaceMatchClubIds();
+    });
+    observer.observe(table, { childList: true, subtree: true });
+  }
+
+  console.log("AFRN: Matches page now displays official Club ID instead of database UUID.");
 });
