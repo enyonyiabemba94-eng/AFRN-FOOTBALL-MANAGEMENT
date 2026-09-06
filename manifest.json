@@ -4,7 +4,7 @@
   "description": "Mfumo wa kisasa wa usimamizi wa mpira wa miguu wa Shirikisho la Mpira wa Miguu Kambini Nyarugusu.",
   "lang": "sw-TZ",
   "dir": "ltr",
-  "start_url": "./login.html",
+  "start_url": "./app.html",
   "scope": "./",
   "display": "standalone",
   "orientation": "portrait-primary",
