@@ -1,8 +1,8 @@
-const CACHE_NAME = 'afrn-football-v1';
+const CACHE_NAME = 'afrn-football-v2';
 const APP_SHELL = [
-  './', './index.html', './login.html', './club-dashboard.html',
+  './', './app.html', './index.html', './login.html', './club-dashboard.html',
   './clubs.html', './players.html', './transfers.html', './competitions.html',
-  './matches.html', './reports.html', './accounts.html', './reset-password.html',
+  './matches.html', './reports.html', './accounts.html', './contracts.html', './reset-password.html',
   './supabase-config.js', './manifest.json', './css/style.css',
   './IMG-20260319-WA0093.jpg'
 ];
@@ -21,14 +21,11 @@ self.addEventListener('fetch', event => {
   if (event.request.method !== 'GET') return;
   const url = new URL(event.request.url);
   if (url.origin !== self.location.origin) return;
-
   event.respondWith(
-    fetch(event.request)
-      .then(response => {
-        const copy = response.clone();
-        caches.open(CACHE_NAME).then(cache => cache.put(event.request, copy));
-        return response;
-      })
-      .catch(() => caches.match(event.request).then(cached => cached || caches.match('./login.html')))
+    fetch(event.request).then(response => {
+      const copy = response.clone();
+      caches.open(CACHE_NAME).then(cache => cache.put(event.request, copy));
+      return response;
+    }).catch(() => caches.match(event.request).then(cached => cached || caches.match('./app.html')))
   );
 });
