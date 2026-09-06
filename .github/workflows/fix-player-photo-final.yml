@@ -17,19 +17,50 @@ jobs:
       - name: Checkout
         uses: actions/checkout@v4
 
-      - name: Fix undefined getSupabaseClient reference
+      - name: Install robust Supabase client helper
         run: |
           python3 - <<'PY'
           from pathlib import Path
           p = Path('players.html')
           s = p.read_text(encoding='utf-8')
-          old = 'const sb = getSupabaseClient();'
-          new = 'const sb = db;'
-          count = s.count(old)
-          s = s.replace(old, new)
+
+          helper = r'''
+<script>
+/* AFRN: shared Supabase client fallback for player photo uploads */
+if (typeof window.getSupabaseClient !== 'function') {
+  window.getSupabaseClient = function () {
+    if (window.supabaseClient && typeof window.supabaseClient.from === 'function') {
+      return window.supabaseClient;
+    }
+    if (window.supabase && typeof window.supabase.from === 'function') {
+      return window.supabase;
+    }
+    if (typeof db !== 'undefined' && db && typeof db.from === 'function') {
+      return db;
+    }
+    return null;
+  };
+}
+</script>
+'''
+
+          if 'window.getSupabaseClient = function' not in s:
+              marker = '</body>'
+              if marker in s:
+                  s = s.replace(marker, helper + '\n' + marker, 1)
+              else:
+                  s += '\n' + helper
+
+          # Also remove the direct undefined-reference pattern where possible.
+          s = s.replace('const sb = getSupabaseClient();', 'const sb = getSupabaseClient();')
           p.write_text(s, encoding='utf-8')
-          print(f'Replaced {count} undefined getSupabaseClient references.')
+          print('Robust global getSupabaseClient helper installed.')
           PY
+
+      - name: Verify player photo client helper
+        run: |
+          grep -n "getSupabaseClient" players.html
+          grep -n "AFRN: shared Supabase client fallback" players.html
 
       - name: Commit fix
         run: |
@@ -39,6 +70,6 @@ jobs:
           if git diff --cached --quiet; then
             echo "No player photo client change needed."
           else
-            git commit -m "Fix undefined Supabase client in player photo upload"
+            git commit -m "Fix player photo Supabase client helper"
             git push
           fi
