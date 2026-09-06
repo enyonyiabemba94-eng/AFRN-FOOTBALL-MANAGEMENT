@@ -10,7 +10,7 @@
 </head>
 <body>
 <header><div class="header-inner"><img src="IMG-20260319-WA0093.jpg" class="logo"><div class="header-text"><h1>⚽ AFRN FOOTBALL MANAGEMENT</h1><p>SHIRIKISHO LA MPIRA WA MIGUU KAMBINI NYARUGUSU</p></div></div><nav>
-<a href="index.html">🏠 Dashboard</a><a href="clubs.html">⚽ Vilabu</a><a href="players.html">👤 Wachezaji</a><a href="transfers.html">🔄 Uhamisho</a><a href="competitions.html">🏆 Mashindano</a><a href="matches.html">🏟️ Mechi</a><a href="reports.html">📊 Ripoti</a><a id="accountsLink" href="accounts.html" style="display:none">👥 Accounts</a>
+<a href="index.html">🏠 Dashboard</a><a href="clubs.html">⚽ Vilabu</a><a href="players.html">👤 Wachezaji</a><a href="transfers.html">🔄 Uhamisho</a><a href="competitions.html">🏆 Mashindano</a><a href="matches.html">🏟️ Mechi</a><a href="reports.html">📊 Ripoti</a><a id="accountsLink" href="accounts.html" style="display:none">👥 Account Management</a>
 </nav></header>
 <main>
 <section class="welcome"><h2 id="welcomeTitle">Karibu AFRN</h2><div id="identity" class="identity"><span class="pill">⏳ Inaangalia session...</span></div><p id="welcomeText">Mfumo wa kisasa wa usimamizi wa soka wa <strong>AFRN Football Management</strong>.</p></section>
@@ -24,7 +24,7 @@
 <a href="competitions.html" class="module"><div class="module-icon">🏆</div><h3>Mashindano</h3><p>Makundi, ratiba, standings na knockout.</p></a>
 <a href="matches.html" class="module"><div class="module-icon">🏟️</div><h3>Mechi</h3><p>Ratiba, matokeo, line-up na matukio ya mechi zote.</p></a>
 <a href="reports.html" class="module"><div class="module-icon">📊</div><h3>Ripoti</h3><p>Ripoti na takwimu za AFRN.</p></a>
-<a id="accountsCard" href="accounts.html" class="module special" style="display:none"><div class="module-icon">👥</div><h3>Account Management</h3><p>Super Admin: tengeneza, hariri, reset password na futa accounts.</p></a>
+<a id="accountsCard" href="accounts.html" class="module special" style="display:none"><div class="module-icon">👥</div><h3>Account Management</h3><p>Admin AFRN: tengeneza Account za Klabu. Super Admin anaweza pia kusimamia accounts.</p></a>
 </div></section>
 <section id="clubInfo" class="info-section" style="display:none"><div class="section-title"><h2>🌍 Taarifa za Mpira</h2><p>Club Admin anaona taarifa za mfumo mzima; uwezo wa kuhariri unabaki kwenye klabu yake na permissions zake.</p></div>
 <div class="info-grid">
@@ -37,7 +37,7 @@
 <script>
 const db=window.supabaseClient;
 function norm(r){return String(r||'').toLowerCase().replace(/[ -]/g,'_')}
-function esc(v){return String(v??'').replace(/[&<>"']/g,x=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#039;'}[x]))}
+function esc(v){return String(v??'').replace(/[&<>\"']/g,x=>({'&':'&amp;','<':'&lt;','>':'&gt;','\"':'&quot;',"'":'&#039;'}[x]))}
 function fullPlayer(p){return [p?.first_name,p?.middle_name,p?.last_name].filter(Boolean).join(' ')||p?.player_id_number||'Mchezaji';}
 function formatDate(v){if(!v)return 'Tarehe haijawekwa';try{return new Date(v+'T00:00:00').toLocaleDateString('sw-TZ',{day:'2-digit',month:'2-digit',year:'numeric'})}catch{return v}}
 async function identity(){
@@ -47,7 +47,7 @@ async function identity(){
  const role=norm(p.role);let club=null;if(role==='club_admin'&&p.club_id){const r=await db.from('clubs').select('id,name,afrn_club_id,division').eq('id',p.club_id).maybeSingle();club=r.data||null}
  document.getElementById('identity').innerHTML=`<span class="pill">👤 ${esc(p.full_name||user.email)}</span><span class="pill">${esc(role)}</span>${club?`<span class="pill club-pill">⚽ ${esc(club.name)} · ${esc(club.afrn_club_id||'')}</span>`:''}<a class="btn" href="#" id="logout">🚪 Toka</a>`;
  document.getElementById('logout').onclick=async e=>{e.preventDefault();await db.auth.signOut();location.href='login.html'};
- if(role==='super_admin'){document.getElementById('accountsLink').style.display='block';document.getElementById('accountsCard').style.display='block'}
+ if(role==='super_admin' || role==='afrn_admin'){document.getElementById('accountsLink').style.display='block';document.getElementById('accountsCard').style.display='block'}
  if(role==='club_admin'){document.getElementById('welcomeTitle').textContent=club?`Karibu ${club.name}`:'Karibu Club Account';document.getElementById('welcomeText').innerHTML=club?`<strong>Club Account</strong> — unasimamia taarifa za <strong>${esc(club.name)}</strong>.`:'Club Account yako bado haijaunganishwa na klabu.';document.getElementById('systemTitle').textContent='Dashboard ya Klabu';document.getElementById('systemText').textContent='Unaona taarifa za mpira wa mfumo mzima; uhariri unabaki kwenye klabu yako na ruhusa ulizopewa.';document.getElementById('playersDesc').textContent='Ona taarifa za wachezaji; usimamizi wa klabu yako unafuata permissions.';document.getElementById('clubInfo').style.display='block';await loadFootballInfo()}
 }
 async function count(t,id){try{const {count,error}=await db.from(t).select('id',{count:'exact',head:true});if(error)throw error;document.getElementById(id).textContent=count??0}catch(e){document.getElementById(id).textContent='—'}}
