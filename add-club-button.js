@@ -16,12 +16,10 @@
       if(!title) return;
       const id=card.getAttribute('onclick')?.match(/openClub\(['"]([^'"]+)['"]\)/)?.[1];
       if(!id) return;
-      const name=(title.textContent||'').trim();
+      const name=(title.textContent||'').replace(/^\s*\d+\.\s*/,'').trim();
       const btn=document.createElement('button');btn.type='button';btn.className='afrn-edit-club';btn.textContent='✏️ Hariri';
       btn.style.cssText='margin-left:auto;flex-shrink:0;border:1px solid #d9e1ec;background:#eef2f6;color:#071a33;border-radius:9px;padding:8px 10px;font-size:12px;font-weight:800;cursor:pointer;';
-      btn.addEventListener('click',function(e){e.preventDefault();e.stopPropagation();
-        location.href='add-club.html?edit='+encodeURIComponent(id)+'&editName='+encodeURIComponent(name);
-      });
+      btn.addEventListener('click',function(e){e.preventDefault();e.stopPropagation();location.href='add-club.html?edit='+encodeURIComponent(id)+'&editName='+encodeURIComponent(name);});
       card.appendChild(btn);
     });
   }
