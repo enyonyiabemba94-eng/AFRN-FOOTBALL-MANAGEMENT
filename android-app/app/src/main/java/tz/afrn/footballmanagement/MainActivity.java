@@ -24,7 +24,9 @@ public class MainActivity extends Activity {
         s.setAllowFileAccess(false);
         s.setAllowContentAccess(false);
         s.setMixedContentMode(WebSettings.MIXED_CONTENT_NEVER_ALLOW);
-        s.setUserAgentString(s.getUserAgentString() + " AFRN-Android/1.0");
+        s.setCacheMode(WebSettings.LOAD_NO_CACHE);
+        s.setUserAgentString(s.getUserAgentString() + " AFRN-Android/1.1");
+        webView.clearCache(true);
         webView.setWebViewClient(new WebViewClient() {
             @Override public boolean shouldOverrideUrlLoading(WebView view, WebResourceRequest request) {
                 return false;
@@ -32,7 +34,7 @@ public class MainActivity extends Activity {
         });
         webView.setWebChromeClient(new WebChromeClient());
         webView.setOverScrollMode(View.OVER_SCROLL_NEVER);
-        webView.loadUrl(APP_URL);
+        webView.loadUrl(APP_URL + "?app=" + System.currentTimeMillis());
     }
 
     @Override public void onBackPressed() {
