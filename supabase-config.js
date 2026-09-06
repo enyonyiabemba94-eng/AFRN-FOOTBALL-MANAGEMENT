@@ -26,17 +26,7 @@ if (
       SUPABASE_PUBLISHABLE_KEY
     );
 
-  /*
-     AFRN PLAYER ID COMPATIBILITY
-     --------------------------------
-     players.id is the internal UUID.
-     players.player_id_number is the official AFRN Player ID.
-
-     Existing AFRN pages may still read p.afrn_player_id.
-     This compatibility getter makes that legacy property
-     resolve to the official player_id_number without changing
-     the database, tables, relationships, or stored data.
-  */
+  /* Official AFRN Player ID compatibility. */
   if (!Object.prototype.hasOwnProperty.call(Object.prototype, "afrn_player_id")) {
     Object.defineProperty(Object.prototype, "afrn_player_id", {
       configurable: true,
@@ -68,82 +58,47 @@ if (
 }
 
 /* =========================================================
-   AFRN LICENCE NUMBERING
-   --------------------------------
-   Licence format:
-   AFRN-[YEAR]-[TEAM-ID]-[TEAM REGISTRATION NO]
+   AFRN OFFICIAL LICENCE NUMBERING
+   Format: AFRN-[YEAR]-[TEAM CODE]-[TEAM REGISTRATION NO]
+   Example: AFRN-2026-ADF-00001
 
-   Example:
-   AFRN-2026-ADF-00004
-
-   Player ID remains permanent and is NOT used as the
-   team's registration sequence.
-
-   The sequence is based on real records in player_licenses
-   for the same team and year. If the same player already has
-   a licence for that team/year, the existing licence number is
-   reused instead of creating a second number.
-
-   No database/table creation or deletion is performed here.
+   Player ID is permanent.
+   Licence number belongs to the player's registration at a
+   particular club in a particular year.
 ========================================================= */
 
 window.addEventListener("load", function(){
 
   setTimeout(function(){
 
-    window.generateLicenseById = async function(id){
+    window.afrnGenerateLicenseById = async function(id){
 
       try {
 
-        /* Get the transfer directly from the existing database. */
-        const transferResult = await window.supabaseClient
+        const client = window.supabaseClient;
+
+        const transferResult = await client
           .from("transfers")
           .select("*")
           .eq("id", id)
           .maybeSingle();
 
         if (transferResult.error) {
-          console.error(transferResult.error);
           alert("❌ Imeshindikana kusoma Transfer: " + transferResult.error.message);
           return;
         }
 
         const t = transferResult.data;
-
         if (!t) {
-          alert("Transfer haijapatikana.");
+          alert("❌ Transfer haijapatikana.");
           return;
         }
 
-        /* Get player and both clubs from the existing tables. */
         const [playerResult, fromResult, toResult] = await Promise.all([
-
-          window.supabaseClient
-            .from("players")
-            .select("*")
-            .eq("id", t.player_id)
-            .maybeSingle(),
-
-          window.supabaseClient
-            .from("clubs")
-            .select("*")
-            .eq("id", t.from_club_id)
-            .maybeSingle(),
-
-          window.supabaseClient
-            .from("clubs")
-            .select("*")
-            .eq("id", t.to_club_id)
-            .maybeSingle()
+          client.from("players").select("*").eq("id", t.player_id).maybeSingle(),
+          client.from("clubs").select("*").eq("id", t.from_club_id).maybeSingle(),
+          client.from("clubs").select("*").eq("id", t.to_club_id).maybeSingle()
         ]);
-
-        if (playerResult.error) {
-          console.warn("Player lookup warning:", playerResult.error.message);
-        }
-
-        if (toResult.error) {
-          console.warn("Club lookup warning:", toResult.error.message);
-        }
 
         const p = playerResult.data;
         const from = fromResult.data;
@@ -159,17 +114,12 @@ window.addEventListener("load", function(){
           : {};
 
         const registrationDate =
-          t.transfer_date ||
-          new Date().toISOString().slice(0,10);
+          t.transfer_date || new Date().toISOString().slice(0,10);
 
-        const year = String(registrationDate).slice(0,4) ||
+        const year =
+          String(registrationDate).slice(0,4) ||
           String(new Date().getFullYear());
 
-        /*
-           Prefer club_code when it exists.
-           Current clubs may have NULL club_code, so use a
-           stable short code from the club name as fallback.
-        */
         function teamCode(club){
 
           const explicit = String(club?.club_code || "")
@@ -177,9 +127,7 @@ window.addEventListener("load", function(){
             .toUpperCase()
             .replace(/[^A-Z0-9]/g, "");
 
-          if (explicit) {
-            return explicit.slice(0,8);
-          }
+          if (explicit) return explicit.slice(0,8);
 
           let name = String(club?.name || "TEAM")
             .toUpperCase()
@@ -189,7 +137,6 @@ window.addEventListener("load", function(){
 
           const parts = name.split(" ").filter(Boolean);
 
-          /* Ignore common division prefixes such as D1, AB1, GHI1. */
           if (
             parts.length > 1 &&
             /^(D|AB|AEF|CD|GHI)\d+$/.test(parts[0])
@@ -198,10 +145,7 @@ window.addEventListener("load", function(){
           }
 
           if (!parts.length) return "TEAM";
-
-          if (parts.length === 1) {
-            return parts[0].slice(0,6);
-          }
+          if (parts.length === 1) return parts[0].slice(0,6);
 
           return parts.map(x => x[0]).join("").slice(0,6);
         }
@@ -209,193 +153,131 @@ window.addEventListener("load", function(){
         const code = teamCode(to);
 
         /*
-           If this player already has a licence for this team and
-           year, reuse it. This prevents repeated clicks from
-           changing AFRN-2026-ADF-00004 into 00005, etc.
+           IMPORTANT:
+           Count registrations for THIS TEAM + THIS YEAR.
+           We do not use players.id or transfers.id as the
+           registration sequence.
         */
-        const existingLicenseResult = await window.supabaseClient
+        const registrationsResult = await client
           .from("player_licenses")
-          .select("*")
-          .eq("player_id", t.player_id)
+          .select("id, player_id, license_number")
           .eq("club_id", t.to_club_id)
-          .eq("season", year)
-          .maybeSingle();
+          .eq("season", year);
 
         let existingLicense = null;
 
-        if (!existingLicenseResult.error) {
-          existingLicense = existingLicenseResult.data;
-        } else {
-          console.warn(
-            "Existing licence lookup warning:",
-            existingLicenseResult.error.message
-          );
+        if (!registrationsResult.error) {
+          existingLicense = (registrationsResult.data || [])
+            .find(row => String(row.player_id) === String(t.player_id)) || null;
         }
 
-        let registrationNo = "";
-        let licenseNumber = "";
+        let registrationNo;
+        let licenseNumber;
 
         if (existingLicense?.license_number) {
 
+          /* Reuse the existing licence for the same player/team/year. */
           licenseNumber = existingLicense.license_number;
 
-          const match = String(licenseNumber).match(
-            /^AFRN-\d{4}-[^-]+-(\d+)$/
-          );
+          const match = String(licenseNumber)
+            .match(/^AFRN-\d{4}-[^-]+-(\d+)$/);
 
           registrationNo = match
-            ? String(match[1]).padStart(5, "0")
+            ? String(match[1]).padStart(5,"0")
             : "";
 
         } else {
 
-          /*
-             Count actual licence registrations for THIS TEAM and
-             THIS YEAR. This includes registrations created from
-             other pages, not only transfers.
-          */
-          const registrationsResult = await window.supabaseClient
-            .from("player_licenses")
-            .select("license_number, player_id")
-            .eq("club_id", t.to_club_id)
-            .eq("season", year);
+          let count = 0;
 
-          if (registrationsResult.error) {
-
-            console.warn(
-              "player_licenses count failed; using transfer history:",
-              registrationsResult.error.message
-            );
-
-            const startDate = `${year}-01-01`;
-            const endDate = `${Number(year) + 1}-01-01`;
-
-            const fallbackResult = await window.supabaseClient
+          if (!registrationsResult.error) {
+            count = (registrationsResult.data || []).length;
+          } else {
+            /* If licence records cannot be read, count completed transfers. */
+            const fallback = await client
               .from("transfers")
               .select("id")
               .eq("to_club_id", t.to_club_id)
-              .gte("transfer_date", startDate)
-              .lt("transfer_date", endDate)
+              .gte("transfer_date", `${year}-01-01`)
+              .lt("transfer_date", `${Number(year)+1}-01-01`)
               .neq("status", "CANCELLED");
 
-            if (fallbackResult.error) {
-              alert("❌ Imeshindikana kuhesabu usajili wa timu: " + fallbackResult.error.message);
+            if (fallback.error) {
+              alert("❌ Imeshindikana kuhesabu usajili wa timu: " + fallback.error.message);
               return;
             }
 
-            registrationNo = String(
-              (fallbackResult.data || []).filter(
-                row => String(row.id) !== String(t.id)
-              ).length + 1
-            ).padStart(5, "0");
-
-          } else {
-
-            registrationNo = String(
-              (registrationsResult.data || []).length + 1
-            ).padStart(5, "0");
-
+            count = (fallback.data || []).length;
           }
+
+          registrationNo =
+            String(count + 1).padStart(5,"0");
 
           licenseNumber =
             `AFRN-${year}-${code}-${registrationNo}`;
         }
 
         const licenseData = {
-
-          player_id:
-            t.player_id,
-
-          club_id:
-            t.to_club_id,
-
-          from_club_id:
-            t.from_club_id,
-
-          license_number:
-            licenseNumber,
-
-          season:
-            year,
-
-          registration_date:
-            registrationDate,
-
-          registration_type:
-            t.transfer_type,
-
-          loan_type:
-            meta.loan_type || null,
-
-          status:
-            "ACTIVE",
-
-          issue_date:
-            existingLicense?.issue_date ||
-            new Date().toISOString().slice(0,10),
-
-          expiry_date:
-            meta.contract_end || null,
-
-          photo_url:
-            p?.photo_url ||
-            p?.photo ||
-            null,
-
-          notes:
-            JSON.stringify({
-              league: meta.league_name || null,
-              loan_months: meta.loan_months || null,
-              team_code: code,
-              team_registration_no: registrationNo,
-              generated_by: "AFRN Licence Numbering v3"
-            })
+          player_id: t.player_id,
+          club_id: t.to_club_id,
+          from_club_id: t.from_club_id,
+          license_number: licenseNumber,
+          season: year,
+          registration_date: registrationDate,
+          registration_type: t.transfer_type,
+          loan_type: meta.loan_type || null,
+          status: "ACTIVE",
+          issue_date: existingLicense?.issue_date || new Date().toISOString().slice(0,10),
+          expiry_date: meta.contract_end || null,
+          photo_url: p?.photo_url || p?.photo || null,
+          notes: JSON.stringify({
+            league: meta.league_name || null,
+            loan_months: meta.loan_months || null,
+            team_code: code,
+            team_registration_no: registrationNo,
+            generated_by: "AFRN Official Licence Numbering"
+          })
         };
 
-        /* Save using the existing player_licenses table. */
-        try {
-
-          const saveResult = await window.supabaseClient
+        /* Insert a new licence only when this registration does not exist. */
+        if (!existingLicense) {
+          const saveResult = await client
             .from("player_licenses")
-            .upsert(
-              licenseData,
-              { onConflict: "license_number" }
-            );
+            .insert(licenseData);
 
           if (saveResult.error) {
-            console.warn(
-              "Licence haijahifadhiwa kwenye player_licenses:",
-              saveResult.error.message
-            );
+            console.warn("Licence haijahifadhiwa:", saveResult.error.message);
           }
-
-        } catch (saveError) {
-          console.warn("Licence save warning:", saveError);
         }
 
         if (typeof window.openLicense === "function") {
-          window.openLicense(
-            licenseData,
-            p,
-            from,
-            to,
-            meta
-          );
-        } else {
-          alert("❌ Mfumo wa kuonyesha Licence haujapatikana.");
+          window.openLicense(licenseData, p, from, to, meta);
         }
 
       } catch (error) {
-
         console.error("AFRN Licence error:", error);
         alert("❌ Hitilafu wakati wa kutengeneza Licence: " + error.message);
-
       }
-
     };
 
+    /*
+       The old transfers.html contains its own generateLicenseById().
+       Replace the button handlers directly so the old UUID-based
+       function can no longer be called by the Licence buttons.
+    */
+    document.querySelectorAll('button[onclick*="generateLicenseById"]').forEach(function(button){
+      const match = button.getAttribute("onclick")?.match(/generateLicenseById\('([^']+)'\)/);
+      if (!match) return;
+      const transferId = match[1];
+      button.onclick = function(event){
+        event.preventDefault();
+        window.afrnGenerateLicenseById(transferId);
+      };
+      button.removeAttribute("onclick");
+    });
+
     console.log(
-      "AFRN: Licence numbering enabled = AFRN-YEAR-TEAM-REGISTRATION."
+      "AFRN: Licence buttons locked to official YEAR + TEAM + REGISTRATION numbering."
     );
 
   }, 0);
