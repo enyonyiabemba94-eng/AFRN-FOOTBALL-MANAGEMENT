@@ -1,0 +1,32 @@
+name: Fix AFRN Player Photo Upload Final
+on:
+  workflow_dispatch:
+  push:
+    paths: ['players.html']
+jobs:
+  fix:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Patch
+        run: |
+          python3 - <<'PY'
+          from pathlib import Path
+          p=Path('players.html'); s=p.read_text(encoding='utf-8')
+          marker='AFRN_FINAL_PLAYER_PHOTO_UPLOAD'
+          if marker not in s:
+            code='''<script>/* AFRN_FINAL_PLAYER_PHOTO_UPLOAD */
+(function(){'use strict';const BUCKET='AFRN PLAYER PHOTOS',FOLDER='players',MAX=5*1024*1024;let uploading=false;
+const $=id=>document.getElementById(id);function progress(show,pct,text){let w=$('uploadProgress'),b=$('progressBar'),t=$('progressText');if(w)w.style.display=show?'block':'none';if(b)b.style.width=(pct||0)+'%';if(t)t.textContent=text||'';}
+async function upload(f){if(f.size>MAX)throw Error('Picha ni kubwa kuliko 5MB.');if(!/^image\\/(jpeg|jpg|png|webp)$/i.test(f.type))throw Error('Tumia JPG, PNG au WEBP.');let c=window.supabaseClient;if(!c)throw Error('Supabase client haijapatikana.');let ext=(f.name.split('.').pop()||'jpg').toLowerCase().replace('jpeg','jpg'),id=$('editId')?.value||crypto.randomUUID(),path=FOLDER+'/'+id+'-'+Date.now()+'.'+ext;progress(true,15,'Inatuma picha kwenye Supabase Storage...');let r=await c.storage.from(BUCKET).upload(path,f,{contentType:f.type,cacheControl:'3600',upsert:true});if(r.error)throw r.error;progress(true,80,'Picha imehifadhiwa.');let u=c.storage.from(BUCKET).getPublicUrl(r.data.path)?.data?.publicUrl;if(!u)throw Error('URL ya picha haikupatikana.');if($('photoUrl'))$('photoUrl').value=u;progress(true,100,'Picha tayari.');return u;}
+let input=$('photoFile');if(input)input.addEventListener('change',function(){let f=this.files?.[0];if(!f)return;if(f.size>MAX||!/^image\\/(jpeg|jpg|png|webp)$/i.test(f.type)){alert('Chagua JPG/PNG/WEBP isiyozidi 5MB.');this.value='';return;}let img=$('photoPreviewImage'),box=$('photoPreview');if(img){img.src=URL.createObjectURL(f);}if(box)box.style.display='block';},true);
+let form=$('playerForm');if(form)form.addEventListener('submit',async function(e){if(uploading||!input?.files?.[0])return;e.preventDefault();e.stopImmediatePropagation();uploading=true;let b=form.querySelector('button[type=submit]');if(b){b.disabled=true;b.textContent='⏳ Inapakia picha...';}try{await upload(input.files[0]);form.requestSubmit();}catch(x){console.error(x);progress(false,0,'');alert('Upload ya picha imeshindikana: '+(x?.message||x));if(b){b.disabled=false;b.textContent='💾 Hifadhi Mchezaji';}uploading=false;}},true);})();</script>'''
+            s=s.replace('</body>',code+'\n</body>',1);p.write_text(s,encoding='utf-8')
+          PY
+      - name: Commit
+        run: |
+          git config user.name github-actions[bot]
+          git config user.email 41898282+github-actions[bot]@users.noreply.github.com
+          git add players.html
+          git diff --cached --quiet || git commit -m 'Fix player photo upload flow'
+          git push
