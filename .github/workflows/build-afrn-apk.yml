@@ -32,8 +32,8 @@ jobs:
           sudo apt-get update
           sudo apt-get install -y imagemagick
           mkdir -p android-app/app/src/main/res/drawable
-          magick IMG-20260319-WA0093.jpg -auto-orient -resize 512x512^ -gravity center -extent 512x512 android-app/app/src/main/res/drawable/afrn_logo.png
-          file android-app/app/src/main/res/drawable/afrn_logo.png
+          cp IMG-20260319-WA0093.jpg android-app/app/src/main/res/drawable/afrn_logo.jpg
+          file android-app/app/src/main/res/drawable/afrn_logo.jpg
 
       - name: Set up Gradle
         uses: gradle/actions/setup-gradle@v4
