@@ -1,0 +1,41 @@
+(()=>{
+'use strict';
+if(location.pathname.split('/').pop()!=='matches.html')return;
+const db=window.supabaseClient||window.db;if(!db)return;
+let box;
+const esc=s=>String(s??'').replace(/[&<>"']/g,m=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[m]));
+const final=s=>['finished','completed','full time','ft'].includes(String(s||'').toLowerCase());
+async function load(id){
+ const [{data:m},{data:e},{data:p}]=await Promise.all([
+  db.from('matches').select('id,home_team_id,away_team_id,home_score,away_score,status').eq('id',id).maybeSingle(),
+  db.from('match_events').select('id,player_id,event_type,minute,description').eq('match_id',id).order('minute',{ascending:true}),
+  db.from('players').select('id,first_name,middle_name,last_name,club_id').order('first_name')
+ ]);
+ if(!m){box.innerHTML='<div class="empty">Mechi haikupatikana.</div>';return}
+ const ps=p||[], events=e||[];
+ const name=id=>{const x=ps.find(z=>String(z.id)===String(id));return x?[x.first_name,x.middle_name,x.last_name].filter(Boolean).join(' '):'Mchezaji';};
+ const teamPlayers=ps.filter(x=>String(x.club_id)===String(m.home_team_id)||String(x.club_id)===String(m.away_team_id));
+ box.innerHTML=`<div class="aev-head"><div><b>🎬 Matukio ya Mechi</b><span>${esc(m.status||'Scheduled')}</span></div><div class="aev-score">${m.home_score??0} - ${m.away_score??0}</div></div>
+ <div class="aev-form"><select id="aevType"><option value="goal">⚽ Goli</option><option value="yellow">🟨 Kadi ya Njano</option><option value="red">🟥 Kadi Nyekundu</option><option value="substitution">🔄 Substitution</option><option value="penalty">🎯 Penalty</option><option value="own goal">🥅 Own Goal</option></select><select id="aevPlayer"><option value="">Chagua mchezaji</option>${teamPlayers.map(x=>`<option value="${esc(x.id)}">${esc(name(x.id))}</option>`).join('')}</select><input id="aevMinute" type="number" min="0" max="130" placeholder="Dakika"><input id="aevDesc" placeholder="Maelezo (hiari)"><button id="aevSave">➕ Ongeza</button></div>
+ <div class="aev-list">${events.filter(x=>!String(x.event_type||'').startsWith('lineup_')).map(x=>`<div class="aev-row"><b>${icon(x.event_type)}</b><span><strong>${esc(name(x.player_id))}</strong><small>${esc(x.event_type)} · ${x.minute==null?'-':esc(x.minute)+"'"}${x.description?' · '+esc(x.description):''}</small></span><button data-del="${esc(x.id)}">🗑</button></div>`).join('')||'<div class="empty">Hakuna matukio bado.</div>'}</div>`;
+ document.getElementById('aevSave').onclick=()=>add(m,teamPlayers,name);
+ box.querySelectorAll('[data-del]').forEach(b=>b.onclick=()=>del(b.dataset.del,id));
+}
+function icon(t){t=String(t||'').toLowerCase();if(t.includes('goal')||t==='goli')return '⚽';if(t.includes('yellow')||t.includes('njano'))return '🟨';if(t.includes('red')||t.includes('nyekundu'))return '🟥';if(t.includes('sub'))return '🔄';if(t.includes('penalty'))return '🎯';return '📌'}
+async function add(m,players,name){
+ const type=document.getElementById('aevType').value, pid=document.getElementById('aevPlayer').value, minute=document.getElementById('aevMinute').value, desc=document.getElementById('aevDesc').value.trim();
+ if(!pid){alert('Chagua mchezaji.');return}
+ const {error}=await db.from('match_events').insert({match_id:m.id,player_id:pid,event_type:type,minute:minute===''?null:Number(minute),description:desc||null});
+ if(error){alert('❌ '+error.message);return}
+ if(type==='goal'||type==='penalty'||type==='own goal'){
+  let hs=Number(m.home_score||0),as=Number(m.away_score||0);const pl=players.find(x=>String(x.id)===String(pid));
+  if(pl){if(String(pl.club_id)===String(m.home_team_id)){if(type==='own goal')as++;else hs++;}else if(String(pl.club_id)===String(m.away_team_id)){if(type==='own goal')hs++;else as++;}}
+  await db.from('matches').update({home_score:hs,away_score:as}).eq('id',m.id);
+ }
+ await load(m.id);
+}
+async function del(id,matchId){if(!confirm('Futa tukio hili?'))return;const {error}=await db.from('match_events').delete().eq('id',id);if(error){alert('❌ '+error.message);return}await load(matchId)}
+function mount(){if(document.getElementById('afrnMatchEvents'))return;const host=document.querySelector('main');if(!host)return;box=document.createElement('section');box.id='afrnMatchEvents';box.className='card';host.appendChild(box);const sel=document.getElementById('filterCompetition');const ids=window.matches||[];const candidates=Array.isArray(ids)?ids:[];box.innerHTML='<h2>🎬 Match Events</h2><div class="form-group"><label>Chagua Mechi</label><select id="aevMatch"><option value="">Chagua mechi</option></select></div>';const msel=document.getElementById('aevMatch');(candidates.length?candidates:[]).forEach(m=>msel.innerHTML+=`<option value="${esc(m.id)}">${esc(m.id)}</option>`);msel.onchange=()=>msel.value&&load(msel.value);setInterval(()=>{if(msel.value)load(msel.value)},15000)}
+const st=document.createElement('style');st.textContent='#afrnMatchEvents .aev-head{display:flex;justify-content:space-between;align-items:center;gap:12px}.aev-head span{display:block;font-size:12px;opacity:.7}.aev-score{font-size:28px;font-weight:800}.aev-form{display:grid;grid-template-columns:1fr 1.5fr .6fr 1.5fr auto;gap:8px;margin:15px 0}.aev-form select,.aev-form input{padding:10px;border:1px solid #dfe5ec;border-radius:8px}.aev-form button{background:#0b5ed7;color:#fff;border:0;border-radius:8px;padding:10px 14px;font-weight:700}.aev-row{display:flex;align-items:center;gap:10px;padding:10px;border-bottom:1px solid #eee}.aev-row span{flex:1}.aev-row small{display:block;color:#6c757d}.aev-row button{background:#dc3545;color:#fff;border:0;border-radius:6px;padding:6px}@media(max-width:700px){.aev-form{grid-template-columns:1fr 1fr}.aev-form button{grid-column:1/-1}.aev-head{align-items:flex-start!important}}';document.head.appendChild(st);
+const old=window.loadMatches;window.loadMatches=async function(){const r=old?await old.apply(this,arguments):undefined;mount();const msel=document.getElementById('aevMatch');const list=window.matches||[];if(msel&&Array.isArray(list)){const current=msel.value;msel.innerHTML='<option value="">Chagua mechi</option>'+list.map(m=>`<option value="${esc(m.id)}">${esc(m.match_date||'')} · ${esc(m.id)}</option>`).join('');if(current)msel.value=current}return r};setTimeout(mount,1200);
+})();
