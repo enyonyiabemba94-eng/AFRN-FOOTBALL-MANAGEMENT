@@ -1,0 +1,42 @@
+(()=>{
+'use strict';
+if(!/players\.html$/i.test(location.pathname)) return;
+const db=window.supabaseClient;
+if(!db) return;
+const esc=s=>String(s??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+const roles=['super_admin','superadmin','admin','administrator','afrn_admin','secretary_general'];
+let profile=null;
+async function load(){
+ try{
+  const {data:{user}}=await db.auth.getUser(); if(!user)return;
+  const {data:p}=await db.from('profiles').select('role,club_id,full_name').eq('id',user.id).maybeSingle(); profile=p||null;
+  if(!profile)return;
+  const isAdmin=roles.includes(String(profile.role||'').toLowerCase());
+  let q=db.from('players').select('id,first_name,middle_name,last_name,player_id_number,registration_approval_status,registration_rejection_reason,registration_requested_at,registration_requested_club_id,club_id').order('registration_requested_at',{ascending:false}).limit(50);
+  if(!isAdmin && String(profile.role||'').toLowerCase()==='club_admin' && profile.club_id) q=q.eq('registration_requested_club_id',profile.club_id);
+  const {data:rows,error}=await q; if(error)throw error;
+  render(rows||[],isAdmin);
+ }catch(e){console.error('AFRN registration workflow',e)}
+}
+function render(rows,isAdmin){
+ let box=document.getElementById('afrn-registration-workflow');
+ if(!box){box=document.createElement('section');box.id='afrn-registration-workflow';const main=document.querySelector('main');if(main)main.insertBefore(box,main.firstChild);}
+ const pending=rows.filter(x=>String(x.registration_approval_status||'').toUpperCase()==='PENDING');
+ box.innerHTML=`<div class="afrn-rw-card"><div class="afrn-rw-head"><div><b>📋 Usajili wa Wachezaji</b><small>Request → Approval → Active</small></div><button id="afrn-rw-refresh">↻</button></div><div class="afrn-rw-stats"><span>${rows.length}<small>Requests</small></span><span>${pending.length}<small>Pending</small></span></div>${rows.length?rows.map(p=>{const name=[p.first_name,p.middle_name,p.last_name].filter(Boolean).join(' ')||'Mchezaji';const st=String(p.registration_approval_status||'').toUpperCase()||'NONE';return `<div class="afrn-rw-row"><div><b>${esc(name)}</b><small>${esc(p.player_id_number||p.id)}</small></div><strong class="st-${st.toLowerCase()}">${esc(st)}</strong>${isAdmin&&st==='PENDING'?`<div class="afrn-rw-actions"><button data-a="approve" data-id="${p.id}">✓ Kubali</button><button data-a="reject" data-id="${p.id}">✕ Kataa</button></div>`:''}</div>`}).join(''):'<div class="afrn-rw-empty">Hakuna maombi ya usajili.</div>'}</div>`;
+ document.getElementById('afrn-rw-refresh').onclick=load;
+ box.querySelectorAll('[data-a]').forEach(b=>b.onclick=()=>act(b.dataset.a,b.dataset.id));
+}
+async function act(action,id){
+ if(!profile)return;
+ let reason='';
+ if(action==='reject'){reason=prompt('Sababu ya kukataa usajili:')||'';if(!reason)return;}
+ const payload=action==='approve'?{registration_approval_status:'APPROVED',registration_approved_by:null,registration_approved_at:new Date().toISOString(),registration_rejection_reason:null,status:'Active'}:{registration_approval_status:'REJECTED',registration_rejection_reason:reason};
+ try{
+  const {data:{user}}=await db.auth.getUser();if(action==='approve')payload.registration_approved_by=user?.id||null;
+  const {error}=await db.from('players').update(payload).eq('id',id);if(error)throw error;
+  alert(action==='approve'?'Usajili umekubaliwa.':'Usajili umekataliwa.');load();
+ }catch(e){alert('Imeshindikana: '+(e.message||e))}
+}
+const style=document.createElement('style');style.textContent=`#afrn-registration-workflow{margin-bottom:14px}.afrn-rw-card{background:#fff;border:1px solid #e1e6ef;border-radius:16px;padding:12px;box-shadow:0 3px 12px #14213d10}.afrn-rw-head{display:flex;justify-content:space-between;align-items:center}.afrn-rw-head b{display:block}.afrn-rw-head small,.afrn-rw-row small{display:block;color:#687386;font-size:10px;margin-top:3px}.afrn-rw-head button{background:#eef4ff;color:#0d47a1}.afrn-rw-stats{display:flex;gap:8px;margin:10px 0}.afrn-rw-stats span{background:#f7f9fc;border-radius:10px;padding:8px 12px;font-weight:800}.afrn-rw-stats small{display:block;color:#687386;font-size:9px}.afrn-rw-row{display:grid;grid-template-columns:1fr auto;gap:8px;align-items:center;border-top:1px solid #edf0f4;padding:10px 0}.afrn-rw-row strong{font-size:10px}.st-pending{color:#b26a00}.st-approved{color:#16834b}.st-rejected{color:#c62828}.st-active{color:#16834b}.afrn-rw-actions{grid-column:1/-1;display:flex;gap:7px}.afrn-rw-actions button{flex:1;padding:8px;background:#eef4ff;color:#0d47a1}.afrn-rw-actions button:last-child{background:#fee;color:#c62828}.afrn-rw-empty{text-align:center;color:#687386;padding:14px;font-size:12px}`;document.head.appendChild(style);
+if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',load);else setTimeout(load,250);
+})();
