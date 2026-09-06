@@ -1,0 +1,201 @@
+name: Connect AFRN Player Photo Upload
+
+on:
+  push:
+    branches: [main]
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+jobs:
+  connect-photo-upload:
+    if: github.event_name == 'workflow_dispatch' || !contains(github.event.head_commit.message, '[photo-upload-fix]')
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Patch players.html
+        shell: bash
+        run: |
+          python3 - <<'PY'
+          from pathlib import Path
+          p = Path('players.html')
+          s = p.read_text(encoding='utf-8')
+          marker = '<script id="afrn-player-photo-fix">'
+          if marker in s:
+              print('Photo fix already connected')
+              raise SystemExit(0)
+          script = r'''<script id="afrn-player-photo-fix">
+          (() => {
+            const MAX = 5 * 1024 * 1024;
+            const TYPES = ['image/jpeg','image/png','image/webp'];
+            let uploading = false;
+            let retryClick = false;
+
+            const client = () => window.supabaseClient || window.supabase;
+            const fileInput = () => document.getElementById('photoFile');
+            const photoUrl = () => document.getElementById('photoUrl');
+            const preview = () => document.getElementById('photoPreviewImage');
+            const previewBox = () => document.getElementById('photoPreview');
+            const progress = () => document.getElementById('uploadProgress');
+            const progressBar = () => document.getElementById('progressBar');
+            const progressText = () => document.getElementById('progressText');
+
+            function message(text, bad=false) {
+              let box = document.getElementById('afrnPhotoUploadMsg');
+              if (!box) {
+                box = document.createElement('div');
+                box.id = 'afrnPhotoUploadMsg';
+                box.style.cssText = 'margin-top:8px;padding:10px;border-radius:9px;font-size:12px;';
+                const input = fileInput();
+                if (input?.parentElement) input.parentElement.appendChild(box);
+              }
+              box.textContent = text;
+              box.style.background = bad ? '#fee' : '#eef8f1';
+              box.style.color = bad ? '#c62828' : '#16834b';
+            }
+
+            function setProgress(percent, text) {
+              const box = progress();
+              const bar = progressBar();
+              const label = progressText();
+              if (box) box.style.display = 'block';
+              if (bar) bar.style.width = percent + '%';
+              if (label) label.textContent = text || (percent + '%');
+            }
+
+            function validate(file) {
+              if (!file) return false;
+              if (!TYPES.includes(file.type)) {
+                message('❌ Chagua JPG, PNG au WEBP tu.', true);
+                return false;
+              }
+              if (file.size > MAX) {
+                message('❌ Picha imezidi 5MB.', true);
+                return false;
+              }
+              return true;
+            }
+
+            function showPreview(file) {
+              const img = preview();
+              const box = previewBox();
+              if (!img || !box || !file) return;
+              if (img.dataset.afrnObjectUrl) URL.revokeObjectURL(img.dataset.afrnObjectUrl);
+              const url = URL.createObjectURL(file);
+              img.src = url;
+              img.dataset.afrnObjectUrl = url;
+              box.style.display = 'block';
+            }
+
+            async function upload(file) {
+              if (!validate(file)) throw new Error('INVALID_FILE');
+              const sb = client();
+              if (!sb?.storage) throw new Error('Supabase Storage haijapatikana.');
+              const ext = file.type === 'image/png' ? 'png' : file.type === 'image/webp' ? 'webp' : 'jpg';
+              const idInput = document.querySelector('#playerIdNumber');
+              const pid = (idInput?.value || 'player').trim().replace(/[^a-zA-Z0-9_-]/g, '_');
+              const path = `players/${pid}-${Date.now()}.${ext}`;
+              setProgress(10, '⏳ Inapakia picha...');
+              const { error } = await sb.storage.from('AFRN PLAYER PHOTOS').upload(path, file, {
+                cacheControl: '3600',
+                upsert: false,
+                contentType: file.type
+              });
+              if (error) throw error;
+              setProgress(85, '⏳ Inapata URL...');
+              const { data } = sb.storage.from('AFRN PLAYER PHOTOS').getPublicUrl(path);
+              if (!data?.publicUrl) throw new Error('Public URL haikupatikana.');
+              const url = data.publicUrl;
+              const input = photoUrl();
+              if (input) input.value = url;
+              setProgress(100, '✅ Picha imehifadhiwa.');
+              message('✅ Picha imepakiwa kwenye AFRN PLAYER PHOTOS.');
+              return url;
+            }
+
+            function bind() {
+              const input = fileInput();
+              if (!input || input.dataset.afrnPhotoBound === '1') return;
+              input.dataset.afrnPhotoBound = '1';
+              input.addEventListener('change', () => {
+                const file = input.files?.[0];
+                if (!file) return;
+                if (!validate(file)) {
+                  input.value = '';
+                  return;
+                }
+                showPreview(file);
+                message('📷 Picha imechaguliwa. Bonyeza Hifadhi Mchezaji ili kuihifadhi.');
+              });
+            }
+
+            async function interceptSave(e, button) {
+              if (retryClick || uploading) return;
+              const input = fileInput();
+              const file = input?.files?.[0];
+              if (!file) return;
+              if (!validate(file)) {
+                e.preventDefault();
+                e.stopImmediatePropagation();
+                return;
+              }
+              e.preventDefault();
+              e.stopImmediatePropagation();
+              uploading = true;
+              if (button) button.disabled = true;
+              try {
+                await upload(file);
+                retryClick = true;
+                if (button) button.click();
+                else {
+                  const form = input.closest('form');
+                  if (form) form.requestSubmit();
+                }
+              } catch (err) {
+                console.error('AFRN photo upload:', err);
+                message('❌ Picha haikuhifadhiwa: ' + (err?.message || err), true);
+              } finally {
+                retryClick = false;
+                uploading = false;
+                if (button) button.disabled = false;
+              }
+            }
+
+            document.addEventListener('click', e => {
+              bind();
+              const btn = e.target?.closest?.('button');
+              if (!btn) return;
+              const text = (btn.textContent || '').trim().replace(/\s+/g, ' ');
+              if (/hifadhi mchezaji|save player|ongeza mchezaji|add player/i.test(text)) {
+                interceptSave(e, btn);
+              }
+            }, true);
+
+            document.addEventListener('DOMContentLoaded', bind);
+            new MutationObserver(bind).observe(document.documentElement, {childList:true, subtree:true});
+            [300, 1000, 2500, 5000].forEach(ms => setTimeout(bind, ms));
+          })();
+          </script>'''
+          pos = s.lower().rfind('</body>')
+          if pos < 0:
+              raise SystemExit('players.html has no </body> marker')
+          s = s[:pos] + '\n' + script + '\n' + s[pos:]
+          p.write_text(s, encoding='utf-8')
+          print('Photo upload connector inserted')
+          PY
+
+      - name: Commit patch
+        shell: bash
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add players.html
+          if git diff --cached --quiet; then
+            echo "No changes to commit"
+          else
+            git commit -m "fix: connect player photo upload [photo-upload-fix]"
+            git push
+          fi
