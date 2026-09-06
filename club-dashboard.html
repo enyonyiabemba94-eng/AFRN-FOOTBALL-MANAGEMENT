@@ -1,0 +1,90 @@
+<!DOCTYPE html>
+<html lang="sw">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1.0">
+<title>Club Dashboard — AFRN Football Management</title>
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<script src="supabase-config.js"></script>
+<style>
+:root{--navy:#071a33;--blue:#0d47a1;--green:#087443;--gold:#d99a00;--bg:#f4f7fb;--card:#fff;--text:#172033;--muted:#667085;--border:#d9e1ec}*{box-sizing:border-box}body{margin:0;font-family:Arial,Helvetica,sans-serif;background:var(--bg);color:var(--text)}header{background:linear-gradient(135deg,#071a33,#0d47a1);color:#fff;padding:18px 14px 12px}.head{max-width:1200px;margin:auto;display:flex;align-items:center;gap:13px}.logo{width:58px;height:58px;object-fit:contain;background:#fff;padding:4px;border-radius:10px}.head h1{margin:0;font-size:21px}.head p{margin:5px 0 0;font-size:11px;font-weight:700;opacity:.9}nav{max-width:1200px;margin:14px auto 0;display:flex;gap:6px;overflow:auto;padding-bottom:2px}nav a{color:#fff;text-decoration:none;padding:9px 12px;border:1px solid #ffffff30;background:#ffffff14;border-radius:8px;white-space:nowrap;font-size:12px;font-weight:800}.wrap{max-width:1200px;margin:auto;padding:20px 14px 45px}.hero{background:linear-gradient(135deg,#fff,#eef5ff);border:1px solid var(--border);border-radius:18px;padding:22px;margin-bottom:16px}.hero h2{margin:0;color:var(--navy);font-size:25px}.hero p{margin:7px 0;color:var(--muted);font-size:13px}.clubline{display:flex;align-items:center;gap:10px;flex-wrap:wrap;margin-top:13px}.pill{display:inline-block;padding:7px 11px;border-radius:18px;background:#eaf2ff;color:var(--blue);font-size:11px;font-weight:800}.green{background:#eaf8f0;color:var(--green)}.logout{margin-left:auto;background:var(--navy);color:#fff;padding:9px 12px;border-radius:8px;text-decoration:none;font-size:11px;font-weight:800}.stats{display:grid;grid-template-columns:repeat(4,1fr);gap:12px;margin-bottom:18px}.stat{background:var(--card);border:1px solid var(--border);border-radius:14px;padding:17px}.num{font-size:28px;font-weight:900;color:var(--navy)}.label{font-size:11px;color:var(--muted);font-weight:800;margin-top:4px}.grid{display:grid;grid-template-columns:1fr 1fr;gap:14px}.card{background:#fff;border:1px solid var(--border);border-radius:15px;padding:17px;box-shadow:0 3px 12px #00000008}.card h3{margin:0 0 12px;color:var(--navy);font-size:16px}.table{overflow:auto}.table table{width:100%;border-collapse:collapse}.table th,.table td{padding:9px;border-bottom:1px solid #e8edf3;text-align:left;font-size:11px;white-space:nowrap}.table th{background:#f1f4f8;font-weight:900}.badge{padding:4px 7px;border-radius:14px;background:#edf4ff;color:var(--blue);font-size:9px;font-weight:900}.empty{text-align:center;background:#f8fafc;border-radius:9px;padding:17px;color:var(--muted);font-size:11px}.actions{display:grid;grid-template-columns:repeat(3,1fr);gap:10px}.action{display:block;text-decoration:none;background:#fff;border:1px solid var(--border);border-radius:13px;padding:16px;color:var(--text)}.action strong{display:block;color:var(--navy);margin-bottom:5px}.action span{font-size:11px;color:var(--muted)}.wide{grid-column:1/-1}.notice{background:#fff8e6;border:1px solid #f0d58a;color:#765500;border-radius:12px;padding:12px;font-size:11px;margin-bottom:14px}.hidden{display:none!important}@media(max-width:850px){.stats{grid-template-columns:repeat(2,1fr)}.actions{grid-template-columns:repeat(2,1fr)}.grid{grid-template-columns:1fr}.wide{grid-column:auto}}@media(max-width:520px){.actions{grid-template-columns:1fr}.hero h2{font-size:21px}.logo{width:50px;height:50px}}
+</style>
+</head>
+<body>
+<header><div class="head"><img src="IMG-20260319-WA0093.jpg" class="logo"><div><h1>⚽ AFRN FOOTBALL MANAGEMENT</h1><p>SHIRIKISHO LA MPIRA WA MIGUU KAMBINI NYARUGUSU</p></div></div><nav>
+<a href="club-dashboard.html">🏠 Dashboard ya Klabu</a><a href="clubs.html">⚽ Vilabu</a><a href="players.html">👤 Wachezaji</a><a href="transfers.html">🔄 Uhamisho</a><a href="competitions.html">🏆 Mashindano</a><a href="matches.html">🏟️ Mechi</a><a href="reports.html">📊 Ripoti</a><a href="index.html">🌍 System Dashboard</a>
+</nav></header>
+<main class="wrap">
+<section class="hero"><h2 id="clubName">Karibu Club Admin</h2><p>Dashboard hii inalenga <strong>uendeshaji wa klabu yako</strong>. Taarifa za ligi nzima zinapatikana kupitia menu, lakini shughuli za usimamizi zinapaswa kubaki kwenye klabu yako kulingana na permissions.</p><div class="clubline"><span class="pill green" id="clubCode">⚽ Club ID: —</span><span class="pill" id="division">Division: —</span><span class="pill" id="adminName">👤 —</span><a class="logout" href="#" id="logout">🚪 Toka</a></div></section>
+<div id="notice" class="notice hidden"></div>
+<section class="stats">
+<div class="stat"><div class="num" id="players">0</div><div class="label">👥 Wachezaji wa Klabu</div></div>
+<div class="stat"><div class="num" id="contracts">0</div><div class="label">📄 Mikataba</div></div>
+<div class="stat"><div class="num" id="transfers">0</div><div class="label">🔄 Uhamisho wa Klabu</div></div>
+<div class="stat"><div class="num" id="matches">0</div><div class="label">🏟️ Mechi za Klabu</div></div>
+</section>
+<section class="grid">
+<div class="card"><h3>⚽ Wachezaji wa Klabu</h3><div id="playerList">Inapakia...</div></div>
+<div class="card"><h3>📄 Mikataba Inayokaribia Kuisha</h3><div id="contractList">Inapakia...</div></div>
+<div class="card"><h3>🏟️ Mechi Zinazofuata</h3><div id="matchList">Inapakia...</div></div>
+<div class="card"><h3>🔄 Uhamisho wa Klabu</h3><div id="transferList">Inapakia...</div></div>
+<div class="card wide"><h3>📊 Msimamo wa Klabu</h3><div id="standingList">Inapakia...</div></div>
+<div class="card wide"><h3>🚀 Usimamizi wa Klabu</h3><div class="actions">
+<a class="action" href="players.html"><strong>👤 Wachezaji</strong><span>Angalia na simamia usajili wa klabu.</span></a>
+<a class="action" href="transfers.html"><strong>🔄 Uhamisho</strong><span>Angalia na simamia transfers zinazohusu klabu.</span></a>
+<a class="action" href="competitions.html"><strong>🏆 Mashindano</strong><span>Angalia mashindano ambayo klabu inashiriki.</span></a>
+<a class="action" href="matches.html"><strong>🏟️ Mechi</strong><span>Angalia ratiba na matokeo ya klabu.</span></a>
+<a class="action" href="reports.html"><strong>📊 Ripoti</strong><span>Angalia takwimu na ripoti zinazopatikana.</span></a>
+<a class="action" href="clubs.html"><strong>🌍 Vilabu</strong><span>Angalia taarifa za vilabu vya AFRN.</span></a>
+</div></div>
+</section>
+</main>
+<script>
+const db=window.supabaseClient;
+const $=id=>document.getElementById(id);
+const esc=v=>String(v??'').replace(/[&<>"']/g,x=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#039;'}[x]));
+const full=p=>[p?.first_name,p?.middle_name,p?.last_name].filter(Boolean).join(' ')||p?.player_id_number||'Mchezaji';
+const date=v=>v?new Date(v+'T00:00:00').toLocaleDateString('sw-TZ',{day:'2-digit',month:'2-digit',year:'numeric'}):'Haijawekwa';
+async function getContext(){
+ if(!db){$('notice').textContent='Supabase haijapatikana.';$('notice').classList.remove('hidden');return null}
+ const {data:{user}}=await db.auth.getUser();
+ if(!user){location.href='login.html';return null}
+ const {data:p,error:pe}=await db.from('profiles').select('*').eq('id',user.id).maybeSingle();
+ if(pe||!p){location.href='login.html';return null}
+ const role=String(p.role||'').toLowerCase().replace(/[ -]/g,'_');
+ if(role!=='club_admin'){
+   if(role==='super_admin'||role==='admin'||role==='afrn_admin'){location.href='index.html';return null}
+   location.href='login.html';return null
+ }
+ if(!p.club_id){$('notice').textContent='Account hii haijaunganishwa na klabu. Wasiliana na AFRN Admin.';$('notice').classList.remove('hidden');return null}
+ const {data:club,error:ce}=await db.from('clubs').select('id,name,afrn_club_id,division').eq('id',p.club_id).maybeSingle();
+ if(ce||!club){$('notice').textContent='Klabu ya account hii haikupatikana.';$('notice').classList.remove('hidden');return null}
+ $('clubName').textContent='Karibu '+club.name;
+ $('clubCode').textContent='⚽ '+(club.afrn_club_id||'Club ID —');
+ $('division').textContent='Division: '+(club.division||'—');
+ $('adminName').textContent='👤 '+(p.full_name||user.email||'Club Admin');
+ $('logout').onclick=async e=>{e.preventDefault();await db.auth.signOut();location.href='login.html'};
+ return {user,p,club};
+}
+async function load(ctx){
+ const clubId=ctx.club.id;
+ const [pr,cr,tr,mr,sr]=await Promise.all([
+  db.from('players').select('id,first_name,middle_name,last_name,player_id_number,status,position,jersey_number').eq('club_id',clubId).order('created_at',{ascending:false}).limit(8),
+  db.from('player_contracts').select('id,player_id,start_date,end_date,status').eq('club_id',clubId).order('end_date',{ascending:true}).limit(8),
+  db.from('transfers').select('id,player_id,from_club_id,to_club_id,transfer_date,transfer_type,status,created_at').or(`from_club_id.eq.${clubId},to_club_id.eq.${clubId}`).order('created_at',{ascending:false}).limit(8),
+  db.from('matches').select('id,home_team_id,away_team_id,match_date,match_time,home_score,away_score,status,competition_id').or(`home_team_id.eq.${clubId},away_team_id.eq.${clubId}`).order('match_date',{ascending:true,nullsFirst:false}).limit(8),
+  db.from('standings').select('id,club_id,competition_id,group_name,played,wins,draws,losses,goals_for,goals_against,points').eq('club_id',clubId).order('points',{ascending:false}).limit(8)
+ ]);
+ const errs=[pr,cr,tr,mr,sr].filter(x=>x.error); if(errs.length) console.warn(errs);
+ $('players').textContent=pr.count??(pr.data||[]).length; $('contracts').textContent=(cr.data||[]).length; $('transfers').textContent=(tr.data||[]).length; $('matches').textContent=(mr.data||[]).length;
+ const ps=pr.data||[]; $('playerList').innerHTML=ps.length?'<div class="table"><table><thead><tr><th>Mchezaji</th><th>Nafasi</th><th>Jezi</th><th>Status</th></tr></thead><tbody>'+ps.map(p=>`<tr><td><strong>${esc(full(p))}</strong></td><td>${esc(p.position||'—')}</td><td>${esc(p.jersey_number??'—')}</td><td><span class="badge">${esc(p.status||'Active')}</span></td></tr>`).join('')+'</tbody></table></div>':'<div class="empty">Hakuna wachezaji wa klabu.</div>';
+ const cs=cr.data||[]; $('contractList').innerHTML=cs.length?'<div class="table"><table><thead><tr><th>Mchezaji</th><th>Kuanzia</th><th>Kuisha</th><th>Status</th></tr></thead><tbody>'+cs.map(c=>{const p=ps.find(x=>x.id===c.player_id);return `<tr><td>${esc(p?full(p):'Mchezaji')}</td><td>${esc(date(c.start_date))}</td><td><strong>${esc(date(c.end_date))}</strong></td><td><span class="badge">${esc(c.status||'Active')}</span></td></tr>`}).join('')+'</tbody></table></div>':'<div class="empty">Hakuna mikataba ya klabu.</div>';
+ const trs=tr.data||[];const pids=[...new Set(trs.map(x=>x.player_id).filter(Boolean))], cids=[...new Set(trs.flatMap(x=>[x.from_club_id,x.to_club_id]).filter(Boolean))];const [px,cx]=await Promise.all([pids.length?db.from('players').select('id,first_name,middle_name,last_name,player_id_number').in('id',pids):Promise.resolve({data:[]}),cids.length?db.from('clubs').select('id,name').in('id',cids):Promise.resolve({data:[]})]);const pm=new Map((px.data||[]).map(p=>[String(p.id),full(p)])),cm=new Map((cx.data||[]).map(c=>[String(c.id),c.name]));
+ $('transferList').innerHTML=trs.length?'<div class="table"><table><thead><tr><th>Mchezaji</th><th>Transfer</th><th>Aina</th><th>Tarehe</th></tr></thead><tbody>'+trs.map(x=>`<tr><td>${esc(pm.get(String(x.player_id))||'Mchezaji')}</td><td>${esc(cm.get(String(x.from_club_id))||'Free Agent')} → ${esc(cm.get(String(x.to_club_id))||'—')}</td><td><span class="badge">${esc(x.transfer_type||'Transfer')}</span></td><td>${esc(date(x.transfer_date))}</td></tr>`).join('')+'</tbody></table></div>':'<div class="empty">Hakuna transfer za klabu.</div>';
+ const ms=mr.data||[];const mids=[...new Set(ms.flatMap(x=>[x.home_team_id,x.away_team_id]).filter(Boolean))];const mc=mids.length?await db.from('clubs').select('id,name').in('id',mids):{data:[]};const mm=new Map((mc.data||[]).map(c=>[String(c.id),c.name]));$('matchList').innerHTML=ms.length?'<div class="table"><table><thead><tr><th>Tarehe</th><th>Mechi</th><th>Matokeo</th><th>Status</th></tr></thead><tbody>'+ms.map(x=>`<tr><td>${esc(date(x.match_date))}</td><td>${esc(mm.get(String(x.home_team_id))||'—')} vs ${esc(mm.get(String(x.away_team_id))||'—')}</td><td>${esc(x.home_score??0)} - ${esc(x.away_score??0)}</td><td><span class="badge">${esc(x.status||'Scheduled')}</span></td></tr>`).join('')+'</tbody></table></div>':'<div class="empty">Hakuna mechi za klabu.</div>';
+ const ss=sr.data||[];$('standingList').innerHTML=ss.length?'<div class="table"><table><thead><tr><th>Mashindano</th><th>Group</th><th>P</th><th>W</th><th>D</th><th>L</th><th>GD</th><th>Pts</th></tr></thead><tbody>'+ss.map(x=>{const gd=(Number(x.goals_for)||0)-(Number(x.goals_against)||0);return `<tr><td>${esc(x.competition_id||'—')}</td><td>${esc(x.group_name||'—')}</td><td>${esc(x.played??0)}</td><td>${esc(x.wins??0)}</td><td>${esc(x.draws??0)}</td><td>${esc(x.losses??0)}</td><td>${gd>0?'+'+gd:gd}</td><td><strong>${esc(x.points??0)}</strong></td></tr>`}).join('')+'</tbody></table></div>':'<div class="empty">Hakuna msimamo uliorekodiwa kwa klabu hii bado.</div>';
+}
+(async()=>{const ctx=await getContext();if(ctx)await load(ctx)})();
+</script>
+</body>
+</html>
