@@ -18,31 +18,8 @@
       if(!id) return;
       const btn=document.createElement('button');btn.type='button';btn.className='afrn-edit-club';btn.textContent='✏️ Hariri';
       btn.style.cssText='margin-left:auto;flex-shrink:0;border:1px solid #d9e1ec;background:#eef2f6;color:#071a33;border-radius:9px;padding:8px 10px;font-size:12px;font-weight:800;cursor:pointer;';
-      btn.addEventListener('click',async function(e){
-        e.preventDefault();e.stopPropagation();
-        btn.disabled=true;btn.textContent='⏳';
-        try{
-          let club=(window.clubs||window.afrnClubs||[]).find(c=>String(c.id)===String(id));
-          if(!club&&window.afrnSupabase&&typeof window.afrnSupabase.from==='function'){
-            const r=await window.afrnSupabase.from('clubs').select('*').eq('id',id).maybeSingle();
-            if(r.error) throw r.error; club=r.data;
-          }
-          if(!club&&window.supabaseClient&&typeof window.supabaseClient.from==='function'){
-            const r=await window.supabaseClient.from('clubs').select('*').eq('id',id).maybeSingle();
-            if(r.error) throw r.error; club=r.data;
-          }
-          if(!club&&window.sb&&typeof window.sb.from==='function'){
-            const r=await window.sb.from('clubs').select('*').eq('id',id).maybeSingle();
-            if(r.error) throw r.error; club=r.data;
-          }
-          if(!club) throw new Error('Taarifa za klabu hazijapatikana.');
-          sessionStorage.setItem('afrn_edit_club',JSON.stringify(club));
-          location.href='add-club.html';
-        }catch(err){
-          console.error('AFRN EDIT CLUB ERROR:',err);
-          alert('❌ Taarifa za klabu hazijapatikana.\n\n'+(err.message||''));
-          btn.disabled=false;btn.textContent='✏️ Hariri';
-        }
+      btn.addEventListener('click',function(e){e.preventDefault();e.stopPropagation();
+        location.href='add-club.html?edit='+encodeURIComponent(id);
       });
       card.appendChild(btn);
     });
