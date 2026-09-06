@@ -1,0 +1,17 @@
+{
+  "name": "AFRN Football Management",
+  "short_name": "AFRN Football",
+  "description": "Mfumo wa kisasa wa usimamizi wa mpira wa miguu wa Shirikisho la Mpira wa Miguu Kambini Nyarugusu.",
+  "lang": "sw-TZ",
+  "dir": "ltr",
+  "start_url": "./login.html",
+  "scope": "./",
+  "display": "standalone",
+  "orientation": "portrait-primary",
+  "background_color": "#071a33",
+  "theme_color": "#071a33",
+  "icons": [
+    { "src": "IMG-20260319-WA0093.jpg", "sizes": "192x192", "type": "image/jpeg", "purpose": "any maskable" },
+    { "src": "IMG-20260319-WA0093.jpg", "sizes": "512x512", "type": "image/jpeg", "purpose": "any maskable" }
+  ]
+}
