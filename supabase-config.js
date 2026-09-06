@@ -7,7 +7,7 @@ if(window.supabase && typeof window.supabase.createClient==="function" && !windo
   s.src="supabase-config-original.js";
   s.onload=function(){
     setTimeout(function(){
-      if(!/transfers\\.html$/i.test(location.pathname)) return;
+      if(!/transfers\.html$/i.test(location.pathname)) return;
       const client=window.supabaseClient;if(!client)return;
       const esc=v=>String(v??"").replace(/[&<>\"']/g,m=>({"&":"&amp;","<":"&lt;",">":"&gt;","\"":"&quot;","'":"&#039;"}[m]));
       const notice=(kind,title,body)=>`<div class="${kind==="ok"?"successNotice":kind==="bad"?"error":"notice"}" style="margin-top:10px"><b>${title}</b><br>${body}</div>`;
@@ -28,7 +28,7 @@ if(window.supabase && typeof window.supabase.createClient==="function" && !windo
         const active=(contracts||[]).find(c=>["ACTIVE","EXPIRING","EXPIRING SOON"].includes(String(c.status||"").toUpperCase())&&(!c.end_date||c.end_date>=today));
         if(!active){return;}
         const suggestedStart=active.end_date?new Date(new Date(active.end_date+"T00:00:00").getTime()+86400000).toISOString().slice(0,10):today;
-        b.innerHTML=notice("ok","🟢 MZEECHEZA WA KLABU YAKO — RENEW/ONGEZA MKATABA",`Mchezaji <b>${esc([p.first_name,p.middle_name,p.last_name].filter(Boolean).join(" "))}</b> yupo <b>${esc(club?.name||"Klabu yako")}</b>.<br>Mkataba wa sasa: <b>${esc(active.contract_number||"—")}</b> · Unaisha: <b>${esc(active.end_date||"—")}</b><div class="grid" style="margin-top:10px"><div><label>Kuanzia mkataba mpya *</label><input id="afrnRenewStart" type="date" value="${esc(suggestedStart)}"></div><div><label>Kuishia *</label><input id="afrnRenewEnd" type="date"></div><div class="full"><label>Maelezo ya mkataba mpya</label><textarea id="afrnRenewNotes" placeholder="Masharti au maelezo ya renewal..."></textarea></div></div><div class="actions"><button type="button" class="btn success" id="afrnRenewBtn">📝 Ongeza/Renew Mkataba</button></div><div id="afrnRenewMsg"></div>`);
+        b.innerHTML=notice("ok","🟢 MZEE CHEZA WA KLABU YAKO — RENEW/ONGEZA MKATABA",`Mchezaji <b>${esc([p.first_name,p.middle_name,p.last_name].filter(Boolean).join(" "))}</b> yupo <b>${esc(club?.name||"Klabu yako")}</b>.<br>Mkataba wa sasa: <b>${esc(active.contract_number||"—")}</b> · Unaisha: <b>${esc(active.end_date||"—")}</b><div class="grid" style="margin-top:10px"><div><label>Kuanzia mkataba mpya *</label><input id="afrnRenewStart" type="date" value="${esc(suggestedStart)}"></div><div><label>Kuishia *</label><input id="afrnRenewEnd" type="date"></div><div class="full"><label>Maelezo ya mkataba mpya</label><textarea id="afrnRenewNotes" placeholder="Masharti au maelezo ya renewal..."></textarea></div></div><div class="actions"><button type="button" class="btn success" id="afrnRenewBtn">📝 Ongeza/Renew Mkataba</button></div><div id="afrnRenewMsg"></div>`);
         document.getElementById("afrnRenewBtn")?.addEventListener("click",async()=>{
           const start=document.getElementById("afrnRenewStart")?.value;
           const end=document.getElementById("afrnRenewEnd")?.value;
@@ -43,8 +43,7 @@ if(window.supabase && typeof window.supabase.createClient==="function" && !windo
           if(msg)msg.innerHTML=notice("ok","✅ Mkataba umeongezwa",`Mkataba mpya wa <b>${esc(data?.contract_number||"—")}</b> umehifadhiwa kwa ${esc(club?.name||"klabu hii")}. Hakuna Transfer Request iliyotengenezwa. AFRN Player ID bado ni <b>${esc(p.player_id_number||"—")}</b>.`);
         });
       }
-      async function verifySameClub(playerId){if(!playerId)return;await sameClubRenew(playerId);}
-      const bind=()=>{const sel=document.getElementById("playerId");if(!sel)return;if(sel.dataset.afrnRenewBound)return;sel.dataset.afrnRenewBound="1";sel.addEventListener("change",()=>verifySameClub(sel.value));if(sel.value)verifySameClub(sel.value);};
+      const bind=()=>{const sel=document.getElementById("playerId");if(!sel)return;if(sel.dataset.afrnRenewBound)return;sel.dataset.afrnRenewBound="1";sel.addEventListener("change",()=>sameClubRenew(sel.value));if(sel.value)sameClubRenew(sel.value);};
       [3500,4500,6000].forEach(ms=>setTimeout(bind,ms));
     },700);
   };
