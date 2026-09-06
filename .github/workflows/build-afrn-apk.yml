@@ -31,9 +31,13 @@ jobs:
       - name: Build release APK
         working-directory: android-app
         run: gradle --no-daemon assembleRelease
+      - name: Locate APK
+        run: |
+          echo "APK files produced:"
+          find android-app/app/build/outputs -type f -name '*.apk' -print
       - name: Upload APK
         uses: actions/upload-artifact@v4
         with:
           name: AFRN-Football-Management-APK
-          path: android-app/app/build/outputs/apk/release/app-release.apk
+          path: android-app/app/build/outputs/**/*.apk
           if-no-files-found: error
