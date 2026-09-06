@@ -1,0 +1,46 @@
+name: Fix Player Storage Client
+
+on:
+  push:
+    branches: [main]
+
+permissions:
+  contents: write
+
+jobs:
+  fix:
+    if: ${{ !contains(github.event.head_commit.message, '[skip ci]') }}
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Fix player photo storage client
+        shell: bash
+        run: |
+          python - <<'PY'
+          from pathlib import Path
+          p = Path('players.html')
+          s = p.read_text(encoding='utf-8')
+          old = 'const sb = client();'
+          new = 'const sb = getSupabaseClient();'
+          if old not in s:
+              print('Target already fixed or not present.')
+          else:
+              s = s.replace(old, new)
+              p.write_text(s, encoding='utf-8')
+              print('Replaced player photo upload client call.')
+          PY
+
+      - name: Commit fix
+        shell: bash
+        run: |
+          git config user.name 'github-actions[bot]'
+          git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
+          git add players.html
+          if git diff --cached --quiet; then
+            echo 'No changes to commit.'
+            exit 0
+          fi
+          git commit -m 'Fix player photo Supabase Storage client [skip ci]'
+          git push
