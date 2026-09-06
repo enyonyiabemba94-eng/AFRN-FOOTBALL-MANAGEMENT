@@ -271,14 +271,17 @@ window.addEventListener("load", function(){
 });
 
 /* =========================================================
-   AFRN CLUB ID DISPLAY FIX
+   AFRN OFFICIAL CLUB ID DISPLAY FIX
    Database keeps clubs.id (UUID) internally.
-   The public/official identifier is clubs.afrn_club_id.
-   This observer watches the Matches table after its rows are
-   rendered and replaces displayed UUIDs with official Club IDs.
+   Public identifier is clubs.afrn_club_id.
+
+   Matches.html currently renders home.id / away.id directly.
+   This patch intentionally changes ONLY the visible text.
+   It never changes the UUID used for database operations.
 ========================================================= */
 
 window.addEventListener("load", function(){
+
   const client = window.supabaseClient;
   if (!client) return;
 
@@ -296,10 +299,9 @@ window.addEventListener("load", function(){
       }
 
       clubMap = new Map(
-        (data || []).map(club => [
-          String(club.id),
-          club.afrn_club_id || null
-        ])
+        (data || [])
+          .filter(club => club && club.id)
+          .map(club => [String(club.id), String(club.afrn_club_id || "").trim()])
       );
 
       replaceMatchClubIds();
@@ -309,8 +311,13 @@ window.addEventListener("load", function(){
   }
 
   function replaceMatchClubIds(){
-    document.querySelectorAll("#matchesTable .team-id").forEach(function(el){
-      const raw = String(el.textContent || "").replace(/^\s*ID:\s*/i, "").trim();
+    if (!clubMap.size) return;
+
+    document.querySelectorAll(".team-id").forEach(function(el){
+      const raw = String(el.textContent || "")
+        .replace(/^\s*(?:Club ID|ID)\s*:\s*/i, "")
+        .trim();
+
       const official = clubMap.get(raw);
 
       if (official) {
@@ -321,13 +328,23 @@ window.addEventListener("load", function(){
 
   loadOfficialClubIds();
 
-  const table = document.getElementById("matchesTable");
-  if (table) {
-    const observer = new MutationObserver(function(){
-      replaceMatchClubIds();
+  /* Observe the whole document because matches.html renders rows
+     asynchronously after Supabase data has loaded. */
+  const observer = new MutationObserver(function(){
+    replaceMatchClubIds();
+  });
+
+  if (document.body) {
+    observer.observe(document.body, {
+      childList: true,
+      subtree: true
     });
-    observer.observe(table, { childList: true, subtree: true });
   }
 
-  console.log("AFRN: Matches page now displays official Club ID instead of database UUID.");
+  /* Extra delayed passes handle slow network/database rendering. */
+  [250, 750, 1500, 3000, 5000].forEach(function(delay){
+    setTimeout(replaceMatchClubIds, delay);
+  });
+
+  console.log("AFRN: Official Club IDs will be displayed instead of database UUIDs on match cards/tables.");
 });
