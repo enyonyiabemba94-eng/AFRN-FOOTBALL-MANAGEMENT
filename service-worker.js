@@ -1,9 +1,9 @@
-const CACHE_NAME = 'afrn-football-v7';
+const CACHE_NAME = 'afrn-football-v8';
 const APP_SHELL = [
   './', './app.html', './index.html', './login.html', './club-dashboard.html',
   './clubs.html', './players.html', './player-profile.html', './transfers.html', './competitions.html',
   './matches.html', './reports.html', './accounts.html', './contracts.html', './reset-password.html',
-  './supabase-config.js', './supabase-config-original.js', './afrn-transfer-workflow.js', './afrn-registration-workflow.js', './afrn-realtime.js', './manifest.json', './css/style.css',
+  './supabase-config.js', './supabase-config-original.js', './afrn-transfer-workflow.js', './afrn-registration-workflow.js', './afrn-standings-workflow.js', './afrn-realtime.js', './manifest.json', './css/style.css',
   './IMG-20260319-WA0093.jpg'
 ];
 self.addEventListener('install', event => {
@@ -23,6 +23,9 @@ self.addEventListener('fetch', event => {
     if(url.pathname.endsWith('/players.html') || url.pathname.endsWith('/players.html/')){
       try{const text=await response.clone().text();if(!text.includes('afrn-registration-workflow.js')){const injected=text.replace(/<\/body>/i,'<script src="./afrn-registration-workflow.js"></script></body>');response=new Response(injected,{status:response.status,statusText:response.statusText,headers:response.headers});}}catch(e){}
     }
-    const copy=response.clone();caches.open(CACHE_NAME).then(cache=>cache.put(event.request,copy));return response;
+    if(url.pathname.endsWith('/matches.html') || url.pathname.endsWith('/matches.html/')){
+      try{const text=await response.clone().text();if(!text.includes('afrn-standings-workflow.js')){const injected=text.replace(/<\/body>/i,'<script src="./afrn-standings-workflow.js"></script></body>');response=new Response(injected,{status:response.status,statusText:response.statusText,headers:response.headers});}}catch(e){}
+    }
+    const copy=response.clone();caches.open(CACHE_NAME).then(cache => cache.put(event.request,copy));return response;
   }).catch(()=>caches.match(event.request).then(cached=>cached||caches.match('./app.html'))));
 });
