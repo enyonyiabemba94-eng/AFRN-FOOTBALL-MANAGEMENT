@@ -163,7 +163,6 @@ window.addEventListener("load", function(){
     setDefaultPending();
   }
 
-  function clubName(id){ const c=clubMap.get(String(id)); return c?.name || "—"; }
   function clubLabel(id){ const c=clubMap.get(String(id)); return c ? `${c.name}${c.afrn_club_id?` (${c.afrn_club_id})`:""}` : "—"; }
   function playerName(id){ const p=playerMap.get(String(id)); return p ? [p.first_name,p.middle_name,p.last_name].filter(Boolean).join(" ") : "—"; }
   function playerId(id){ return playerMap.get(String(id))?.player_id_number || "—"; }
@@ -239,4 +238,123 @@ window.addEventListener("load", function(){
   injectPanel();
   setTimeout(loadData,250);
   [1500,4000,8000].forEach(d=>setTimeout(refresh,d));
+});
+
+/* =========================================================
+   PLAYER ELIGIBILITY + AUTOMATIC TRANSFER REQUEST
+   Flow: select player -> verify contract -> request from current club.
+========================================================= */
+window.addEventListener("load", function(){
+  if(!/transfers\.html$/i.test(location.pathname)) return;
+  const client=window.supabaseClient;
+  if(!client) return;
+
+  const esc=s=>String(s??"").replace(/[&<>"']/g,m=>({"&":"&amp;","<":"&lt;",">":"&gt;","\"":"&quot;","'":"&#039;"}[m]));
+  let selectedPlayer=null;
+  let selectedStatus=null;
+
+  function noticeHtml(kind,title,body){
+    const cls=kind==="ok"?"successNotice":kind==="bad"?"error":"notice";
+    return `<div class="${cls}" style="margin-top:10px"><b>${title}</b><br>${body}</div>`;
+  }
+
+  function injectEligibilityBox(){
+    if(document.getElementById("afrnEligibilityBox")) return;
+    const select=document.getElementById("playerId");
+    if(!select) return;
+    const box=document.createElement("div");
+    box.id="afrnEligibilityBox";
+    select.parentNode.appendChild(box);
+  }
+
+  async function verifyPlayer(playerId){
+    injectEligibilityBox();
+    const box=document.getElementById("afrnEligibilityBox");
+    if(!box) return;
+    selectedPlayer=null; selectedStatus=null;
+    if(!playerId){ box.innerHTML=""; return; }
+    box.innerHTML=noticeHtml("info","⏳ Inathibitisha hali ya mchezaji...","Inakagua klabu, mkataba na historia ya transfer.");
+
+    const {data:p,error:pe}=await client.from("players").select("id,player_id_number,first_name,middle_name,last_name,club_id,status").eq("id",playerId).maybeSingle();
+    if(pe||!p){ box.innerHTML=noticeHtml("bad","❌ Mchezaji hakupatikana",esc(pe?.message||"Player not found")); return; }
+
+    const {data:contracts,error:ce}=await client.from("player_contracts").select("id,club_id,start_date,end_date,status,contract_number,transfer_id").eq("player_id",playerId).order("end_date",{ascending:false});
+    if(ce){ box.innerHTML=noticeHtml("bad","❌ Imeshindikana kukagua mikataba",esc(ce.message)); return; }
+
+    const today=new Date().toISOString().slice(0,10);
+    const active=(contracts||[]).find(c=>{
+      const s=String(c.status||"").toUpperCase();
+      return ["ACTIVE","EXPIRING","EXPIRING SOON"].includes(s) && (!c.end_date || c.end_date>=today);
+    }) || (contracts||[]).find(c=>c.start_date && c.start_date<=today && c.end_date && c.end_date>=today);
+
+    const {data:club}=p.club_id ? await client.from("clubs").select("id,name,afrn_club_id").eq("id",p.club_id).maybeSingle() : {data:null};
+    const currentClub=club ? `${club.name}${club.afrn_club_id?` (${club.afrn_club_id})`:""}` : null;
+
+    const {data:pendingTransfers}=await client.from("transfers").select("id,status,from_club_id,to_club_id,appeal_status").eq("player_id",playerId).in("status",["PENDING","APPROVED"]);
+    const hasPending=!!(pendingTransfers||[]).length;
+
+    if(active){
+      selectedPlayer=p; selectedStatus="CONTRACTED";
+      box.innerHTML=noticeHtml("bad","🔴 HAFAI KUSAJILIWA MOJA KWA MOJA",`Mchezaji ana mkataba unaoendelea${active.end_date?` hadi <b>${esc(active.end_date)}</b>`:""}. Klabu: <b>${esc(currentClub||"haijulikani")}</b>.<br><small>Hatua inayofuata: omba Transfer kwa klabu hiyo.</small><div class="actions"><button type="button" class="btn primary" id="afrnSendRequestBtn">🔄 Tuma Transfer Request</button></div>`);
+      const btn=document.getElementById("afrnSendRequestBtn");
+      if(btn) btn.onclick=()=>sendRequest(p,club,active);
+      return;
+    }
+
+    if(hasPending){
+      selectedPlayer=p; selectedStatus="PENDING";
+      box.innerHTML=noticeHtml("info","🟡 OMBI LA TRANSFER LIPO",`Mchezaji tayari ana Transfer Request inayosubiri uamuzi. Usitume ombi jingine.`);
+      return;
+    }
+
+    if(!p.club_id){
+      selectedPlayer=p; selectedStatus="FREE_AGENT";
+      box.innerHTML=noticeHtml("ok","🟢 FREE AGENT — ANARUHUSIWA KUSAJILIWA",`Hakuna klabu ya sasa na hakuna mkataba unaoendelea. Unaweza kuendelea na usajili mpya bila kuomba release ya klabu ya zamani.`);
+      return;
+    }
+
+    selectedPlayer=p; selectedStatus="REVIEW";
+    box.innerHTML=noticeHtml("info","🟠 INAHITAJI UTHIBITISHO",`Mchezaji ana klabu ya sasa (<b>${esc(currentClub||"haijulikani")}</b>) lakini hakuna mkataba unaoendelea uliothibitishwa. AFRN Admin akague historia kabla ya usajili.`);
+  }
+
+  async function sendRequest(p,fromClub,activeContract){
+    const toClubId=document.getElementById("toClub")?.value;
+    if(!toClubId) return alert("⚠️ Kwanza chagua Klabu Mpya.");
+    if(!fromClub?.id) return alert("❌ Klabu ya mchezaji haijapatikana kwenye database.");
+    if(String(fromClub.id)===String(toClubId)) return alert("⚠️ Klabu mpya ni sawa na klabu ya sasa.");
+
+    const {data:existing}=await client.from("transfers").select("id,status").eq("player_id",p.id).eq("to_club_id",toClubId).in("status",["PENDING","APPROVED"]).limit(1);
+    if(existing?.length) return alert("⚠️ Transfer Request ya mchezaji huyu kwenda klabu hiyo tayari ipo.");
+
+    const transferDate=new Date().toISOString().slice(0,10);
+    const payload={
+      player_id:p.id,
+      from_club_id:fromClub.id,
+      to_club_id:toClubId,
+      transfer_date:transferDate,
+      transfer_type:"TRANSFER",
+      status:"PENDING",
+      contract_start_date:document.getElementById("contractStart")?.value||transferDate,
+      contract_end_date:document.getElementById("contractEnd")?.value||null,
+      notes:JSON.stringify({workflow:"TRANSFER_REQUEST",previous_contract_id:activeContract?.id||null,requested_by_club:toClubId})
+    };
+
+    const {data,error}=await client.from("transfers").insert(payload).select("*").single();
+    if(error) return alert("❌ Transfer Request haikutumwa: "+error.message);
+    alert("✅ Transfer Request imetumwa kwa klabu ambayo mchezaji anatoka.\n\nKlabu hiyo lazima ikubali au ikatae kwa sababu.");
+    if(data) window.scrollTo({top:0,behavior:"smooth"});
+  }
+
+  function bind(){
+    injectEligibilityBox();
+    const select=document.getElementById("playerId");
+    if(select){
+      select.addEventListener("change",function(){ verifyPlayer(this.value); });
+      if(select.value) verifyPlayer(select.value);
+    }
+  }
+
+  setTimeout(bind,300);
+  setTimeout(bind,1200);
+  setTimeout(bind,2500);
 });
