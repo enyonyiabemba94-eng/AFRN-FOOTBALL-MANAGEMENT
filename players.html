@@ -3428,7 +3428,7 @@ loadData();
 
   async function upload(file) {
     if (!validate(file)) throw new Error('INVALID_FILE');
-    const sb = client();
+    const sb = getSupabaseClient();
     if (!sb?.storage) throw new Error('Supabase Storage haijapatikana.');
     const ext = file.type === 'image/png' ? 'png' : file.type === 'image/webp' ? 'webp' : 'jpg';
     const idInput = document.querySelector('#playerIdNumber');
