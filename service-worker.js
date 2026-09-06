@@ -1,4 +1,4 @@
-const CACHE_NAME = 'afrn-football-v10';
+const CACHE_NAME = 'afrn-football-v11';
 const APP_SHELL = [
   './','./app.html','./index.html','./login.html','./club-dashboard.html','./clubs.html','./players.html','./player-profile.html','./transfers.html','./competitions.html','./matches.html','./reports.html','./accounts.html','./contracts.html','./reset-password.html',
   './supabase-config.js','./supabase-config-original.js','./afrn-transfer-workflow.js','./afrn-registration-workflow.js','./afrn-standings-workflow.js','./afrn-standings-ui.js','./afrn-dashboard-standings.js','./afrn-realtime.js','./manifest.json','./css/style.css','./IMG-20260319-WA0093.jpg'
