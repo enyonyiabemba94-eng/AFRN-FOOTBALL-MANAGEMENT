@@ -28,19 +28,20 @@ jobs:
           if not m:
               raise SystemExit('downloadContract() not found')
           start=m.start()
-          body=x.find('</body>',start)
-          if body<0:
-              raise SystemExit('</body> not found')
-          region=x[start:body]
+          global_marker='<script src="./afrn-player-photo-global.js"></script>'
+          global_pos=x.find(global_marker,start)
+          if global_pos<0:
+              raise SystemExit('global player photo script marker not found')
+          region=x[start:global_pos]
           last=region.rfind('</script>')
           if last<0:
-              raise SystemExit('outer </script> not found')
+              raise SystemExit('outer </script> not found before global script')
           js=region[:last]
           tail=region[last:]
           fixed=js.replace('</script>','<\\/script>')+tail
           changed = fixed != region
           if changed:
-              x=x[:start]+fixed+x[body:]
+              x=x[:start]+fixed+x[global_pos:]
           marker='<!-- AFRN TRANSFERS PARSER FIX DEPLOYED -->'
           if marker not in x:
               x=x.replace('</head>', marker+'\n</head>', 1)
@@ -60,9 +61,10 @@ jobs:
           x=Path('transfers.html').read_text(encoding='utf-8')
           m=re.search(r'function\s+downloadContract\s*\(\s*\)',x)
           assert m, 'downloadContract() not found'
-          body=x.find('</body>',m.start())
-          assert body>=0, '</body> not found'
-          region=x[m.start():body]
+          global_marker='<script src="./afrn-player-photo-global.js"></script>'
+          global_pos=x.find(global_marker,m.start())
+          assert global_pos>=0, 'global script marker not found'
+          region=x[m.start():global_pos]
           last=region.rfind('</script>')
           assert last>=0, 'outer </script> not found'
           assert '</script>' not in region[:last], 'unescaped embedded </script> remains'
