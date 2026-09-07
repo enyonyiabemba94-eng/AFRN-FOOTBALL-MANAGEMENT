@@ -21,18 +21,27 @@ jobs:
           python3 - <<'PY'
           from pathlib import Path
           import re
-          p=Path('transfers.html'); x=p.read_text(encoding='utf-8')
-          m=re.search(r'function\s+downloadContract\s*\(\s*\)',x)
-          if not m: raise SystemExit('downloadContract() not found')
-          t=re.search(r'(?:const|let|var)\s+html\s*=\s*`',x[m.start():])
-          if not t: raise SystemExit('contract HTML template not found')
-          s=m.start()+t.end()
-          e=re.search(r'`\s*;\s*const\s+blob\s*=\s*new\s+Blob',x[s:],re.S)
-          if not e: raise SystemExit('contract HTML template end not found')
-          end=s+e.start(); template=x[s:end]
+          p=Path('transfers.html')
+          x=p.read_text(encoding='utf-8')
+          m=re.search(r'function\s+downloadContract\s*\([^)]*\)',x,re.S)
+          if not m:
+              raise SystemExit('downloadContract function not found')
+          region=x[m.end():]
+          t=re.search(r'(?:const|let|var)\s+html\s*=\s*`',region,re.S)
+          if not t:
+              raise SystemExit('contract HTML template not found')
+          s=m.end()+t.end()
+          e=re.search(r'`\s*;\s*const\s+blob\s*=\s*new\s+Blob\s*\(',x[s:],re.S)
+          if not e:
+              raise SystemExit('contract HTML template end not found')
+          end=s+e.start()
+          template=x[s:end]
           fixed=template.replace('</script>','<\\/script>')
-          if fixed!=template: p.write_text(x[:s]+fixed+x[end:],encoding='utf-8'); print('FIXED')
-          else: print('ALREADY SAFE')
+          if fixed!=template:
+              p.write_text(x[:s]+fixed+x[end:],encoding='utf-8')
+              print('FIXED embedded script closing tag(s)')
+          else:
+              print('ALREADY SAFE')
           PY
       - name: Verify
         run: |
@@ -40,16 +49,23 @@ jobs:
           from pathlib import Path
           import re
           x=Path('transfers.html').read_text(encoding='utf-8')
-          m=re.search(r'function\s+downloadContract\s*\(\s*\)',x); assert m
-          t=re.search(r'(?:const|let|var)\s+html\s*=\s*`',x[m.start():]); assert t
-          s=m.start()+t.end(); e=re.search(r'`\s*;\s*const\s+blob\s*=\s*new\s+Blob',x[s:],re.S); assert e
-          template=x[s:s+e.start()]; assert '</script>' not in template; assert '<\\/script>' in template
-          print('PASS')
+          m=re.search(r'function\s+downloadContract\s*\([^)]*\)',x,re.S); assert m, 'downloadContract function missing'
+          t=re.search(r'(?:const|let|var)\s+html\s*=\s*`',x[m.end():],re.S); assert t, 'template missing'
+          s=m.end()+t.end()
+          e=re.search(r'`\s*;\s*const\s+blob\s*=\s*new\s+Blob\s*\(',x[s:],re.S); assert e, 'template end missing'
+          template=x[s:s+e.start()]
+          assert '</script>' not in template, 'unescaped </script> remains inside contract template'
+          assert '<\\/script>' in template, 'escaped script closing tag not found'
+          print('PASS: transfers.html parser structure is safe')
           PY
       - name: Commit
         run: |
           git config user.name github-actions[bot]
           git config user.email 41898282+github-actions[bot]@users.noreply.github.com
           git add transfers.html
-          if git diff --cached --quiet; then echo 'No changes needed'; else git commit -m 'fix: escape transfer contract script tags'; git push; fi
-# final execution marker
+          if git diff --cached --quiet; then
+            echo 'No changes needed'
+          else
+            git commit -m 'fix: escape embedded transfer contract script tags'
+            git push
+          fi
