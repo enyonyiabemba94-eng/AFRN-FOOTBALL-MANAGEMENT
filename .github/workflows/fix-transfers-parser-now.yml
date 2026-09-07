@@ -1,0 +1,74 @@
+name: Fix Transfers Parser Now
+
+on:
+  push:
+    paths:
+      - 'transfers.html'
+      - '.github/workflows/fix-transfers-parser-now.yml'
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+jobs:
+  fix:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Repair embedded script closing tags
+        run: |
+          python3 - <<'PY'
+          from pathlib import Path
+          import re
+          p=Path('transfers.html')
+          x=p.read_text(encoding='utf-8')
+          m=re.search(r'function\s+downloadContract\s*\(\s*\)',x)
+          if not m:
+              raise SystemExit('downloadContract() not found')
+          start=m.start()
+          body=x.find('</body>',start)
+          if body<0:
+              raise SystemExit('</body> not found')
+          region=x[start:body]
+          last=region.rfind('</script>')
+          if last<0:
+              raise SystemExit('outer </script> not found')
+          js=region[:last]
+          tail=region[last:]
+          fixed=js.replace('</script>','<\\/script>')+tail
+          if fixed!=region:
+              p.write_text(x[:start]+fixed+x[body:],encoding='utf-8')
+              print('FIXED: embedded </script> tags escaped.')
+          else:
+              print('OK: no embedded unescaped </script> tags.')
+          PY
+
+      - name: Verify
+        run: |
+          python3 - <<'PY'
+          from pathlib import Path
+          import re
+          x=Path('transfers.html').read_text(encoding='utf-8')
+          m=re.search(r'function\s+downloadContract\s*\(\s*\)',x)
+          assert m
+          body=x.find('</body>',m.start())
+          region=x[m.start():body]
+          last=region.rfind('</script>')
+          assert last>=0
+          assert '</script>' not in region[:last]
+          print('PASS: Transfers JavaScript parser is safe.')
+          PY
+
+      - name: Commit
+        run: |
+          git config user.name github-actions[bot]
+          git config user.email 41898282+github-actions[bot]@users.noreply.github.com
+          git add transfers.html
+          if git diff --cached --quiet; then
+            echo 'No changes needed.'
+          else
+            git commit -m 'fix: escape embedded script tag in transfers page'
+            git push
+          fi
