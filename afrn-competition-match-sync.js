@@ -21,6 +21,25 @@ async function loadCompetition(id){
  if(r.error)throw r.error;
  return r.data||[];
 }
+async function syncStandings(compId){
+ const D=db();
+ const [tr,mr,er]=await Promise.all([
+  D.from('competition_teams').select('club_id,group_name').eq('competition_id',compId),
+  D.from('matches').select('id,home_team_id,away_team_id,home_score,away_score,status,notes').eq('competition_id',compId),
+  D.from('match_events').select('match_id,club_id,event_type').in('match_id',(await D.from('matches').select('id').eq('competition_id',compId)).data?.map(x=>x.id)||['00000000-0000-0000-0000-000000000000'])
+ ]);
+ if(tr.error)throw tr.error;if(mr.error)throw mr.error;if(er.error)throw er.error;
+ const teams=tr.data||[], matches=mr.data||[], events=er.data||[];
+ const rows=new Map();
+ for(const t of teams){const g=String(t.group_name||'').trim().toUpperCase();if(!g||/^G[12]$|^H[12]$/.test(g))continue;rows.set(String(t.club_id),{competition_id:compId,club_id:t.club_id,group_name:g,played:0,wins:0,draws:0,losses:0,goals_for:0,goals_against:0,points:0,yellow_cards:0,red_cards:0});}
+ const groupIds=new Set(rows.keys());
+ for(const m of matches){if(stageOf(m)||!isFinal(m.status)||m.home_score==null||m.away_score==null)continue;const h=rows.get(String(m.home_team_id)),a=rows.get(String(m.away_team_id));if(!h||!a||!groupIds.has(String(m.home_team_id))||!groupIds.has(String(m.away_team_id)))continue;const hs=Number(m.home_score),as=Number(m.away_score);h.played++;a.played++;h.goals_for+=hs;h.goals_against+=as;a.goals_for+=as;a.goals_against+=hs;if(hs>as){h.wins++;h.points+=3;a.losses++;}else if(as>hs){a.wins++;a.points+=3;h.losses++;}else{h.draws++;a.draws++;h.points++;a.points++;}}
+ for(const e of events){const r=rows.get(String(e.club_id));if(!r)continue;const typ=norm(e.event_type);if(typ.includes('red')||typ.includes('nyekundu')||typ==='rc')r.red_cards++;else if(typ.includes('yellow')||typ.includes('njano')||typ==='yc')r.yellow_cards++;}
+ if(!rows.size)return;
+ const payload=[...rows.values()];
+ const up=await D.from('standings').upsert(payload,{onConflict:'competition_id,club_id'});
+ if(up.error)throw up.error;
+}
 async function ensure(D,compId,stage,slot,home,away,label){
  if(!home||!away||String(home)===String(away))return null;
  const all=await loadCompetition(compId);
@@ -41,7 +60,6 @@ async function ensure(D,compId,stage,slot,home,away,label){
 async function progress(compId){
  const D=db();if(!D?.from||!compId)return;
  let all=await loadCompetition(compId);
- const by=(stage,n)=>all.filter(m=>stageOf(m)===stage).sort((a,b)=>slotOf(a)-slotOf(b)).find(m=>slotOf(m)===n);
  const maybeWinner=async m=>{
   if(!m||!isFinal(m.status)||m.home_score==null||m.away_score==null)return winner(m);
   if(Number(m.home_score)!==Number(m.away_score))return winner(m);
@@ -75,7 +93,9 @@ async function run(){try{
  const id=new URLSearchParams(location.search).get('competition_id')||new URLSearchParams(location.search).get('competitionId');
  const selected=document.getElementById('competitionId');const compId=id||selected?.value||'';
  if(!compId)return;
+ await syncStandings(compId);
  await progress(compId);
+ await syncStandings(compId);
  if(typeof window.loadMatches==='function')try{await window.loadMatches()}catch(_){}
 }catch(e){console.warn('AFRN Competition Match Sync:',e.message||e)}}
 window.AFRNCompetitionMatchSync=run;
