@@ -25,3 +25,6 @@ const scan=()=>document.querySelectorAll('img').forEach(fix);
 const start=()=>{scan();new MutationObserver(scan).observe(document.documentElement,{childList:true,subtree:true});};
 if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',start);else start();
 })();
+
+/* AFRN Match Center production fixes are loaded through this existing global script so matches.html needs no risky rewrite. */
+(()=>{const load=()=>{if(!/matches\.html$/i.test(location.pathname)||window.__AFRN_MATCH_FIX_LOADED__)return;window.__AFRN_MATCH_FIX_LOADED__=true;const s=document.createElement('script');s.src='./afrn-match-center-fix.js?v=20260907';s.async=false;(document.head||document.documentElement).appendChild(s)};if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',load);else setTimeout(load,0)})();
