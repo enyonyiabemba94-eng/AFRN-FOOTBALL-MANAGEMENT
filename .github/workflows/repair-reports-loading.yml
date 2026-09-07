@@ -1,0 +1,39 @@
+name: Repair AFRN Reports Loading
+on:
+  push:
+    branches: [main]
+  workflow_dispatch:
+permissions:
+  contents: write
+jobs:
+  patch:
+    if: "!contains(github.event.head_commit.message, '[reports-loading-fix]')"
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Patch Reports bootstrap and error handling
+        shell: bash
+        run: |
+          set -euo pipefail
+          python - <<'PY'
+          from pathlib import Path
+          p=Path('reports.html')
+          s=p.read_text(encoding='utf-8')
+          if 'afrn-report-bootstrap.js' not in s:
+              s=s.replace('<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>', '<script src="./afrn-report-bootstrap.js?v=20260907"></script>\n<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>')
+          s=s.replace("async function loadAll(){setStatus('⏳ Inapakia taarifa za AFRN...');", "async function loadAll(){setStatus('⏳ Inapakia taarifa za AFRN...');try{")
+          old="setStatus('✅ Report Center imeunganishwa vizuri.','ok')}"
+          new="setStatus('✅ Report Center imeunganishwa vizuri.','ok')}catch(e){console.error('AFRN Report loadAll',e);setStatus('❌ Imeshindwa kuunganisha na Supabase: '+(e?.message||e),'err')}}"
+          if old in s and new not in s:
+              s=s.replace(old,new,1)
+          p.write_text(s,encoding='utf-8')
+          PY
+          git config user.name 'github-actions[bot]'
+          git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
+          if git diff --quiet -- reports.html; then
+            echo 'No patch needed.'
+            exit 0
+          fi
+          git add reports.html
+          git commit -m 'fix: make reports loading resilient [reports-loading-fix]'
+          git push
