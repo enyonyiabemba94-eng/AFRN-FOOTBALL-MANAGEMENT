@@ -1,0 +1,39 @@
+name: Repair AFRN Reports Loader
+
+on:
+  push:
+    branches: [main]
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+jobs:
+  repair:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Repair Reports runtime loading
+        shell: bash
+        run: |
+          python - <<'PY'
+          from pathlib import Path
+          p=Path('reports.html')
+          s=p.read_text(encoding='utf-8')
+          s=s.replace('afrn-report-bootstrap.js?v=20260908','afrn-report-bootstrap.js?v=20260909')
+          s=s.replace('afrn-player-photo-global.js?v=20260908','afrn-player-photo-global.js?v=20260909')
+          s=s.replace('afrn-report-official.js?v=20260908','afrn-report-official.js?v=20260909')
+          s=s.replace('afrn-report-pdf.js?v=20260908','afrn-report-pdf.js?v=20260909')
+          s=s.replace('\n<script src="./afrn-player-photo-global.js"></script>','')
+          old="function waitForSupabase(){if(window.supabase&&typeof window.supabase.createClient==='function'){startReports();return}setStatus('⏳ Inaandaa Supabase...');let tries=0;const timer=setInterval(()=>{tries++;if(window.supabase&&typeof window.supabase.createClient==='function'){clearInterval(timer);startReports()}else if(tries>=100){clearInterval(timer);setStatus('❌ Supabase haijapatikana baada ya kusubiri.','err')}},100)}"
+          new="function waitForSupabase(){if(window.supabase&&typeof window.supabase.createClient==='function'){startReports();return}const el=document.getElementById('status');if(el){el.textContent='⏳ Inaandaa Supabase...';el.className='status'}let tries=0;const timer=setInterval(()=>{tries++;if(window.supabase&&typeof window.supabase.createClient==='function'){clearInterval(timer);startReports()}else if(tries>=150){clearInterval(timer);if(el){el.textContent='❌ Supabase haijapatikana. Fungua upya ukurasa au jaribu tena.';el.className='status err'} }},100)}"
+          if old in s: s=s.replace(old,new)
+          p.write_text(s,encoding='utf-8')
+          PY
+      - name: Commit repair
+        run: |
+          git config user.name 'github-actions[bot]'
+          git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
+          git add reports.html
+          git diff --cached --quiet || git commit -m 'fix: harden Reports Supabase loader [reports-loader-fix]'
+          git push
