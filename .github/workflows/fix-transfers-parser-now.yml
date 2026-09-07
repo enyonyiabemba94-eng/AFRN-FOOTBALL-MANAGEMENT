@@ -17,7 +17,7 @@ jobs:
       - name: Checkout
         uses: actions/checkout@v4
 
-      - name: Repair embedded script closing tags and force fresh deployment
+      - name: Repair embedded script closing tags
         run: |
           python3 - <<'PY'
           from pathlib import Path
@@ -28,29 +28,22 @@ jobs:
           if not m:
               raise SystemExit('downloadContract() not found')
           start=m.start()
-          global_marker='<script src="./afrn-player-photo-global.js"></script>'
-          global_pos=x.find(global_marker,start)
-          if global_pos<0:
-              raise SystemExit('global player photo script marker not found')
-          region=x[start:global_pos]
+          body=x.find('</body>',start)
+          if body < 0:
+              raise SystemExit('</body> not found')
+          region=x[start:body]
           last=region.rfind('</script>')
-          if last<0:
-              raise SystemExit('outer </script> not found before global script')
+          if last < 0:
+              raise SystemExit('outer </script> not found before </body>')
           js=region[:last]
-          tail=region[last:]
-          fixed=js.replace('</script>','<\\/script>')+tail
-          changed = fixed != region
-          if changed:
-              x=x[:start]+fixed+x[global_pos:]
-          marker='<!-- AFRN TRANSFERS PARSER FIX DEPLOYED -->'
-          if marker not in x:
-              x=x.replace('</head>', marker+'\n</head>', 1)
-              changed=True
-          if changed:
+          outer=region[last:]
+          fixed=js.replace('</script>','<\\/script>')+outer
+          if fixed != region:
+              x=x[:start]+fixed+x[body:]
               p.write_text(x,encoding='utf-8')
-              print('FIXED: transfers parser checked and deployment marker added.')
+              print('FIXED: embedded </script> tags escaped.')
           else:
-              print('OK: transfers parser safe and marker already present.')
+              print('OK: no embedded unescaped </script> tags found.')
           PY
 
       - name: Verify
@@ -61,15 +54,13 @@ jobs:
           x=Path('transfers.html').read_text(encoding='utf-8')
           m=re.search(r'function\s+downloadContract\s*\(\s*\)',x)
           assert m, 'downloadContract() not found'
-          global_marker='<script src="./afrn-player-photo-global.js"></script>'
-          global_pos=x.find(global_marker,m.start())
-          assert global_pos>=0, 'global script marker not found'
-          region=x[m.start():global_pos]
+          body=x.find('</body>',m.start())
+          assert body >= 0, '</body> not found'
+          region=x[m.start():body]
           last=region.rfind('</script>')
-          assert last>=0, 'outer </script> not found'
+          assert last >= 0, 'outer </script> not found'
           assert '</script>' not in region[:last], 'unescaped embedded </script> remains'
-          assert '<!-- AFRN TRANSFERS PARSER FIX DEPLOYED -->' in x
-          print('PASS: Transfers JavaScript parser is safe and deployment marker is present.')
+          print('PASS: Transfers JavaScript parser is safe.')
           PY
 
       - name: Commit
@@ -80,8 +71,6 @@ jobs:
           if git diff --cached --quiet; then
             echo 'No changes needed.'
           else
-            git commit -m 'fix: repair transfers parser and force fresh deployment'
+            git commit -m 'fix: escape embedded script tag in transfers page'
             git push
           fi
-
-# Retriggered after correcting outer-script detection.
