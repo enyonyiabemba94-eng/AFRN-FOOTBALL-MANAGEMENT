@@ -17,7 +17,7 @@ jobs:
     steps:
       - uses: actions/checkout@v4
 
-      - name: Move Transfers runtime outside HTML parser
+      - name: Move Transfers runtime outside HTML parser and refresh asset
         shell: python
         run: |
           from pathlib import Path
@@ -29,41 +29,40 @@ jobs:
 
           marker = '/* =========================================================\n   AFRN FOOTBALL MANAGEMENT\n   TRANSFER + CONTRACT + PLAYER LICENCE\n========================================================= */'
           start_marker = x.find(marker)
-          if start_marker < 0:
-              raise SystemExit('Main AFRN transfer runtime marker not found')
+          if start_marker >= 0:
+              script_start = x.rfind('<script>', 0, start_marker + 1)
+              global_script = '<script src="./afrn-player-photo-global.js"></script>'
+              global_pos = x.find(global_script, start_marker)
+              if script_start < 0 or global_pos < 0:
+                  raise SystemExit('Transfers inline runtime boundaries not found')
+              script_end = x.rfind('</script>', script_start, global_pos)
+              if script_end < 0:
+                  raise SystemExit('Main script closing tag not found')
+              runtime = x[start_marker:script_end]
+              js.write_text(runtime + '\n', encoding='utf-8')
+              x = x[:script_start] + '<script src="./transfers-runtime.js?v=20260907"></script>' + x[script_end + len('</script>'):]
+          else:
+              x = re.sub(r'<script\s+src=["\']\./transfers-runtime\.js(?:\?[^"\']*)?["\']\s*></script>', '<script src="./transfers-runtime.js?v=20260907"></script>', x, flags=re.I)
 
-          script_start = x.rfind('<script>', 0, start_marker + 1)
-          if script_start < 0:
-              raise SystemExit('Opening main script tag not found')
+          if '<script src="./transfers-runtime.js?v=20260907"></script>' not in x:
+              raise SystemExit('Transfers runtime script tag missing after repair')
 
-          global_script = '<script src="./afrn-player-photo-global.js"></script>'
-          global_pos = x.find(global_script, start_marker)
-          if global_pos < 0:
-              raise SystemExit('Global player photo script marker not found')
-
-          script_end = x.rfind('</script>', script_start, global_pos)
-          if script_end < 0:
-              raise SystemExit('Main script closing tag not found')
-
-          runtime = x[start_marker:script_end]
-          js.write_text(runtime + '\n', encoding='utf-8')
-
-          replacement = '<script src="./transfers-runtime.js"></script>'
-          x = x[:script_start] + replacement + x[script_end + len('</script>'):]
           page.write_text(x, encoding='utf-8')
-          print('Transfers runtime moved to external JS:', len(runtime), 'bytes')
+          print('Transfers runtime is external and cache-busted')
 
-      - name: Verify HTML no longer contains inline Transfers runtime
+      - name: Verify parser-safe Transfers page
         shell: python
         run: |
           from pathlib import Path
+          import re
           x = Path('transfers.html').read_text(encoding='utf-8')
           js = Path('transfers-runtime.js').read_text(encoding='utf-8')
-          assert 'AFRN FOOTBALL MANAGEMENT' in js
+          assert '<script src="./transfers-runtime.js?v=20260907"></script>' in x
           assert 'function downloadContract' in js
-          assert '<script src="./transfers-runtime.js"></script>' in x
           assert 'const html = `' in js
-          print('TRANSFERS EXTERNAL RUNTIME PASS')
+          assert '</script>' not in js.lower()
+          assert '</body>' in x.lower()
+          print('PASS: Transfers HTML parser-safe; runtime external; cache-busted')
 
       - name: Commit
         shell: bash
@@ -74,6 +73,6 @@ jobs:
           if git diff --cached --quiet; then
             echo 'No changes needed'
           else
-            git commit -m 'fix: move transfers runtime outside HTML parser'
+            git commit -m 'fix: externalize and refresh transfers runtime'
             git push
           fi
