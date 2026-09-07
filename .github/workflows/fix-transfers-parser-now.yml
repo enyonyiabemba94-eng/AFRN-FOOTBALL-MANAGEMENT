@@ -83,3 +83,5 @@ jobs:
             git commit -m 'fix: repair transfers parser and force fresh deployment'
             git push
           fi
+
+# Retriggered after correcting outer-script detection.
