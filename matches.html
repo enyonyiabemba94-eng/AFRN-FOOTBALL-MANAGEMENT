@@ -58,5 +58,7 @@ function resetMatchForm(){currentMatchId=null;document.getElementById('editMatch
 async function init(){try{db=getSupabaseClient();if(!db)throw new Error('supabaseClient haikupatikana kutoka supabase-config.js');await loadCompetitions();await loadClubs();await loadMatches();setStatus('✅ Mfumo umeunganishwa na Supabase.','success')}catch(error){console.error(error);setStatus('❌ Imeshindikana kuanzisha Supabase: '+error.message,'error')}}
 init();
 </script>
+
+<script src="./afrn-player-photo-global.js"></script>
 </body>
 </html>

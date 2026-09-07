@@ -78,4 +78,6 @@ async function loadStandings(){
  }catch(e){box.innerHTML='<div class="empty">Imeshindikana kupakia msimamo. Fungua Mashindano kuona taarifa zote.</div>'}}
 async function start(){await identity();if(!db)return;await Promise.all([count('clubs','clubCount'),count('players','playerCount'),count('transfers','transferCount'),count('competitions','competitionCount'),count('matches','matchCount')])}start();
 </script>
+
+<script src="./afrn-player-photo-global.js"></script>
 </body></html>

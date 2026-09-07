@@ -15,4 +15,6 @@ async function renderList(){try{const me=await identity();if(!isAfrnAdmin(me))re
 function esc(v){return String(v??'').replace(/[&<>"']/g,x=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#039;'}[x]))}
 async function findClub(id,name){const db=getDB();if(id){const r=await db.from('clubs').select('*').eq('id',id).limit(1);if(!r.error&&r.data&&r.data[0])return r.data[0]}if(name){const cleanName=decodeURIComponent(name).replace(/^\s*\d+\.\s*/,'').trim();const r=await db.from('clubs').select('*').ilike('name',cleanName).limit(1);if(!r.error&&r.data&&r.data[0])return r.data[0]}return null}
 document.addEventListener('DOMContentLoaded',async()=>{try{await guard();const q=new URLSearchParams(location.search),id=q.get('edit'),name=q.get('editName');const c=await findClub(id,name);if(id||name){if(!c)throw new Error('Klabu haikupatikana. ID: '+(id||'—')+' / Jina: '+(name||'—'));startEdit(c)}else{$('clubId').textContent=nextId(await getClubs())}await renderList()}catch(e){if(e.message!=='NO_CLUB_MANAGEMENT_ACCESS')msg('❌ '+e.message,'error')}});$('save').onclick=save;$('clear').onclick=reset;
-</script></body></html>
+</script>
+<script src="./afrn-player-photo-global.js"></script>
+</body></html>
