@@ -17,53 +17,65 @@ jobs:
       - name: Checkout
         uses: actions/checkout@v4
 
-      - name: Repair embedded script closing tags
+      - name: Escape script tags inside generated contract HTML
         run: |
           python3 - <<'PY'
           from pathlib import Path
           import re
-          p=Path('transfers.html')
-          x=p.read_text(encoding='utf-8')
-          m=re.search(r'function\s+downloadContract\s*\(\s*\)',x)
+          p = Path('transfers.html')
+          x = p.read_text(encoding='utf-8')
+
+          # Only edit the HTML template created by downloadContract().
+          # This preserves the real outer </script> tag of the page.
+          m = re.search(r'function\s+downloadContract\s*\(\s*\)', x)
           if not m:
               raise SystemExit('downloadContract() not found')
-          start=m.start()
-          body=x.find('</body>',start)
-          if body < 0:
-              raise SystemExit('</body> not found')
-          region=x[start:body]
-          last=region.rfind('</script>')
-          if last < 0:
-              raise SystemExit('outer </script> not found before </body>')
-          js=region[:last]
-          outer=region[last:]
-          fixed=js.replace('</script>','<\\/script>')+outer
-          if fixed != region:
-              x=x[:start]+fixed+x[body:]
-              p.write_text(x,encoding='utf-8')
-              print('FIXED: embedded </script> tags escaped.')
+          start = m.start()
+
+          t = re.search(r'const\s+html\s*=\s*`', x[start:])
+          if not t:
+              raise SystemExit('downloadContract HTML template not found')
+          template_start = start + t.end()
+
+          # The generated template ends at the backtick immediately followed by
+          # the Blob construction used by downloadContract().
+          end_match = re.search(r'`\s*;\s*const\s+blob\s*=\s*new\s+Blob', x[template_start:], re.S)
+          if not end_match:
+              raise SystemExit('end of contract HTML template not found')
+          template_end = template_start + end_match.start()
+
+          template = x[template_start:template_end]
+          count = template.count('</script>')
+          fixed_template = template.replace('</script>', '<\\/script>')
+
+          if fixed_template != template:
+              x = x[:template_start] + fixed_template + x[template_end:]
+              p.write_text(x, encoding='utf-8')
+              print(f'FIXED: escaped {count} embedded </script> tag(s) in downloadContract template.')
           else:
-              print('OK: no embedded unescaped </script> tags found.')
+              print('OK: contract template has no unescaped </script> tags.')
           PY
 
-      - name: Verify
+      - name: Verify parser safety
         run: |
           python3 - <<'PY'
           from pathlib import Path
           import re
-          x=Path('transfers.html').read_text(encoding='utf-8')
-          m=re.search(r'function\s+downloadContract\s*\(\s*\)',x)
+          x = Path('transfers.html').read_text(encoding='utf-8')
+          m = re.search(r'function\s+downloadContract\s*\(\s*\)', x)
           assert m, 'downloadContract() not found'
-          body=x.find('</body>',m.start())
-          assert body >= 0, '</body> not found'
-          region=x[m.start():body]
-          last=region.rfind('</script>')
-          assert last >= 0, 'outer </script> not found'
-          assert '</script>' not in region[:last], 'unescaped embedded </script> remains'
-          print('PASS: Transfers JavaScript parser is safe.')
+          t = re.search(r'const\s+html\s*=\s*`', x[m.start():])
+          assert t, 'contract template not found'
+          s = m.start() + t.end()
+          e = re.search(r'`\s*;\s*const\s+blob\s*=\s*new\s+Blob', x[s:], re.S)
+          assert e, 'contract template end not found'
+          template = x[s:s+e.start()]
+          assert '</script>' not in template, 'unescaped embedded </script> remains in contract template'
+          assert '<\\/script>' in template, 'escaped script closing tag not found'
+          print('PASS: Transfers generated contract cannot terminate the outer page script.')
           PY
 
-      - name: Commit
+      - name: Commit repaired transfers.html
         run: |
           git config user.name github-actions[bot]
           git config user.email 41898282+github-actions[bot]@users.noreply.github.com
@@ -71,6 +83,6 @@ jobs:
           if git diff --cached --quiet; then
             echo 'No changes needed.'
           else
-            git commit -m 'fix: escape embedded script tag in transfers page'
+            git commit -m 'fix: escape embedded script tags in transfer contract'
             git push
           fi
