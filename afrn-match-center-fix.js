@@ -1,0 +1,95 @@
+(()=>{
+'use strict';
+if(window.__AFRN_MATCH_CENTER_FIX__)return;
+window.__AFRN_MATCH_CENTER_FIX__=true;
+const FINAL=['finished','completed','full time','ft'];
+const norm=v=>String(v??'').trim().toLowerCase();
+const isFinal=v=>FINAL.includes(norm(v));
+const db=()=>window.supabaseClient||window.supabase;
+const val=id=>document.getElementById(id)?.value||'';
+const setVal=(id,v)=>{const e=document.getElementById(id);if(e)e.value=v??''};
+function officialsFromNotes(notes){
+ const s=String(notes||'');
+ const marker='[AFRN-OFFICIALS]';
+ const i=s.indexOf(marker);
+ if(i<0)return {notes:s,officials:{}};
+ const line=s.slice(i).split('\n')[0];
+ try{return {notes:s.slice(0,i).trimEnd(),officials:JSON.parse(line.slice(marker.length).trim())}}catch{return {notes:s,officials:{}}}
+}
+function notesWithOfficials(notes){
+ const base=officialsFromNotes(notes).notes;
+ const o={assistant1:val('refereeAssistant1'),assistant2:val('refereeAssistant2'),fourth:val('refereeFourth'),commissioner:val('commissioner')};
+ const has=Object.values(o).some(Boolean);
+ return has?(base+(base?'\n':'')+'[AFRN-OFFICIALS] '+JSON.stringify(o)):base;
+}
+async function competitionTeamsOk(competitionId,home,away){
+ const D=db();
+ const r=await D.from('competition_teams').select('club_id').eq('competition_id',competitionId);
+ if(r.error)throw r.error;
+ const ids=new Set((r.data||[]).map(x=>String(x.club_id)));
+ if(!ids.size)return {ok:true,reason:'no-team-list'};
+ if(!ids.has(String(home))||!ids.has(String(away)))return {ok:false,reason:'Mmoja au zote timu hazipo kwenye Competition hii.'};
+ return {ok:true};
+}
+async function syncStandings(competitionId){
+ const D=db(); if(!D||!competitionId)return;
+ const [tr,mr]=await Promise.all([
+  D.from('competition_teams').select('club_id,group_name').eq('competition_id',competitionId),
+  D.from('matches').select('id,home_team_id,away_team_id,home_score,away_score,status').eq('competition_id',competitionId)
+ ]);
+ if(tr.error)throw tr.error;if(mr.error)throw mr.error;
+ const stats=new Map();
+ (tr.data||[]).forEach(t=>stats.set(String(t.club_id),{club_id:t.club_id,group_name:t.group_name||null,played:0,wins:0,draws:0,losses:0,goals_for:0,goals_against:0,points:0}));
+ (mr.data||[]).filter(m=>isFinal(m.status)&&m.home_team_id&&m.away_team_id&&m.home_score!=null&&m.away_score!=null).forEach(m=>{
+  const h=String(m.home_team_id),a=String(m.away_team_id),hs=Math.max(0,Number(m.home_score)||0),as=Math.max(0,Number(m.away_score)||0);
+  if(!stats.has(h))stats.set(h,{club_id:m.home_team_id,group_name:null,played:0,wins:0,draws:0,losses:0,goals_for:0,goals_against:0,points:0});
+  if(!stats.has(a))stats.set(a,{club_id:m.away_team_id,group_name:null,played:0,wins:0,draws:0,losses:0,goals_for:0,goals_against:0,points:0});
+  const H=stats.get(h),A=stats.get(a);H.played++;A.played++;H.goals_for+=hs;H.goals_against+=as;A.goals_for+=as;A.goals_against+=hs;
+  if(hs>as){H.wins++;H.points+=3;A.losses++;}else if(hs<as){A.wins++;A.points+=3;H.losses++;}else{H.draws++;A.draws++;H.points++;A.points++;}
+ });
+ const er=await D.from('standings').select('id,club_id').eq('competition_id',competitionId);if(er.error)throw er.error;
+ const old=new Map((er.data||[]).map(x=>[String(x.club_id),x]));
+ for(const s of stats.values()){
+  const payload={group_name:s.group_name,played:s.played,wins:s.wins,draws:s.draws,losses:s.losses,goals_for:s.goals_for,goals_against:s.goals_against,points:s.points};
+  const x=old.get(String(s.club_id));
+  const r=x?await D.from('standings').update(payload).eq('id',x.id):await D.from('standings').insert({...payload,competition_id:competitionId,club_id:s.club_id});
+  if(r.error)throw r.error;
+ }
+ return true;
+}
+function hook(){
+ if(!/matches\.html$/i.test(location.pathname))return;
+ const D=db();if(!D?.from)return;
+ const originalSave=window.saveMatch;
+ if(typeof originalSave==='function'&&!originalSave.__afrnMatchFix){
+  const wrapped=async function(){
+   const competitionId=val('competitionId'),home=val('homeClubId'),away=val('awayClubId');
+   if(!competitionId||!home||!away)return originalSave.apply(this,arguments);
+   if(home===away){alert('❌ Home Team na Away Team haziwezi kuwa timu moja.');return;}
+   try{const check=await competitionTeamsOk(competitionId,home,away);if(!check.ok){alert('❌ '+check.reason);return;}}catch(e){alert('❌ Imeshindikana kuthibitisha timu za Competition: '+e.message);return;}
+   const oldNotes=val('matchNotes');setVal('matchNotes',notesWithOfficials(oldNotes));
+   try{
+    const result=await originalSave.apply(this,arguments);
+    const id=val('editMatchId');
+    if(id){const r=await D.from('matches').select('competition_id,status').eq('id',id).maybeSingle();if(r.error)throw r.error;if(r.data&&isFinal(r.data.status))await syncStandings(r.data.competition_id);}
+    return result;
+   }finally{setVal('matchNotes',oldNotes)}
+  };
+  wrapped.__afrnMatchFix=true;window.saveMatch=wrapped;
+ }
+ const originalEdit=window.editMatch;
+ if(typeof originalEdit==='function'&&!originalEdit.__afrnMatchFix){
+  const wrappedEdit=async function(id){
+   const result=await originalEdit.apply(this,arguments);
+   try{const r=await D.from('matches').select('notes').eq('id',id).maybeSingle();if(!r.error&&r.data){const x=officialsFromNotes(r.data.notes);setVal('matchNotes',x.notes);setVal('refereeAssistant1',x.officials.assistant1||'');setVal('refereeAssistant2',x.officials.assistant2||'');setVal('refereeFourth',x.officials.fourth||'');setVal('commissioner',x.officials.commissioner||'')}}catch(e){console.warn('AFRN officials restore:',e.message)}
+   return result;
+  };
+  wrappedEdit.__afrnMatchFix=true;window.editMatch=wrappedEdit;
+ }
+ const originalDelete=window.deleteMatch;
+ if(typeof originalDelete==='function'&&!originalDelete.__afrnMatchFix){
+  const wrappedDelete=async function(id){const before=await D.from('matches').select('competition_id').eq('id',id).maybeSingle();const result=await originalDelete.apply(this,arguments);if(before.data?.competition_id)try{await syncStandings(before.data.competition_id)}catch(e){console.warn('AFRN standings after delete:',e.message)}return result};wrappedDelete.__afrnMatchFix=true;window.deleteMatch=wrappedDelete;
+ }
+}
+[300,800,1600,3000].forEach(t=>setTimeout(hook,t));
+})();
