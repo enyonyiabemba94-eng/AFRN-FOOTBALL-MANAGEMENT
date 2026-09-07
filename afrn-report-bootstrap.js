@@ -7,3 +7,4 @@ try{
   console.error('AFRN Supabase bootstrap failed',e);
 }
 })();
+// AFRN Reports loader refresh: 2026-09-07
