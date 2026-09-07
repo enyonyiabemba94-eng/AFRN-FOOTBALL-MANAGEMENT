@@ -1,0 +1,72 @@
+name: Fix Transfers Final
+
+on:
+  push:
+    branches: [main]
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+jobs:
+  repair:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+      - name: Repair transfers.html
+        shell: bash
+        run: |
+          python3 - <<'PY'
+          from pathlib import Path
+          import re
+          p=Path('transfers.html')
+          x=p.read_text(encoding='utf-8')
+          m=re.search(r'function\s+downloadContract\s*\([^)]*\)',x,re.S)
+          if not m:
+              raise SystemExit('downloadContract() not found')
+          tail=x[m.end():]
+          t=re.search(r'(?:const|let|var)\s+html\s*=\s*`',tail,re.S)
+          if not t:
+              raise SystemExit('contract HTML template not found')
+          start=m.end()+t.end()
+          e=re.search(r'`\s*;\s*const\s+blob\s*=\s*new\s+Blob\s*\(',x[start:],re.S)
+          if not e:
+              raise SystemExit('contract template end not found')
+          end=start+e.start()
+          template=x[start:end]
+          fixed=template.replace('</script>','<\\/script>')
+          if fixed != template:
+              p.write_text(x[:start]+fixed+x[end:],encoding='utf-8')
+              print('FIXED embedded </script> tags')
+          else:
+              print('No embedded </script> found')
+          PY
+      - name: Verify HTML parser safety
+        shell: bash
+        run: |
+          python3 - <<'PY'
+          from pathlib import Path
+          import re
+          x=Path('transfers.html').read_text(encoding='utf-8')
+          m=re.search(r'function\s+downloadContract\s*\([^)]*\)',x,re.S); assert m
+          t=re.search(r'(?:const|let|var)\s+html\s*=\s*`',x[m.end():],re.S); assert t
+          start=m.end()+t.end()
+          e=re.search(r'`\s*;\s*const\s+blob\s*=\s*new\s+Blob\s*\(',x[start:],re.S); assert e
+          template=x[start:start+e.start()]
+          assert '</script>' not in template
+          assert '<\\/script>' in template
+          print('PASS - transfer contract template is parser-safe')
+          PY
+      - name: Commit repaired transfers.html
+        shell: bash
+        run: |
+          git config user.name github-actions[bot]
+          git config user.email 41898282+github-actions[bot]@users.noreply.github.com
+          git add transfers.html
+          if git diff --cached --quiet; then
+            echo 'NO_CHANGE'
+          else
+            git commit -m 'fix: repair transfers page script parser'
+            git push
+          fi
