@@ -16,33 +16,24 @@ jobs:
     steps:
       - name: Checkout
         uses: actions/checkout@v4
-
       - name: Repair embedded script tags
         run: |
           python3 - <<'PY'
           from pathlib import Path
           import re
-          p=Path('transfers.html')
-          x=p.read_text(encoding='utf-8')
+          p=Path('transfers.html'); x=p.read_text(encoding='utf-8')
           m=re.search(r'function\s+downloadContract\s*\(\s*\)',x)
           if not m: raise SystemExit('downloadContract() not found')
-          start=m.start()
-          t=re.search(r'(?:const|let|var)\s+html\s*=\s*`',x[start:])
+          t=re.search(r'(?:const|let|var)\s+html\s*=\s*`',x[m.start():])
           if not t: raise SystemExit('contract HTML template not found')
-          s=start+t.end()
+          s=m.start()+t.end()
           e=re.search(r'`\s*;\s*const\s+blob\s*=\s*new\s+Blob',x[s:],re.S)
           if not e: raise SystemExit('contract HTML template end not found')
-          end=s+e.start()
-          template=x[s:end]
-          n=template.count('</script>')
+          end=s+e.start(); template=x[s:end]
           fixed=template.replace('</script>','<\\/script>')
-          if fixed!=template:
-            p.write_text(x[:s]+fixed+x[end:],encoding='utf-8')
-            print(f'FIXED {n} embedded script closing tag(s)')
-          else:
-            print('NO CHANGE: template already safe')
+          if fixed!=template: p.write_text(x[:s]+fixed+x[end:],encoding='utf-8'); print('FIXED')
+          else: print('ALREADY SAFE')
           PY
-
       - name: Verify
         run: |
           python3 - <<'PY'
@@ -51,17 +42,15 @@ jobs:
           x=Path('transfers.html').read_text(encoding='utf-8')
           m=re.search(r'function\s+downloadContract\s*\(\s*\)',x); assert m
           t=re.search(r'(?:const|let|var)\s+html\s*=\s*`',x[m.start():]); assert t
-          s=m.start()+t.end()
-          e=re.search(r'`\s*;\s*const\s+blob\s*=\s*new\s+Blob',x[s:],re.S); assert e
-          template=x[s:s+e.start()]
-          assert '</script>' not in template
-          assert '<\\/script>' in template
-          print('PASS: Transfers parser safe')
+          s=m.start()+t.end(); e=re.search(r'`\s*;\s*const\s+blob\s*=\s*new\s+Blob',x[s:],re.S); assert e
+          template=x[s:s+e.start()]; assert '</script>' not in template; assert '<\\/script>' in template
+          print('PASS')
           PY
-
       - name: Commit
         run: |
           git config user.name github-actions[bot]
           git config user.email 41898282+github-actions[bot]@users.noreply.github.com
           git add transfers.html
-          if git diff --cached --quiet; then echo 'No changes needed'; else git commit -m 'fix: repair transfers embedded script parser'; git push; fi
+          if git diff --cached --quiet; then echo 'No changes needed'; else git commit -m 'fix: escape transfer contract script tags'; git push; fi
+
+# trigger parser repair
