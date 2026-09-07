@@ -1,0 +1,53 @@
+name: Fix AFRN Player Photo Picker Native Final
+
+on:
+  workflow_dispatch:
+  push:
+    paths:
+      - 'players.html'
+      - '.github/workflows/fix-player-photo-picker-native-final.yml'
+
+permissions:
+  contents: write
+
+jobs:
+  fix:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Replace player photo picker with native input
+        run: |
+          python3 - <<'PY'
+          from pathlib import Path
+          p=Path('players.html')
+          s=p.read_text(encoding='utf-8')
+          old='''<input\nclass="field"\nid="photoFile"\ntype="file"\naccept="image/jpeg,image/jpg,image/png,image/webp"\n>'''
+          new='''<input\nclass="field afrn-native-photo-input"\nid="photoFile"\ntype="file"\naccept="image/jpeg,image/png,image/webp"\naria-label="Chagua picha ya mchezaji"\n>'''
+          if old in s:
+              s=s.replace(old,new,1)
+          elif 'id="photoFile"' in s:
+              import re
+              s=re.sub(r'<input(?=[^>]*id=["\\']photoFile["\\'])[^>]*>', new, s, count=1, flags=re.S)
+          css='''\n<style id="afrn-native-photo-picker-style">\n.afrn-native-photo-input{display:block!important;width:100%!important;min-height:52px!important;padding:8px!important;margin-top:6px!important;border:2px solid #0d47a1!important;border-radius:10px!important;background:#fff!important;color:#172033!important;font-weight:700!important;cursor:pointer!important;touch-action:manipulation!important;-webkit-appearance:auto!important;appearance:auto!important}\n.afrn-native-photo-input::file-selector-button{border:0;border-radius:8px;padding:11px 14px;margin-right:10px;background:#0d47a1;color:#fff;font-weight:700;cursor:pointer}\n</style>\n'''
+          if 'id="afrn-native-photo-picker-style"' not in s:
+              s=s.replace('</head>',css+'</head>',1)
+          # Remove previous JS/label picker UI so there is only one native control.
+          s=re.sub(r'<script id="afrn-native-photo-picker-fix">.*?</script>\s*', '', s, flags=re.S)
+          s=re.sub(r'<script id="afrn-native-photo-picker-fix">.*?</script>\s*', '', s, flags=re.S)
+          s=s.replace('id="afrnNativePhotoLabel"','id="afrnNativePhotoLabelRemoved"')
+          p.write_text(s,encoding='utf-8')
+          print('Native file input installed.')
+          PY
+
+      - name: Verify
+        run: |
+          grep -n 'id="photoFile"' players.html
+          grep -n 'afrn-native-photo-input' players.html
+
+      - name: Commit
+        run: |
+          git config user.name github-actions[bot]
+          git config user.email 41898282+github-actions[bot]@users.noreply.github.com
+          git add players.html
+          if git diff --cached --quiet; then echo 'No changes'; else git commit -m 'Fix native player photo picker'; git push; fi
