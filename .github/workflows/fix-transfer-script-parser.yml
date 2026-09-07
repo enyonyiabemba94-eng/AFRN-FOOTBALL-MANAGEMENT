@@ -15,56 +15,63 @@ jobs:
       - name: Checkout
         uses: actions/checkout@v4
 
-      - name: Escape embedded script closing tag
+      - name: Repair embedded script tags
         shell: python
         run: |
           from pathlib import Path
+          import re
           p = Path('transfers.html')
-          s = p.read_text(encoding='utf-8')
-          old = '<script>\\n\n</body>'
-          # The actual bug is an unescaped </script> inside the JavaScript template
-          # used by downloadContract(). Escape every closing script tag that occurs
-          # after the main script begins, while preserving real HTML script tags.
-          marker = 'function downloadContract(){'
-          i = s.find(marker)
-          if i == -1:
-              raise SystemExit('downloadContract() not found')
-          j = s.find('</script>', i)
-          if j == -1:
-              raise SystemExit('main closing script tag not found')
-          segment = s[i:j]
-          bad = '</script>'
-          if bad not in segment:
-              print('No embedded closing script tag found; nothing to change.')
-          else:
-              segment = segment.replace(bad, '<\\/script>')
-              s = s[:i] + segment + s[j:]
-              p.write_text(s, encoding='utf-8')
-              print('Fixed embedded </script> in downloadContract().')
+          x = p.read_text(encoding='utf-8')
 
-      - name: Validate HTML script structure
+          m = re.search(r'function\s+downloadContract\s*\(\s*\)', x)
+          if not m:
+              raise SystemExit('downloadContract() not found')
+
+          t = re.search(r'(?:const|let|var)\s+html\s*=\s*`', x[m.start():])
+          if not t:
+              raise SystemExit('contract HTML template not found')
+          s = m.start() + t.end()
+
+          e = re.search(r'`\s*;\s*const\s+blob\s*=\s*new\s+Blob', x[s:], re.S)
+          if not e:
+              raise SystemExit('contract HTML template end not found')
+          end = s + e.start()
+
+          template = x[s:end]
+          fixed = template.replace('</script>', '<\\/script>')
+          if fixed != template:
+              p.write_text(x[:s] + fixed + x[end:], encoding='utf-8')
+              print('FIXED embedded script closing tags')
+          else:
+              print('ALREADY SAFE')
+
+      - name: Validate transfer page
         shell: python
         run: |
           from pathlib import Path
-          s = Path('transfers.html').read_text(encoding='utf-8')
-          start = s.find('<script>')
-          end = s.rfind('</script>')
-          if start < 0 or end < start:
-              raise SystemExit('Main script block is missing or malformed')
-          segment = s[start:end]
-          if '</script>' in segment:
-              raise SystemExit('Unescaped </script> remains inside main script')
-          print('Transfer script structure OK.')
+          import re
+          x = Path('transfers.html').read_text(encoding='utf-8')
+          m = re.search(r'function\s+downloadContract\s*\(\s*\)', x)
+          assert m, 'downloadContract() missing'
+          t = re.search(r'(?:const|let|var)\s+html\s*=\s*`', x[m.start():])
+          assert t, 'contract template missing'
+          s = m.start() + t.end()
+          e = re.search(r'`\s*;\s*const\s+blob\s*=\s*new\s+Blob', x[s:], re.S)
+          assert e, 'contract template end missing'
+          template = x[s:s+e.start()]
+          assert '</script>' not in template, 'Unescaped </script> remains inside contract template'
+          assert '<\\/script>' in template, 'Escaped closing script tag not found'
+          print('TRANSFER PARSER PASS')
 
       - name: Commit fix
         shell: bash
         run: |
           git config user.name 'github-actions[bot]'
           git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
-          if git diff --quiet -- transfers.html; then
-            echo 'No transfer parser fix needed.'
-            exit 0
-          fi
           git add transfers.html
-          git commit -m 'fix: escape embedded script tag in transfers page [transfer-parser-fix]'
-          git push
+          if git diff --cached --quiet; then
+            echo 'No changes needed.'
+          else
+            git commit -m 'fix: escape embedded transfer contract script tags'
+            git push
+          fi
