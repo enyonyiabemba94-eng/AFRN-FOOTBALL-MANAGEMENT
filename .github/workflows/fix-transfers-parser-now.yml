@@ -52,4 +52,4 @@ jobs:
           git config user.email 41898282+github-actions[bot]@users.noreply.github.com
           git add transfers.html
           if git diff --cached --quiet; then echo 'No changes needed'; else git commit -m 'fix: escape transfer contract script tags'; git push; fi
-# definitive trigger
+# force execution of the parser repair
