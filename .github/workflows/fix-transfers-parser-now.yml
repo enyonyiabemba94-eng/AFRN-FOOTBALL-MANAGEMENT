@@ -37,8 +37,6 @@ jobs:
               raise SystemExit('downloadContract HTML template not found')
           template_start = start + t.end()
 
-          # The generated template ends at the backtick immediately followed by
-          # the Blob construction used by downloadContract().
           end_match = re.search(r'`\s*;\s*const\s+blob\s*=\s*new\s+Blob', x[template_start:], re.S)
           if not end_match:
               raise SystemExit('end of contract HTML template not found')
