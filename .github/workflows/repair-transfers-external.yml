@@ -1,0 +1,79 @@
+name: Repair Transfers External Runtime
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - 'transfers.html'
+      - '.github/workflows/repair-transfers-external.yml'
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+jobs:
+  repair:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Move Transfers runtime outside HTML parser
+        shell: python
+        run: |
+          from pathlib import Path
+          import re
+
+          page = Path('transfers.html')
+          js = Path('transfers-runtime.js')
+          x = page.read_text(encoding='utf-8')
+
+          marker = '/* =========================================================\n   AFRN FOOTBALL MANAGEMENT\n   TRANSFER + CONTRACT + PLAYER LICENCE\n========================================================= */'
+          start_marker = x.find(marker)
+          if start_marker < 0:
+              raise SystemExit('Main AFRN transfer runtime marker not found')
+
+          script_start = x.rfind('<script>', 0, start_marker + 1)
+          if script_start < 0:
+              raise SystemExit('Opening main script tag not found')
+
+          global_script = '<script src="./afrn-player-photo-global.js"></script>'
+          global_pos = x.find(global_script, start_marker)
+          if global_pos < 0:
+              raise SystemExit('Global player photo script marker not found')
+
+          script_end = x.rfind('</script>', script_start, global_pos)
+          if script_end < 0:
+              raise SystemExit('Main script closing tag not found')
+
+          runtime = x[start_marker:script_end]
+          js.write_text(runtime + '\n', encoding='utf-8')
+
+          replacement = '<script src="./transfers-runtime.js"></script>'
+          x = x[:script_start] + replacement + x[script_end + len('</script>'):]
+          page.write_text(x, encoding='utf-8')
+          print('Transfers runtime moved to external JS:', len(runtime), 'bytes')
+
+      - name: Verify HTML no longer contains inline Transfers runtime
+        shell: python
+        run: |
+          from pathlib import Path
+          x = Path('transfers.html').read_text(encoding='utf-8')
+          js = Path('transfers-runtime.js').read_text(encoding='utf-8')
+          assert 'AFRN FOOTBALL MANAGEMENT' in js
+          assert 'function downloadContract' in js
+          assert '<script src="./transfers-runtime.js"></script>' in x
+          assert 'const html = `' in js
+          print('TRANSFERS EXTERNAL RUNTIME PASS')
+
+      - name: Commit
+        shell: bash
+        run: |
+          git config user.name github-actions[bot]
+          git config user.email 41898282+github-actions[bot]@users.noreply.github.com
+          git add transfers.html transfers-runtime.js
+          if git diff --cached --quiet; then
+            echo 'No changes needed'
+          else
+            git commit -m 'fix: move transfers runtime outside HTML parser'
+            git push
+          fi
