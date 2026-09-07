@@ -3564,5 +3564,42 @@ loadData();
   [100, 500, 1000, 2500].forEach(ms => setTimeout(install, ms));
 })();
 </script>
+
+<script id="afrn-native-photo-picker-fix">
+(() => {
+  function installNativePicker() {
+    const input = document.getElementById('photoFile');
+    if (!input) return;
+    const box = input.closest('.photo-upload-box');
+    if (!box) return;
+
+    if (document.getElementById('afrnNativePhotoLabel')) return;
+
+    const oldButton = document.getElementById('choosePhotoBtn');
+    if (oldButton) oldButton.style.display = 'none';
+
+    const label = document.createElement('label');
+    label.id = 'afrnNativePhotoLabel';
+    label.htmlFor = 'photoFile';
+    label.textContent = '📷 Chagua Picha kutoka Simu/Computer';
+    label.style.cssText = 'display:block;width:100%;margin-bottom:9px;padding:13px;font-size:14px;text-align:center;border-radius:10px;background:#0d47a1;color:#fff;font-weight:700;cursor:pointer;box-sizing:border-box;';
+
+    input.parentNode.insertBefore(label, input);
+    input.style.display = 'block';
+    input.style.width = '100%';
+    input.style.minHeight = '46px';
+    input.style.cursor = 'pointer';
+    input.setAttribute('aria-label', 'Chagua picha ya mchezaji');
+  }
+
+  if (document.readyState === 'loading') {
+    document.addEventListener('DOMContentLoaded', installNativePicker);
+  } else {
+    installNativePicker();
+  }
+  [100, 500, 1000, 2500].forEach(ms => setTimeout(installNativePicker, ms));
+  new MutationObserver(installNativePicker).observe(document.documentElement, {childList:true, subtree:true});
+})();
+</script>
 </body>
 </html>
