@@ -1,0 +1,86 @@
+name: Fix AFRN Player Photo Picker Native Label
+
+on:
+  push:
+    branches: [main]
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+jobs:
+  fix-photo-picker:
+    if: github.event_name == 'workflow_dispatch' || !contains(github.event.head_commit.message, '[native-photo-picker-fix]')
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Install native file picker label
+        shell: bash
+        run: |
+          python3 - <<'PY'
+          from pathlib import Path
+          p = Path('players.html')
+          s = p.read_text(encoding='utf-8')
+          marker = '<script id="afrn-native-photo-picker-fix">'
+          if marker in s:
+              print('Native photo picker fix already installed')
+              raise SystemExit(0)
+
+          script = r'''<script id="afrn-native-photo-picker-fix">
+          (() => {
+            function installNativePicker() {
+              const input = document.getElementById('photoFile');
+              if (!input) return;
+              const box = input.closest('.photo-upload-box');
+              if (!box) return;
+
+              if (document.getElementById('afrnNativePhotoLabel')) return;
+
+              const oldButton = document.getElementById('choosePhotoBtn');
+              if (oldButton) oldButton.style.display = 'none';
+
+              const label = document.createElement('label');
+              label.id = 'afrnNativePhotoLabel';
+              label.htmlFor = 'photoFile';
+              label.textContent = '📷 Chagua Picha kutoka Simu/Computer';
+              label.style.cssText = 'display:block;width:100%;margin-bottom:9px;padding:13px;font-size:14px;text-align:center;border-radius:10px;background:#0d47a1;color:#fff;font-weight:700;cursor:pointer;box-sizing:border-box;';
+
+              input.parentNode.insertBefore(label, input);
+              input.style.display = 'block';
+              input.style.width = '100%';
+              input.style.minHeight = '46px';
+              input.style.cursor = 'pointer';
+              input.setAttribute('aria-label', 'Chagua picha ya mchezaji');
+            }
+
+            if (document.readyState === 'loading') {
+              document.addEventListener('DOMContentLoaded', installNativePicker);
+            } else {
+              installNativePicker();
+            }
+            [100, 500, 1000, 2500].forEach(ms => setTimeout(installNativePicker, ms));
+            new MutationObserver(installNativePicker).observe(document.documentElement, {childList:true, subtree:true});
+          })();
+          </script>'''
+
+          pos = s.lower().rfind('</body>')
+          if pos < 0:
+              raise SystemExit('players.html has no </body> marker')
+          s = s[:pos] + '\n' + script + '\n' + s[pos:]
+          p.write_text(s, encoding='utf-8')
+          PY
+
+      - name: Commit patch
+        shell: bash
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add players.html
+          if git diff --cached --quiet; then
+            echo "No changes to commit"
+          else
+            git commit -m "fix: use native label for player photo picker [native-photo-picker-fix]"
+            git push
+          fi
