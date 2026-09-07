@@ -1,4 +1,5 @@
 name: Repair AFRN Reports Loading
+# Retrigger loader repair after restoring reports.html
 on:
   push:
     branches: [main]
