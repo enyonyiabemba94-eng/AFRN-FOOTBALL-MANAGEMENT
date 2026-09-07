@@ -1,0 +1,99 @@
+name: Repair Transfers Final
+
+on:
+  push:
+    paths:
+      - '.github/workflows/repair-transfers-final.yml'
+      - 'transfers.html'
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+jobs:
+  repair:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Repair transfers.html
+        shell: python
+        run: |
+          from pathlib import Path
+          import re
+
+          p = Path('transfers.html')
+          x = p.read_text(encoding='utf-8')
+
+          body = x.lower().find('</body>')
+          if body < 0:
+              raise SystemExit('Missing </body>')
+
+          before_body = x[:body]
+          script_opens = list(re.finditer(r'<script(?:\s[^>]*)?>', before_body, re.I))
+          script_closes = list(re.finditer(r'</script\s*>', before_body, re.I))
+          if not script_opens or not script_closes:
+              raise SystemExit('Script blocks missing')
+
+          main_open = script_opens[-1]
+          main_close = script_closes[-1]
+          if main_close.start() <= main_open.end():
+              raise SystemExit('Main script block malformed')
+
+          main_script = x[main_open.end():main_close.start()]
+          fixed = main_script.replace('</script>', '<\\/script>')
+
+          # Keep Supabase initialization resilient without changing the database/schema.
+          fixed = fixed.replace(
+              'const db = window.supabaseClient;',
+              'const db = window.supabaseClient || window.supabase;'
+          )
+
+          changed = fixed != main_script
+          if changed:
+              x = x[:main_open.end()] + fixed + x[main_close.start():]
+
+          marker = '<!-- AFRN TRANSFERS FINAL REPAIR v2026-09-07 -->'
+          if marker not in x:
+              x = x.replace('</head>', marker + '\n</head>', 1)
+              changed = True
+
+          if not changed:
+              # Force a harmless source revision so GitHub Pages republishes the page.
+              x = x.replace('AFRN FOOTBALL MANAGEMENT SYSTEM', 'AFRN FOOTBALL MANAGEMENT SYSTEM', 1) + '\n'
+
+          p.write_text(x, encoding='utf-8')
+          print('TRANSFERS SOURCE REPAIRED/REFRESHED')
+
+      - name: Validate HTML script structure
+        shell: python
+        run: |
+          from pathlib import Path
+          import re
+          x = Path('transfers.html').read_text(encoding='utf-8')
+          body = x.lower().find('</body>')
+          assert body >= 0
+          before = x[:body]
+          opens = list(re.finditer(r'<script(?:\s[^>]*)?>', before, re.I))
+          closes = list(re.finditer(r'</script\s*>', before, re.I))
+          assert opens and closes
+          main = before[opens[-1].end():closes[-1].start()]
+          assert '</script>' not in main.lower()
+          assert 'function downloadContract' in main
+          assert 'const blob' in main
+          assert 'new Blob' in main
+          print('PASS: Transfers main script is parser-safe')
+
+      - name: Commit repair
+        shell: bash
+        run: |
+          git config user.name 'github-actions[bot]'
+          git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
+          git add transfers.html
+          if git diff --cached --quiet; then
+            echo 'No changes needed'
+          else
+            git commit -m 'fix: final repair and republish transfers page'
+            git push
+          fi
