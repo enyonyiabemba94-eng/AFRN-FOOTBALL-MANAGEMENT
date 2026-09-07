@@ -26,6 +26,7 @@ jobs:
         run: |
           python3 - <<'PY'
           from pathlib import Path
+          import re
 
           p = Path('players.html')
           s = p.read_text(encoding='utf-8')
@@ -48,40 +49,55 @@ if (typeof window.getSupabaseClient !== 'function') {
 
           t = Path('transfers.html')
           x = t.read_text(encoding='utf-8')
-          start = x.find('function downloadContract(){')
-          body_end = x.find('</body>', start) if start >= 0 else -1
-          if start >= 0 and body_end >= 0:
-              region = x[start:body_end]
-              last_close = region.rfind('</script>')
-              if last_close >= 0:
-                  js_region = region[:last_close]
-                  tail = region[last_close:]
-                  fixed = js_region.replace('</script>', '<\\/script>') + tail
-                  if fixed != region:
-                      x = x[:start] + fixed + x[body_end:]
-                      t.write_text(x, encoding='utf-8')
-                      print('Fixed literal </script> tags inside downloadContract().')
-                  else:
-                      print('No unescaped literal </script> remained in downloadContract().')
-              else:
-                  raise SystemExit('Could not find the real closing script tag.')
+
+          # Locate the actual downloadContract() function even if spacing differs.
+          m = re.search(r'function\s+downloadContract\s*\(\s*\)', x)
+          if not m:
+              raise SystemExit('downloadContract() not found')
+
+          start = m.start()
+          body_end = x.find('</body>', start)
+          if body_end < 0:
+              raise SystemExit('</body> not found')
+
+          region = x[start:body_end]
+          last_close = region.rfind('</script>')
+          if last_close < 0:
+              raise SystemExit('real outer </script> not found')
+
+          js_region = region[:last_close]
+          tail = region[last_close:]
+
+          # The browser HTML parser closes a <script> element at ANY literal
+          # </script>, even when that text appears inside a JS template literal.
+          # Escape every embedded closing tag, preserving only the real outer one.
+          fixed_js = js_region.replace('</script>', '<\\/script>')
+          fixed = fixed_js + tail
+
+          if fixed != region:
+              x = x[:start] + fixed + x[body_end:]
+              t.write_text(x, encoding='utf-8')
+              print('Fixed embedded </script> tags in downloadContract().')
           else:
-              raise SystemExit('downloadContract() or </body> not found')
+              print('No embedded literal </script> needed repair.')
           PY
 
       - name: Verify transfer parser
         run: |
           python3 - <<'PY'
           from pathlib import Path
+          import re
           x = Path('transfers.html').read_text(encoding='utf-8')
-          start = x.find('function downloadContract(){')
+          m = re.search(r'function\s+downloadContract\s*\(\s*\)', x)
+          assert m, 'downloadContract() missing'
+          start = m.start()
           body_end = x.find('</body>', start)
-          assert start >= 0 and body_end >= 0
+          assert body_end >= 0, '</body> missing'
           region = x[start:body_end]
           last_close = region.rfind('</script>')
           assert last_close >= 0, 'real closing script tag missing'
           assert '</script>' not in region[:last_close], 'unescaped </script> remains inside JS'
-          assert '<\\/script>' in region[:last_close], 'escaped script tag not found'
+          assert '<\\/script>' in region[:last_close], 'escaped embedded script tag not found'
           print('PASS: transfers.html JavaScript parser is safe.')
           PY
 
