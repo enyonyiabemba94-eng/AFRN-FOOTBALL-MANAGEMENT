@@ -72,3 +72,5 @@ jobs:
           name: AFRN-Football-Management-APK
           path: android-app/app/build/outputs/**/*.apk
           if-no-files-found: error
+
+# Build trigger/verification marker: AFRN release candidate 2026-09-07.
