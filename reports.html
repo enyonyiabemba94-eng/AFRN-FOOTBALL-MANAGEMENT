@@ -34,4 +34,6 @@ window.loadMatchReport=loadMatchReport;window.loadPlayerReport=loadPlayerReport;
 function waitForSupabase(){if(window.supabase&&typeof window.supabase.createClient==='function'){startReports();return}setStatus('⏳ Inaandaa Supabase...');let tries=0;const timer=setInterval(()=>{tries++;if(window.supabase&&typeof window.supabase.createClient==='function'){clearInterval(timer);startReports()}else if(tries>=100){clearInterval(timer);setStatus('❌ Supabase haijapatikana baada ya kusubiri.','err')}},100)}
 document.addEventListener('DOMContentLoaded',waitForSupabase);
 </script><script src="./afrn-player-photo-global.js?v=20260908"></script><script src="./afrn-report-official.js?v=20260908"></script><script src="./afrn-report-pdf.js?v=20260908"></script>
+
+<script src="./afrn-player-photo-global.js"></script>
 </body></html>
