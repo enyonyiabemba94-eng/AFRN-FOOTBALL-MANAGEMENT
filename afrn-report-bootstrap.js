@@ -1,0 +1,1 @@
+(()=>{if(window.supabase)return;try{document.write('<script src="https://unpkg.com/@supabase/supabase-js@2"><\/script>')}catch(e){console.error('AFRN Supabase bootstrap failed',e)}})();
