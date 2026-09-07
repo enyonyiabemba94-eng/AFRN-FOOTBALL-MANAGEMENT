@@ -11,7 +11,7 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
-      - name: Patch Reports bootstrap and error handling
+      - name: Patch Reports Supabase loader
         shell: bash
         run: |
           set -euo pipefail
@@ -19,21 +19,17 @@ jobs:
           from pathlib import Path
           p=Path('reports.html')
           s=p.read_text(encoding='utf-8')
-          if 'afrn-report-bootstrap.js' not in s:
-              s=s.replace('<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>', '<script src="./afrn-report-bootstrap.js?v=20260907"></script>\n<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>')
-          s=s.replace("async function loadAll(){setStatus('⏳ Inapakia taarifa za AFRN...');", "async function loadAll(){setStatus('⏳ Inapakia taarifa za AFRN...');try{")
-          old="setStatus('✅ Report Center imeunganishwa vizuri.','ok')}"
-          new="setStatus('✅ Report Center imeunganishwa vizuri.','ok')}catch(e){console.error('AFRN Report loadAll',e);setStatus('❌ Imeshindwa kuunganisha na Supabase: '+(e?.message||e),'err')}}"
-          if old in s and new not in s:
-              s=s.replace(old,new,1)
+          s=s.replace('https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2</script>', 'https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.js</script>')
+          s=s.replace('https://unpkg.com/@supabase/supabase-js@2</script>', 'https://unpkg.com/@supabase/supabase-js@2/dist/umd/supabase.js</script>')
+          s=s.replace('https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.js/dist/umd/supabase.js', 'https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.js')
           p.write_text(s,encoding='utf-8')
           PY
           git config user.name 'github-actions[bot]'
           git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
           if git diff --quiet -- reports.html; then
-            echo 'No patch needed.'
+            echo 'No Reports loader patch needed.'
             exit 0
           fi
           git add reports.html
-          git commit -m 'fix: make reports loading resilient [reports-loading-fix]'
+          git commit -m 'fix: use Supabase UMD build in Reports [reports-loading-fix]'
           git push
