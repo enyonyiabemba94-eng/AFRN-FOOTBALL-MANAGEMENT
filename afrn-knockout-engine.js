@@ -1,39 +1,152 @@
-/* AFRN Knockout Engine — Best Loser + 8 groups -> R16 -> QF -> SF -> 3rd Place -> Final. Existing tables only. */
+/* AFRN Competition Knockout Engine
+   Group Stage -> exact AFRN R16 -> QF -> SF -> 3rd -> Final.
+   Existing tables only. No schema/table creation.
+*/
 (function(){
 'use strict';
 const URL='https://jjqhvruppafpumcthmwe.supabase.co';
 const KEY='sb_publishable_02hhRG8bgDOqSFxva8IMvQ_zWTLMa3G';
-let db, comp, clubs=[], teams=[], matches=[], bestLoser=null;
+let db,comp,clubs=[],teams=[],matches=[],bestLoser=null;
+const GROUPS=['A','B','C','D','E','F','G','H'];
+const R16=[
+ ['A','B'],['C','D'],['B','A'],['D','C'],
+ ['E','F'],['G','H'],['F','E'],['H','G']
+];
 const $=(s,r=document)=>r.querySelector(s);
+const $$=(s,r=document)=>Array.from(r.querySelectorAll(s));
 const esc=v=>String(v??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#039;'}[c]));
 function client(){return window.supabaseClient||(window.supabase&&window.supabase.createClient(URL,KEY));}
-function cname(id){return clubs.find(c=>c.id===id)?.name||'—'}
+function cname(id){return clubs.find(c=>String(c.id)===String(id))?.name||'—';}
 function stageMatches(stage){return matches.filter(m=>String(m.notes||'').includes('AFRN_STAGE='+stage));}
+function slot(m){const x=String(m.notes||'').match(/AFRN_SLOT=(\d+)/);return x?Number(x[1]):999;}
 function played(m){return m&&m.home_score!=null&&m.away_score!=null&&Number.isInteger(Number(m.home_score))&&Number.isInteger(Number(m.away_score));}
-function winner(m){if(!played(m)||Number(m.home_score)===Number(m.away_score))return null;return Number(m.home_score)>Number(m.away_score)?m.home_team_id:m.away_team_id}
-function loser(m){if(!played(m)||Number(m.home_score)===Number(m.away_score))return null;return winner(m)===m.home_team_id?m.away_team_id:m.home_team_id}
-function slot(m){const z=String(m.notes||'').match(/AFRN_SLOT=(\d+)/);return z?Number(z[1]):999}
-function loadBestLoser(){try{bestLoser=JSON.parse(localStorage.getItem('afrn_best_loser_'+comp.id)||'null')}catch(_){bestLoser=null}}
-function saveBestLoser(){localStorage.setItem('afrn_best_loser_'+comp.id,JSON.stringify(bestLoser));}
-async function init(){
- try{db=client();if(!db)return;let id=new URLSearchParams(location.search).get('id');let cr=id?await db.from('competitions').select('*').eq('id',id).single():await db.from('competitions').select('*').order('created_at',{ascending:false}).limit(1).maybeSingle();if(cr.error||!cr.data)return;comp=cr.data;
-  let [c,t,m]=await Promise.all([db.from('clubs').select('id,name,division').order('name'),db.from('competition_teams').select('id,club_id,group_name').eq('competition_id',comp.id),db.from('matches').select('*').eq('competition_id',comp.id).order('match_number')]);
-  if(c.error||t.error||m.error)return;clubs=c.data||[];teams=t.data||[];matches=m.data||[];loadBestLoser();inject();render();
- }catch(e){console.error('AFRN Knockout Engine',e)}
+function winner(m){
+ if(!played(m))return null;
+ const hs=Number(m.home_score),as=Number(m.away_score);
+ if(hs>as)return m.home_team_id;if(as>hs)return m.away_team_id;
+ const n=String(m.notes||'');
+ return n.includes('AFRN_WINNER=HOME')?m.home_team_id:n.includes('AFRN_WINNER=AWAY')?m.away_team_id:null;
 }
-function inject(){if($('#afrnKnockoutEngine'))return;const host=$('#ce-knockout')||document.body;const box=document.createElement('div');box.id='afrnKnockoutEngine';box.innerHTML='<div class="ce-card"><h3>⚔️ AFRN KNOCKOUT — MFUMO RASMI</h3><p class="ce-muted">Muundo: 1A×2B, 1C×2D, 1B×2A, 1D×2C, 1E×2F, 1G×2H, 1F×2E, 1H×2G → Robo → Nusu → Mshindi wa 3 → Fainali.</p><div id="afrnKOStatus" class="ce-warning"></div><div class="ce-actions"><button id="afrnKOGenerate" class="primary">⚙️ Tengeneza Ratiba ya Hatua ya 16</button><button id="afrnKORefresh" class="secondary">↻ Refresh</button></div><div id="afrnKOTable" style="margin-top:12px"></div></div>';host.prepend(box);$('#afrnKOGenerate').onclick=generateR16;$('#afrnKORefresh').onclick=async()=>{await reload();loadBestLoser();render()};}
-async function reload(){let [t,m]=await Promise.all([db.from('competition_teams').select('id,club_id,group_name').eq('competition_id',comp.id),db.from('matches').select('*').eq('competition_id',comp.id).order('match_number')]);if(!t.error)teams=t.data||[];if(!m.error)matches=m.data||[];}
-function standings(){const groups={};for(const t of teams){const g=String(t.group_name||'').trim().toUpperCase();if(!g)continue;(groups[g]??=[]).push(t.club_id)}const out={};for(const g of Object.keys(groups)){const rows=groups[g].map(id=>({id,p:0,gf:0,ga:0,rc:0,yc:0}));for(const m of matches.filter(x=>!String(x.notes||'').match(/AFRN_STAGE=(R16|QF|SF|3RD|FINAL)/)&&played(x))){const h=rows.find(r=>r.id===m.home_team_id),a=rows.find(r=>r.id===m.away_team_id);if(!h||!a)continue;const hs=Number(m.home_score),as=Number(m.away_score);h.gf+=hs;h.ga+=as;a.gf+=as;a.ga+=hs;if(hs>as)h.p+=3;else if(hs<as)a.p+=3;else{h.p++;a.p++}}
-rows.sort((a,b)=>b.p-a.p||b.gf-a.gf||a.ga-b.ga||a.rc-b.rc||a.yc-b.yc);out[g]=rows.map((r,i)=>({...r,rank:i+1}));}return out;}
-function q(g,rank){return (standings()[g]||[]).find(r=>r.rank===rank)?.id||null}
-const defs=[['R16','1A × 2B','A','B',1,2],['R16','1C × 2D','C','D',1,2],['R16','1B × 2A','B','A',1,2],['R16','1D × 2C','D','C',1,2],['R16','1E × 2F','E','F',1,2],['R16','1G × 2H','G','H',1,2],['R16','1F × 2E','F','E',1,2],['R16','1H × 2G','H','G',1,2]];
-function notes(stage,index){return 'AFRN_STAGE='+stage+'|AFRN_SLOT='+index;}
-function candidates(){const s=standings();const out=[];for(const g of Object.keys(s).sort())for(const r of s[g])if(r.rank>=3)out.push({id:r.id,group:g,rank:r.rank,p:r.p,gf:r.gf,ga:r.ga});return out;}
-async function ensureMatch(stage,index,home,away,label){if(!home||!away)return null;let found=stageMatches(stage).find(m=>String(m.notes||'').includes('AFRN_SLOT='+index));if(found){if(found.home_team_id!==home||found.away_team_id!==away){let r=await db.from('matches').update({home_team_id:home,away_team_id:away,notes:notes(stage,index)+'|'+label}).eq('id',found.id);if(r.error)throw r.error;found={...found,home_team_id:home,away_team_id:away,notes:notes(stage,index)+'|'+label}}return found}let max=Math.max(0,...matches.map(m=>Number(m.match_number)||0));let r=await db.from('matches').insert({competition_id:comp.id,home_team_id:home,away_team_id:away,match_number:max+1,status:'scheduled',notes:notes(stage,index)+'|'+label});if(r.error)throw r.error;matches.push(r.data);return r.data;}
-function renderBestLoser(){const root=$('#afrnBestLoser');if(!root)return;const cands=candidates();const usedR16=new Set();stageMatches('R16').forEach(m=>{if(m.home_team_id)usedR16.add(m.home_team_id);if(m.away_team_id)usedR16.add(m.away_team_id)});const available=cands.filter(x=>!usedR16.has(x.id));let html='<div class="ce-card"><h3>⭐ BEST LOSER — Chagua na Mpe Kundi</h3><p class="ce-muted">Chagua timu iliyomaliza chini ya nafasi ya 2, kisha ipe kundi lake la R16. Chaguo hili linawekwa kwa competition hii.</p>';html+='<div class="ce-grid2"><select id="afrnBLTeam" class="ce-field"><option value="">Chagua Best Loser</option>'+available.map(x=>'<option value="'+x.id+'" '+(bestLoser?.teamId===x.id?'selected':'')+'>'+esc(cname(x.id))+' — Kundi '+esc(x.group)+' — Nafasi '+x.rank+' — '+x.p+' pts</option>').join('')+'</select><select id="afrnBLGroup" class="ce-field"><option value="">Mpe kundi la R16</option>'+['A','B','C','D','E','F','G','H'].map(g=>'<option '+(bestLoser?.group===g?'selected':'')+'>'+g+'</option>').join('')+'</select></div><div class="ce-actions"><button id="afrnBLSave" class="primary">💾 Hifadhi Best Loser</button><button id="afrnBLClear" class="secondary">🗑️ Ondoa Chaguo</button></div>';if(bestLoser)html+='<div class="ce-good" style="margin-top:8px">✅ '+esc(cname(bestLoser.teamId))+' → Kundi '+esc(bestLoser.group)+' (Best Loser)</div>';html+='</div>';root.innerHTML=html;$('#afrnBLSave').onclick=()=>{const teamId=$('#afrnBLTeam').value,group=$('#afrnBLGroup').value;if(!teamId||!group)return alert('Chagua Best Loser na kundi lake.');if(q(group,1)===teamId||q(group,2)===teamId)return alert('Timu hiyo tayari ni mshindi wa 1 au 2 wa kundi hilo.');bestLoser={teamId,group};saveBestLoser();render()};$('#afrnBLClear').onclick=()=>{bestLoser=null;saveBestLoser();render()};}
-async function generateR16(){try{await reload();loadBestLoser();const s=standings();const groups=[...'ABCDEFGH'];if(groups.some(g=>(s[g]||[]).length<2)){alert('Kabla ya Hatua ya 16, lazima kuwe na angalau timu 2 katika kila kundi A–H.');return}if(!bestLoser){alert('Chagua kwanza BEST LOSER na mpe kundi lake.');return}if(!bestLoser.teamId||!groups.includes(bestLoser.group)){alert('Best Loser au kundi lake si sahihi.');return}const defs2=defs.map(x=>x.slice());const opponentGroup=bestLoser.group;const opponentRank=2;let replaced=false;for(let i=0;i<defs2.length;i++){if(defs2[i][4]===2&&defs2[i][3]===opponentGroup){defs2[i][4]=2;defs2[i][3]=opponentGroup;replaced=true;break}}if(!replaced){alert('Kundi la Best Loser halijaweza kuunganishwa na slot ya 2.');return}for(let i=0;i<defs.length;i++){let home=q(defs[i][2],defs[i][4]),away=q(defs[i][3],defs[i][5]);if(defs[i][3]===opponentGroup&&defs[i][5]===2)away=bestLoser.teamId;await ensureMatch('R16',i+1,home,away,defs[i][1]+(away===bestLoser.teamId?' | BEST LOSER':''));}await reload();render();alert('✅ Best Loser amepewa kundi '+bestLoser.group+' na ratiba ya Hatua ya 16 imetengenezwa.');}catch(e){alert('❌ '+(e.message||e));}}
-async function autoProgress(){await reload();const r16=stageMatches('R16').sort((a,b)=>slot(a)-slot(b));if(r16.length===8&&r16.every(played)&&r16.every(winner)){const qfPairs=[[1,2],[3,4],[5,6],[7,8]];for(let i=0;i<4;i++)await ensureMatch('QF',i+1,winner(r16[qfPairs[i][0]-1]),winner(r16[qfPairs[i][1]-1]),'QF '+(i+1));}await reload();const qf=stageMatches('QF').sort((a,b)=>slot(a)-slot(b));if(qf.length===4&&qf.every(played)&&qf.every(winner)){await ensureMatch('SF',1,winner(qf[0]),winner(qf[2]),'SF 1');await ensureMatch('SF',2,winner(qf[1]),winner(qf[3]),'SF 2');}await reload();const sf=stageMatches('SF').sort((a,b)=>slot(a)-slot(b));if(sf.length===2&&sf.every(played)&&sf.every(winner)){await ensureMatch('3RD',1,loser(sf[0]),loser(sf[1]),'Mshindi wa 3');await ensureMatch('FINAL',1,winner(sf[0]),winner(sf[1]),'Final');}}
-async function saveResult(id){const m=matches.find(x=>x.id===id);if(!m)return;let hs=prompt('Magoli '+cname(m.home_team_id),m.home_score??0),as=prompt('Magoli '+cname(m.away_team_id),m.away_score??0);if(hs===null||as===null)return;hs=Number(hs);as=Number(as);if(!Number.isInteger(hs)||!Number.isInteger(as)||hs<0||as<0)return alert('Score si sahihi.');if(hs===as)return alert('Katika knockout sare hairuhusiwi. Tumia muda wa nyongeza/mikwaju ya penalti kisha weka mshindi.');let r=await db.from('matches').update({home_score:hs,away_score:as,status:'played'}).eq('id',id);if(r.error)return alert(r.error.message);await reload();await autoProgress();await reload();render()}
-function render(){const root=$('#afrnKOTable');if(!root)return;const host=root.parentElement;let bl=host.querySelector('#afrnBestLoser');if(!bl){bl=document.createElement('div');bl.id='afrnBestLoser';root.parentNode.insertBefore(bl,root)}renderBestLoser();const stages=[['R16','HATUA YA 16 BORA',8],['QF','ROBO FAINALI',4],['SF','NUSU FAINALI / DEMI FINAL',2],['3RD','MSHINDI WA TATU / CLASSEMENT',1],['FINAL','FAINALI',1]];let html='';for(const [stage,title,count] of stages){const ms=stageMatches(stage).sort((a,b)=>slot(a)-slot(b));html+='<div class="ce-card"><h3>'+title+'</h3>';if(!ms.length)html+='<p class="ce-muted">Bado haijaundwa.</p>';for(let i=0;i<count;i++){const m=ms[i];const label=stage==='R16'?defs[i]?.[1]:stage==='QF'?'QF '+(i+1):stage==='SF'?'SF '+(i+1):stage==='3RD'?'Mshindi wa 3':'Final';if(!m){html+='<div class="ce-team"><span><b>'+label+'</b> — Inasubiri qualifiers</span></div>';continue}const sc=played(m)?m.home_score+' : '+m.away_score:'- : -';const blmark=String(m.notes||'').includes('BEST LOSER')?' ⭐ BEST LOSER':'';html+='<div class="ce-team"><span><b>'+label+blmark+'</b><br>'+esc(cname(m.home_team_id))+' <strong>'+sc+'</strong> '+esc(cname(m.away_team_id))+'</span><button class="small-btn" data-kor="'+m.id+'">'+(played(m)?'Badili Result':'Weka Result')+'</button></div>'}html+='</div>'}root.innerHTML=html;$$('[data-kor]',root).forEach(b=>b.onclick=()=>saveResult(b.dataset.kor));const status=$('#afrnKOStatus');const fin=stageMatches('FINAL')[0];status.innerHTML=fin&&winner(fin)?'🏆 <b>BINGWA: '+esc(cname(winner(fin)))+'</b>':'ℹ️ Chagua Best Loser → mpe kundi → Tengeneza Hatua ya 16. Baada ya kila hatua, mfumo utaendelea wenyewe.';}
-if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',init);else setTimeout(init,1200);
+function loser(m){const w=winner(m);if(!w)return null;return String(w)===String(m.home_team_id)?m.away_team_id:m.home_team_id;}
+function isKnockout(m){return /AFRN_STAGE=(R16|QF|SF|3RD|FINAL)/.test(String(m.notes||''));}
+function groupMap(){const out={};for(const t of teams){const g=String(t.group_name||'').trim().toUpperCase();if(!g)continue;(out[g]??=[]).push(String(t.club_id));}return out;}
+function cardCounts(){
+ const out={};
+ for(const e of window.__afrnEvents||[]){const typ=String(e.event_type||'').toLowerCase();const cid=String(e.club_id||'');if(!cid)continue;(out[cid]??={yc:0,rc:0});
+  if(typ.includes('red'))out[cid].rc++;
+  else if(typ.includes('yellow'))out[cid].yc++;
+ }
+ return out;
+}
+function standings(){
+ const groups=groupMap(),events=window.__afrnEvents||[],cards=cardCounts(),out={};
+ for(const g of Object.keys(groups).sort()){
+  const rows=groups[g].map(id=>{const c=cards[id]||{yc:0,rc:0};return{id,p:0,gf:0,ga:0,yc:c.yc,rc:c.rc};});
+  for(const m of matches.filter(x=>!isKnockout(x)&&played(x))){
+   const h=rows.find(r=>String(r.id)===String(m.home_team_id)),a=rows.find(r=>String(r.id)===String(m.away_team_id));
+   if(!h||!a)continue;
+   const hs=Number(m.home_score),as=Number(m.away_score);h.gf+=hs;h.ga+=as;a.gf+=as;a.ga+=hs;
+   if(hs>as)h.p+=3;else if(as>hs)a.p+=3;else{h.p++;a.p++;}
+  }
+  rows.sort((a,b)=>b.p-a.p||b.gf-a.gf||a.ga-b.ga||a.rc-b.rc||a.yc-b.yc||String(a.id).localeCompare(String(b.id)));
+  out[g]=rows.map((r,i)=>({...r,rank:i+1}));
+ }
+ return out;
+}
+function q(g,rank){return (standings()[g]||[]).find(r=>r.rank===rank)?.id||null;}
+function bestLoserCandidates(){
+ const s=standings(),out=[];
+ for(const g of Object.keys(s).sort())for(const r of s[g])if(r.rank>=3)out.push({id:r.id,group:g,rank:r.rank,p:r.p,gf:r.gf,ga:r.ga});
+ return out;
+}
+function loadBestLoser(){try{bestLoser=JSON.parse(localStorage.getItem('afrn_best_loser_'+comp.id)||'null');}catch(_){bestLoser=null;}}
+function saveBestLoser(){try{localStorage.setItem('afrn_best_loser_'+comp.id,JSON.stringify(bestLoser));}catch(_){} }
+async function load(){
+ const [c,t,m,e]=await Promise.all([
+  db.from('clubs').select('id,name,division').order('name'),
+  db.from('competition_teams').select('id,club_id,group_name').eq('competition_id',comp.id),
+  db.from('matches').select('*').eq('competition_id',comp.id).order('match_number'),
+  db.from('match_events').select('match_id,club_id,event_type').in('match_id',[])
+ ]);
+ if(c.error||t.error||m.error){throw new Error(c.error?.message||t.error?.message||m.error?.message||'Failed loading competition data');}
+ clubs=c.data||[];teams=t.data||[];matches=m.data||[];
+ const mids=matches.map(x=>x.id);window.__afrnEvents=[];
+ if(mids.length){const er=await db.from('match_events').select('match_id,club_id,event_type').in('match_id',mids);if(!er.error)window.__afrnEvents=er.data||[];}
+}
+function validation(){
+ const gm=groupMap(),actual=GROUPS.filter(g=>gm[g]);
+ const missing=GROUPS.filter(g=>!gm[g]);
+ const duplicates=[];const seen=new Set();for(const t of teams){const id=String(t.club_id);if(seen.has(id))duplicates.push(id);seen.add(id);}
+ return {gm,actual,missing,duplicates,ok:missing.length===0&&duplicates.length===0&&GROUPS.every(g=>(gm[g]||[]).length>=2)};
+}
+function notes(stage,i,label=''){return 'AFRN_STAGE='+stage+'|AFRN_SLOT='+i+(label?'|'+label:'');}
+async function ensureMatch(stage,index,home,away,label){
+ if(!home||!away)return null;
+ let m=stageMatches(stage).find(x=>slot(x)===index);
+ if(m){if(String(m.home_team_id)!==String(home)||String(m.away_team_id)!==String(away)){
+   const r=await db.from('matches').update({home_team_id:home,away_team_id:away,notes:notes(stage,index,label)}).eq('id',m.id);if(r.error)throw r.error;
+   m={...m,home_team_id:home,away_team_id:away,notes:notes(stage,index,label)};
+  }return m;}
+ const max=Math.max(0,...matches.map(x=>Number(x.match_number)||0));
+ const r=await db.from('matches').insert({competition_id:comp.id,home_team_id:home,away_team_id:away,match_number:max+1,status:'scheduled',notes:notes(stage,index,label)}).select().single();
+ if(r.error)throw r.error;matches.push(r.data);return r.data;
+}
+async function generateR16(){
+ try{await load();loadBestLoser();const v=validation();
+  if(!v.ok){alert('⚠️ Hatua ya 16 Bora ya AFRN inahitaji makundi A–H, kila kundi liwe na angalau timu 2, na timu isijirudie. Sasa kuna: '+v.actual.join(', ')+'; yanayokosekana: '+(v.missing.join(', ')||'hakuna')+'. Hakuna data iliyobadilishwa.');return;}
+  if(!bestLoser?.teamId||!GROUPS.includes(bestLoser.group)){alert('Chagua kwanza Best Loser na kundi lake.');return;}
+  const team=String(bestLoser.teamId),g=bestLoser.group;
+  const candidate=bestLoserCandidates().find(x=>String(x.id)===team);
+  if(!candidate||candidate.rank<3){alert('Best Loser lazima awe nafasi ya 3 au chini kwenye kundi lake.');return;}
+  if(q(g,1)===team||q(g,2)===team){alert('Best Loser hawezi kuchukua nafasi ya timu ya 1 au 2 ya kundi hilo.');return;}
+  for(let i=0;i<R16.length;i++){
+   const hg=R16[i][0],ag=R16[i][1];
+   const home=q(hg,1);let away=q(ag,2);let label='R16 '+(i+1);
+   if(ag===g){away=team;label+=' | BEST LOSER';}
+   await ensureMatch('R16',i+1,home,away,label);
+  }
+  await load();render();alert('✅ Ratiba ya Hatua ya 16 Bora imetengenezwa kwa mpangilio rasmi wa AFRN.');
+ }catch(e){alert('❌ '+(e.message||e));}
+}
+async function autoProgress(){
+ await load();let r=stageMatches('R16').sort((a,b)=>slot(a)-slot(b));
+ if(r.length===8&&r.every(winner))for(const [i,a,b] of [[1,1,2],[2,3,4],[3,5,6],[4,7,8]])await ensureMatch('QF',i,winner(r[a-1]),winner(r[b-1]),'QF '+i);
+ await load();let qf=stageMatches('QF').sort((a,b)=>slot(a)-slot(b));
+ if(qf.length===4&&qf.every(winner)){await ensureMatch('SF',1,winner(qf[0]),winner(qf[2]),'SF 1');await ensureMatch('SF',2,winner(qf[1]),winner(qf[3]),'SF 2');}
+ await load();let sf=stageMatches('SF').sort((a,b)=>slot(a)-slot(b));
+ if(sf.length===2&&sf.every(winner)){await ensureMatch('3RD',1,loser(sf[0]),loser(sf[1]),'Mshindi wa 3');await ensureMatch('FINAL',1,winner(sf[0]),winner(sf[1]),'Final');}
+}
+async function saveResult(id){
+ const m=matches.find(x=>String(x.id)===String(id));if(!m)return;
+ let hs=prompt('Magoli '+cname(m.home_team_id),m.home_score??0),as=prompt('Magoli '+cname(m.away_team_id),m.away_score??0);if(hs===null||as===null)return;
+ hs=Number(hs);as=Number(as);if(!Number.isInteger(hs)||!Number.isInteger(as)||hs<0||as<0)return alert('Score si sahihi.');
+ let winToken='';if(hs===as){const pick=prompt('Sare imeingia. Andika HOME kwa mshindi wa nyumbani au AWAY kwa mshindi wa ugenini baada ya extra time/penalty:','');if(!/^home$|^away$/i.test(pick||''))return alert('Chagua HOME au AWAY.');winToken='|AFRN_WINNER='+(pick.toUpperCase());}
+ const r=await db.from('matches').update({home_score:hs,away_score:as,status:'played',notes:String(m.notes||'').replace(/\|AFRN_WINNER=(HOME|AWAY)/g,'')+winToken}).eq('id',id);
+ if(r.error)return alert('❌ '+r.error.message);await autoProgress();await load();render();
+}
+function renderBestLoser(){
+ const root=$('#afrnBestLoser');if(!root)return;const v=validation(),cands=bestLoserCandidates();
+ root.innerHTML='<div class="ce-card"><h3>⭐ BEST LOSER — Chagua na Mpe Kundi</h3><p class="ce-muted">Chaguo hili linahifadhiwa kwenye kifaa hiki hadi Ratiba ya 16 Bora itengenezwe.</p>'+
+ '<div class="ce-grid2"><select id="afrnBLTeam" class="ce-field"><option value="">Chagua Best Loser</option>'+cands.map(x=>'<option value="'+x.id+'" '+(bestLoser?.teamId===x.id?'selected':'')+'>'+esc(cname(x.id))+' — Kundi '+esc(x.group)+' — Nafasi '+x.rank+' — '+x.p+' pts</option>').join('')+'</select>'+ 
+ '<select id="afrnBLGroup" class="ce-field"><option value="">Mpe kundi A–H</option>'+GROUPS.map(g=>'<option value="'+g+'" '+(bestLoser?.group===g?'selected':'')+'>'+g+'</option>').join('')+'</select></div>'+ 
+ '<div class="ce-actions"><button id="afrnBLSave" class="primary">💾 Hifadhi Best Loser</button><button id="afrnBLClear" class="secondary">🗑️ Ondoa</button></div>'+ 
+ (bestLoser?'<div class="ce-good">✅ '+esc(cname(bestLoser.teamId))+' → Kundi '+bestLoser.group+'</div>':'')+
+ (!v.ok?'<div class="ce-warning">⚠️ '+esc(v.actual.join(', ')||'Hakuna makundi')+' lime/limewekwa. Ratiba rasmi ya R16 inahitaji A–H.</div>':'')+'</div>';
+ $('#afrnBLSave').onclick=()=>{const teamId=$('#afrnBLTeam').value,group=$('#afrnBLGroup').value;if(!teamId||!group)return alert('Chagua timu na kundi.');if(q(group,1)===teamId||q(group,2)===teamId)return alert('Timu hiyo tayari ni nafasi ya 1 au 2 ya kundi hilo.');bestLoser={teamId,group};saveBestLoser();render();};
+ $('#afrnBLClear').onclick=()=>{bestLoser=null;saveBestLoser();render();};
+}
+function render(){
+ const root=$('#afrnKOTable');if(!root)return;const v=validation();let bl=$('#afrnBestLoser');if(!bl){bl=document.createElement('div');bl.id='afrnBestLoser';root.parentNode.insertBefore(bl,root);}renderBestLoser();
+ const stages=[['R16','HATUA YA 16 BORA',8],['QF','ROBO FAINALI',4],['SF','NUSU FAINALI / DEMI FINAL',2],['3RD','MSHINDI WA TATU / CLASSEMENT',1],['FINAL','FAINALI',1]];let html='';
+ if(!v.ok)html+='<div class="ce-card ce-warning"><b>⚠️ R16 haijawezeshwa.</b><br>Muundo wa sasa una '+esc(v.actual.join(', ')||'hakuna')+'. Mpangilio rasmi uliowekwa unahitaji makundi A–H.</div>';
+ for(const [stage,title,count] of stages){const ms=stageMatches(stage).sort((a,b)=>slot(a)-slot(b));html+='<div class="ce-card"><h3>'+title+'</h3>';for(let i=0;i<count;i++){const m=ms[i];const label=stage==='R16'?(i+1)+'. '+R16[i][0]+' × '+R16[i][1]:stage+' '+(i+1);if(!m){html+='<div class="ce-team"><span><b>'+label+'</b> — Inasubiri qualifiers</span></div>';continue;}const sc=played(m)?m.home_score+' : '+m.away_score:'- : -';const wm=winner(m)?' 🏆':'';html+='<div class="ce-team"><span><b>'+label+'</b><br>'+esc(cname(m.home_team_id))+' <strong>'+sc+'</strong> '+esc(cname(m.away_team_id))+wm+'</span><button class="small-btn" data-kor="'+m.id+'">'+(played(m)?'Badili Result':'Weka Result')+'</button></div>';}html+='</div>';}
+ root.innerHTML=html;$$('[data-kor]',root).forEach(b=>b.onclick=()=>saveResult(b.dataset.kor));const fin=stageMatches('FINAL')[0],status=$('#afrnKOStatus');if(status)status.innerHTML=fin&&winner(fin)?'🏆 <b>BINGWA: '+esc(cname(winner(fin)))+'</b>':'ℹ️ Mfumo unasubiri matokeo.';
+}
+async function init(){
+ try{db=client();if(!db)return;const id=new URLSearchParams(location.search).get('id');const cr=id?await db.from('competitions').select('*').eq('id',id).single():await db.from('competitions').select('*').order('created_at',{ascending:false}).limit(1).maybeSingle();if(cr.error||!cr.data)return;comp=cr.data;await load();loadBestLoser();
+  if(!document.getElementById('afrnKnockoutEngine')){const host=$('#ce-knockout')||document.body;const box=document.createElement('div');box.id='afrnKnockoutEngine';box.innerHTML='<div class="ce-card"><h3>⚔️ AFRN KNOCKOUT — MFUMO RASMI</h3><div id="afrnKOStatus" class="ce-warning"></div><div class="ce-actions"><button id="afrnKOGenerate" class="primary">⚙️ Tengeneza Ratiba ya Hatua ya 16</button><button id="afrnKORefresh" class="secondary">↻ Refresh</button></div><div id="afrnKOTable" style="margin-top:12px"></div></div>';host.prepend(box);}
+  $('#afrnKOGenerate').onclick=generateR16;$('#afrnKORefresh').onclick=async()=>{await load();loadBestLoser();render();};render();
+ }catch(e){console.error('AFRN Knockout Engine',e);}
+}
+if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',init);else init();
 })();
