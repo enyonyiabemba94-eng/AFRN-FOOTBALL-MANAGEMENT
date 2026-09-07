@@ -1,0 +1,70 @@
+name: Fix Transfer Script Parser
+
+on:
+  push:
+    branches: [main]
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+jobs:
+  fix:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Escape embedded script closing tag
+        shell: python
+        run: |
+          from pathlib import Path
+          p = Path('transfers.html')
+          s = p.read_text(encoding='utf-8')
+          old = '<script>\\n\n</body>'
+          # The actual bug is an unescaped </script> inside the JavaScript template
+          # used by downloadContract(). Escape every closing script tag that occurs
+          # after the main script begins, while preserving real HTML script tags.
+          marker = 'function downloadContract(){'
+          i = s.find(marker)
+          if i == -1:
+              raise SystemExit('downloadContract() not found')
+          j = s.find('</script>', i)
+          if j == -1:
+              raise SystemExit('main closing script tag not found')
+          segment = s[i:j]
+          bad = '</script>'
+          if bad not in segment:
+              print('No embedded closing script tag found; nothing to change.')
+          else:
+              segment = segment.replace(bad, '<\\/script>')
+              s = s[:i] + segment + s[j:]
+              p.write_text(s, encoding='utf-8')
+              print('Fixed embedded </script> in downloadContract().')
+
+      - name: Validate HTML script structure
+        shell: python
+        run: |
+          from pathlib import Path
+          s = Path('transfers.html').read_text(encoding='utf-8')
+          start = s.find('<script>')
+          end = s.rfind('</script>')
+          if start < 0 or end < start:
+              raise SystemExit('Main script block is missing or malformed')
+          segment = s[start:end]
+          if '</script>' in segment:
+              raise SystemExit('Unescaped </script> remains inside main script')
+          print('Transfer script structure OK.')
+
+      - name: Commit fix
+        shell: bash
+        run: |
+          git config user.name 'github-actions[bot]'
+          git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
+          if git diff --quiet -- transfers.html; then
+            echo 'No transfer parser fix needed.'
+            exit 0
+          fi
+          git add transfers.html
+          git commit -m 'fix: escape embedded script tag in transfers page [transfer-parser-fix]'
+          git push
