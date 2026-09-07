@@ -17,7 +17,7 @@ jobs:
       - name: Checkout
         uses: actions/checkout@v4
 
-      - name: Repair embedded script closing tags
+      - name: Repair embedded script closing tags and force fresh deployment
         run: |
           python3 - <<'PY'
           from pathlib import Path
@@ -38,11 +38,18 @@ jobs:
           js=region[:last]
           tail=region[last:]
           fixed=js.replace('</script>','<\\/script>')+tail
-          if fixed!=region:
-              p.write_text(x[:start]+fixed+x[body:],encoding='utf-8')
-              print('FIXED: embedded </script> tags escaped.')
+          changed = fixed != region
+          if changed:
+              x=x[:start]+fixed+x[body:]
+          marker='<!-- AFRN TRANSFERS PARSER FIX DEPLOYED -->'
+          if marker not in x:
+              x=x.replace('</head>', marker+'\n</head>', 1)
+              changed=True
+          if changed:
+              p.write_text(x,encoding='utf-8')
+              print('FIXED: transfers parser checked and deployment marker added.')
           else:
-              print('OK: no embedded unescaped </script> tags.')
+              print('OK: transfers parser safe and marker already present.')
           PY
 
       - name: Verify
@@ -52,13 +59,15 @@ jobs:
           import re
           x=Path('transfers.html').read_text(encoding='utf-8')
           m=re.search(r'function\s+downloadContract\s*\(\s*\)',x)
-          assert m
+          assert m, 'downloadContract() not found'
           body=x.find('</body>',m.start())
+          assert body>=0, '</body> not found'
           region=x[m.start():body]
           last=region.rfind('</script>')
-          assert last>=0
-          assert '</script>' not in region[:last]
-          print('PASS: Transfers JavaScript parser is safe.')
+          assert last>=0, 'outer </script> not found'
+          assert '</script>' not in region[:last], 'unescaped embedded </script> remains'
+          assert '<!-- AFRN TRANSFERS PARSER FIX DEPLOYED -->' in x
+          print('PASS: Transfers JavaScript parser is safe and deployment marker is present.')
           PY
 
       - name: Commit
@@ -69,6 +78,6 @@ jobs:
           if git diff --cached --quiet; then
             echo 'No changes needed.'
           else
-            git commit -m 'fix: escape embedded script tag in transfers page'
+            git commit -m 'fix: repair transfers parser and force fresh deployment'
             git push
           fi
