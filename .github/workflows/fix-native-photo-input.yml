@@ -1,0 +1,102 @@
+name: Fix Native Player Photo Input
+
+on:
+  push:
+    branches: [main]
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+jobs:
+  fix:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Replace photo picker with direct native input
+        run: |
+          python3 - <<'PY'
+          from pathlib import Path
+          p = Path('players.html')
+          s = p.read_text(encoding='utf-8')
+
+          old = '''<input
+          class="field"
+          id="photoFile"
+          type="file"
+          accept="image/jpeg,image/jpg,image/png,image/webp"
+          >'''
+
+          new = '''<div class="afrn-native-photo-picker">
+          <input
+          id="photoFile"
+          type="file"
+          accept="image/jpeg,image/jpg,image/png,image/webp"
+          aria-label="Chagua picha ya mchezaji kutoka simu au computer"
+          >
+          </div>'''
+
+          if old in s:
+              s = s.replace(old, new, 1)
+
+          css = '''\n/* Direct native photo picker - works with Android Gallery/Files and desktop file picker */
+.afrn-native-photo-picker{
+  width:100%;
+  margin-top:5px;
+}
+.afrn-native-photo-picker input[type="file"]{
+  display:block !important;
+  width:100% !important;
+  min-height:52px !important;
+  padding:10px !important;
+  border:2px solid #0d47a1 !important;
+  border-radius:10px !important;
+  background:#fff !important;
+  color:#172033 !important;
+  font-size:14px !important;
+  font-weight:700 !important;
+  cursor:pointer !important;
+  opacity:1 !important;
+  visibility:visible !important;
+  position:static !important;
+}
+.afrn-native-photo-picker input[type="file"]::file-selector-button{
+  border:0;
+  border-radius:8px;
+  padding:10px 14px;
+  margin-right:10px;
+  background:#0d47a1;
+  color:#fff;
+  font-weight:700;
+  cursor:pointer;
+}
+'''
+
+          if 'Direct native photo picker - works with Android Gallery/Files' not in s:
+              s = s.replace('</style>', css + '\n</style>', 1)
+
+          # Remove the previous JS picker layer so it cannot intercept the native control.
+          start = s.find('<script id="afrn-native-photo-picker-fix">')
+          if start != -1:
+              end = s.find('</script>', start)
+              if end != -1:
+                  s = s[:start] + s[end+9:]
+
+          s = s.replace('<button id="choosePhotoBtn"', '<button id="choosePhotoBtn" style="display:none"', 1)
+
+          marker = '<!-- AFRN DIRECT NATIVE PHOTO PICKER v2 -->'
+          if marker not in s:
+              s = s.replace('</body>', marker + '\n</body>', 1)
+
+          p.write_text(s, encoding='utf-8')
+          PY
+
+      - name: Commit patch
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add players.html
+          git diff --cached --quiet || git commit -m "fix: direct native player photo picker"
+          git push
