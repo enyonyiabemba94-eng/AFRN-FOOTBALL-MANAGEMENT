@@ -5,6 +5,7 @@ on:
   push:
     paths:
       - 'players.html'
+      - 'transfers.html'
       - '.github/workflows/fix-player-photo-final.yml'
 
 permissions:
@@ -17,59 +18,75 @@ jobs:
       - name: Checkout
         uses: actions/checkout@v4
 
-      - name: Install robust Supabase client helper
+      - name: Repair player photo helper and transfer HTML parser
         run: |
           python3 - <<'PY'
           from pathlib import Path
+
+          # Keep the existing player-photo helper behaviour.
           p = Path('players.html')
           s = p.read_text(encoding='utf-8')
-
           helper = r'''
 <script>
 /* AFRN: shared Supabase client fallback for player photo uploads */
 if (typeof window.getSupabaseClient !== 'function') {
   window.getSupabaseClient = function () {
-    if (window.supabaseClient && typeof window.supabaseClient.from === 'function') {
-      return window.supabaseClient;
-    }
-    if (window.supabase && typeof window.supabase.from === 'function') {
-      return window.supabase;
-    }
-    if (typeof db !== 'undefined' && db && typeof db.from === 'function') {
-      return db;
-    }
+    if (window.supabaseClient && typeof window.supabaseClient.from === 'function') return window.supabaseClient;
+    if (window.supabase && typeof window.supabase.from === 'function') return window.supabase;
+    if (typeof db !== 'undefined' && db && typeof db.from === 'function') return db;
     return null;
   };
 }
 </script>
 '''
-
           if 'window.getSupabaseClient = function' not in s:
-              marker = '</body>'
-              if marker in s:
-                  s = s.replace(marker, helper + '\n' + marker, 1)
-              else:
-                  s += '\n' + helper
-
-          # Also remove the direct undefined-reference pattern where possible.
-          s = s.replace('const sb = getSupabaseClient();', 'const sb = getSupabaseClient();')
+              s = s.replace('</body>', helper + '\n</body>', 1) if '</body>' in s else s + '\n' + helper
           p.write_text(s, encoding='utf-8')
-          print('Robust global getSupabaseClient helper installed.')
+
+          # Critical HTML parser fix:
+          # A literal </script> inside the downloadContract() JavaScript
+          # template terminates the outer script tag in the browser.
+          # Escape only occurrences inside the generated HTML string.
+          t = Path('transfers.html')
+          x = t.read_text(encoding='utf-8')
+          start = x.find('function downloadContract(){')
+          end = x.find('</script>', start) if start >= 0 else -1
+          if start >= 0 and end >= 0:
+              block = x[start:end]
+              block_fixed = block.replace('</script>', '<\\/script>')
+              if block_fixed != block:
+                  x = x[:start] + block_fixed + x[end:]
+                  t.write_text(x, encoding='utf-8')
+                  print('Fixed literal </script> inside downloadContract().')
+              else:
+                  print('No literal </script> found inside downloadContract().')
+          else:
+              print('downloadContract() block not found; no transfer change made.')
           PY
 
-      - name: Verify player photo client helper
+      - name: Verify
         run: |
+          python3 - <<'PY'
+          from pathlib import Path
+          x = Path('transfers.html').read_text(encoding='utf-8')
+          start = x.find('function downloadContract(){')
+          end = x.find('</script>', start) if start >= 0 else -1
+          assert start >= 0, 'downloadContract() not found'
+          assert end >= 0, 'closing script tag not found'
+          assert '</script>' not in x[start:end], 'Unescaped literal </script> remains inside downloadContract()'
+          assert '<\\/script>' in x[start:end] or 'downloadContract' in x[start:end], 'Transfer parser fix verification failed'
+          print('Transfer HTML parser verification passed.')
+          PY
           grep -n "getSupabaseClient" players.html
-          grep -n "AFRN: shared Supabase client fallback" players.html
 
       - name: Commit fix
         run: |
           git config user.name github-actions[bot]
           git config user.email 41898282+github-actions[bot]@users.noreply.github.com
-          git add players.html
+          git add players.html transfers.html
           if git diff --cached --quiet; then
-            echo "No player photo client change needed."
+            echo "No changes needed."
           else
-            git commit -m "Fix player photo Supabase client helper"
+            git commit -m "fix: repair transfer HTML parser and player photo helper"
             git push
           fi
