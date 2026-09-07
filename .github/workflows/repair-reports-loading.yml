@@ -22,6 +22,7 @@ jobs:
           s=s.replace('https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2</script>', 'https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.js</script>')
           s=s.replace('https://unpkg.com/@supabase/supabase-js@2</script>', 'https://unpkg.com/@supabase/supabase-js@2/dist/umd/supabase.js</script>')
           s=s.replace('https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.js/dist/umd/supabase.js', 'https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.js')
+          s=s.replace('https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.0.0</script>', 'https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.js</script>')
           p.write_text(s,encoding='utf-8')
           PY
           git config user.name 'github-actions[bot]'
