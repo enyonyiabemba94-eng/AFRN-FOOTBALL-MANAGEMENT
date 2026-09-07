@@ -3515,5 +3515,54 @@ loadData();
   [300, 1000, 2500, 5000].forEach(ms => setTimeout(bind, ms));
 })();
 </script>
+
+<script id="afrn-player-photo-picker-fix">
+(() => {
+  function install() {
+    const input = document.getElementById('photoFile');
+    if (!input || input.dataset.afrnPickerReady === '1') return;
+    input.dataset.afrnPickerReady = '1';
+
+    const box = input.closest('.photo-upload-box');
+    if (box && !document.getElementById('choosePhotoBtn')) {
+      const button = document.createElement('button');
+      button.type = 'button';
+      button.id = 'choosePhotoBtn';
+      button.className = 'primary';
+      button.textContent = '📷 Chagua Picha kutoka Simu/Computer';
+      button.style.cssText = 'width:100%;margin-bottom:9px;padding:13px;font-size:14px;';
+      input.parentNode.insertBefore(button, input);
+
+      button.addEventListener('click', (event) => {
+        event.preventDefault();
+        event.stopPropagation();
+        input.click();
+      });
+    }
+
+    input.style.display = 'block';
+    input.style.width = '100%';
+    input.style.minHeight = '46px';
+    input.style.cursor = 'pointer';
+    input.setAttribute('aria-label', 'Chagua picha ya mchezaji');
+
+    const label = input.closest('.photo-upload-box')?.querySelector('label');
+    if (label) {
+      label.style.cursor = 'pointer';
+      label.addEventListener('click', (event) => {
+        if (event.target !== input) input.click();
+      });
+    }
+  }
+
+  if (document.readyState === 'loading') {
+    document.addEventListener('DOMContentLoaded', install);
+  } else {
+    install();
+  }
+  new MutationObserver(install).observe(document.documentElement, {childList:true, subtree:true});
+  [100, 500, 1000, 2500].forEach(ms => setTimeout(install, ms));
+})();
+</script>
 </body>
 </html>
