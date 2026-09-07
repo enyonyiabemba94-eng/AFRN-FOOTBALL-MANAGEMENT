@@ -21,8 +21,8 @@ jobs:
           p=Path('reports.html')
           s=p.read_text(encoding='utf-8')
           for name in ['afrn-report-bootstrap.js','afrn-player-photo-global.js','afrn-report-official.js','afrn-report-pdf.js']:
-              for old in ['20260908','20260909','20260910','20260911']:
-                  s=s.replace(name+'?v='+old,name+'?v=20260912')
+              for old in ['20260908','20260909','20260910','20260911','20260912']:
+                  s=s.replace(name+'?v='+old,name+'?v=20260913')
           s=s.replace('\n<script src="./afrn-player-photo-global.js"></script>','')
           old="function waitForSupabase(){if(window.supabase&&typeof window.supabase.createClient==='function'){startReports();return}setStatus('⏳ Inaandaa Supabase...');let tries=0;const timer=setInterval(()=>{tries++;if(window.supabase&&typeof window.supabase.createClient==='function'){clearInterval(timer);startReports()}else if(tries>=100){clearInterval(timer);setStatus('❌ Supabase haijapatikana baada ya kusubiri.','err')}},100)}"
           new="function waitForSupabase(){if(window.supabase&&typeof window.supabase.createClient==='function'){startReports();return}const el=document.getElementById('status');if(el){el.textContent='⏳ Inaandaa Supabase...';el.className='status'}let tries=0;const timer=setInterval(()=>{tries++;if(window.supabase&&typeof window.supabase.createClient==='function'){clearInterval(timer);startReports()}else if(tries>=150){clearInterval(timer);if(el){el.textContent='❌ Supabase haijapatikana. Fungua upya ukurasa au jaribu tena.';el.className='status err'} }},100)}"
@@ -34,5 +34,5 @@ jobs:
           git config user.name 'github-actions[bot]'
           git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
           git add reports.html
-          git diff --cached --quiet || git commit -m 'fix: force Reports loader cache refresh [reports-loader-fix]'
+          git diff --cached --quiet || git commit -m 'fix: force Reports PDF cache refresh [reports-loader-fix]'
           git push
