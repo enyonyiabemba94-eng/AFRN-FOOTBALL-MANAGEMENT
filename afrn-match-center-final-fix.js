@@ -1,34 +1,37 @@
 (()=>{
 'use strict';
-if(window.__AFRN_MATCH_CENTER_FINAL_FIX__)return;
-window.__AFRN_MATCH_CENTER_FINAL_FIX__=true;
+if(window.__AFRN_MATCH_CENTER_FINAL_FIX_V2__)return;
+window.__AFRN_MATCH_CENTER_FINAL_FIX_V2__=true;
 const db=()=>window.supabaseClient||window.supabase;
 const mid=()=>String(window.currentMatchId||document.getElementById('editMatchId')?.value||'');
 
-/* Remove the legacy standalone Match Events module. Events must live inside the selected match / lineup card. */
+/* Remove ONLY the old standalone Match Events card. Never scan/remove arbitrary divs. */
 function removeLegacyEvents(){
-  document.querySelectorAll('section,.card,div').forEach(el=>{
-    if(el.id==='afrnMatchEventsEmbedded')return;
-    const t=(el.innerText||'').trim();
-    if(/🎬\s*MATCH EVENTS\s*[—-]\s*GOLI,\s*KADI\s*&\s*MABADILIKO/i.test(t) ||
-       (/LIVE SCORE/i.test(t)&&/💾\s*Hifadhi Tukio/i.test(t)&&/🏟️\s*Chagua Mechi/i.test(t))){
-      const embedded=el.querySelector?.('#afrnMatchEventsEmbedded');
-      if(!embedded && el.parentElement) el.remove();
-    }
+  const headings=[...document.querySelectorAll('h2,h3')].filter(h=>{
+    const t=(h.textContent||'').replace(/\s+/g,' ').trim();
+    return /MATCH EVENTS\s*[—-]\s*GOLI,\s*KADI\s*&\s*MABADILIKO/i.test(t) || /🎬\s*MATCH EVENTS/i.test(t);
+  });
+  headings.forEach(h=>{
+    const section=h.closest('section.card,section,.card');
+    if(section && !section.querySelector('#afrnMatchEventsEmbedded')) section.remove();
   });
 }
 
-function lineupChecks(side,type){
-  return [...document.querySelectorAll(`input[data-side="${side}"][data-type="${type}"]`)];
+function checks(side,type){
+  return [...document.querySelectorAll(`input[data-side="${side}"][data-type="${type}"][data-player-id]`)];
 }
 function enforceUi(side){
-  const starts=new Set(lineupChecks(side,'starting').filter(x=>x.checked).map(x=>String(x.dataset.playerId||'')));
-  lineupChecks(side,'substitute').forEach(x=>{
+  const starts=new Set(checks(side,'starting').filter(x=>x.checked).map(x=>String(x.dataset.playerId||'')));
+  checks(side,'substitute').forEach(x=>{
     const duplicate=starts.has(String(x.dataset.playerId||''));
     if(duplicate && x.checked)x.checked=false;
     x.disabled=duplicate;
     const row=x.closest('.player-row');
-    if(row){row.style.opacity=duplicate?'.45':'';row.title=duplicate?'Mchezaji huyu yuko Starting XI':'';}
+    if(row){
+      row.style.display=duplicate?'none':'';
+      row.style.opacity=duplicate?'.45':'';
+      row.title=duplicate?'Mchezaji huyu yuko Starting XI':'';
+    }
   });
 }
 function enforceAll(){enforceUi('home');enforceUi('away');}
@@ -46,14 +49,12 @@ async function cleanDbDuplicates(){
 }
 
 function hookCheckboxes(){
-  if(document.__afrnFinalFixBound)return;
-  document.__afrnFinalFixBound=true;
   document.addEventListener('change',e=>{
     const x=e.target;
     if(!(x instanceof HTMLInputElement)||!x.matches('input[data-side][data-type][data-player-id]'))return;
-    const side=x.dataset.side,type=x.dataset.type,id=String(x.dataset.playerId||'');
-    if(x.checked&&type==='starting'){
-      const sub=lineupChecks(side,'substitute').find(s=>String(s.dataset.playerId||'')===id);
+    const side=x.dataset.side;
+    if(x.dataset.type==='starting' && x.checked){
+      const sub=checks(side,'substitute').find(s=>String(s.dataset.playerId||'')===String(x.dataset.playerId||''));
       if(sub){sub.checked=false;sub.disabled=true;}
     }
     enforceUi(side);
@@ -62,7 +63,7 @@ function hookCheckboxes(){
 
 function hookSave(){
   const original=window.saveLineups;
-  if(typeof original!=='function'||original.__afrnFinalFix)return false;
+  if(typeof original!=='function'||original.__afrnFinalFixV2)return false;
   const wrapped=async function(){
     enforceAll();
     const result=await original.apply(this,arguments);
@@ -70,7 +71,7 @@ function hookSave(){
     enforceAll();
     return result;
   };
-  wrapped.__afrnFinalFix=true;
+  wrapped.__afrnFinalFixV2=true;
   window.saveLineups=wrapped;
   return true;
 }
