@@ -43,7 +43,7 @@ if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',
       if(error||!p)return;
       const role=String(p.role||'').toLowerCase();
       if(!['club_admin','club','club_account'].includes(role)||!p.club_id)return;
-      const sel=document.getElementById('club');
+      const sel=document.getElementById('clubId');
       if(!sel)return;
       const {data:club,error:ce}=await db.from('clubs').select('id,name,division').eq('id',p.club_id).maybeSingle();
       if(ce||!club)return;
