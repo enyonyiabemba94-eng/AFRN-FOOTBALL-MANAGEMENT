@@ -3,14 +3,13 @@
   let me = null;
   let role = '';
   let otherPlayers = [];
-
   const esc = v => String(v ?? '').replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#039;'}[c]));
   const isClubAdmin = () => ['club_admin','club','club_account'].includes(role);
   const isAfrnAdmin = () => ['super_admin','superadmin','admin','administrator','afrn_admin','secretary_general'].includes(role);
   const fullName = p => [p?.first_name,p?.middle_name,p?.last_name].filter(Boolean).join(' ') || 'Unknown Player';
 
   function photoUrl(p){
-    const raw = String(p?.photo_url || p?.photo || p?.photograph || '').trim();
+    const raw = String(p?.photo_url || '').trim();
     if(!raw) return '';
     if(/^https?:\/\//i.test(raw)) return raw;
     const client = sb();
@@ -37,7 +36,6 @@
       .afrn-player-request-placeholder{width:68px;height:68px;border-radius:13px;background:#eef2f7;border:1px solid #dce2ea;display:flex;align-items:center;justify-content:center;font-size:28px;flex-shrink:0}
       .afrn-player-request-name{font-weight:800;font-size:15px;line-height:1.2}
       .afrn-player-request-team{font-size:12px;color:#174ea6;font-weight:700;margin-top:5px}
-      .afrn-player-request-id{font-size:10px;color:#687386;margin-top:4px}
       .afrn-player-request-btn{width:100%;margin-top:11px;background:#0d47a1;color:#fff;padding:10px;border-radius:9px}
       .afrn-player-request-btn.pending{background:#fff5df;color:#9a6100}
       .afrn-player-search{width:100%;padding:10px;border:1px solid #d6dce5;border-radius:9px;margin:7px 0 4px;box-sizing:border-box}
@@ -107,9 +105,9 @@
   }
 
   async function loadOtherPlayers(){
-    if(!isClubAdmin()) return;
+    if(!isClubAdmin() || !me?.club_id) return;
     const client=sb();
-    const {data,error}=await client.from('players').select('id,player_id_number,first_name,middle_name,last_name,photo_url,photo,club_id,registration_approval_status,clubs:club_id(name)').neq('club_id',me.club_id).not('club_id','is',null).order('first_name',{ascending:true});
+    const {data,error}=await client.from('players').select('id,first_name,middle_name,last_name,photo_url,club_id,registration_approval_status,clubs:club_id(name)').neq('club_id',me.club_id).not('club_id','is',null).order('first_name',{ascending:true});
     if(error){
       const box=document.querySelector('#afrn-destination-requests .afrn-reg-list');
       if(box) box.innerHTML='<div class="afrn-reg-note">❌ Imeshindikana kupata wachezaji wa klabu nyingine: '+esc(error.message)+'</div>';
@@ -125,22 +123,14 @@
     const list=otherPlayers.filter(p=>{
       const name=fullName(p).toLowerCase();
       const team=String(p?.clubs?.name||'').toLowerCase();
-      const pid=String(p?.player_id_number||'').toLowerCase();
-      return !q || name.includes(q) || team.includes(q) || pid.includes(q);
+      return !q || name.includes(q) || team.includes(q);
     });
     if(!list.length){box.innerHTML='<div class="afrn-reg-note">Hakuna mchezaji wa klabu nyingine anayepatikana.</div>';return;}
-    box.innerHTML=`<input id="afrnOtherPlayerSearch" class="afrn-player-search" type="search" placeholder="🔎 Tafuta mchezaji au klabu..." value="${esc(search)}"><div class="afrn-player-request-grid">${list.map(p=>{
+    box.innerHTML=`<input id="afrnOtherPlayerSearch" class="afrn-player-search" type="search" placeholder="🔎 Tafuta jina au klabu..." value="${esc(search)}"><div class="afrn-player-request-grid">${list.map(p=>{
       const url=photoUrl(p);
       const status=String(p.registration_approval_status||'');
       const pending=['PENDING_CLUB_APPROVAL','PENDING_AFRN_APPROVAL'].includes(status);
-      return `<article class="afrn-player-request-card">
-        <div class="afrn-player-request-top">
-          ${url?`<img class="afrn-player-request-photo" src="${esc(url)}" alt="${esc(fullName(p))}" onerror="this.style.display='none';this.nextElementSibling.style.display='flex'">`:''}
-          <div class="afrn-player-request-placeholder" style="display:${url?'none':'flex'}">👤</div>
-          <div><div class="afrn-player-request-name">${esc(fullName(p))}</div><div class="afrn-player-request-team">⚽ ${esc(p?.clubs?.name||'Klabu haijulikani')}</div><div class="afrn-player-request-id">AFRN Player ID: ${esc(p.player_id_number||'—')}</div></div>
-        </div>
-        <button type="button" class="afrn-player-request-btn ${pending?'pending':''}" data-request-player="${esc(p.id)}" ${pending?'disabled':''}>${pending?'🟡 Ombi tayari lipo':'📝 Tuma Ombi la Usajili'}</button>
-      </article>`;
+      return `<article class="afrn-player-request-card"><div class="afrn-player-request-top">${url?`<img class="afrn-player-request-photo" src="${esc(url)}" alt="${esc(fullName(p))}" onerror="this.style.display='none';this.nextElementSibling.style.display='flex'">`:''}<div class="afrn-player-request-placeholder" style="display:${url?'none':'flex'}">👤</div><div><div class="afrn-player-request-name">${esc(fullName(p))}</div><div class="afrn-player-request-team">⚽ ${esc(p?.clubs?.name||'Klabu haijulikani')}</div></div></div><button type="button" class="afrn-player-request-btn ${pending?'pending':''}" data-request-player="${esc(p.id)}" ${pending?'disabled':''}>${pending?'🟡 Ombi tayari lipo':'📝 Tuma Ombi la Usajili'}</button></article>`;
     }).join('')}</div>`;
     const input=document.getElementById('afrnOtherPlayerSearch');
     input?.addEventListener('input',e=>renderOtherPlayers(e.target.value));
@@ -153,14 +143,14 @@
       const source=document.querySelector('#afrn-source-approvals .afrn-reg-list');
       const dest=document.querySelector('#afrn-destination-requests .afrn-reg-list');
       if(source){
-        const {data,error}=await client.from('players').select('id,player_id_number,first_name,middle_name,last_name,club_id,registration_requested_club_id,registration_requested_at,registration_approval_status,registration_rejection_reason,registration_club_rejection_reason,photo_url,photo,clubs:registration_requested_club_id(name)').eq('club_id',me.club_id).eq('registration_approval_status','PENDING_CLUB_APPROVAL').order('registration_requested_at',{ascending:false});
+        const {data,error}=await client.from('players').select('id,player_id_number,first_name,middle_name,last_name,club_id,registration_requested_club_id,registration_requested_at,registration_approval_status,registration_rejection_reason,registration_club_rejection_reason,photo_url,clubs:registration_requested_club_id(name)').eq('club_id',me.club_id).eq('registration_approval_status','PENDING_CLUB_APPROVAL').order('registration_requested_at',{ascending:false});
         if(error) source.innerHTML='<div class="afrn-reg-note">❌ '+esc(error.message)+'</div>'; else source.innerHTML=data?.length?data.map(p=>`<div class="afrn-reg-row"><div class="afrn-reg-info"><b>${esc(fullName(p))}</b><br>Player ID: ${esc(p.player_id_number)}<br>Inaombwa kwenda: <b>${esc(p?.clubs?.name||'Klabu nyingine')}</b><span class="afrn-reg-badge pending">INASUBIRI KLUBU</span></div><div class="afrn-reg-actions"><button class="primary" data-club-approve="${p.id}">✅ Approve</button><button class="danger" data-club-reject="${p.id}">❌ Reject</button></div></div>`).join(''):'<div class="afrn-reg-note">Hakuna ombi linalosubiri idhini ya klabu.</div>';
       }
       if(dest){
         const {data,error}=await client.from('players').select('id,player_id_number,first_name,middle_name,last_name,club_id,registration_requested_club_id,registration_requested_at,registration_approval_status,registration_rejection_reason').eq('registration_requested_club_id',me.club_id).not('registration_approval_status','is',null).order('registration_requested_at',{ascending:false}).limit(20);
         if(error) dest.innerHTML='<div class="afrn-reg-note">❌ '+esc(error.message)+'</div>';
-        else if(!otherPlayers.length) await loadOtherPlayers();
       }
+      await loadOtherPlayers();
     }
     if(isAfrnAdmin()){
       const out=document.querySelector('#afrn-final-approvals .afrn-reg-list'); if(!out) return;
@@ -177,20 +167,17 @@
   }
 
   async function refresh(){
+    if(!me && !(await loadMe())) return;
+    ensureStyles();
     insertPanels();
     await loadRequests();
-    if(isClubAdmin() && !otherPlayers.length) await loadOtherPlayers();
     bindActions();
   }
 
   async function init(){
-    ensureStyles();
-    const ok=await loadMe(); if(!ok) return;
-    insertPanels();
-    setTimeout(refresh,700);
-    setTimeout(refresh,1800);
-    setInterval(refresh,10000);
+    try { if(await loadMe()){ ensureStyles(); insertPanels(); await loadRequests(); bindActions(); } } catch(e){ console.error('AFRN two-level registration:',e); }
   }
 
-  if(document.readyState==='loading') document.addEventListener('DOMContentLoaded',init); else init();
+  window.afrnTwoLevelRegistration = {refresh,requestPlayer,decideClub,decideAfrn};
+  if(document.readyState==='loading') document.addEventListener('DOMContentLoaded',init,{once:true}); else init();
 })();
