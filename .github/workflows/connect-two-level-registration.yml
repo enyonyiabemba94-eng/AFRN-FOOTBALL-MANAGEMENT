@@ -1,0 +1,49 @@
+name: Connect two-level player registration
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - '.github/workflows/connect-two-level-registration.yml'
+      - 'afrn-two-level-registration.js'
+      - 'players.html'
+
+permissions:
+  contents: write
+
+jobs:
+  connect:
+    if: ${{ !contains(github.event.head_commit.message, '[two-level-registration]') }}
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Attach registration module to Players page
+        shell: bash
+        run: |
+          python3 - <<'PY'
+          from pathlib import Path
+          p = Path('players.html')
+          text = p.read_text(encoding='utf-8')
+          marker = '<script id="afrn-two-level-registration-loader"'
+          if marker not in text:
+              loader = '''\n<script id="afrn-two-level-registration-loader" src="./afrn-two-level-registration.js?v=20260910"></script>\n'''
+              text = text.replace('</body>', loader + '</body>')
+              p.write_text(text, encoding='utf-8')
+          PY
+
+      - name: Commit connection
+        shell: bash
+        run: |
+          if git diff --quiet -- players.html; then
+            echo 'Players page already connected.'
+            exit 0
+          fi
+          git config user.name 'github-actions[bot]'
+          git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
+          git add players.html
+          git commit -m 'feat: connect two-level player registration [two-level-registration]'
+          git push
