@@ -12,35 +12,30 @@ const scan=()=>document.querySelectorAll('img').forEach(fix);
 const start=()=>{scan();new MutationObserver(scan).observe(document.documentElement,{childList:true,subtree:true});};
 if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',start);else start();
 
-/* =========================
-   PAGE-SPECIFIC LOADERS
-========================= */
 (()=>{const load=()=>{if(!/matches\.html$/i.test(location.pathname))return;if(!window.__AFRN_MATCH_FIX_LOADED__){window.__AFRN_MATCH_FIX_LOADED__=true;const s=document.createElement('script');s.src='./afrn-match-center-fix.js?v=20260908';s.async=false;(document.head||document.documentElement).appendChild(s)}if(!window.__AFRN_MATCH_EVENTS_UI_LOADED__){window.__AFRN_MATCH_EVENTS_UI_LOADED__=true;const e=document.createElement('script');e.src='./afrn-match-events-ui.js?v=20260911';e.async=false;(document.head||document.documentElement).appendChild(e)}if(!window.__AFRN_MATCH_FINAL_FIX_LOADED__){window.__AFRN_MATCH_FINAL_FIX_LOADED__=true;const f=document.createElement('script');f.src='./afrn-match-center-final-fix.js?v=20260913';f.async=false;(document.head||document.documentElement).appendChild(f)}if(!window.__AFRN_COMP_MATCH_SYNC_LOADED__){window.__AFRN_COMP_MATCH_SYNC_LOADED__=true;const b=document.createElement('script');b.src='./afrn-competition-match-sync.js?v=20260908';b.async=false;(document.head||document.documentElement).appendChild(b)}};if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',load);else setTimeout(load,0)})();
 (()=>{const load=()=>{if(!/transfers\.html$/i.test(location.pathname)||window.__AFRN_TRANSFER_REQUEST_WORKFLOW_LOADED__)return;window.__AFRN_TRANSFER_REQUEST_WORKFLOW_LOADED__=true;const s=document.createElement('script');s.src='./afrn-transfer-request-workflow.js?v=20260908';s.async=false;(document.head||document.documentElement).appendChild(s)};if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',load);else setTimeout(load,0)})();
 (()=>{const load=()=>{if(!/players\.html$/i.test(location.pathname)||window.__AFRN_TWO_LEVEL_REGISTRATION_LOADED__)return;window.__AFRN_TWO_LEVEL_REGISTRATION_LOADED__=true;const s=document.createElement('script');s.src='./afrn-two-level-registration.js?v=20260910';s.async=false;(document.head||document.documentElement).appendChild(s)};if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',load);else setTimeout(load,250)})();
 
 /* =========================
    CLUB ADMIN PLAYER PRIVACY
-   Other-club players: photo + name + current club + request only.
 ========================= */
 (()=>{
 const run=async()=>{
  if(!/players\.html$/i.test(location.pathname))return;
- const db=window.supabaseClient||window.db;
- if(!db?.auth?.getSession)return;
+ const db=window.supabaseClient||window.db;if(!db?.auth?.getSession)return;
  try{
-  const {data:{session}}=await db.auth.getSession(); if(!session)return;
-  const {data:p,error}=await db.from('profiles').select('role,club_id,full_name').eq('id',session.user.id).maybeSingle();
-  if(error||!p)return;
-  const role=String(p.role||'').toLowerCase();
-  if(!['club_admin','club','club_account'].includes(role))return;
+  const {data:{session}}=await db.auth.getSession();if(!session)return;
+  const {data:p,error:pe}=await db.from('profiles').select('role,club_id,full_name').eq('id',session.user.id).maybeSingle();if(pe||!p)return;
+  const role=String(p.role||'').toLowerCase();if(!['club_admin','club','club_account'].includes(role))return;
   window.__AFRN_CLUB_ADMIN__=true;
+  const {data:rows}=await db.from('players').select('id,club_id');
+  const ownIds=new Set((rows||[]).filter(x=>String(x.club_id||'')===String(p.club_id||'')).map(x=>String(x.id)));
   const hideAuthority=()=>{
    const addBtn=[...document.querySelectorAll('button,a')].find(el=>/ongeza\s+mchezaji/i.test(el.textContent||''));
    if(addBtn){addBtn.style.display='none';addBtn.setAttribute('aria-hidden','true');}
    const form=document.getElementById('playerForm');if(form)form.style.display='none';
    const modal=document.getElementById('playerModal');if(modal)modal.style.display='none';
-   const banner=document.getElementById('status');if(banner){banner.textContent='🛡️ Club Admin: unaweza kuona wachezaji wa timu yako kwa usimamizi wa kawaida. Wachezaji wa timu nyingine wanaonekana kwa picha, jina, timu na Tuma Ombi la Usajili tu.';banner.className='status warning';}
+   const banner=document.getElementById('status');if(banner){banner.textContent='🛡️ Club Admin: wachezaji wa timu yako wanaonekana kwa usimamizi wa kawaida. Wachezaji wa timu nyingine wanaonekana kwa picha, jina, timu na Tuma Ombi la Usajili tu.';banner.className='status warning';}
   };
   const esc=s=>String(s??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
   const getPlayerId=card=>{const b=card.querySelector('button[onclick*="editPlayer"]');const m=(b?.getAttribute('onclick')||'').match(/editPlayer\(['"]([^'"]+)/);return m?m[1]:null;};
@@ -49,29 +44,21 @@ const run=async()=>{
    hideAuthority();
    document.querySelectorAll('#playersContainer .card').forEach(card=>{
     if(card.dataset.afrnRestricted==='1')return;
-    const playerId=getPlayerId(card); if(!playerId)return;
-    const text=card.textContent||'';
-    const team=cleanTeam(card);
-    const own=card.dataset.afrnOwn==='1' || new RegExp('(^|\\n| )'+String(p.club_id).replace(/[.*+?^${}()|[\\]\\]/g,'\\$&')+'($|\\n| )').test(text);
-    if(own)return;
-    const photo=card.querySelector('img.photo')||card.querySelector('img');
-    const photoSrc=photo?.getAttribute('src')||'';
-    const name=card.querySelector('.player-name')?.textContent?.trim()||'Mchezaji';
+    const playerId=getPlayerId(card);if(!playerId)return;
+    if(ownIds.has(String(playerId))){card.dataset.afrnOwn='1';return;}
+    const team=cleanTeam(card),photo=card.querySelector('img.photo')||card.querySelector('img'),photoSrc=photo?.getAttribute('src')||'',name=card.querySelector('.player-name')?.textContent?.trim()||'Mchezaji';
     card.dataset.afrnRestricted='1';
     card.innerHTML=`<div class="afrn-restricted-player"><div class="afrn-rp-top">${photoSrc?`<img class="afrn-rp-photo" src="${esc(photoSrc)}" alt="Picha ya ${esc(name)}">`:'<div class="afrn-rp-photo-placeholder">👤</div>'}<div><div class="afrn-rp-name">${esc(name)}</div><div class="afrn-rp-team">⚽ ${esc(team)}</div></div></div><button class="afrn-rp-btn" type="button" data-player-id="${esc(playerId)}">📝 Tuma Ombi la Usajili</button></div>`;
-    const btn=card.querySelector('.afrn-rp-btn');btn.addEventListener('click',()=>window.AFRNRequestRegistration(playerId));
+    card.querySelector('.afrn-rp-btn').addEventListener('click',()=>window.AFRNRequestRegistration(playerId));
    });
   };
   if(!document.getElementById('afrnRestrictedPlayerCss')){const st=document.createElement('style');st.id='afrnRestrictedPlayerCss';st.textContent=`.afrn-restricted-player{padding:2px}.afrn-rp-top{display:flex;gap:12px;align-items:center}.afrn-rp-photo,.afrn-rp-photo-placeholder{width:72px;height:72px;border-radius:14px;object-fit:cover;background:#eef2f7;border:1px solid #e0e6ef;display:flex;align-items:center;justify-content:center;font-size:28px}.afrn-rp-name{font-size:17px;font-weight:800}.afrn-rp-team{font-size:13px;color:#687386;margin-top:7px;font-weight:700}.afrn-rp-btn{width:100%;margin-top:14px;background:#0d47a1;color:#fff;font-weight:800;padding:12px;border-radius:10px}.afrn-rp-btn:hover{background:#1565c0}`;document.head.appendChild(st)}
-  setTimeout(rebuild,1200);setTimeout(rebuild,2500);new MutationObserver(()=>setTimeout(rebuild,150)).observe(document.getElementById('playersContainer')||document.body,{childList:true,subtree:true});
+  setTimeout(rebuild,1200);setTimeout(rebuild,2500);const target=document.getElementById('playersContainer')||document.body;new MutationObserver(()=>setTimeout(rebuild,150)).observe(target,{childList:true,subtree:true});
  }catch(e){console.warn('AFRN club player privacy:',e.message||e)}
 };
 if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',()=>setTimeout(run,600));else setTimeout(run,600);
 })();
 
-/* =========================
-   REGISTRATION REQUEST BUTTON
-========================= */
 window.AFRNRequestRegistration=async function(playerId){
  const db=window.supabaseClient||window.db;
  try{
@@ -79,9 +66,8 @@ window.AFRNRequestRegistration=async function(playerId){
   const {data:{session}}=await db.auth.getSession();if(!session)throw new Error('Hujalogin');
   const {data:p,error:pe}=await db.from('profiles').select('role,club_id').eq('id',session.user.id).maybeSingle();if(pe)throw pe;
   const role=String(p?.role||'').toLowerCase();if(!['club_admin','club','club_account'].includes(role))throw new Error('Ni Club Admin pekee anayeruhusiwa kutuma ombi');
-  const {data,error}=await db.rpc('afrn_request_player_registration',{p_player_id:playerId,p_club_id:p.club_id});
-  if(error)throw error;
-  alert('✅ Ombi limetumwa kwa timu inayomiliki mchezaji. Taarifa itaenda AFRN baada ya timu hiyo ku-Approve.');
+  const {error}=await db.rpc('afrn_request_player_registration',{p_player_id:playerId,p_club_id:p.club_id});if(error)throw error;
+  alert('✅ Ombi limetumwa kwa timu inayomiliki mchezaji. Timu hiyo lazima i-Approve kwanza; ndipo AFRN itaweza kuamua.');
   location.reload();
  }catch(e){alert('❌ '+(e?.message||e));}
 };
