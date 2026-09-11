@@ -2,94 +2,45 @@
 'use strict';
 if(window.__AFRN_FREE_AGENT_PLAYER_APPROVAL__) return;
 window.__AFRN_FREE_AGENT_PLAYER_APPROVAL__=true;
-
-const db=()=>window.supabaseClient||window.db||null;
+const client=()=>window.supabaseClient||window.db||null;
 const esc=v=>String(v??'').replace(/[&<>\"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','\"':'&quot;',"'":'&#039;'}[c]));
-const name=p=>[p?.first_name,p?.middle_name,p?.last_name].filter(Boolean).join(' ')||'Mchezaji';
+const fullName=p=>[p?.first_name,p?.middle_name,p?.last_name].filter(Boolean).join(' ')||'Mchezaji';
+const clubRoles=['club_admin','club','club_account'];
 
 function styles(){
  if(document.getElementById('afrn-fa-player-css'))return;
  const s=document.createElement('style');s.id='afrn-fa-player-css';s.textContent=`
- .afrn-fa-player-panel{background:#fff;border:1px solid #dce2ea;border-radius:14px;padding:14px;margin:0 0 16px;box-shadow:0 3px 12px #14213d10}
- .afrn-fa-player-panel h3{margin:0 0 7px;font-size:16px}.afrn-fa-player-note{font-size:12px;color:#687386;line-height:1.45;margin-bottom:10px}
- .afrn-fa-player-card{border:1px solid #e2e7ef;border-radius:12px;padding:12px;margin-top:9px;background:#fbfcfe}
- .afrn-fa-player-row{display:flex;gap:10px;justify-content:space-between;align-items:center;flex-wrap:wrap}.afrn-fa-player-info{font-size:12px;flex:1;min-width:190px}.afrn-fa-player-club{font-weight:800;font-size:14px}.afrn-fa-player-status{display:inline-block;margin-top:5px;padding:4px 7px;border-radius:999px;font-size:10px;font-weight:800;background:#fff5df;color:#9a6100}
- .afrn-fa-player-actions{display:flex;gap:7px;flex-wrap:wrap}.afrn-fa-player-actions button{padding:9px 11px}.afrn-fa-accept{background:#16834b;color:#fff}.afrn-fa-reject{background:#fee;color:#c62828}.afrn-fa-doc{background:#eef4ff;color:#174ea6;text-decoration:none;padding:9px 11px;border-radius:9px;font-size:12px;font-weight:700}
- .afrn-fa-player-empty{padding:13px;background:#f7f9fc;border-radius:10px;color:#687386;font-size:12px;text-align:center}
+ .afrn-fa-player-panel{background:#fff;border:1px solid #dce2ea;border-radius:14px;padding:14px;margin:0 0 16px;box-shadow:0 3px 12px #14213d10}.afrn-fa-player-panel h3{margin:0 0 7px;font-size:16px}.afrn-fa-player-note{font-size:12px;color:#687386;line-height:1.45;margin-bottom:10px}.afrn-fa-player-card{border:1px solid #e2e7ef;border-radius:12px;padding:12px;margin-top:9px;background:#fbfcfe}.afrn-fa-player-row{display:flex;gap:10px;justify-content:space-between;align-items:center;flex-wrap:wrap}.afrn-fa-player-info{font-size:12px;flex:1;min-width:190px}.afrn-fa-player-club{font-weight:800;font-size:14px}.afrn-fa-player-status{display:inline-block;margin-top:5px;padding:4px 7px;border-radius:999px;font-size:10px;font-weight:800;background:#fff5df;color:#9a6100}.afrn-fa-player-actions{display:flex;gap:7px;flex-wrap:wrap}.afrn-fa-player-actions button{padding:9px 11px}.afrn-fa-accept{background:#16834b;color:#fff}.afrn-fa-reject{background:#fee;color:#c62828}.afrn-fa-doc{background:#eef4ff;color:#174ea6;text-decoration:none;padding:9px 11px;border-radius:9px;font-size:12px;font-weight:700}.afrn-fa-player-empty{padding:13px;background:#f7f9fc;border-radius:10px;color:#687386;font-size:12px;text-align:center}
  `;document.head.appendChild(s);
 }
 
 async function currentPlayer(){
- const client=db();if(!client?.auth?.getUser)return null;
- const {data:{user}}=await client.auth.getUser();if(!user)return null;
- const {data,error}=await client.from('players').select('id,player_id_number,first_name,middle_name,last_name,user_id').eq('user_id',user.id).maybeSingle();
- if(error||!data)return null;
- return data;
+ const db=client();if(!db?.auth?.getUser)return null;const {data:{user}}=await db.auth.getUser();if(!user)return null;
+ const {data,error}=await db.from('players').select('id,player_id_number,first_name,middle_name,last_name,user_id').eq('user_id',user.id).maybeSingle();return error?null:data;
 }
+async function clubName(id){const {data}=await client().from('clubs').select('name,short_name').eq('id',id).maybeSingle();return data?.name||data?.short_name||'Klabu';}
+async function loadRequests(player){const {data,error}=await client().from('free_agent_registration_requests').select('id,club_id,agreement_document_url,status,submitted_at,player_responded_at,player_rejection_reason,notes').eq('player_id',player.id).order('submitted_at',{ascending:false}).limit(20);if(error)throw error;const rows=data||[],names={};for(const r of rows)names[r.club_id]=names[r.club_id]||await clubName(r.club_id);return rows.map(r=>({...r,club_name:names[r.club_id]}));}
+function statusLabel(s){return ({REQUESTED:'⏳ Inasubiri ridhaa yako',PENDING_AFRN:'🏛️ Inasubiri AFRN',APPROVED:'✅ Imeidhinishwa',PLAYER_REJECTED:'❌ Umekataa',REJECTED:'❌ Imekataliwa na AFRN',CANCELLED:'🚫 Imeghairiwa'}[s]||s)}
 
-async function clubName(id){
- const {data}=await db().from('clubs').select('id,name,short_name').eq('id',id).maybeSingle();
- return data?.name||data?.short_name||'Klabu';
-}
-
-async function loadRequests(player){
- const client=db();
- const {data,error}=await client.from('free_agent_registration_requests')
-   .select('id,club_id,agreement_document_url,status,submitted_at,player_responded_at,player_rejection_reason,notes')
-   .eq('player_id',player.id)
-   .order('submitted_at',{ascending:false}).limit(20);
- if(error) throw error;
- const rows=data||[];
- const clubs={};for(const r of rows){if(!clubs[r.club_id])clubs[r.club_id]=await clubName(r.club_id)}
- return rows.map(r=>({...r,club_name:clubs[r.club_id]||'Klabu'}));
-}
-
-function statusLabel(s){return ({REQUESTED:'⏳ Inasubiri ridhaa ya mchezaji',PLAYER_ACCEPTED:'✅ Umeikubali — inapelekwa AFRN',PENDING_AFRN:'🏛️ Inasubiri AFRN',APPROVED:'✅ Imeidhinishwa',PLAYER_REJECTED:'❌ Umekataa',REJECTED:'❌ Imekataliwa na AFRN',CANCELLED:'🚫 Imeghairiwa'}[s]||s)}
-
-async function render(){
- if(!/players\\.html$/i.test(location.pathname))return;
- const player=await currentPlayer();if(!player)return;
- styles();
- let panel=document.getElementById('afrn-fa-player-panel');
- if(!panel){
-  panel=document.createElement('section');panel.id='afrn-fa-player-panel';panel.className='afrn-fa-player-panel';
-  panel.innerHTML='<h3>👤 Maombi ya Free Agent</h3><div class="afrn-fa-player-note">Klabu inayokutaka lazima ikutumie ombi. <b>Wewe ndiye unayeamua kwanza.</b> Ukikubali, ombi linaenda moja kwa moja AFRN kwa ukaguzi na idhini ya mwisho.</div><div id="afrn-fa-player-list">⏳ Inapakia...</div>';
-  const main=document.querySelector('main');const status=document.getElementById('status');(status||main?.firstElementChild)?.insertAdjacentElement('afterend',panel);
- }
- const list=panel.querySelector('#afrn-fa-player-list');
- try{
-  const rows=await loadRequests(player);
-  if(!rows.length){list.innerHTML='<div class="afrn-fa-player-empty">Hakuna ombi la Free Agent linalokusubiri.</div>';return;}
-  list.innerHTML=rows.map(r=>`<div class="afrn-fa-player-card" data-request-id="${esc(r.id)}"><div class="afrn-fa-player-row"><div class="afrn-fa-player-info"><div class="afrn-fa-player-club">⚽ ${esc(r.club_name)}</div><div>Ombi lilitumwa: ${r.submitted_at?new Date(r.submitted_at).toLocaleString():'—'}</div><span class="afrn-fa-player-status">${esc(statusLabel(r.status))}</span></div><div class="afrn-fa-player-actions">${r.agreement_document_url?`<a class="afrn-fa-doc" href="${esc(r.agreement_document_url)}" target="_blank" rel="noopener">📄 Fungua mkataba</a>`:''}${r.status==='REQUESTED'?`<button type="button" class="afrn-fa-accept" data-action="accept">✅ KUBALI</button><button type="button" class="afrn-fa-reject" data-action="reject">❌ KATAA</button>`:''}</div></div></div>`).join('');
-  list.querySelectorAll('[data-action]').forEach(btn=>btn.addEventListener('click',async()=>{
-   const card=btn.closest('[data-request-id]'),id=card?.dataset.requestId,accept=btn.dataset.action==='accept';
-   let reason=null;if(!accept){reason=prompt('Andika sababu ya kukataa ombi (si lazima):');}
-   if(!accept && reason===null)return;
-   btn.disabled=true;
-   const {error}=await client.rpc('afrn_player_respond_free_agent_request',{p_request_id:id,p_accept:accept,p_reason:reason||null});
-   if(error){btn.disabled=false;alert('❌ '+error.message);return;}
-   alert(accept?'✅ Umekubali ombi. Sasa limepelekwa AFRN kwa ukaguzi na idhini.':'❌ Umekataa ombi la klabu.');
-   await render();
-  }));
+async function renderPlayerPanel(){
+ if(!/players\.html$/i.test(location.pathname))return;const player=await currentPlayer();if(!player)return;styles();
+ let panel=document.getElementById('afrn-fa-player-panel');if(!panel){panel=document.createElement('section');panel.id='afrn-fa-player-panel';panel.className='afrn-fa-player-panel';panel.innerHTML='<h3>👤 Maombi ya Free Agent</h3><div class="afrn-fa-player-note">Klabu inayokutaka lazima ikutumie ombi. <b>Wewe ndiye unayeamua kwanza.</b> Ukikubali, ombi linaenda moja kwa moja AFRN kwa ukaguzi na idhini ya mwisho.</div><div id="afrn-fa-player-list">⏳ Inapakia...</div>';const main=document.querySelector('main'),status=document.getElementById('status');(status||main?.firstElementChild)?.insertAdjacentElement('afterend',panel);}
+ const list=panel.querySelector('#afrn-fa-player-list');try{const rows=await loadRequests(player);if(!rows.length){list.innerHTML='<div class="afrn-fa-player-empty">Hakuna ombi la Free Agent linalokusubiri.</div>';return;}list.innerHTML=rows.map(r=>`<div class="afrn-fa-player-card" data-request-id="${esc(r.id)}"><div class="afrn-fa-player-row"><div class="afrn-fa-player-info"><div class="afrn-fa-player-club">⚽ ${esc(r.club_name)}</div><div>Ombi: ${r.submitted_at?new Date(r.submitted_at).toLocaleString():'—'}</div><span class="afrn-fa-player-status">${esc(statusLabel(r.status))}</span></div><div class="afrn-fa-player-actions">${r.agreement_document_url?`<a class="afrn-fa-doc" href="${esc(r.agreement_document_url)}" target="_blank" rel="noopener">📄 Fungua mkataba</a>`:''}${r.status==='REQUESTED'?'<button type="button" class="afrn-fa-accept" data-action="accept">✅ KUBALI</button><button type="button" class="afrn-fa-reject" data-action="reject">❌ KATAA</button>':''}</div></div></div>`).join('');
+ list.querySelectorAll('[data-action]').forEach(btn=>btn.addEventListener('click',async()=>{const card=btn.closest('[data-request-id]'),id=card?.dataset.requestId,accept=btn.dataset.action==='accept';let reason=null;if(!accept){reason=prompt('Sababu ya kukataa ombi (si lazima):');if(reason===null)return;}btn.disabled=true;const {error}=await client().rpc('afrn_player_respond_free_agent_request',{p_request_id:id,p_accept:accept,p_reason:reason||null});if(error){btn.disabled=false;alert('❌ '+error.message);return;}alert(accept?'✅ Umeikubali ombi. Sasa limepelekwa AFRN kwa ukaguzi na idhini.':'❌ Umekataa ombi la klabu.');await renderPlayerPanel();}));
  }catch(e){list.innerHTML='<div class="afrn-fa-player-empty">❌ '+esc(e?.message||e)+'</div>';}
 }
 
-// Replace the old generic registration action for Free Agents with a player-consent-first flow.
+async function openClubFreeAgentRequest(player){
+ const db=client();const {data:{user}}=await db.auth.getUser();if(!user)return alert('❌ Hujalogin.');const {data:profile}=await db.from('profiles').select('role,club_id').eq('id',user.id).maybeSingle();if(!profile||!clubRoles.includes(String(profile.role||'').toLowerCase()))return alert('❌ Ni Club Admin pekee anayeruhusiwa.');
+ if(!profile.club_id)return alert('❌ Akaunti hii haina klabu iliyounganishwa.');
+ const dialog=document.createElement('dialog');dialog.style.cssText='width:min(620px,94vw);border:0;border-radius:16px;padding:0;box-shadow:0 20px 60px #0005';dialog.innerHTML=`<div style="padding:18px;font-family:Arial,sans-serif"><h2 style="margin:0 0 8px">📨 Omba Free Agent</h2><p style="font-size:13px"><b>${esc(fullName(player))}</b> · ${esc(player.player_id_number||'—')}</p><div style="background:#fff8e1;padding:11px;border-radius:10px;font-size:12px;line-height:1.5">Ombi <b>halitaenda AFRN moja kwa moja</b>. Kwanza litaenda kwenye akaunti ya mchezaji. Mchezaji akibonyeza <b>KUBALI</b>, ndipo status itakuwa <b>PENDING_AFRN</b>.</div><label style="display:block;margin-top:13px;font-size:12px;font-weight:700">Mkataba mpya / Barua ya makubaliano iliyosainiwa *</label><input id="fafFile" type="file" accept="application/pdf,image/jpeg,image/png,image/webp" style="width:100%;margin-top:6px;padding:10px;border:1px solid #d4dbe6;border-radius:9px;box-sizing:border-box"><div style="font-size:11px;color:#687386;margin-top:5px">PDF, JPG, PNG au WEBP · maximum 10MB.</div><label style="display:flex;gap:8px;align-items:flex-start;margin-top:14px;font-size:12px"><input id="fafClubDeclaration" type="checkbox"> Ninathibitisha kwa niaba ya klabu kuwa klabu iko tayari kumsajili mchezaji chini ya hati hii.</label><label style="display:block;margin-top:12px;font-size:12px;font-weight:700">Maelezo</label><textarea id="fafNotes" style="width:100%;min-height:70px;margin-top:5px;padding:9px;border:1px solid #d4dbe6;border-radius:9px;box-sizing:border-box"></textarea><div id="fafMsg"></div><div style="display:flex;gap:8px;justify-content:flex-end;margin-top:14px"><button type="button" class="secondary" id="fafCancel">Ghairi</button><button type="button" class="primary" id="fafSubmit">📨 Tuma kwa Mchezaji</button></div></div>`;document.body.appendChild(dialog);dialog.showModal();const close=()=>{dialog.close();dialog.remove()};dialog.querySelector('#fafCancel').onclick=close;dialog.querySelector('#fafSubmit').onclick=async()=>{const file=dialog.querySelector('#fafFile').files?.[0],decl=dialog.querySelector('#fafClubDeclaration').checked,msg=dialog.querySelector('#fafMsg'),btn=dialog.querySelector('#fafSubmit');if(!file)return msg.innerHTML='<div style="padding:10px;color:#b42318">❌ Pakia mkataba/barua ya makubaliano.</div>';if(!decl)return msg.innerHTML='<div style="padding:10px;color:#b42318">❌ Thibitisha tamko la klabu.</div>';if(file.size>10*1024*1024)return msg.innerHTML='<div style="padding:10px;color:#b42318">❌ Hati imezidi 10MB.</div>';const allowed=['application/pdf','image/jpeg','image/png','image/webp'];if(!allowed.includes(file.type))return msg.innerHTML='<div style="padding:10px;color:#b42318">❌ Tumia PDF, JPG, PNG au WEBP.</div>';btn.disabled=true;msg.innerHTML='<div style="padding:10px;color:#137333">⏳ Inapakia na kutuma ombi...</div>';try{const ext=file.type==='application/pdf'?'pdf':file.type==='image/png'?'png':file.type==='image/webp'?'webp':'jpg';const safe=String(player.player_id_number||player.id).replace(/[^a-zA-Z0-9_-]/g,'_');const path=`free-agent-consents/${safe}-${Date.now()}.${ext}`;const {error:ue}=await db.storage.from('AFRN FILES').upload(path,file,{cacheControl:'3600',upsert:false,contentType:file.type});if(ue)throw ue;const publicUrl=db.storage.from('AFRN FILES').getPublicUrl(path).data?.publicUrl||path;const {error}=await db.rpc('afrn_request_free_agent_registration',{p_player_id:player.id,p_club_id:profile.club_id,p_agreement_document_url:publicUrl,p_player_consent:false,p_club_declaration:true,p_notes:dialog.querySelector('#fafNotes').value.trim()||null});if(error){try{await db.storage.from('AFRN FILES').remove([path])}catch(_){}throw error;}msg.innerHTML='<div style="padding:10px;border-radius:9px;background:#eef8f1;color:#137333"><b>✅ Ombi limetumwa kwenye akaunti ya mchezaji.</b><br>AFRN italipokea baada ya mchezaji kukubali.</div>';setTimeout(close,1400);}catch(e){btn.disabled=false;msg.innerHTML='<div style="padding:10px;color:#b42318">❌ '+esc(e?.message||e)+'</div>';}};
+}
+
+const oldRequest=window.AFRNRequestRegistration;
+window.AFRNOpenFreeAgentRequest=openClubFreeAgentRequest;
 window.AFRNRequestRegistration=async function(playerId){
- const client=db();
- try{
-  const {data:p,error}=await client.from('players').select('id,player_id_number,first_name,middle_name,last_name,club_id,status').eq('id',playerId).maybeSingle();
-  if(error||!p)throw error||new Error('Mchezaji hakupatikana');
-  if(p.club_id===null){
-   alert('📨 Kwa Free Agent, klabu haiwezi kujithibitishia ridhaa ya mchezaji. Ombi lazima litumwe kwenye akaunti ya mchezaji kwanza; mchezaji akubali ndipo liende AFRN.');
-   // The club-side dialog is intentionally kept in the existing registration script; it must submit player_consent=false.
-   if(typeof window.AFRNOpenFreeAgentRequest==='function')return window.AFRNOpenFreeAgentRequest(p);
-   return;
-  }
-  if(typeof window.__AFRN_OLD_REQUEST_REGISTRATION__==='function')return window.__AFRN_OLD_REQUEST_REGISTRATION__(playerId);
-  throw new Error('Tafadhali tumia sehemu ya Tuma Ombi la Usajili kwa mchezaji wa klabu nyingine.');
- }catch(e){alert('❌ '+(e?.message||e));}
+ const db=client();try{const {data:p,error}=await db.from('players').select('id,player_id_number,first_name,middle_name,last_name,club_id,status').eq('id',playerId).maybeSingle();if(error||!p)throw error||new Error('Mchezaji hakupatikana');if(p.club_id===null)return openClubFreeAgentRequest(p);if(oldRequest)return oldRequest(playerId);throw new Error('Tumia Tuma Ombi la Usajili.');}catch(e){alert('❌ '+(e?.message||e));}
 };
 
-if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',()=>setTimeout(render,900));else setTimeout(render,900);
+if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',()=>setTimeout(renderPlayerPanel,900));else setTimeout(renderPlayerPanel,900);
 })();
