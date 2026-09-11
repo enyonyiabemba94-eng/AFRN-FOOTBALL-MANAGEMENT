@@ -4,6 +4,7 @@ on:
   push:
     paths:
       - 'afrn-extra-time-setting.js'
+      - 'afrn-period-breakdown.js'
       - 'afrn-penalty-shootout.js'
       - '.github/workflows/connect-extra-time-setting.yml'
   workflow_dispatch:
@@ -25,18 +26,20 @@ jobs:
           from pathlib import Path
           p = Path('competitions.html')
           s = p.read_text(encoding='utf-8')
-          tag = '<script src="./afrn-extra-time-setting.js?v=20260911"></script>'
-          if tag not in s:
-              anchor = '<script src="./afrn-penalty-shootout.js"></script>'
-              if anchor in s:
+          anchor = '<script src="./afrn-penalty-shootout.js"></script>'
+          if anchor not in s:
+              anchor = '<script src="./afrn-knockout-engine.js"></script>'
+              if anchor not in s:
+                  raise SystemExit('Knockout engine script anchor not found')
+              s = s.replace(anchor, anchor + '\n<script src="./afrn-penalty-shootout.js?v=20260911"></script>', 1)
+          tags = [
+              '<script src="./afrn-extra-time-setting.js?v=20260911"></script>',
+              '<script src="./afrn-period-breakdown.js?v=20260911"></script>'
+          ]
+          for tag in tags:
+              if tag not in s:
                   s = s.replace(anchor, anchor + '\n' + tag, 1)
-              else:
-                  anchor2 = '<script src="./afrn-knockout-engine.js"></script>'
-                  if anchor2 in s:
-                      s = s.replace(anchor2, anchor2 + '\n<script src="./afrn-penalty-shootout.js?v=20260911"></script>\n' + tag, 1)
-                  else:
-                      raise SystemExit('Knockout engine script anchor not found')
-              p.write_text(s, encoding='utf-8')
+          p.write_text(s, encoding='utf-8')
           PY
 
       - name: Commit changes
@@ -48,6 +51,6 @@ jobs:
           if git diff --cached --quiet; then
             echo "No changes needed"
           else
-            git commit -m "Connect competition extra time setting"
+            git commit -m "Connect extra time and period breakdown"
             git push
           fi
