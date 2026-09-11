@@ -1,12 +1,11 @@
-/* AFRN Penalty Shootout Manager v1
-   Knockout only: R16, QF, SF, 3RD, FINAL.
-   Regular score stays in home_score/away_score.
-   Shootout score is stored in home_penalties/away_penalties and does NOT affect GF/GA.
+/* AFRN Match Outcome Manager v2
+   Knockout flow: 90 minutes -> optional extra time -> penalties.
+   Period scores are stored separately; penalty shootout is separate and never affects GF/GA.
 */
 (function(){
 'use strict';
-if(window.__AFRN_PENALTY_V1__) return;
-window.__AFRN_PENALTY_V1__=true;
+if(window.__AFRN_PENALTY_V2__) return;
+window.__AFRN_PENALTY_V2__=true;
 const URL='https://jjqhvruppafpumcthmwe.supabase.co';
 const KEY='sb_publishable_02hhRG8bgDOqSFxva8IMvQ_zWTLMa3G';
 const STAGES=['R16','QF','SF','3RD','FINAL'];
@@ -14,95 +13,24 @@ const $=(s,r=document)=>r.querySelector(s);
 const esc=v=>String(v??'').replace(/[&<>\"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','\"':'&quot;',"'":'&#039;'}[c]));
 let db,comp,clubs=[],matches=[];
 function client(){return window.supabaseClient||(window.supabase&&window.supabase.createClient(URL,KEY));}
-function cid(){
- const a=$('#teamCompetitionId')?.value||$('#generatorCompetitionId')?.value;
- if(a)return a;
- const s=$('select[name="competition_id"]'); if(s?.value)return s.value;
- const opts=[...document.querySelectorAll('option')]; const o=opts.find(x=>/UPENDO WA WAKIMBIZI/i.test(x.textContent||'')); return o?.value||null;
-}
+function cid(){const a=$('#teamCompetitionId')?.value||$('#generatorCompetitionId')?.value;if(a)return a;const s=$('select[name="competition_id"]');if(s?.value)return s.value;const o=[...document.querySelectorAll('option')].find(x=>/UPENDO WA WAKIMBIZI/i.test(x.textContent||''));return o?.value||null;}
 function stage(m){const x=String(m.notes||'').match(/AFRN_STAGE=(R16|QF|SF|3RD|FINAL)/);return x?x[1]:null;}
 function slot(m){const x=String(m.notes||'').match(/AFRN_SLOT=(\d+)/);return x?Number(x[1]):999;}
 function cname(id){return clubs.find(c=>String(c.id)===String(id))?.name||'—';}
-function isKnockout(m){return STAGES.includes(stage(m));}
+function isKO(m){return STAGES.includes(stage(m));}
 function played(m){return m?.home_score!=null&&m?.away_score!=null&&Number.isInteger(Number(m.home_score))&&Number.isInteger(Number(m.away_score));}
-function winner(m){if(!played(m))return null;const hs=Number(m.home_score),as=Number(m.away_score);if(hs>as)return m.home_team_id;if(as>hs)return m.away_team_id;const hp=m.home_penalties,ap=m.away_penalties;if(hp!=null&&ap!=null&&Number(hp)!==Number(ap))return Number(hp)>Number(ap)?m.home_team_id:m.away_team_id;const n=String(m.notes||'');return n.includes('AFRN_WINNER=HOME')?m.home_team_id:n.includes('AFRN_WINNER=AWAY')?m.away_team_id:null;}
+function n(v){return Number.isInteger(Number(v))&&Number(v)>=0?Number(v):null;}
+function winner(m){if(!played(m))return null;const hs=Number(m.home_score),as=Number(m.away_score);if(hs>as)return m.home_team_id;if(as>hs)return m.away_team_id;if(m.home_penalties!=null&&m.away_penalties!=null&&Number(m.home_penalties)!==Number(m.away_penalties))return Number(m.home_penalties)>Number(m.away_penalties)?m.home_team_id:m.away_team_id;const x=String(m.notes||'').match(/AFRN_WINNER=(HOME|AWAY)/);return x?(x[1]==='HOME'?m.home_team_id:m.away_team_id):null;}
 function loser(m){const w=winner(m);if(!w)return null;return String(w)===String(m.home_team_id)?m.away_team_id:m.home_team_id;}
-async function load(){
- comp={id:cid()}; if(!comp.id)return false; db=client();
- const [c,m]=await Promise.all([
-  db.from('clubs').select('id,name').order('name'),
-  db.from('matches').select('*').eq('competition_id',comp.id).order('match_number')
- ]);
- if(c.error)throw c.error;if(m.error)throw m.error;clubs=c.data||[];matches=m.data||[];return true;
-}
-function ordered(stageName){return matches.filter(m=>stage(m)===stageName).sort((a,b)=>slot(a)-slot(b));}
-function note(stageName,i,label){return `AFRN_STAGE=${stageName}|AFRN_SLOT=${i}|${label||stageName+' '+i}`;}
-async function ensure(stageName,i,home,away,label){
- if(!home||!away)return null;
- let m=ordered(stageName).find(x=>slot(x)===i);
- if(m){
-  const patch={home_team_id:home,away_team_id:away,notes:note(stageName,i,label)};
-  if(String(m.home_team_id)!==String(home)||String(m.away_team_id)!==String(away)||String(m.notes)!==String(patch.notes)){
-   const r=await db.from('matches').update(patch).eq('id',m.id);if(r.error)throw r.error;Object.assign(m,patch);
-  }
-  return m;
- }
- const nums=matches.map(x=>Number(x.match_number)||0);let num=Math.max(0,...nums)+1;
- const desired={R16:[37,38,39,40,41,42,43,44][i-1],QF:[45,46,47,48][i-1],SF:[49,50][i-1],3RD:51,FINAL:52};if(desired)num=desired;
- const r=await db.from('matches').insert({competition_id:comp.id,home_team_id:home,away_team_id:away,match_number:num,status:'scheduled',notes:note(stageName,i,label)}).select().single();
- if(r.error)throw r.error;matches.push(r.data);return r.data;
-}
-async function progress(){
- await load();
- const r=ordered('R16');
- if(r.length===8&&r.every(winner)){
-  for(const [i,a,b] of [[1,1,2],[2,3,4],[3,5,6],[4,7,8]]) await ensure('QF',i,winner(r[a-1]),winner(r[b-1]),'QF '+i);
- }
- await load();const q=ordered('QF');
- if(q.length===4&&q.every(winner)){
-  await ensure('SF',1,winner(q[0]),winner(q[2]),'SF 1');
-  await ensure('SF',2,winner(q[1]),winner(q[3]),'SF 2');
- }
- await load();const s=ordered('SF');
- if(s.length===2&&s.every(winner)){
-  await ensure('3RD',1,loser(s[0]),loser(s[1]),'Mshindi wa 3');
-  await ensure('FINAL',1,winner(s[0]),winner(s[1]),'Final');
- }
-}
-async function savePenalty(id){
- const m=matches.find(x=>String(x.id)===String(id));if(!m)return;
- if(!played(m))return alert('⚠️ Kwanza hifadhi matokeo ya dakika 90.');
- if(Number(m.home_score)!==Number(m.away_score))return alert('⚠️ Mikwaju inaruhusiwa tu kama dakika 90 zimeisha sare.');
- let hp=prompt('Mikwaju — '+cname(m.home_team_id),m.home_penalties??'');if(hp===null)return;
- let ap=prompt('Mikwaju — '+cname(m.away_team_id),m.away_penalties??'');if(ap===null)return;
- hp=Number(hp);ap=Number(ap);
- if(!Number.isInteger(hp)||!Number.isInteger(ap)||hp<0||ap<0||hp===ap)return alert('⚠️ Mikwaju si sahihi. Weka namba mbili tofauti, mfano 4 na 3.');
- const clean=String(m.notes||'').replace(/\|AFRN_WINNER=(HOME|AWAY)/g,'').replace(/\|AFRN_PEN=[^|]+/g,'');
- const side=hp>ap?'HOME':'AWAY';
- const r=await db.from('matches').update({home_penalties:hp,away_penalties:ap,status:'played',notes:clean+'|AFRN_WINNER='+side+'|AFRN_PEN='+hp+'-'+ap}).eq('id',id);
- if(r.error)return alert('❌ '+r.error.message);
- await progress();await load();render();alert('✅ Mikwaju imehifadhiwa: '+hp+'–'+ap+'. Mshindi ameendelezwa hatua inayofuata.');
-}
-function resultText(m){if(!played(m))return 'Haijachezwa';const a=Number(m.home_score),b=Number(m.away_score);if(a!==b)return `${a} – ${b}`;if(m.home_penalties!=null&&m.away_penalties!=null)return `${a} – ${b}  (Mikwaju ${m.home_penalties} – ${m.away_penalties})`;return `${a} – ${b}  (Sare — chagua mshindi kwa mikwaju)`;}
-function render(){
- const old=$('#afrnPenaltyPanel');if(old)old.remove();
- const root=$('#afrnKOTable');if(!root||!comp?.id)return;
- const ko=matches.filter(isKnockout).sort((a,b)=>(STAGES.indexOf(stage(a))-STAGES.indexOf(stage(b)))||slot(a)-slot(b));
- if(!ko.length)return;
- const box=document.createElement('div');box.id='afrnPenaltyPanel';box.className='ce-card';
- box.innerHTML='<h3>🥅 MIKWAJU YA PENALTY — HATUA ZA KNOCKOUT</h3><p class="ce-muted">Mikwaju inawekwa tu baada ya dakika 90 kuisha sare. Alama za mikwaju haziongezwi kwenye GF/GA.</p><div id="afrnPenaltyRows"></div>';
- const rows=$('#afrnPenaltyRows',box);
- ko.forEach(m=>{
-  const tied=played(m)&&Number(m.home_score)===Number(m.away_score);
-  const row=document.createElement('div');row.className='ce-actions';row.style.cssText='display:flex;gap:8px;align-items:center;flex-wrap:wrap;border-top:1px solid #ddd;padding:10px 0';
-  row.innerHTML=`<span style="min-width:230px"><b>${esc(stage(m))} ${slot(m)}</b> — ${esc(cname(m.home_team_id))} vs ${esc(cname(m.away_team_id))}<br><span class="ce-muted">${esc(resultText(m))}</span></span>${tied?`<button class="primary" data-pen="${m.id}">🥅 Weka Mikwaju</button>`:`<span class="ce-muted">${played(m)?'Mshindi tayari anajulikana.':'Subiri matokeo.'}</span>`}`;
-  rows.appendChild(row);
-  row.querySelector('[data-pen]')?.addEventListener('click',()=>savePenalty(m.id));
- });
- root.parentNode.insertBefore(box,root);
-}
-async function run(){try{if(await load())render();}catch(e){console.error('AFRN penalty manager',e);}}
-let timer=0;const boot=()=>{clearTimeout(timer);timer=setTimeout(run,700);};
-new MutationObserver(boot).observe(document.body,{childList:true,subtree:true});
-if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',boot);else boot();
+async function load(){comp={id:cid()};if(!comp.id)return false;db=client();const [c,m]=await Promise.all([db.from('clubs').select('id,name').order('name'),db.from('matches').select('*').eq('competition_id',comp.id).order('match_number')]);if(c.error)throw c.error;if(m.error)throw m.error;clubs=c.data||[];matches=m.data||[];return true;}
+function ordered(s){return matches.filter(m=>stage(m)===s).sort((a,b)=>slot(a)-slot(b));}
+async function progress(){await load();const r=ordered('R16');if(r.length===8&&r.every(winner)){for(const[i,a,b]of[[1,1,2],[2,3,4],[3,5,6],[4,7,8]])await ensure('QF',i,winner(r[a-1]),winner(r[b-1]),'QF '+i);}await load();const q=ordered('QF');if(q.length===4&&q.every(winner)){await ensure('SF',1,winner(q[0]),winner(q[2]),'SF 1');await ensure('SF',2,winner(q[1]),winner(q[3]),'SF 2');}await load();const s=ordered('SF');if(s.length===2&&s.every(winner)){await ensure('3RD',1,loser(s[0]),loser(s[1]),'Mshindi wa 3');await ensure('FINAL',1,winner(s[0]),winner(s[1]),'Final');}}
+async function ensure(s,i,home,away,label){if(!home||!away)return null;let m=ordered(s).find(x=>slot(x)===i);if(m){const p={home_team_id:home,away_team_id:away,notes:`AFRN_STAGE=${s}|AFRN_SLOT=${i}|${label}`};if(String(m.home_team_id)!==String(home)||String(m.away_team_id)!==String(away)){const r=await db.from('matches').update(p).eq('id',m.id);if(r.error)throw r.error;Object.assign(m,p);}return m;}const desired={R16:[37,38,39,40,41,42,43,44][i-1],QF:[45,46,47,48][i-1],SF:[49,50][i-1],3RD:51,FINAL:52};const r=await db.from('matches').insert({competition_id:comp.id,home_team_id:home,away_team_id:away,match_number:desired||null,status:'scheduled',notes:`AFRN_STAGE=${s}|AFRN_SLOT=${i}|${label}`}).select().single();if(r.error)throw r.error;matches.push(r.data);return r.data;}
+async function savePeriods(id){const m=matches.find(x=>String(x.id)===String(id));if(!m)return;const fhH=prompt('Dakika 45 — '+cname(m.home_team_id),m.first_half_home??0),fhA=prompt('Dakika 45 — '+cname(m.away_team_id),m.first_half_away??0);if(fhH===null||fhA===null)return;const shH=prompt('Dakika 90 (jumla ya magoli baada ya kipindi cha 2) — '+cname(m.home_team_id),m.home_score??0),shA=prompt('Dakika 90 (jumla ya magoli baada ya kipindi cha 2) — '+cname(m.away_team_id),m.away_score??0);if(shH===null||shA===null)return;let a=[fhH,fhA,shH,shA].map(n);if(a.some(v=>v===null))return alert('⚠️ Weka namba sahihi.');if(a[2]<a[0]||a[3]<a[1])return alert('⚠️ Matokeo ya dakika 90 hayawezi kuwa chini ya ya kipindi cha kwanza.');const patch={first_half_home:a[0],first_half_away:a[1],second_half_home:a[2]-a[0],second_half_away:a[3]-a[1],home_score:a[2],away_score:a[3],status:'played'};if(a[2]!==a[3]){patch.extra_time_home=null;patch.extra_time_away=null;patch.home_penalties=null;patch.away_penalties=null;patch.notes=String(m.notes||'').replace(/\|AFRN_WINNER=(HOME|AWAY)/g,'').replace(/\|AFRN_PEN=[^|]+/g,'');}const r=await db.from('matches').update(patch).eq('id',id);if(r.error)return alert('❌ '+r.error.message);await progress();await load();render();}
+async function saveExtra(id){const m=matches.find(x=>String(x.id)===String(id));if(!m||!played(m))return alert('⚠️ Kwanza hifadhi matokeo ya dakika 90.');if(Number(m.home_score)!==Number(m.away_score))return alert('⚠️ Extra time inahitajika tu baada ya dakika 90 kuwa sare.');const eh=prompt('Extra time — '+cname(m.home_team_id)+' (jumla baada ya dakika 120)',m.extra_time_home??m.home_score??0),ea=prompt('Extra time — '+cname(m.away_team_id)+' (jumla baada ya dakika 120)',m.extra_time_away??m.away_score??0);if(eh===null||ea===null)return;const h=n(eh),a=n(ea);if(h===null||a===null||h<Number(m.home_score)||a<Number(m.away_score))return alert('⚠️ Matokeo ya extra time si sahihi. Weka jumla ya magoli baada ya dakika 120.');const clean=String(m.notes||'').replace(/\|AFRN_WINNER=(HOME|AWAY)/g,'').replace(/\|AFRN_PEN=[^|]+/g,'');const patch={extra_time_home:h,extra_time_away:a,home_score:h,away_score:a,home_penalties:null,away_penalties:null,notes:clean};if(h!==a)patch.notes+='|AFRN_WINNER='+(h>a?'HOME':'AWAY');const r=await db.from('matches').update(patch).eq('id',id);if(r.error)return alert('❌ '+r.error.message);await progress();await load();render();}
+async function savePenalty(id){const m=matches.find(x=>String(x.id)===String(id));if(!m||!played(m))return alert('⚠️ Kwanza hifadhi matokeo.');if(Number(m.home_score)!==Number(m.away_score))return alert('⚠️ Mikwaju inaruhusiwa tu kama bado ni sare baada ya muda wa mchezo.');const hp=prompt('Mikwaju — '+cname(m.home_team_id),m.home_penalties??''),ap=prompt('Mikwaju — '+cname(m.away_team_id),m.away_penalties??'');if(hp===null||ap===null)return;const h=n(hp),a=n(ap);if(h===null||a===null||h===a)return alert('⚠️ Mikwaju lazima iwe namba mbili tofauti.');const clean=String(m.notes||'').replace(/\|AFRN_WINNER=(HOME|AWAY)/g,'').replace(/\|AFRN_PEN=[^|]+/g,'');const side=h>a?'HOME':'AWAY';const r=await db.from('matches').update({home_penalties:h,away_penalties:a,notes:clean+'|AFRN_WINNER='+side+'|AFRN_PEN='+h+'-'+a,status:'played'}).eq('id',id);if(r.error)return alert('❌ '+r.error.message);await progress();await load();render();}
+function result(m){if(!played(m))return 'Haijachezwa';const f=`${m.home_score} – ${m.away_score}`;const pen=m.home_penalties!=null&&m.away_penalties!=null?` (PEN ${m.home_penalties}–${m.away_penalties})`:'';return f+pen;}
+function render(){const old=$('#afrnPenaltyPanel');if(old)old.remove();const root=$('#afrnKOTable');if(!root||!comp?.id)return;const ko=matches.filter(isKO).sort((a,b)=>(STAGES.indexOf(stage(a))-STAGES.indexOf(stage(b)))||slot(a)-slot(b));if(!ko.length)return;const box=document.createElement('div');box.id='afrnPenaltyPanel';box.className='ce-card';box.innerHTML='<h3>⏱️ MATOKEO YA VIPINDI — 90′ → EXTRA TIME → PENALTY</h3><p class="ce-muted">Dakika 90 huandikwa kwanza. Ikiwa sare na mashindano yanahitaji mshindi, Admin anaweza kuweka extra time ya hadi 120′; ikiwa bado sare, huweka mikwaju. Mikwaju haiingii kwenye GF/GA.</p><div id="afrnPeriodRows"></div>';const rows=$('#afrnPeriodRows',box);ko.forEach(m=>{const tied90=played(m)&&Number(m.home_score)===Number(m.away_score)&&m.extra_time_home==null;const tiedET=m.extra_time_home!=null&&m.extra_time_away!=null&&Number(m.extra_time_home)===Number(m.extra_time_away);const row=document.createElement('div');row.style.cssText='border-top:1px solid #ddd;padding:11px 0';row.innerHTML=`<div><b>${esc(stage(m))} ${slot(m)}</b> — ${esc(cname(m.home_team_id))} vs ${esc(cname(m.away_team_id))}</div><div class="ce-muted">45′: ${m.first_half_home??'—'}–${m.first_half_away??'—'} | 90′: ${m.home_score??'—'}–${m.away_score??'—'}${m.extra_time_home!=null?` | 120′: ${m.extra_time_home}–${m.extra_time_away}`:''}${m.home_penalties!=null?` | PEN: ${m.home_penalties}–${m.away_penalties}`:''}</div><div class="ce-actions" style="margin-top:7px;display:flex;gap:7px;flex-wrap:wrap">${!played(m)?`<button class="primary" data-period="${m.id}">⏱️ Weka Matokeo</button>`:''}${played(m)&&tied90?`<button class="gold" data-extra="${m.id}">➕ Extra Time</button><button class="primary" data-pen="${m.id}">🥅 Penalty</button>`:''}${played(m)&&m.extra_time_home!=null&&tiedET?`<button class="primary" data-pen="${m.id}">🥅 Penalty baada ya ET</button>`:''}</div>`;rows.appendChild(row);row.querySelector('[data-period]')?.addEventListener('click',()=>savePeriods(m.id));row.querySelector('[data-extra]')?.addEventListener('click',()=>saveExtra(m.id));row.querySelector('[data-pen]')?.addEventListener('click',()=>savePenalty(m.id));});root.parentNode.insertBefore(box,root);}
+async function run(){try{if(await load())render();}catch(e){console.error('AFRN Match Outcome Manager',e);}}
+let timer=0;const boot=()=>{clearTimeout(timer);timer=setTimeout(run,700);};new MutationObserver(boot).observe(document.body,{childList:true,subtree:true});if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',boot);else boot();
 })();
