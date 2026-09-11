@@ -48,4 +48,6 @@ async function save(id){
 }
 function boot(){let tries=0;const go=async()=>{tries++;try{await load();}catch(e){if(tries<8)setTimeout(go,700);else console.warn('AFRN R16 Schedule:',e);}};go();}
 if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',boot);else boot();
+/* Load the unified Knockout Center after the existing R16 scheduler is initialized. */
+setTimeout(()=>{if(!document.getElementById('afrn-knockout-center')){const s=document.createElement('script');s.src='./afrn-knockout-center.js?v=20260911';document.body.appendChild(s);}},1200);
 })();
