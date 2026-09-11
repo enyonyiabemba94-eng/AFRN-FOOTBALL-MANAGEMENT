@@ -3,6 +3,7 @@ on:
   push:
     paths:
       - 'afrn-knockout-engine.js'
+      - 'afrn-league-engine.js'
       - '.github/workflows/install-knockout-engine.yml'
 permissions:
   contents: write
@@ -11,19 +12,26 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
-      - name: Install script tag
+      - name: Install competition script tags
         run: |
           python - <<'PY'
           from pathlib import Path
           p=Path('competitions.html')
           s=p.read_text(encoding='utf-8')
-          tag='<script src="./afrn-knockout-engine.js"></script>'
-          if tag not in s:
-              marker='</body>'
-              if marker in s:
-                  s=s.replace(marker, tag+'\n'+marker, 1)
-              else:
-                  s += '\n'+tag+'\n'
+          tags=[
+              '<script src="./afrn-knockout-engine.js"></script>',
+              '<script src="./afrn-league-engine.js?v=20260911"></script>'
+          ]
+          marker='</body>'
+          changed=False
+          for tag in tags:
+              if tag not in s:
+                  if marker in s:
+                      s=s.replace(marker, tag+'\n'+marker, 1)
+                  else:
+                      s += '\n'+tag+'\n'
+                  changed=True
+          if changed:
               p.write_text(s, encoding='utf-8')
           PY
       - name: Commit installation
@@ -31,5 +39,5 @@ jobs:
           git config user.name 'github-actions[bot]'
           git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
           git add competitions.html
-          git diff --cached --quiet || git commit -m 'Install AFRN knockout engine'
+          git diff --cached --quiet || git commit -m 'Install AFRN League Center'
           git push
