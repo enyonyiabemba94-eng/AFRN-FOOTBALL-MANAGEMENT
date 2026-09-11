@@ -5,6 +5,7 @@ on:
       - 'afrn-knockout-engine.js'
       - 'afrn-league-engine.js'
       - 'afrn-r16-schedule.js'
+      - 'afrn-knockout-center.js'
       - '.github/workflows/install-knockout-engine.yml'
 permissions:
   contents: write
@@ -22,7 +23,8 @@ jobs:
           tags=[
               '<script src="./afrn-knockout-engine.js"></script>',
               '<script src="./afrn-league-engine.js?v=20260911"></script>',
-              '<script src="./afrn-r16-schedule.js?v=20260911"></script>'
+              '<script src="./afrn-r16-schedule.js?v=20260911"></script>',
+              '<script src="./afrn-knockout-center.js?v=20260911"></script>'
           ]
           marker='</body>'
           changed=False
@@ -41,5 +43,5 @@ jobs:
           git config user.name 'github-actions[bot]'
           git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
           git add competitions.html
-          git diff --cached --quiet || git commit -m 'Install AFRN R16 schedule'
+          git diff --cached --quiet || git commit -m 'Install AFRN Knockout Center'
           git push
