@@ -1,0 +1,53 @@
+name: Connect Extra Time Setting
+
+on:
+  push:
+    paths:
+      - 'afrn-extra-time-setting.js'
+      - 'afrn-penalty-shootout.js'
+      - '.github/workflows/connect-extra-time-setting.yml'
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+jobs:
+  connect:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Connect scripts
+        shell: bash
+        run: |
+          python3 - <<'PY'
+          from pathlib import Path
+          p = Path('competitions.html')
+          s = p.read_text(encoding='utf-8')
+          tag = '<script src="./afrn-extra-time-setting.js?v=20260911"></script>'
+          if tag not in s:
+              anchor = '<script src="./afrn-penalty-shootout.js"></script>'
+              if anchor in s:
+                  s = s.replace(anchor, anchor + '\n' + tag, 1)
+              else:
+                  anchor2 = '<script src="./afrn-knockout-engine.js"></script>'
+                  if anchor2 in s:
+                      s = s.replace(anchor2, anchor2 + '\n<script src="./afrn-penalty-shootout.js?v=20260911"></script>\n' + tag, 1)
+                  else:
+                      raise SystemExit('Knockout engine script anchor not found')
+              p.write_text(s, encoding='utf-8')
+          PY
+
+      - name: Commit changes
+        shell: bash
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add competitions.html
+          if git diff --cached --quiet; then
+            echo "No changes needed"
+          else
+            git commit -m "Connect competition extra time setting"
+            git push
+          fi
