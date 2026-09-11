@@ -6,6 +6,7 @@ on:
       - 'afrn-extra-time-setting.js'
       - 'afrn-period-breakdown.js'
       - 'afrn-penalty-shootout.js'
+      - 'afrn-knockout-fixtures.js'
       - '.github/workflows/connect-extra-time-setting.yml'
   workflow_dispatch:
 
@@ -34,7 +35,8 @@ jobs:
               s = s.replace(anchor, anchor + '\n<script src="./afrn-penalty-shootout.js?v=20260911"></script>', 1)
           tags = [
               '<script src="./afrn-extra-time-setting.js?v=20260911"></script>',
-              '<script src="./afrn-period-breakdown.js?v=20260911"></script>'
+              '<script src="./afrn-period-breakdown.js?v=20260911"></script>',
+              '<script src="./afrn-knockout-fixtures.js?v=20260911"></script>'
           ]
           for tag in tags:
               if tag not in s:
@@ -51,6 +53,6 @@ jobs:
           if git diff --cached --quiet; then
             echo "No changes needed"
           else
-            git commit -m "Connect extra time and period breakdown"
+            git commit -m "Add knockout fixture date time and venue manager"
             git push
           fi
