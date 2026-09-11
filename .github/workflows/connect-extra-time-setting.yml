@@ -56,3 +56,5 @@ jobs:
             git commit -m "Add knockout fixture date time and venue manager"
             git push
           fi
+
+# Connector trigger marker after competitions.html recovery.
