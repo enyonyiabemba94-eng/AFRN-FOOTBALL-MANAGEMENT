@@ -3,8 +3,12 @@
 */
 (function(){
 'use strict';
-/* Do not render the old scattered R16 table on the Competition page. */
-if(location.pathname.endsWith('/competitions.html') || location.pathname.endsWith('competitions.html')) return;
+/* Never render the old scattered R16 table on the Competition page. */
+if(location.pathname.endsWith('/competitions.html') || location.pathname.endsWith('competitions.html')){
+ const old=document.getElementById('afrnR16Schedule');
+ if(old) old.remove();
+ return;
+}
 const URL='https://jjqhvruppafpumcthmwe.supabase.co';
 const KEY='sb_publishable_02hhRG8bgDOqSFxva8IMvQ_zWTLMa3G';
 let db;
