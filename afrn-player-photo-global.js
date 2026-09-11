@@ -92,3 +92,6 @@ const start=async()=>{
 if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',()=>setTimeout(start,900));else setTimeout(start,900);
 })();
 })();
+
+/* AFRN_FREE_AGENT_PLAYER_APPROVAL_LOADER */
+(()=>{const load=()=>{if(!/players\.html$/i.test(location.pathname)||window.__AFRN_FREE_AGENT_PLAYER_APPROVAL_LOADER__)return;window.__AFRN_FREE_AGENT_PLAYER_APPROVAL_LOADER__=true;const s=document.createElement('script');s.src='./afrn-free-agent-player-approval.js?v=20260911';s.async=false;(document.head||document.documentElement).appendChild(s)};if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',()=>setTimeout(load,700));else setTimeout(load,700)})();
