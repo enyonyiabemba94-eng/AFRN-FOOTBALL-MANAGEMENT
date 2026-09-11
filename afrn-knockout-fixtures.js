@@ -42,3 +42,5 @@ async function run(){
 }
 let t=0;function boot(){clearTimeout(t);t=setTimeout(run,900);}new MutationObserver(boot).observe(document.body,{childList:true,subtree:true});if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',boot);else boot();
 })();
+
+// Restore-trigger marker: reconnect fixture manager after competitions page recovery.
