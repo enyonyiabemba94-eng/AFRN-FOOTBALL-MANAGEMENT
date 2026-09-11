@@ -1,4 +1,4 @@
-name: Install AFRN Knockout Persistence Bridge v4
+name: Install AFRN Knockout Persistence Bridge v5
 on:
   push:
     paths:
@@ -12,15 +12,15 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
-      - name: Install bridge v4
+      - name: Install bridge v5
         run: |
           python - <<'PY'
           from pathlib import Path
+          import re
           p=Path('competitions.html')
           s=p.read_text(encoding='utf-8')
-          import re
           s=re.sub(r'\n?<script src="\./afrn-knockout-persistence-v2\.js\?v=[^"]+"></script>', '', s)
-          tag='<script src="./afrn-knockout-persistence-v2.js?v=20260911-v4"></script>'
+          tag='<script src="./afrn-knockout-persistence-v2.js?v=20260911-v5"></script>'
           marker='<script src="./afrn-knockout-engine.js"></script>'
           if marker in s:
               s=s.replace(marker, marker+'\n'+tag, 1)
@@ -33,5 +33,5 @@ jobs:
           git config user.name 'github-actions[bot]'
           git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
           git add competitions.html
-          git diff --cached --quiet || git commit -m 'Install AFRN knockout persistence bridge v4'
+          git diff --cached --quiet || git commit -m 'Install AFRN dynamic qualification bridge v5'
           git push
