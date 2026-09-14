@@ -79,5 +79,7 @@ async function createLeague(){const name=$('leagueName').value.trim(),season=$('
 $('createLeagueBtn').onclick=createLeague;$('generateBtn').onclick=generateFixtures;$('refreshBtn').onclick=async()=>{try{await loadClubs();await loadLeagues();setStatus('✅ Taarifa zime-refresh.','ok')}catch(e){setStatus('❌ '+e.message,'err')}};$('reloadLeagueBtn').onclick=loadLeagueData;$('refreshFixturesBtn').onclick=loadLeagueData;
 (async()=>{if(!await waitForDb()){setStatus('❌ Supabase haijaunganishwa.','err');return}try{await loadClubs();await loadLeagues();setStatus('✅ AFRN Ligi Kuu iko tayari.','ok')}catch(e){console.error(e);setStatus('❌ Imeshindikana kupakia Ligi Kuu: '+e.message,'err')}})();
 </script>
+
+<script src="./afrn-player-photo-global.js"></script>
 </body>
 </html>
