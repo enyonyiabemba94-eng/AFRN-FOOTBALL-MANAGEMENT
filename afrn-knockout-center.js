@@ -1,58 +1,59 @@
-/* AFRN KNOCKOUT CENTER — unified presentation layer
-   Keeps the existing knockout engine and Supabase data.
-   Replaces the old scattered knockout block with one center.
-*/
+/* AFRN KNOCKOUT CENTER — official draw + bracket manager */
 (function(){
 'use strict';
-const ROOT_ID='afrn-knockout-center', STYLE_ID='afrn-knockout-center-style';
+const ROOT='afrn-knockout-center', STYLE='afrn-ko-style';
 const URL='https://jjqhvruppafpumcthmwe.supabase.co';
 const KEY='sb_publishable_02hhRG8bgDOqSFxva8IMvQ_zWTLMa3G';
-function db(){return window.supabaseClient||(window.supabase&&window.supabase.createClient?window.supabase.createClient(URL,KEY):null)}
-function esc(v){return String(v??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#039;'}[c]))}
-function date(v){if(!v)return '—';return String(v).slice(0,10)}
-function stage(m){
-  const x=String(m.stage||m.round||m.match_stage||m.notes||'').toUpperCase();
-  if(!x.includes('R16')&&!x.includes('HATUA YA 16')&&!x.includes('ROUND OF 16')&&!x.includes('QUARTER')&&!x.includes('ROBO')&&!x.includes('SEMI')&&!x.includes('NUSU')&&!x.includes('3RD')&&!x.includes('THIRD')&&!x.includes('MSHINDI WA TATU')&&!x.includes('FINAL')) return null;
-  if(x.includes('FINAL')&&!x.includes('SEMI'))return'final';
-  if(x.includes('3RD')||x.includes('THIRD')||x.includes('MSHINDI WA TATU'))return'third';
-  if(x.includes('SEMI')||x.includes('NUSU'))return'semi';
-  if(x.includes('QUARTER')||x.includes('ROBO'))return'qf';
-  return'r16';
-}
-function addStyle(){if(document.getElementById(STYLE_ID))return;const s=document.createElement('style');s.id=STYLE_ID;s.textContent=`#${ROOT_ID}{margin:18px 0;font-family:Arial,Helvetica,sans-serif;color:#172033}#${ROOT_ID} *{box-sizing:border-box}.afk-head{background:linear-gradient(135deg,#06152b,#0d47a1);color:#fff;border-radius:18px;padding:18px;box-shadow:0 8px 24px #071a3326}.afk-head h2{margin:0;font-size:21px}.afk-head p{margin:6px 0 0;opacity:.86;font-size:12px}.afk-tabs{display:flex;gap:7px;overflow-x:auto;margin:12px 0;padding-bottom:3px}.afk-tab{border:1px solid #d8e0ec;background:#fff;border-radius:999px;padding:9px 13px;font-weight:800;font-size:12px;white-space:nowrap;cursor:pointer}.afk-tab.active{background:#0d47a1;color:#fff;border-color:#0d47a1}.afk-panel{display:none}.afk-panel.active{display:block}.afk-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(280px,1fr));gap:13px}.afk-match{background:#fff;border:1px solid #e1e7ef;border-radius:15px;padding:14px;box-shadow:0 3px 14px #14213d0d}.afk-top{display:flex;justify-content:space-between;gap:8px;align-items:center;margin-bottom:12px}.afk-no{font-size:11px;font-weight:900;color:#0d47a1}.afk-status{font-size:10px;padding:5px 8px;border-radius:999px;background:#eef4ff;color:#0d47a1;font-weight:800}.afk-teams{display:grid;grid-template-columns:1fr auto 1fr;align-items:center;gap:8px}.afk-team{font-weight:900;font-size:14px;min-height:38px;display:flex;align-items:center}.afk-team:last-child{justify-content:flex-end;text-align:right}.afk-score{font-size:20px;font-weight:900;white-space:nowrap}.afk-meta{margin-top:13px;padding-top:11px;border-top:1px solid #edf0f4;display:grid;grid-template-columns:repeat(3,1fr);gap:7px}.afk-meta div{background:#f7f9fc;border-radius:9px;padding:8px;text-align:center}.afk-meta b{display:block;font-size:10px;color:#687386;margin-bottom:3px}.afk-meta span{font-size:11px;font-weight:800}.afk-actions{display:flex;gap:7px;flex-wrap:wrap;margin-top:11px}.afk-actions button{border:0;border-radius:8px;padding:8px 10px;font-size:11px;font-weight:800;cursor:pointer}.afk-edit{background:#e8f0ff;color:#0d47a1}.afk-save{background:#e8f7ef;color:#16834b}.afk-admin{margin-top:13px;background:#fff8df;border-left:4px solid #f5b400;border-radius:9px;padding:10px 12px;font-size:11px}.afk-empty{background:#fff;border:1px dashed #cbd3df;border-radius:14px;padding:25px;text-align:center;color:#687386;font-size:12px}.afk-input{width:100%;padding:8px;border:1px solid #d4dbe6;border-radius:8px;font-size:12px}.afk-editor{margin-top:11px;display:grid;grid-template-columns:1fr 1fr;gap:7px}.afk-editor label{font-size:10px;font-weight:800;color:#687386}.afk-editor .full{grid-column:1/-1}@media(max-width:600px){.afk-meta,.afk-editor{grid-template-columns:1fr}.afk-teams{grid-template-columns:1fr}.afk-team:last-child{justify-content:flex-start;text-align:left}.afk-score{text-align:center}}`;document.head.appendChild(s)}
-function findOld(){
-  const exact=document.getElementById('afrnKOTable');if(exact)return exact.closest('section')||exact.parentElement||exact;
-  const r16=document.getElementById('afrnR16Schedule');if(r16)return r16;
-  const els=[...document.querySelectorAll('section,div,article')];
-  return els.find(el=>{if(el.id===ROOT_ID)return false;const t=(el.innerText||'').toUpperCase();return t.includes('RATIBA — HATUA YA 16')&&t.includes('ADMIN ANAWEKA TAREHE')});
-}
-function team(m,side,clubs){
-  const id=m[side+'_team_id'];
-  if(id){const c=clubs.find(x=>String(x.id)===String(id));if(c?.name)return c.name;}
-  return m[side+'_team_name']||m[side+'_team']||m[side+'_club_name']||m[side+'_name']||m[side]||m[side==='home'?'team1':'team2']||'Timu';
-}
-function score(m){const h=m.home_score??m.home_goals??m.home_result,a=m.away_score??m.away_goals??m.away_result;return h==null&&a==null?'—':`${esc(h??0)} : ${esc(a??0)}`}
-function card(m,label,canEdit,clubs){const id=esc(m.id);return `<article class="afk-match" data-id="${id}"><div class="afk-top"><span class="afk-no">MECHI #${esc(m.match_number??'—')}</span><span class="afk-status">${label}</span></div><div class="afk-teams"><div class="afk-team">${esc(team(m,'home',clubs))}</div><div class="afk-score">${score(m)}</div><div class="afk-team">${esc(team(m,'away',clubs))}</div></div><div class="afk-meta"><div><b>📅 TAREHE</b><span>${date(m.match_date)}</span></div><div><b>🕐 MUDA</b><span>${esc(m.match_time||'—')}</span></div><div><b>🏟️ UWANJA</b><span>${esc(m.venue||'—')}</span></div></div>${canEdit?`<div class="afk-editor"><label>Namba ya mechi<input class="afk-input e-no" type="number" value="${esc(m.match_number??'')}"/></label><label>Tarehe<input class="afk-input e-date" type="date" value="${esc(m.match_date||'')}"/></label><label>Muda<input class="afk-input e-time" type="time" value="${esc(String(m.match_time||'').slice(0,5))}"/></label><label>Uwanja<input class="afk-input e-venue" value="${esc(m.venue||'')}"/></label></div><div class="afk-actions"><button class="afk-save" data-save="1">💾 Hifadhi ratiba</button><button class="afk-edit" onclick="window.location.href='./matches.html'">⚽ Fungua Mechi</button></div>`:`<div class="afk-actions"><button class="afk-edit" onclick="window.location.href='./matches.html'">⚽ Fungua Mechi</button></div>`}</article>`}
+const db=()=>window.supabaseClient||(window.supabase&&window.supabase.createClient?window.supabase.createClient(URL,KEY):null);
+const esc=v=>String(v??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#039;'}[c]));
+const stage=m=>{const x=String(m?.notes||'').toUpperCase();if(x.includes('AFRN_STAGE=R16'))return'R16';if(x.includes('AFRN_STAGE=QF'))return'QF';if(x.includes('AFRN_STAGE=SF'))return'SF';if(x.includes('AFRN_STAGE=3RD'))return'3RD';if(x.includes('AFRN_STAGE=FINAL'))return'FINAL';return''};
+const slot=m=>Number(String(m?.notes||'').match(/AFRN_SLOT=(\d+)/)?.[1]||0);
+const name=(id,clubs)=>clubs.find(c=>String(c.id)===String(id))?.name||'Chagua timu';
+const compId=()=>new URLSearchParams(location.search).get('competition_id')||document.getElementById('koCompetition')?.value||'';
+function css(){if(document.getElementById(STYLE))return;const s=document.createElement('style');s.id=STYLE;s.textContent=`#${ROOT}{margin:18px 0;font-family:Arial,sans-serif}.ko-head{background:linear-gradient(135deg,#06152b,#0d47a1);color:#fff;border-radius:18px;padding:18px}.ko-head h2{margin:0;font-size:21px}.ko-head p{margin:6px 0 0;font-size:12px;opacity:.88}.ko-bar{display:flex;gap:8px;flex-wrap:wrap;margin:12px 0}.ko-card{background:#fff;border:1px solid #dfe5ee;border-radius:15px;padding:14px;box-shadow:0 3px 14px #0000000b}.ko-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(270px,1fr));gap:12px}.ko-label{font-size:11px;font-weight:900;color:#0d47a1}.ko-input{width:100%;padding:9px;border:1px solid #d5dce7;border-radius:8px;background:#fff;font-size:12px}.ko-btn{border:0;border-radius:9px;padding:9px 12px;font-weight:800;cursor:pointer}.ko-primary{background:#0d47a1;color:#fff}.ko-green{background:#e8f7ef;color:#087443}.ko-gold{background:#fff5cf;color:#6b4f00}.ko-danger{background:#fff0f0;color:#c62828}.ko-muted{color:#687386;font-size:12px}.ko-title{font-size:15px;font-weight:900;margin-bottom:10px}.ko-match{display:grid;grid-template-columns:1fr auto 1fr;gap:8px;align-items:center;font-weight:900}.ko-match div:last-child{text-align:right}.ko-score{font-size:18px}.ko-meta{margin-top:10px;padding-top:9px;border-top:1px solid #edf0f4;font-size:11px;color:#687386}.ko-tabs{display:flex;gap:7px;overflow:auto;margin:12px 0}.ko-tab{white-space:nowrap;border:1px solid #d5dce7;background:#fff;border-radius:999px;padding:9px 12px;font-weight:800}.ko-tab.active{background:#0d47a1;color:#fff}.ko-panel{display:none}.ko-panel.active{display:block}.ko-draw{display:grid;grid-template-columns:repeat(2,1fr);gap:10px}.ko-field label{display:block;font-size:10px;font-weight:800;color:#687386;margin-bottom:4px}@media(max-width:600px){.ko-draw{grid-template-columns:1fr}.ko-match{grid-template-columns:1fr}.ko-match div:last-child{text-align:left}.ko-grid{grid-template-columns:1fr}}`;document.head.appendChild(s)}
 async function load(){
-  addStyle();
-  if(document.getElementById(ROOT_ID))return true;
-  const old=findOld();
-  if(!old)return false;
-  const root=document.createElement('section');root.id=ROOT_ID;
-  root.innerHTML=`<div class="afk-head"><h2>🏆 AFRN KNOCKOUT CENTER</h2><p>MFUMO RASMI WA HATUA ZA MTOANO — Ratiba, matokeo, tarehe, muda na uwanja</p></div><div class="afk-tabs"><button class="afk-tab active" data-stage="best">⭐ BEST LOSERS</button><button class="afk-tab" data-stage="r16">🏆 HATUA YA 16</button><button class="afk-tab" data-stage="qf">⚔️ ROBO FAINALI</button><button class="afk-tab" data-stage="semi">🔥 NUSU FAINALI</button><button class="afk-tab" data-stage="third">🥉 MSHINDI WA 3</button><button class="afk-tab" data-stage="final">🏆 FAINALI</button></div><div id="afk-panels"></div>`;
-  root.querySelectorAll('.afk-tab').forEach(b=>b.onclick=()=>{root.querySelectorAll('.afk-tab').forEach(x=>x.classList.remove('active'));root.querySelectorAll('.afk-panel').forEach(x=>x.classList.remove('active'));b.classList.add('active');root.querySelector('[data-panel="'+b.dataset.stage+'"]').classList.add('active')});
-  const client=db();let matches=[],clubs=[];
-  if(client){
-    try{
-      const r=await client.from('matches').select('*').order('match_number',{ascending:true,nullsLast:true}).order('match_date',{ascending:true,nullsLast:true});
-      if(!r.error)matches=(r.data||[]).filter(m=>stage(m));
-      const ids=[...new Set(matches.flatMap(m=>[m.home_team_id,m.away_team_id]).filter(Boolean))];
-      if(ids.length){const c=await client.from('clubs').select('id,name').in('id',ids);if(!c.error)clubs=c.data||[];}
-    }catch(e){console.warn('AFRN Knockout Center',e)}
-  }
-  old.replaceWith(root);render(root,matches,client,clubs);return true;
+ css();
+ if(document.getElementById(ROOT))return;
+ const old=document.getElementById('afrnR16Schedule')||[...document.querySelectorAll('section,div,article')].find(x=>x.id!==ROOT&&(x.innerText||'').toUpperCase().includes('HATUA YA 16')&&(x.innerText||'').toUpperCase().includes('BEST LOSERS'));
+ if(!old)return setTimeout(load,500);
+ const D=db();if(!D)return;
+ const cr=await D.from('competitions').select('*').order('created_at',{ascending:false});if(cr.error)return console.warn(cr.error);
+ const root=document.createElement('section');root.id=ROOT;
+ root.innerHTML=`<div class="ko-head"><h2>⚔️ AFRN KNOCKOUT — DROW + MFUMO RASMI</h2><p>Admin anaweka timu kwenye A–H na namba za mechi. Mfumo hauundi timu za kubuni.</p></div><div class="ko-bar"><select id="koCompetition" class="ko-input" style="max-width:420px"><option value="">Chagua Competition ya Knockout</option>${(cr.data||[]).map(c=>`<option value="${esc(c.id)}">${esc(c.name)} · ${esc(c.season||'')}</option>`).join('')}</select><button class="ko-btn ko-primary" id="koRefresh">↻ Refresh</button></div><div id="koBody" class="ko-muted">Chagua competition ili kuanza.</div>`;
+ old.replaceWith(root);
+ const sel=root.querySelector('#koCompetition');const urlId=new URLSearchParams(location.search).get('competition_id');if(urlId)sel.value=urlId;
+ sel.onchange=()=>render(sel.value);root.querySelector('#koRefresh').onclick=()=>render(sel.value);
+ if(sel.value)render(sel.value);
 }
-function render(root,matches,client,clubs){const panels=root.querySelector('#afk-panels'),labels={r16:'HATUA YA 16',qf:'ROBO FAINALI',semi:'NUSU FAINALI',third:'MSHINDI WA 3',final:'FAINALI'};panels.innerHTML='';const bp=document.createElement('div');bp.className='afk-panel active';bp.dataset.panel='best';bp.innerHTML='<div class="afk-grid">'+['G1','G2','H1','H2'].map((x,i)=>`<div class="afk-match"><div class="afk-top"><span class="afk-no">SLOT ${i+1}</span><span class="afk-status">ADMIN</span></div><div class="afk-teams"><div class="afk-team">${x}</div><div class="afk-score">—</div><div class="afk-team">ADMIN</div></div><div class="afk-admin">Slot hii inawekwa na Admin. Mfumo hautatengeneza timu ya kubuni.</div></div>`).join('')+'</div>';panels.appendChild(bp);['r16','qf','semi','third','final'].forEach(s=>{const p=document.createElement('div');p.className='afk-panel';p.dataset.panel=s;const rows=matches.filter(m=>stage(m)===s);p.innerHTML=rows.length?'<div class="afk-grid">'+rows.map(m=>card(m,labels[s],!!client,clubs)).join('')+'</div>':'<div class="afk-empty">Hakuna mechi za hatua hii bado.</div>';panels.appendChild(p)});root.querySelectorAll('[data-save]').forEach(b=>b.onclick=async()=>{const c=b.closest('.afk-match');const r=await client.from('matches').update({match_number:c.querySelector('.e-no').value?Number(c.querySelector('.e-no').value):null,match_date:c.querySelector('.e-date').value||null,match_time:c.querySelector('.e-time').value||null,venue:c.querySelector('.e-venue').value.trim()||null}).eq('id',c.dataset.id);if(r.error){alert('❌ '+r.error.message);return}b.textContent='✅ Imehifadhiwa';setTimeout(()=>b.textContent='💾 Hifadhi ratiba',1600)})}
-function boot(){let tries=0;const go=async()=>{tries++;if(await load())return;if(tries<12)setTimeout(go,500)};go()}
+async function render(id){
+ const D=db(),body=document.querySelector('#koBody');if(!D||!id||!body){if(body)body.innerHTML='<div class="ko-card">Chagua competition.</div>';return}
+ const [cr,tr,mr]=await Promise.all([D.from('competitions').select('*').eq('id',id).single(),D.from('competition_teams').select('club_id,group_name').eq('competition_id',id),D.from('matches').select('*').eq('competition_id',id).order('match_number',{ascending:true,nullsLast:true})]);
+ if(cr.error){body.innerHTML='<div class="ko-card">❌ '+esc(cr.error.message)+'</div>';return}
+ const ids=[...new Set([...(tr.data||[]).map(x=>x.club_id),...(mr.data||[]).flatMap(x=>[x.home_team_id,x.away_team_id]).filter(Boolean),cr.data.knockout_g1,cr.data.knockout_g2,cr.data.knockout_h1,cr.data.knockout_h2].filter(Boolean))];
+ const clubs=ids.length?(await D.from('clubs').select('id,name').in('id',ids)).data||[]:[];
+ const teamRows=tr.data||[];
+ const opts=teamRows.map(x=>`<option value="${esc(x.club_id)}">${esc(name(x.club_id,clubs))} ${x.group_name?'· '+esc(x.group_name):''}</option>`).join('');
+ const slots=['A1','A2','B1','B2','C1','C2','D1','D2','E1','E2','F1','F2','G1','G2','H1','H2'];
+ const val=s=>cr.data['knockout_'+s.toLowerCase()]||'';
+ body.innerHTML=`<div class="ko-card"><div class="ko-title">⭐ BEST LOSERS — Qualification Slots G/H</div><div class="ko-muted">Admin anachagua timu halisi. G1/G2/H1/H2 si timu zinazobuniwa na mfumo.</div><div class="ko-draw" id="koDraw">${slots.map(s=>`<div class="ko-field"><label>${s} ${['G1','G2','H1','H2'].includes(s)?'— Best Loser':''}</label><select class="ko-input" data-slot="${s}"><option value="">Chagua timu</option>${opts}</select></div>`).join('')}</div><div style="margin-top:12px" class="ko-muted">Namba za mechi za Hatua ya 16:</div><div class="ko-draw" id="koNumbers">${Array.from({length:8},(_,i)=>`<div class="ko-field"><label>Mechi ${i+1}</label><input class="ko-input ko-no" type="number" min="1" value="${i+1}"></div>`).join('')}</div><div class="ko-bar"><button class="ko-btn ko-green" id="koSaveDraw">💾 Hifadhi Droo + Best Losers</button><button class="ko-btn ko-primary" id="koGenerate">⚙️ Tengeneza Hatua ya 16 Kutoka kwenye Droo</button></div><div class="ko-muted">Droo itahifadhiwa kwenye competition. Timu moja haiwezi kuwekwa kwenye nafasi mbili.</div></div><div class="ko-tabs">${[['R16','🏆 HATUA YA 16'],['QF','⚔️ ROBO FAINALI'],['SF','🔥 NUSU FAINALI'],['3RD','🥉 MSHINDI WA 3'],['FINAL','🏆 FAINALI']].map((x,i)=>`<button class="ko-tab ${i?'':'active'}" data-tab="${x[0]}">${x[1]}</button>`).join('')}</div><div id="koPanels"></div>`;
+ slots.forEach(s=>{const el=body.querySelector(`[data-slot="${s}"]`);el.value=val(s)});
+ body.querySelectorAll('.ko-tab').forEach(b=>b.onclick=()=>{body.querySelectorAll('.ko-tab').forEach(x=>x.classList.remove('active'));body.querySelectorAll('.ko-panel').forEach(x=>x.classList.remove('active'));b.classList.add('active');body.querySelector(`[data-panel="${b.dataset.tab}"]`).classList.add('active')});
+ const save=async()=>{const data={};const used=new Set();for(const s of slots){const v=body.querySelector(`[data-slot="${s}"]`).value||null;if(v&&used.has(v)){alert('❌ Timu hiyo imechaguliwa zaidi ya nafasi moja: '+s);return}if(v)used.add(v);data['knockout_'+s.toLowerCase()]=v}const r=await D.from('competitions').update(data).eq('id',id);if(r.error){alert('❌ '+r.error.message);return}await render(id);alert('✅ Droo imehifadhiwa.')};
+ body.querySelector('#koSaveDraw').onclick=save;
+ body.querySelector('#koGenerate').onclick=async()=>{await save();await generateR16(D,id,clubs)};
+ renderPanels(body.querySelector('#koPanels'),mr.data||[],clubs);
+}
+function renderPanels(root,matches,clubs){const map={R16:'🏆 HATUA YA 16',QF:'⚔️ ROBO FAINALI',SF:'🔥 NUSU FAINALI','3RD':'🥉 MSHINDI WA 3',FINAL:'🏆 FAINALI'};root.innerHTML=Object.keys(map).map((s,i)=>{const ms=matches.filter(m=>stage(m)===s).sort((a,b)=>{const aa=Number(String(a.notes||'').match(/AFRN_SLOT=(\d+)/)?.[1]||0),bb=Number(String(b.notes||'').match(/AFRN_SLOT=(\d+)/)?.[1]||0);return aa-bb});return `<div class="ko-panel ${i?'':'active'}" data-panel="${s}"><div class="ko-grid">${ms.length?ms.map((m,j)=>`<div class="ko-card"><div class="ko-title">${map[s]} — ${j+1}</div><div class="ko-match"><div>${esc(name(m.home_team_id,clubs))}</div><div class="ko-score">${m.home_score==null?'—':esc(m.home_score)+' : '+esc(m.away_score??0)}</div><div>${esc(name(m.away_team_id,clubs))}</div></div><div class="ko-meta">📌 Mechi #${esc(m.match_number||'—')} · 📅 ${esc(m.match_date||'—')} · 🕐 ${esc(String(m.match_time||'').slice(0,5)||'—')} · 🏟️ ${esc(m.venue||'—')} · ${esc(m.status||'scheduled')}</div></div>`).join(''):'<div class="ko-card">ℹ️ Hakuna mechi za hatua hii bado.</div>'}</div></div>`}).join('')}
+async function generateR16(D,id,clubs){
+ const c=(await D.from('competitions').select('*').eq('id',id).single()).data;if(!c)return;
+ const p=['a1','b2','c1','d2','b1','a2','d1','c2','e1','f2','g1','h2','f1','e2','h1','g2'];
+ const teams=p.map(k=>c['knockout_'+k]);if(teams.some(x=>!x)){alert('⚠️ Jaza nafasi zote A1–H2 kwanza.');return}
+ const pairs=[];for(let i=0;i<16;i+=2)pairs.push([teams[i],teams[i+1]]);
+ if(new Set(teams).size!==16){alert('❌ Timu lazima ziwe tofauti kwenye A1–H2.');return}
+ const existing=(await D.from('matches').select('*').eq('competition_id',id)).data||[];
+ const nums=[...document.querySelectorAll('.ko-no')].map(x=>Number(x.value)||0);for(let i=0;i<8;i++){if(!nums[i]){alert('❌ Weka namba ya kila mechi ya Hatua ya 16.');return}const pair=pairs[i],note='AFRN_STAGE=R16|AFRN_SLOT='+(i+1)+'|AFRN_DRAW='+String.fromCharCode(65+i);const old=existing.find(m=>stage(m)==='R16'&&slot(m)==i+1);if(old){const r=await D.from('matches').update({home_team_id:pair[0],away_team_id:pair[1],match_number:nums[i],notes:note,status:'scheduled',home_score:null,away_score:null}).eq('id',old.id);if(r.error){alert('❌ '+r.error.message);return}}else{const r=await D.from('matches').insert({competition_id:id,home_team_id:pair[0],away_team_id:pair[1],match_number:nums[i],status:'scheduled',notes:note});if(r.error){alert('❌ '+r.error.message);return}}}
+ alert('✅ Hatua ya 16 imetengenezwa kwa droo ulioweka.');await render(id);
+}
+function boot(){load().catch(e=>console.warn('AFRN Knockout Center',e))}
 if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',boot);else boot();
 })();
