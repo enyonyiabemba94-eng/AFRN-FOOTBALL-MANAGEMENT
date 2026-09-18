@@ -13,15 +13,19 @@ if(window.supabase && typeof window.supabase.createClient==="function" && !windo
       async function identity(){const u=await client.auth.getUser();if(!u.data?.user)return null;const p=await client.from("profiles").select("id,role,club_id,full_name").eq("id",u.data.user.id).maybeSingle();return p.data||null;}
       const me=await identity();
       const role=String(me?.role||"").toLowerCase();
-      const clubAdmin=["club_admin","club","club_account"].includes(role);
+      const clubAdmin=["club_admin","club","club_account"].includes(role); const viewOnly=clubAdmin || ["official","committee","kamati","kamati_husika","viewer","public_viewer"].includes(role);
       const afrnAdmin=["super_admin","superadmin","admin","administrator","afrn_admin","secretary_general"].includes(role);
 
       /* ---------- GLOBAL CLUB-ADMIN UI LOCK ---------- */
       function lockClubAdminUI(){
-        if(!clubAdmin)return;
+        if(!viewOnly)return;
+        const viewerCss=document.createElement("style");
+        viewerCss.id="afrn-view-only-css";
+        viewerCss.textContent="form, .admin-only, .editor-only, .mutation-form{display:none!important} input:not([type=search]):not([type=text]), textarea, select{pointer-events:none!important;opacity:.7} button[data-action=add],button[data-action=edit],button[data-action=delete],button[data-action=save],.edit-btn,.delete-btn,.add-btn,.save-btn,.primary.danger{display:none!important}";
+        document.head.appendChild(viewerCss);
         const path=location.pathname.toLowerCase();
         const page=path.split("/").pop()||"";
-        const blockAll=page==="clubs.html"||page==="competitions.html"||page==="matches.html"||page==="reports.html";
+        const blockAll=page==="clubs.html"||page==="competitions.html"||page==="matches.html"||page==="reports.html"||page==="contracts.html"||page==="transfers.html";
         const blocked=/^(hariri|edit|futa|delete|ongeza klabu|add club|ongeza timu|add team|weka matokeo|hifadhi matokeo|save result|add match|ongeza mechi|ongeza mashindano|add competition)$/i;
         const scan=()=>{
           document.querySelectorAll("button,a").forEach(el=>{
@@ -77,7 +81,7 @@ if(window.supabase && typeof window.supabase.createClient==="function" && !windo
       }
 
       /* ---------- CLUB ADMIN: FREE-AGENT SEARCH + REGISTRATION REQUEST ---------- */
-      if(clubAdmin && /players\.html$/i.test(location.pathname)){
+      if(false && clubAdmin && /players\.html$/i.test(location.pathname)){
         const main=document.querySelector("main");
         if(main && !document.getElementById("afrnFreeAgentPanel")){
           const panel=document.createElement("section");panel.id="afrnFreeAgentPanel";panel.style.cssText="background:#fff;border:1px solid #dfe6ef;border-radius:16px;padding:15px;margin:0 0 16px;box-shadow:0 3px 12px #14213d10";
