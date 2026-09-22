@@ -2998,12 +2998,7 @@ onclick="deleteCompetition('${esc(competition.id)}')">
 }
 
 
-window.openCompetitionHistory =
-function(id){
-  window.location.href =
-    "./competition-history.html?id=" +
-    encodeURIComponent(id);
-};
+window.openCompetitionHistory=function(id){window.location.href="./competition-history.html?id="+encodeURIComponent(id);};
 
 /* =====================================================
    OPEN COMPETITION
