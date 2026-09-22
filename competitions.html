@@ -11,6 +11,7 @@
 <title>AFRN Football Management - Competitions</title>
 
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<script src="./afrn-standings-engine.js"></script>
 
 <style>
 
@@ -768,9 +769,8 @@ required>
 Chagua
 </option>
 
-<option value="League">
-League
-</option>
+<option value="League">League</option>
+<option value="Cup">Cup</option>
 
 <option value="Group Stage">
 Group Stage
@@ -1912,7 +1912,7 @@ $("logoUrl")
 .trim() || null;
 
 
-if(!name || !competitionType || !season || !startDate){
+if(!name || !competitionType || !format || !season || !startDate){
 
 alert(
 "⚠️ Jina, aina, season na start date ni lazima."
@@ -3048,13 +3048,9 @@ GROUP ${group}
 
 <th>GA</th>
 
-<th>Pts</th>
+<th>PTS</th>
 
-<th>🟥</th>
 
-<th>🟨</th>
-
-</tr>
 
 </thead>
 
