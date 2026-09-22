@@ -3241,63 +3241,60 @@ totalInserted
 
 
 /* =====================================================
-   PLACEHOLDER KNOCKOUT BUTTONS
+   KNOCKOUT ENGINE — COMPETITION ISOLATED
 ===================================================== */
-
-$("generate16Btn")
-.onclick =
-function(){
-
-alert(
-"🏆 Round of 16 itatumika baada ya Group Stage kukamilika na timu zinazostahili kufuzu kuthibitishwa."
-);
-
-};
-
-
-$("generateQfBtn")
-.onclick =
-function(){
-
-alert(
-"🏆 Quarter Final itatumika baada ya Round of 16 kukamilika."
-);
-
-};
-
-
-$("generateSfBtn")
-.onclick =
-function(){
-
-alert(
-"🏆 Semi Final itatumika baada ya Quarter Final kukamilika."
-);
-
-};
-
-
-$("generateClassificationBtn")
-.onclick =
-function(){
-
-alert(
-"🏆 Classification itatumika kwa hatua ya nafasi kulingana na mfumo wa mashindano."
-);
-
-};
-
-
-$("generateFinalBtn")
-.onclick =
-function(){
-
-alert(
-"🏆 Final itatumika baada ya Semi Final kukamilika."
-);
-
-};
-
+async function koData(competitionId){
+  const q=await db.from("competition_qualifiers").select("*").eq("competition_id",competitionId);
+  if(q.error) throw q.error;
+  const m=await db.from(MATCHES_TABLE).select("id,competition_id,home_team_id,away_team_id,status,home_score,away_score,match_number,notes").eq("competition_id",competitionId);
+  if(m.error) throw m.error;
+  return {q:q.data||[],m:m.data||[]};
+}
+async function makeKOMatches(stage, competitionId, pairs){
+  let made=0;
+  for(let i=0;i<pairs.length;i++){
+    const [home,away]=pairs[i]; if(!home||!away) continue;
+    const note="AFRN_STAGE="+stage+"|AFRN_SLOT="+(i+1)+"|"+stage+" "+(i+1);
+    const exists=(await db.from(MATCHES_TABLE).select("id").eq("competition_id",competitionId).eq("notes",note).limit(1)).data||[];
+    if(exists.length) continue;
+    const r=await db.from(MATCHES_TABLE).insert({competition_id:competitionId,home_team_id:home,away_team_id:away,status:"Scheduled",home_score:0,away_score:0,notes:note});
+    if(r.error) throw r.error; made++;
+  }
+  return made;
+}
+async function generateStage(stage){
+  const competitionId=$("generatorCompetitionId").value;
+  if(!competitionId){alert("⚠️ Chagua Competition kwanza.");return;}
+  try{
+    const x=await koData(competitionId);
+    let teams=[];
+    if(stage==="R16"){
+      teams=x.q.filter(q=>/^Q\d+$/.test(q.slot)).sort((a,b)=>+a.slot.slice(1)-+b.slot.slice(1)).map(q=>String(q.team_id));
+      if(teams.length!==16){alert("⚠️ R16 inahitaji qualifiers 16. Kwa sasa zipo "+teams.length+".");return;}
+    }else{
+      const prev=stage==="QF"?"R16":stage==="SF"?"QF":"SF";
+      const ms=x.m.filter(m=>String(m.notes||"").includes("AFRN_STAGE="+prev+"|")).sort((a,b)=>Number(String(a.notes).match(/AFRN_SLOT=(\d+)/)?.[1]||999)-Number(String(b.notes).match(/AFRN_SLOT=(\d+)/)?.[1]||999));
+      if(ms.length!== (prev==="R16"?8:prev==="QF"?4:2)){alert("⚠️ "+prev+" haijakamilika au haina idadi sahihi ya mechi.");return;}
+      const winners=[];
+      for(const m of ms){
+        if(m.home_score==null||m.away_score==null||String(m.status).toLowerCase()==="scheduled"){alert("⚠️ Kwanza maliza mechi zote za "+prev+".");return;}
+        const hs=Number(m.home_score),as=Number(m.away_score);
+        if(hs===as){alert("⚠️ "+prev+" ina sare. Mshindi wa knockout anahitaji kuthibitishwa kupitia extra-time/penalty.");return;}
+        winners.push(hs>as?m.home_team_id:m.away_team_id);
+      }
+      teams=winners;
+    }
+    const pairs=[]; for(let i=0;i<teams.length;i+=2)pairs.push([teams[i],teams[i+1]]);
+    const made=await makeKOMatches(stage,competitionId,pairs);
+    alert("✅ "+stage+" imeunganishwa. Mechi mpya: "+made);
+    setStatus("✅ "+stage+" imeunganishwa kwenye competition hii.","ok");
+  }catch(e){alert("❌ "+e.message);setStatus("❌ Knockout: "+e.message,"error");}
+}
+$("generate16Btn").onclick=()=>generateStage("R16");
+$("generateQfBtn").onclick=()=>generateStage("QF");
+$("generateSfBtn").onclick=()=>generateStage("SF");
+$("generateFinalBtn").onclick=()=>generateStage("FINAL");
+$("generateClassificationBtn").onclick=()=>alert("ℹ️ Classification itaongezwa baada ya mfumo wa nafasi ya 3 kuthibitishwa.");
 
 /* =====================================================
    START
