@@ -790,6 +790,17 @@ Friendly
 
 
 <div>
+<label>Format *</label>
+<select id="competitionFormat" class="field" required>
+<option value="League">League</option><option value="Knockout">Knockout</option><option value="Group Stage">Group Stage</option><option value="Group Stage + Knockout">Group Stage + Knockout</option><option value="Two-leg Knockout">Two-leg Knockout</option><option value="Single-leg Knockout">Single-leg Knockout</option>
+</select>
+</div>
+<div>
+<label>Idadi ya timu</label>
+<input id="teamCount" class="field" type="number" min="1" placeholder="Mfano: 24">
+</div>
+
+<div>
 
 <label>
 Organizer
@@ -1568,6 +1579,8 @@ await db
   start_date,
   end_date,
   status,
+  format,
+  team_count,
   created_at
 `)
 .order(
@@ -1658,6 +1671,7 @@ await db
   competition_id,
   club_id,
   group_name,
+  coin_toss_rank,
   created_at
 `)
 .order(
@@ -1906,10 +1920,9 @@ const status =
 $("competitionStatus")
 .value;
 
-const logoUrl =
-$("logoUrl")
-.value
-.trim() || null;
+const logoUrl=$("logoUrl").value.trim()||null;
+const format=$("competitionFormat").value;
+const teamCount=$("teamCount").value?Number($("teamCount").value):null;
 
 
 if(!name || !competitionType || !format || !season || !startDate){
@@ -1946,7 +1959,9 @@ end_date:
 endDate,
 
 status:
-status
+status,
+format,
+team_count:teamCount
 
 };
 
@@ -2102,9 +2117,9 @@ $("competitionStatus")
 .value =
 competition.status || "Upcoming";
 
-$("logoUrl")
-.value =
-competition.logo_url || "";
+$("logoUrl").value=competition.logo_url||"";
+$("competitionFormat").value=competition.format||(competition.competition_type==="League"?"League":"Group Stage");
+$("teamCount").value=competition.team_count||"";
 
 $("saveCompetitionBtn")
 .textContent =
