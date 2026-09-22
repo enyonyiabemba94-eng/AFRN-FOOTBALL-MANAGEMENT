@@ -28,4 +28,6 @@ function cards(){let c=events.filter(e=>{let t=String(e.event_type||"").toLowerC
 function scorers(){let goals=events.filter(e=>String(e.event_type||"").toLowerCase().includes("goal"));$("content").innerHTML='<h3>⚽ Wafungaji</h3><div class="empty">'+goals.length+' matukio ya magoli yameandikwa. Orodha ya mchezaji itaunganishwa na profiles za wachezaji.</div>'}
 function stats(){let p=matches.filter(m=>played(m.status));let g=p.reduce((s,m)=>s+(Number(m.home_score)||0)+(Number(m.away_score)||0),0);$("content").innerHTML='<h3>📊 Takwimu</h3><div class="grid"><div class="stat"><b>'+teams.length+'</b>TIMU</div><div class="stat"><b>'+matches.length+'</b>MECHI</div><div class="stat"><b>'+p.length+'</b>ZILIZOCHEZWA</div><div class="stat"><b>'+g+'</b>MAGOLI</div></div>'}
 load();
-</script></body></html>
+</script>
+<script src="./afrn-player-photo-global.js"></script>
+</body></html>
