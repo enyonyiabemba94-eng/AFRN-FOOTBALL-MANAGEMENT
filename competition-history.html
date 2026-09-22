@@ -1,90 +1,31 @@
 <!DOCTYPE html>
-<html lang="sw">
-<head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width,initial-scale=1.0">
-<title>AFRN — Competition History</title>
-<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
-<script src="./supabase-config.js"></script>
+<html lang="sw"><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>AFRN — Competition</title>
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script><script src="./supabase-config.js"></script><script src="./afrn-standings-engine.js"></script>
 <style>
-:root{--navy:#071a33;--blue:#0d47a1;--green:#16834b;--red:#c62828;--gold:#f5b400;--bg:#f4f7fb;--text:#172033;--muted:#687386;--border:#d9e0ea}
-*{box-sizing:border-box}body{margin:0;background:var(--bg);color:var(--text);font-family:Arial,Helvetica,sans-serif}
-header{background:linear-gradient(135deg,#06152b,#0d47a1);color:#fff;padding:17px 15px}header h1{margin:0;font-size:20px}header p{margin:5px 0 0;font-size:12px;opacity:.88}
-.wrap{max-width:1250px;margin:auto;padding:0 12px}nav{background:#fff;display:flex;gap:7px;overflow:auto;padding:9px 10px;border-bottom:1px solid #ddd}nav a{white-space:nowrap;text-decoration:none;color:var(--text);padding:9px 12px;border-radius:9px;font-size:13px;font-weight:bold}nav a.active{background:var(--blue);color:#fff}
-main{max-width:1250px;margin:auto;padding:14px}.status,.card{background:#fff;border:1px solid var(--border);border-radius:15px;box-shadow:0 3px 12px #14213d10}.status{padding:11px 14px;margin-bottom:14px;border-left:4px solid var(--blue);font-size:13px}.status.ok{border-left-color:var(--green)}.status.err{border-left-color:var(--red);color:var(--red)}
-.card{padding:16px;margin-bottom:14px}.back{display:inline-block;margin-bottom:10px;text-decoration:none;color:var(--blue);font-weight:800;font-size:13px}.hero{display:flex;gap:14px;align-items:center}.logo{width:70px;height:70px;object-fit:contain;border:1px solid var(--border);border-radius:12px;background:#f5f7fa}.hero h2{margin:0;font-size:21px}.meta{font-size:12px;color:var(--muted);line-height:1.6}.stats{display:grid;grid-template-columns:repeat(4,1fr);gap:10px}.stat{border:1px solid var(--border);border-radius:12px;padding:13px;text-align:center}.stat b{display:block;font-size:22px;color:var(--blue)}.stat span{font-size:11px;color:var(--muted);font-weight:bold}
-.table-wrap{overflow:auto}table{width:100%;border-collapse:collapse;font-size:12px}th{background:var(--navy);color:#fff;padding:9px;white-space:nowrap;text-align:center}td{padding:8px;border-bottom:1px solid #edf0f4;text-align:center;white-space:nowrap}td:nth-child(2){text-align:left;font-weight:800}.section-title{font-size:16px;font-weight:900;margin-bottom:10px}.group-title{margin:15px 0 8px;color:var(--blue);font-weight:900}.badge{display:inline-block;padding:4px 8px;border-radius:999px;background:#edf3ff;color:var(--blue);font-size:10px;font-weight:800}.played{background:#e8f7ef;color:var(--green)}.pending{background:#fff8df;color:#8a6500}.empty{text-align:center;color:var(--muted);padding:24px}
-@media(max-width:700px){.stats{grid-template-columns:repeat(2,1fr)}.hero h2{font-size:18px}.logo{width:58px;height:58px}}
-</style>
-</head>
-<body>
-<header><div class="wrap"><h1>⚽ AFRN FOOTBALL MANAGEMENT</h1><p>Association / Football Federation for Refugees in Nyarugusu</p></div></header>
-<nav><a href="./index.html">🏠 Dashboard</a><a href="./competitions.html" class="active">🏆 Ligi na Mashindano</a><a href="./matches.html">🏟️ Mechi</a><a href="./reports.html">📊 Ripoti</a></nav>
-<main>
-<a class="back" href="./competitions.html">← Rudi kwenye Ligi na Mashindano</a>
-<div id="status" class="status">⏳ Inapakia history...</div>
-<section id="hero" class="card"><div class="empty">Inapakia competition...</div></section>
-<section id="stats" class="card" style="display:none"></section>
-<section id="standings" class="card" style="display:none"></section>
-<section id="results" class="card" style="display:none"></section>
-</main>
+body{margin:0;background:#f4f7fb;color:#172033;font-family:Arial,sans-serif}header{background:linear-gradient(135deg,#06152b,#0d47a1);color:#fff;padding:16px}nav{display:flex;gap:7px;overflow:auto;background:#fff;padding:9px}nav a{padding:9px 12px;text-decoration:none;color:#172033;font-weight:700;white-space:nowrap}.wrap{max-width:1200px;margin:auto;padding:12px}.card{background:#fff;border:1px solid #d9e0ea;border-radius:15px;padding:16px;margin-bottom:14px}.hero{display:flex;gap:14px;align-items:center}.logo{width:70px;height:70px;object-fit:contain;border-radius:12px;border:1px solid #ddd}.muted{color:#687386;font-size:12px}.tabs{display:flex;gap:7px;overflow:auto}.tab{border:0;background:#e8edf5;padding:10px 13px;border-radius:9px;font-weight:800;white-space:nowrap}.tab.active{background:#0d47a1;color:#fff}.table-wrap{overflow:auto}table{width:100%;border-collapse:collapse;font-size:12px}th{background:#071a33;color:#fff;padding:9px;white-space:nowrap}td{padding:9px;border-bottom:1px solid #edf0f4;white-space:nowrap}td:nth-child(2){font-weight:800}.badge{display:inline-block;padding:5px 9px;border-radius:999px;background:#e9f8ef;color:#16834b;font-size:10px;font-weight:800}.empty{text-align:center;padding:28px;color:#687386}.grid{display:grid;grid-template-columns:repeat(4,1fr);gap:10px}.stat{border:1px solid #d9e0ea;border-radius:12px;padding:12px;text-align:center}.stat b{display:block;font-size:22px;color:#0d47a1}@media(max-width:700px){.grid{grid-template-columns:repeat(2,1fr)}}
+</style></head><body>
+<header><div class="wrap"><b>⚽ AFRN FOOTBALL MANAGEMENT</b><div class="muted" style="color:#fff">Mashindano na historia rasmi</div></div></header>
+<nav><a href="./index.html">🏠 Dashboard</a><a href="./competitions.html">🏆 Mashindano</a><a href="./matches.html">🏟️ Mechi</a></nav>
+<main class="wrap"><a href="./competitions.html">← Rudi kwenye Mashindano</a><section id="hero" class="card">Inapakia...</section><section id="tabs" class="card"></section><section id="content" class="card">Inapakia...</section></main>
 <script>
 const db=window.supabaseClient||window.supabase.createClient("https://jjqhvruppafpumcthmwe.supabase.co","sb_publishable_02hhRG8bgDOqSFxva8IMvQ_zWTLMa3G");
-const $=id=>document.getElementById(id);
-const esc=v=>String(v??"").replace(/[&<>"']/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#039;"}[c]));
-const playedStatus=s=>["completed","finished","played"].includes(String(s||"").toLowerCase());
-const dateText=v=>v?String(v).slice(0,10):"—";
-const params=new URLSearchParams(location.search);
-const competitionId=params.get("id");
-
-async function loadHistory(){
- if(!competitionId){$("status").textContent="❌ Competition ID haipo."; $("status").className="status err"; return;}
- try{
-  const [cr,tr,mr,clubr]=await Promise.all([
-   db.from("competitions").select("id,name,competition_type,season,status,logo_url,organizer,start_date,end_date").eq("id",competitionId).maybeSingle(),
-   db.from("competition_teams").select("id,competition_id,club_id,group_name,created_at").eq("competition_id",competitionId).order("created_at",{ascending:true}),
-   db.from("matches").select("id,competition_id,home_team_id,away_team_id,match_date,match_time,venue,home_score,away_score,status,match_number,notes").eq("competition_id",competitionId).order("match_number",{ascending:true,nullsFirst:false}).order("match_date",{ascending:true,nullsFirst:false}),
-   db.from("clubs").select("id,name,logo_url,afrn_club_id")
-  ]);
-  if(cr.error)throw cr.error;if(tr.error)throw tr.error;if(mr.error)throw mr.error;if(clubr.error)throw clubr.error;
-  const c=cr.data,teams=tr.data||[],matches=mr.data||[],clubs=clubr.data||[];
-  if(!c){$("status").textContent="❌ Competition haikupatikana."; $("status").className="status err";return;}
-  const cm=new Map(clubs.map(x=>[String(x.id),x]));
-  const cname=id=>cm.get(String(id))?.name||"Timu";
-  const played=matches.filter(m=>playedStatus(m.status));
-  const pending=matches.filter(m=>!playedStatus(m.status)&&String(m.status||"").toLowerCase()!=="cancelled");
-  const goals=played.reduce((s,m)=>s+(Number(m.home_score)||0)+(Number(m.away_score)||0),0);
-  $("hero").innerHTML=`<div class="hero"><img class="logo" src="${esc(c.logo_url||"./afrn-logo.png")}" onerror="this.src='./afrn-logo.png'"><div><h2>📚 ${esc(c.name)}</h2><div class="meta">Season: <b>${esc(c.season||"—")}</b> · Type: <b>${esc(c.competition_type||"—")}</b> · Status: <b>${esc(c.status||"—")}</b><br>Organizer: ${esc(c.organizer||"AFRN")} · ${esc(dateText(c.start_date))} → ${esc(dateText(c.end_date))}</div></div></div>`;
-  $("stats").style.display="block";
-  $("stats").innerHTML=`<div class="section-title">📊 Muhtasari wa Mashindano</div><div class="stats"><div class="stat"><b>${teams.length}</b><span>VILABU</span></div><div class="stat"><b>${matches.length}</b><span>MECHI ZOTE</span></div><div class="stat"><b>${played.length}</b><span>MECHI ZILIZOCHEZWA</span></div><div class="stat"><b>${goals}</b><span>MAGOLI</span></div></div>`;
-  const rows=teams.map(t=>({club_id:t.club_id,group:t.group_name||"—",name:cname(t.club_id),MP:0,W:0,D:0,L:0,GF:0,GA:0,PTS:0}));
-  const map=new Map(rows.map(r=>[String(r.club_id),r]));
-  for(const m of played){
-   const h=map.get(String(m.home_team_id)),a=map.get(String(m.away_team_id)); if(!h||!a)continue;
-   const hs=Number(m.home_score)||0,as=Number(m.away_score)||0;h.MP++;a.MP++;h.GF+=hs;h.GA+=as;a.GF+=as;a.GA+=hs;
-   if(hs>as){h.W++;a.L++;h.PTS+=3}else if(hs<as){a.W++;h.L++;a.PTS+=3}else{h.D++;a.D++;h.PTS++;a.PTS++}
-  }
-  rows.sort((a,b)=>b.PTS-a.PTS||((b.GF-b.GA)-(a.GF-a.GA))||b.GF-a.GF||a.name.localeCompare(b.name));
-  const groups=[...new Set(rows.map(r=>r.group))].sort();
-  let sh='<div class="section-title">📊 Msimamo wa Competition</div>';
-  for(const g of groups){
-   const gr=rows.filter(r=>r.group===g); if(!gr.length)continue;
-   sh+=`<div class="group-title">GROUP ${esc(g)}</div><div class="table-wrap"><table><thead><tr><th>#</th><th>Klabu</th><th>MP</th><th>W</th><th>D</th><th>L</th><th>GF</th><th>GA</th><th>GD</th><th>PTS</th></tr></thead><tbody>`;
-   sh+=gr.map((r,i)=>`<tr><td>${i+1}</td><td>${esc(r.name)}</td><td>${r.MP}</td><td>${r.W}</td><td>${r.D}</td><td>${r.L}</td><td>${r.GF}</td><td>${r.GA}</td><td>${r.GF-r.GA}</td><td><b>${r.PTS}</b></td></tr>`).join("");
-   sh+='</tbody></table></div>';
-  }
-  $("standings").style.display="block";$("standings").innerHTML=sh||'<div class="empty">Hakuna timu kwenye competition.</div>';
-  $("results").style.display="block";
-  let rh='<div class="section-title">🏟️ Matokeo na Ratiba</div><div class="table-wrap"><table><thead><tr><th>#</th><th>Tarehe</th><th>Mechi</th><th>Matokeo</th><th>Hali</th><th>Uwanja</th></tr></thead><tbody>';
-  if(!matches.length)rh+='<tr><td colspan="6" class="empty">Hakuna mechi kwenye competition hii.</td></tr>';
-  else rh+=matches.map(m=>{const isP=playedStatus(m.status),cancel=String(m.status||"").toLowerCase()==="cancelled";return `<tr><td>${esc(m.match_number||"—")}</td><td>${esc(dateText(m.match_date))}<br><small>${esc(String(m.match_time||"").slice(0,5))}</small></td><td>${esc(cname(m.home_team_id))} <b>vs</b> ${esc(cname(m.away_team_id))}</td><td><b>${isP?esc(m.home_score??0)+" - "+esc(m.away_score??0):"—"}</b></td><td><span class="badge ${isP?"played":cancel?"":"pending"}">${esc(m.status||"Scheduled")}</span></td><td>${esc(m.venue||"—")}</td></tr>`}).join("");
-  rh+='</tbody></table></div>'; $("results").innerHTML=rh;
-  $("status").textContent=`✅ History imepakiwa: ${teams.length} vilabu · ${matches.length} mechi · ${played.length} zilizochezwa · ${pending.length} zilizobaki.`; $("status").className="status ok";
- }catch(e){console.error(e);$("status").textContent="❌ History haijapakiwa: "+(e?.message||e);$("status").className="status err";}
+const id=new URLSearchParams(location.search).get("id");const $=x=>document.getElementById(x);const esc=v=>String(v??"").replace(/[&<>"']/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#039;"}[c]));let C,teams=[],matches=[],events=[],clubs=[];let tab="MECHI";
+const played=s=>window.AFRNStandings.playedStatus(s),name=x=>(clubs.find(c=>String(c.id)===String(x))||{}).name||"Timu";
+async function load(){if(!id){$("content").innerHTML='<div class="empty">Competition ID haipo.</div>';return}
+const [cr,tr,mr,er,clr]=await Promise.all([db.from("competitions").select("*").eq("id",id).maybeSingle(),db.from("competition_teams").select("id,competition_id,club_id,group_name,coin_toss_rank").eq("competition_id",id),db.from("matches").select("*").eq("competition_id",id).order("match_date",{ascending:true}),db.from("match_events").select("match_id,club_id,event_type,player_id,minute").in("match_id",(await db.from("matches").select("id").eq("competition_id",id)).data?.map(x=>x.id)||[]),db.from("clubs").select("id,name,logo_url,afrn_club_id")]);
+C=cr.data;teams=tr.data||[];matches=mr.data||[];events=er.data||[];clubs=clr.data||[];
+if(!C){$("content").innerHTML='<div class="empty">Mashindano hayajapatikana.</div>';return}
+$("hero").innerHTML='<div class="hero"><img class="logo" src="'+esc(C.logo_url||"./afrn-logo.png")+'"><div><h2 style="margin:0">🏆 '+esc(C.name)+'</h2><div class="muted">'+esc(C.season||"—")+' · '+esc(C.format||C.competition_type||"—")+' · <span class="badge">'+esc(C.status||"—")+'</span></div><div class="muted">'+esc(C.start_date||"—")+' → '+esc(C.end_date||"—")+'</div></div></div>';
+const tabs=["MECHI","MAKUNDI","MSIMAMO","KNOCKOUT","TIMU","WAFUNGAJI","KADI","TAKWIMU"];$("tabs").innerHTML='<div class="tabs">'+tabs.map(t=>'<button class="tab '+(t===tab?"active":"")+'" onclick="showTab(\''+t+'\')">'+t+'</button>').join("")+'</div>';render();
 }
-loadHistory();
-</script>
-
-<script src="./afrn-player-photo-global.js"></script>
-</body>
-</html>
+function showTab(t){tab=t;$("tabs").querySelectorAll(".tab").forEach(b=>b.classList.toggle("active",b.textContent===t));render()}
+function render(){if(tab==="MSIMAMO")standings();else if(tab==="MAKUNDI")groups();else if(tab==="TIMU")teamsView();else if(tab==="MECHI")matchesView();else if(tab==="KADI")cards();else if(tab==="WAFUNGAJI")scorers();else if(tab==="TAKWIMU")stats();else $("content").innerHTML='<div class="empty">Sehemu ya '+esc(tab)+' imeandaliwa kwa hatua ya Knockout.</div>'}
+function standings(){let rows=window.AFRNStandings.buildStandings({teams,matches,events,clubName:name});let html='<h3>📊 Msimamo</h3><div class="table-wrap"><table><thead><tr><th>#</th><th>KLABU</th><th>P</th><th>W</th><th>D</th><th>L</th><th>GF</th><th>GA</th><th>PTS</th></tr></thead><tbody>';html+=rows.map((r,i)=>'<tr><td>'+(i+1)+'</td><td>'+esc(r.name)+'</td><td>'+r.P+'</td><td>'+r.W+'</td><td>'+r.D+'</td><td>'+r.L+'</td><td>'+r.GF+'</td><td>'+r.GA+'</td><td><b>'+r.PTS+'</b></td></tr>').join("");$("content").innerHTML=html+'</tbody></table></div>'}
+function groups(){let gs=[...new Set(teams.map(t=>t.group_name).filter(Boolean))].sort();$("content").innerHTML=gs.length?gs.map(g=>'<div style="margin-bottom:16px"><h3>GROUP '+esc(g)+'</h3>'+teams.filter(t=>t.group_name===g).map(t=>'<div style="padding:9px;border-bottom:1px solid #eee">'+esc(name(t.club_id))+'</div>').join("")+'</div>').join(""):'<div class="empty">Hakuna makundi.</div>'}
+function teamsView(){$("content").innerHTML='<h3>👥 Timu</h3>'+teams.map(t=>'<div style="padding:10px;border-bottom:1px solid #eee"><b>'+esc(name(t.club_id))+'</b><div class="muted">Group '+esc(t.group_name||"—")+'</div></div>').join("")}
+function matchesView(){$("content").innerHTML='<h3>🏟️ Mechi</h3><div class="table-wrap"><table><thead><tr><th>Tarehe</th><th>Mechi</th><th>Matokeo</th><th>Hali</th></tr></thead><tbody>'+matches.map(m=>'<tr><td>'+esc(m.match_date||"—")+'</td><td>'+esc(name(m.home_team_id))+' vs '+esc(name(m.away_team_id))+'</td><td><b>'+ (played(m.status)?esc(m.home_score||0)+" - "+esc(m.away_score||0):"—")+'</b></td><td>'+esc(m.status||"Scheduled")+'</td></tr>').join("")+'</tbody></table></div>'}
+function cards(){let c=events.filter(e=>{let t=String(e.event_type||"").toLowerCase();return t.includes("yellow")||t.includes("red")});$("content").innerHTML='<h3>🟨🟥 Kadi</h3>'+ (c.length?c.map(e=>'<div style="padding:9px;border-bottom:1px solid #eee">'+(String(e.event_type).toLowerCase().includes("red")?"🟥":"🟨")+' '+esc(name(e.club_id))+' · dakika '+esc(e.minute||"—")+'</div>').join(""):'<div class="empty">Hakuna kadi.</div>')}
+function scorers(){let goals=events.filter(e=>String(e.event_type||"").toLowerCase().includes("goal"));$("content").innerHTML='<h3>⚽ Wafungaji</h3><div class="empty">'+goals.length+' matukio ya magoli yameandikwa. Orodha ya mchezaji itaunganishwa na profiles za wachezaji.</div>'}
+function stats(){let p=matches.filter(m=>played(m.status));let g=p.reduce((s,m)=>s+(Number(m.home_score)||0)+(Number(m.away_score)||0),0);$("content").innerHTML='<h3>📊 Takwimu</h3><div class="grid"><div class="stat"><b>'+teams.length+'</b>TIMU</div><div class="stat"><b>'+matches.length+'</b>MECHI</div><div class="stat"><b>'+p.length+'</b>ZILIZOCHEZWA</div><div class="stat"><b>'+g+'</b>MAGOLI</div></div>'}
+load();
+</script></body></html>
