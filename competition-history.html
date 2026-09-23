@@ -12,9 +12,26 @@ const db=window.supabaseClient||window.supabase.createClient("https://jjqhvruppa
 const id=new URLSearchParams(location.search).get("id");const $=x=>document.getElementById(x);const esc=v=>String(v??"").replace(/[&<>"']/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#039;"}[c]));let C,teams=[],matches=[],events=[],clubs=[];let tab="MECHI";
 const played=s=>window.AFRNStandings.playedStatus(s),name=x=>(clubs.find(c=>String(c.id)===String(x))||{}).name||"Timu";
 async function load(){if(!id){$("content").innerHTML='<div class="empty">Competition ID haipo.</div>';return}
-const [cr,tr,mr,er,clr]=await Promise.all([db.from("competitions").select("*").eq("id",id).maybeSingle(),db.from("competition_teams").select("id,competition_id,club_id,group_name,coin_toss_rank").eq("competition_id",id),db.from("matches").select("*").eq("competition_id",id).order("match_date",{ascending:true}),db.from("match_events").select("match_id,club_id,event_type,player_id,minute").in("match_id",(await db.from("matches").select("id").eq("competition_id",id)).data?.map(x=>x.id)||[]),db.from("clubs").select("id,name,logo_url,afrn_club_id")]);
-C=cr.data;teams=tr.data||[];matches=mr.data||[];events=er.data||[];clubs=clr.data||[];
-if(!C){$("content").innerHTML='<div class="empty">Mashindano hayajapatikana.</div>';return}
+const cr=await db.from("competitions").select("*").eq("id",id).maybeSingle();
+if(cr.error) throw cr.error;
+C=cr.data;
+if(!C){$("hero").innerHTML='<div class="empty">Mashindano hayajapatikana.</div>';$("content").innerHTML='<div class="empty">Competition haijapatikana.</div>';return}
+const [tr,mr,clr]=await Promise.all([
+ db.from("competition_teams").select("id,competition_id,club_id,group_name,coin_toss_rank").eq("competition_id",id),
+ db.from("matches").select("*").eq("competition_id",id).order("match_date",{ascending:true}).order("match_time",{ascending:true}),
+ db.from("clubs").select("id,name,logo_url,afrn_club_id")
+]);
+if(tr.error) throw tr.error;
+if(mr.error) throw mr.error;
+if(clr.error) throw clr.error;
+teams=tr.data||[]; matches=mr.data||[]; clubs=clr.data||[];
+events=[];
+const matchIds=matches.map(x=>x.id).filter(Boolean);
+if(matchIds.length){
+ const er=await db.from("match_events").select("match_id,club_id,event_type,player_id,minute").in("match_id",matchIds);
+ if(er.error) throw er.error;
+ events=er.data||[];
+}
 $("hero").innerHTML='<div class="hero"><img class="logo" src="'+esc(C.logo_url||"./afrn-logo.png")+'"><div><h2 style="margin:0">🏆 '+esc(C.name)+'</h2><div class="muted">'+esc(C.season||"—")+' · '+esc(C.format||C.competition_type||"—")+' · <span class="badge">'+esc(C.status||"—")+'</span></div><div class="muted">'+esc(C.start_date||"—")+' → '+esc(C.end_date||"—")+'</div></div></div>';
 const tabs=["MECHI","MAKUNDI","MSIMAMO","KNOCKOUT","TIMU","WAFUNGAJI","KADI","TAKWIMU"];$("tabs").innerHTML='<div class="tabs">'+tabs.map(t=>'<button class="tab '+(t===tab?"active":"")+'" onclick="showTab(\''+t+'\')">'+t+'</button>').join("")+'</div>';render();
 }
@@ -38,7 +55,7 @@ function matchesView(){$("content").innerHTML='<h3>🏟️ Mechi</h3><div class=
 function cards(){let c=events.filter(e=>{let t=String(e.event_type||"").toLowerCase();return t.includes("yellow")||t.includes("red")});$("content").innerHTML='<h3>🟨🟥 Kadi</h3>'+ (c.length?c.map(e=>'<div style="padding:9px;border-bottom:1px solid #eee">'+(String(e.event_type).toLowerCase().includes("red")?"🟥":"🟨")+' '+esc(name(e.club_id))+' · dakika '+esc(e.minute||"—")+'</div>').join(""):'<div class="empty">Hakuna kadi.</div>')}
 function scorers(){let goals=events.filter(e=>String(e.event_type||"").toLowerCase().includes("goal"));$("content").innerHTML='<h3>⚽ Wafungaji</h3><div class="empty">'+goals.length+' matukio ya magoli yameandikwa. Orodha ya mchezaji itaunganishwa na profiles za wachezaji.</div>'}
 function stats(){let p=matches.filter(m=>played(m.status));let g=p.reduce((s,m)=>s+(Number(m.home_score)||0)+(Number(m.away_score)||0),0);$("content").innerHTML='<h3>📊 Takwimu</h3><div class="grid"><div class="stat"><b>'+teams.length+'</b>TIMU</div><div class="stat"><b>'+matches.length+'</b>MECHI</div><div class="stat"><b>'+p.length+'</b>ZILIZOCHEZWA</div><div class="stat"><b>'+g+'</b>MAGOLI</div></div>'}
-load();
+load().catch(e=>{console.error(e);$("hero").innerHTML='<div class="empty">❌ Imeshindikana kupakia competition.</div>';$("content").innerHTML='<div class="empty">❌ Imeshindikana kupakia data.<br><small>'+esc(e.message||e)+'</small></div>';});
 </script>
 <script src="./afrn-player-photo-global.js"></script>
 </body></html>
