@@ -1685,7 +1685,6 @@ await db
   competition_id,
   club_id,
   group_name,
-  coin_toss_rank,
   created_at
 `)
 .order(
@@ -3320,20 +3319,42 @@ try{
 
 setStatus("⏳ Inapakia Mashindano...");
 
-/* Mashindano yanapakiwa kwanza na kujitegemea. */
-await loadCompetitions();
+const competitionsLoaded = await loadCompetitions();
 
-/* Data nyingine haiwezi kuzuia list ya Mashindano kuonekana. */
-await Promise.all([
-  loadClubs(),
-  loadCompetitionTeams()
-]);
+if(!competitionsLoaded){
+  return;
+}
 
-renderCompetitionSelects();
-renderAvailableClubs();
-renderCompetitionClubs();
-renderGroups();
-renderStandings();
+/* Orodha ya Mashindano ionekane hata kama UI nyingine ina error. */
+renderCompetitions();
+
+try{
+  await loadClubs();
+}catch(e){
+  console.error("loadClubs:", e);
+}
+
+try{
+  await loadCompetitionTeams();
+}catch(e){
+  console.error("loadCompetitionTeams:", e);
+}
+
+try{
+  renderCompetitionSelects();
+  renderAvailableClubs();
+  renderCompetitionClubs();
+  renderGroups();
+}catch(e){
+  console.error("competition UI render:", e);
+}
+
+try{
+  renderStandings();
+}catch(e){
+  console.error("renderStandings:", e);
+}
+
 renderCompetitions();
 
 setStatus(
@@ -3354,7 +3375,7 @@ setStatus(
 
 const container=$("competitionsContainer");
 
-if(container){
+if(container && !competitions.length){
 container.innerHTML=`
 <div class="empty" style="color:#c62828">
 ❌ Mfumo haukuweza kupakia data.<br><br>
