@@ -121,6 +121,33 @@ function render(){
 function editHistoryMatch(matchId){ location.href="./matches.html?edit="+encodeURIComponent(matchId); }
 function addKnockout(stage){ location.href="./matches.html?competition="+encodeURIComponent(id)+"&stage="+encodeURIComponent(stage); }
 
+function stageOf(m){
+  const z=String(m?.notes||"").match(/AFRN_STAGE=([A-Z0-9]+)/);
+  return z ? z[1] : "";
+}
+function winnerClubId(m){
+  if(!m || !played(m.status)) return null;
+  const hs=Number(m.home_score||0), as=Number(m.away_score||0);
+  const decision=String(m.notes||"").match(/AFRN_WINNER=(HOME|AWAY)/)?.[1];
+  if(decision) return decision==="HOME" ? m.home_team_id : m.away_team_id;
+  if(hs>as) return m.home_team_id;
+  if(as>hs) return m.away_team_id;
+  return null;
+}
+function competitionPodium(){
+  const final=matches.filter(m=>stageOf(m)==="FINAL").sort((a,b)=>String(b.match_date||"").localeCompare(String(a.match_date||"")))[0]||null;
+  const third=matches.filter(m=>stageOf(m)==="3RD").sort((a,b)=>String(b.match_date||"").localeCompare(String(a.match_date||"")))[0]||null;
+  const champion=winnerClubId(final);
+  let runnerUp=null;
+  if(final && champion) runnerUp=String(final.home_team_id)===String(champion)?final.away_team_id:final.home_team_id;
+  return {final,third,champion,runnerUp,thirdPlace:winnerClubId(third)};
+}
+function podiumHtml(){
+  const p=competitionPodium();
+  if(!p.champion) return '<div class="muted">🏆 Bingwa bado hajaamuliwa — subiri FAINALI ikamilike.</div>';
+  return '<div style="margin-top:16px;padding:12px;background:#f7f9fc;border-radius:12px"><b>🏆 Bingwa:</b> '+esc(name(p.champion))+' &nbsp; | &nbsp; <b>🥈:</b> '+esc(name(p.runnerUp))+' &nbsp; | &nbsp; <b>🥉:</b> '+esc(name(p.thirdPlace))+'</div>';
+}
+
 function matchesView(){
   $("content").innerHTML = `
     <h3>🏟️ Mechi</h3>
@@ -244,7 +271,7 @@ function awardsView(){
           : '<select id="award-player-'+type+'" style="width:100%;margin:9px 0;padding:10px">'+playerOptions(a.player_id)+'</select>')+
         '<button class="secondary small-btn" onclick="saveAward(\''+type+'\')">💾 HIFADHI</button></div>';
     }).join("")+
-    '<div style="margin-top:16px;padding:12px;background:#f7f9fc;border-radius:12px"><b>🏆 Bingwa:</b> FEBA ESPOIR &nbsp; | &nbsp; <b>🥈:</b> GHI1 BILOMBE FC &nbsp; | &nbsp; <b>🥉:</b> ASKU O3</div>';
+    podiumHtml();
 }
 
 function cards(){
