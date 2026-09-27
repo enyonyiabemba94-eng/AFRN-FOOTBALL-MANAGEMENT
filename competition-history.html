@@ -17,7 +17,7 @@ if(cr.error) throw cr.error;
 C=cr.data;
 if(!C){$("hero").innerHTML='<div class="empty">Mashindano hayajapatikana.</div>';$("content").innerHTML='<div class="empty">Competition haijapatikana.</div>';return}
 const [tr,mr,clr]=await Promise.all([
- db.from("competition_teams").select("id,competition_id,club_id,group_name,coin_toss_rank").eq("competition_id",id),
+ db.from("competition_teams").select("id,competition_id,club_id,group_name").eq("competition_id",id),
  db.from("matches").select("*").eq("competition_id",id).order("match_date",{ascending:true}).order("match_time",{ascending:true}),
  db.from("clubs").select("id,name,logo_url,afrn_club_id")
 ]);
