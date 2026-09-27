@@ -57,7 +57,7 @@ async function load(){
     .select("id,name,logo_url,afrn_club_id");
   if(clr.error) throw clr.error;
   const pr = await db.from("players")
-    .select("id,club_id,first_name,middle_name,last_name,position,status")
+    .select("id,club_id,first_name,middle_name,last_name,position,status,date_of_birth")
     .order("first_name", {ascending:true});
   if(pr.error) throw pr.error;
   const ar = await db.from("competition_awards")
@@ -264,11 +264,12 @@ function competitionPlayerStats(){
     if(t.includes("red")) s.red++;
     if(t==="lineup_starting" || t==="lineup_substitute") s.apps++;
   });
-  // Count clean sheets from played matches for goalkeepers/defenders whose club kept the opponent at 0.
+  // Clean sheets are credited to lineup players in goalkeeper/defender positions.
   matches.filter(m=>played(m.status)).forEach(m=>{
     const hs=Number(m.home_score||0), as=Number(m.away_score||0);
-    if(hs===0) players.filter(p=>String(p.club_id)===String(m.away_team_id) && /goalkeeper|keeper|kipa/i.test(String(p.position||""))).forEach(p=>{const s=map.get(String(p.id));if(s)s.clean++;});
-    if(as===0) players.filter(p=>String(p.club_id)===String(m.home_team_id) && /goalkeeper|keeper|kipa/i.test(String(p.position||""))).forEach(p=>{const s=map.get(String(p.id));if(s)s.clean++;});
+    const lineupFor=clubId=>events.filter(e=>String(e.match_id)===String(m.id)&&String(e.club_id)===String(clubId)&&String(e.event_type||"").toLowerCase().startsWith("lineup_")&&e.player_id).map(e=>String(e.player_id));
+    if(hs===0) lineupFor(m.away_team_id).forEach(pid=>{const p=players.find(x=>String(x.id)===pid),s=map.get(pid);if(s&&p&&/goalkeeper|keeper|kipa|defender|defence|beki|centre back|full back/i.test(String(p.position||"")))s.clean++;});
+    if(as===0) lineupFor(m.home_team_id).forEach(pid=>{const p=players.find(x=>String(x.id)===pid),s=map.get(pid);if(s&&p&&/goalkeeper|keeper|kipa|defender|defence|beki|centre back|full back/i.test(String(p.position||"")))s.clean++;});
   });
   return [...map.values()].filter(s=>s.apps>0 || s.goals>0);
 }
@@ -295,17 +296,52 @@ function awardCard(label, s, extra){
   if(!s) return '<div style="padding:12px;border:1px solid #e1e6ee;border-radius:12px;margin:9px 0"><b>🏅 '+esc(label)+'</b><div class="muted" style="margin-top:8px">Bado hakuna takwimu za kutosha.</div></div>';
   return '<div style="padding:12px;border:1px solid #e1e6ee;border-radius:12px;margin:9px 0"><b>🏅 '+esc(label)+'</b><div style="margin-top:8px;font-size:16px;font-weight:800">'+esc(playerLabel(s.p))+'</div><div class="muted">'+esc(name(s.p.club_id))+' · Mechi: '+s.apps+' · Magoli: '+s.goals+(extra? ' · '+extra:'')+'</div></div>';
 }
+function awardStored(type){ return awards.find(x=>x.award_type===type) || null; }
+async function saveAwardOverride(type){
+  const sel=document.getElementById("award-player-"+type), coach=document.getElementById("award-coach-"+type);
+  const playerId=sel ? (sel.value || null) : null, coachName=coach ? (coach.value.trim() || null) : null;
+  const payload={competition_id:id,award_type:type,player_id:playerId,coach_name:coachName,notes:"MANUAL_OVERRIDE",updated_at:new Date().toISOString()};
+  const old=awardStored(type);
+  const r=old ? await db.from("competition_awards").update(payload).eq("id",old.id) : await db.from("competition_awards").insert(payload);
+  if(r.error){alert("❌ Imeshindikana kuhifadhi: "+r.error.message);return;}
+  const ar=await db.from("competition_awards").select("*").eq("competition_id",id); if(!ar.error) awards=ar.data||[];
+  awardsView();
+}
+async function clearAwardOverride(type){
+  const old=awardStored(type); if(!old)return;
+  const r=await db.from("competition_awards").delete().eq("id",old.id);
+  if(r.error){alert("❌ Imeshindikana kuondoa Override: "+r.error.message);return;}
+  awards=awards.filter(x=>x.id!==old.id); awardsView();
+}
+function awardEditor(type,auto){
+  const old=awardStored(type), manual=old&&old.notes==="MANUAL_OVERRIDE";
+  if(type==="BEST_COACH"){
+    return '<div style="margin-top:10px"><input id="award-coach-'+type+'" value="'+esc(manual?(old.coach_name||""):"")+'" placeholder="Andika jina la Coach rasmi" style="width:100%;box-sizing:border-box;padding:10px;border:1px solid #ccd5e2;border-radius:9px"><div style="display:flex;gap:7px;margin-top:8px"><button class="secondary small-btn" onclick="saveAwardOverride(\''+type+'\')">💾 Hifadhi</button>'+(manual?'<button class="secondary small-btn" onclick="clearAwardOverride(\''+type+'\')">↩️ Rudi Automatic</button>':'')+'</div></div>';
+  }
+  const selected=manual?(old.player_id||""):"";
+  const opts=players.filter(p=>p.status!=="inactive").map(p=>'<option value="'+esc(p.id)+'" '+(String(selected)===String(p.id)?'selected':'')+'>'+esc(playerLabel(p))+' — '+esc(name(p.club_id))+'</option>').join("");
+  const autoName=auto&&auto[type]&&auto[type].p ? playerLabel(auto[type].p) : "Chagua mchezaji";
+  return '<div style="margin-top:10px"><select id="award-player-'+type+'" style="width:100%;padding:10px;border:1px solid #ccd5e2;border-radius:9px"><option value="">'+esc(manual?"Chagua mchezaji (Override)":("Automatic: "+autoName))+'</option>'+opts+'</select><div style="display:flex;gap:7px;margin-top:8px"><button class="secondary small-btn" onclick="saveAwardOverride(\''+type+'\')">💾 Hifadhi Override</button>'+(manual?'<button class="secondary small-btn" onclick="clearAwardOverride(\''+type+'\')">↩️ Rudi Automatic</button>':'')+'</div></div>';
+}
+function awardCardWithOverride(label,type,s,auto){
+  const old=awardStored(type), manual=old&&old.notes==="MANUAL_OVERRIDE";
+  let display=s;
+  if(manual&&old.player_id){const p=players.find(x=>String(x.id)===String(old.player_id));if(p)display={p,apps:0,goals:0,clean:0};}
+  if(manual&&type==="BEST_COACH"){
+    return '<div style="padding:12px;border:1px solid #e1e6ee;border-radius:12px;margin:9px 0"><b>🏅 '+esc(label)+'</b><div style="margin-top:8px;font-size:16px;font-weight:800">👔 '+esc(old.coach_name||"Coach")+'</div><div class="muted">✏️ Manual Override</div>'+awardEditor(type,auto)+'</div>';
+  }
+  return awardCard(label,display,manual?"✏️ Manual Override":"🤖 Automatic").replace('</div>',''+awardEditor(type,auto)+'</div>');
+}
 function awardsView(){
   const a=automaticAwards();
-  let html='<h3>🏅 TUZO ZA UPENDO WA WAKIMBIZI CUP 2026</h3><div class="muted" style="margin-bottom:12px">Tuzo hizi zinahesabiwa moja kwa moja kutoka kwenye mechi na matukio yaliyorekodiwa. Ukibadilisha matokeo/matukio, takwimu hubadilika.</div>';
-  html+=awardCard("Mchezaji Bora (MVP)",a.MVP,"Alama ya MVP: "+(a.MVP?(a.MVP.goals*5+a.MVP.apps+a.MVP.clean*2-a.MVP.yellow*.5-a.MVP.red*2).toFixed(1):"—"));
-  html+=awardCard("Mfungaji Bora",a.TOP_SCORER,"Magoli: "+(a.TOP_SCORER?a.TOP_SCORER.goals:0));
-  html+=awardCard("Kipa Bora",a.BEST_GOALKEEPER,"Clean sheets: "+(a.BEST_GOALKEEPER?a.BEST_GOALKEEPER.clean:0));
-  html+=awardCard("Beki Bora",a.BEST_DEFENDER,"Clean sheets: "+(a.BEST_DEFENDER?a.BEST_DEFENDER.clean:0));
-  html+=awardCard("Chipukizi Bora (<23)",a.BEST_YOUNG_PLAYER,a.BEST_YOUNG_PLAYER?"Umri: "+playerAge(a.BEST_YOUNG_PLAYER.p):"");
-  html+='<div style="padding:12px;border:1px solid #e1e6ee;border-radius:12px;margin:9px 0"><b>🏅 Coach Bora</b><div class="muted" style="margin-top:8px">Ili hii iwe automatic, tunahitaji jina la kocha lihusishwe na timu kwenye mfumo. Kwa sasa hakuna taarifa ya kocha kwenye jedwali la clubs.</div></div>';
-  html+=podiumHtml();
-  $("content").innerHTML=html;
+  let html='<h3>🏅 TUZO ZA UPENDO WA WAKIMBIZI CUP 2026</h3><div class="muted" style="margin-bottom:12px">Mfumo unahesabu tuzo automatically kutoka kwenye mechi/events. Unaweza kuweka <b>Manual Override</b> kama uamuzi rasmi ni tofauti. Override hubaki hadi uichague tena Automatic.</div>';
+  html+=awardCardWithOverride("Mchezaji Bora (MVP)","MVP",a.MVP,a);
+  html+=awardCardWithOverride("Mfungaji Bora","TOP_SCORER",a.TOP_SCORER,a);
+  html+=awardCardWithOverride("Kipa Bora","BEST_GOALKEEPER",a.BEST_GOALKEEPER,a);
+  html+=awardCardWithOverride("Beki Bora","BEST_DEFENDER",a.BEST_DEFENDER,a);
+  html+=awardCardWithOverride("Chipukizi Bora (<23)","BEST_YOUNG_PLAYER",a.BEST_YOUNG_PLAYER,a);
+  html+=awardCardWithOverride("Coach Bora","BEST_COACH",null,a);
+  html+=podiumHtml(); $("content").innerHTML=html;
 }
 
 function cards(){
