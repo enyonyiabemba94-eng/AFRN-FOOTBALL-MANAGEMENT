@@ -38,8 +38,8 @@ const tabs=["MECHI","MAKUNDI","MSIMAMO","KNOCKOUT","TIMU","WAFUNGAJI","KADI","TA
 function showTab(t){tab=t;$("tabs").querySelectorAll(".tab").forEach(b=>b.classList.toggle("active",b.textContent===t));render()}
 function render(){if(tab==="MSIMAMO")standings();else if(tab==="MAKUNDI")groups();else if(tab==="TIMU")teamsView();else if(tab==="MECHI")matchesView();else if(tab==="KADI")cards();else if(tab==="WAFUNGAJI")scorers();else if(tab==="TAKWIMU")stats();else if(tab==="KNOCKOUT")knockout();else $("content").innerHTML='<div class="empty">Sehemu hii haijawa na data bado.</div>'}
 function knockout(){
- const stageNames={R16:"HATUA YA 16 BORA",QF:"ROBO FAINALI",SF:"NUSU FAINALI",3RD:"MCHUJO WA NAFASI YA 3",FINAL:"FAINALI",PRELIM:"PRELIMINARY"};
- const order={PRELIM:0,R16:1,QF:2,SF:3,3RD:4,FINAL:5};
+ const stageNames={R16:"HATUA YA 16 BORA",QF:"ROBO FAINALI",SF:"NUSU FAINALI","3RD":"MCHUJO WA NAFASI YA 3",FINAL:"FAINALI",PRELIM:"PRELIMINARY"};
+ const order={PRELIM:0,R16:1,QF:2,SF:3,"3RD":4,FINAL:5};
  const ko=matches.filter(m=>/AFRN_STAGE=([A-Z0-9]+)/.test(String(m.notes||"")));
  const groups={}; ko.forEach(m=>{const z=String(m.notes||"").match(/AFRN_STAGE=([A-Z0-9]+)/);if(z)(groups[z[1]]??=[]).push(m)});
  const stageKeys=Object.keys(groups).sort((a,b)=>(order[a]??99)-(order[b]??99));
