@@ -11,6 +11,7 @@
 <title>AFRN Football Management - Competitions</title>
 
 <script src="https://unpkg.com/@supabase/supabase-js@2"></script>
+<script src="./supabase-config.js"></script>
 <script src="./afrn-standings-engine.js"></script>
 
 <style>
@@ -713,6 +714,8 @@ Association / Football Federation for Refugees in Nyarugusu
 
 <main>
 
+<div id="viewerNotice" class="card" style="display:none;border-left:4px solid var(--blue)">👁️ <b>Mtazamaji</b><br>Unaweza kuona <b>msimamo</b> na <b>history ya mechi zote</b>. Mabadiliko ya mfumo yanafanywa na AFRN Admin pekee.</div>
+
 <div id="status"
      class="status">
 
@@ -725,7 +728,7 @@ Association / Football Federation for Refugees in Nyarugusu
      REGISTER COMPETITION
 ================================================= -->
 
-<section class="card">
+<section class="card admin-only">
 
 <h2>
 🏆 Sajili Mashindano
@@ -937,7 +940,7 @@ id="saveCompetitionBtn">
      ADD CLUB TO COMPETITION
 ================================================= -->
 
-<section class="card">
+<section class="card admin-only">
 
 <h2>
 ⚽ Ongeza Klabu kwenye Competition
@@ -1091,7 +1094,7 @@ id="addTeamBtn">
      CLUBS IN COMPETITION
 ================================================= -->
 
-<section class="card">
+<section class="card admin-only">
 
 <h2>
 ⚽ Vilabu Vilivyo Kwenye Competition
@@ -1130,7 +1133,7 @@ Chagua competition kuona vilabu.
      GROUPS
 ================================================= -->
 
-<section class="card">
+<section class="card admin-only">
 
 <h2>
 👥 Makundi ya Competition
@@ -1169,7 +1172,7 @@ Chagua competition kuona makundi.
      AUTOMATIC GENERATOR
 ================================================= -->
 
-<section class="card">
+<section class="card admin-only">
 
 <h2>
 ⚙️ Automatic Competition Generator
@@ -3298,6 +3301,27 @@ $("generateSfBtn").onclick=()=>generateStage("SF");
 $("generateFinalBtn").onclick=()=>generateStage("FINAL");
 $("generateClassificationBtn").onclick=()=>alert("ℹ️ Classification itaongezwa baada ya mfumo wa nafasi ya 3 kuthibitishwa.");
 
+/* =====================================================
+   VIEWER MODE — STANDINGS + MATCH HISTORY ONLY
+===================================================== */
+(async function(){
+  try{
+    const client=window.supabaseClient||db;
+    const userResult=await client.auth.getUser();
+    const user=userResult.data?.user;
+    const profileResult=user?await client.from("profiles").select("role").eq("id",user.id).maybeSingle():{data:null};
+    const role=String(profileResult.data?.role||"").toLowerCase();
+    const isAdmin=["super_admin","superadmin","admin","administrator","afrn_admin","secretary_general"].includes(role);
+    if(!isAdmin){
+      document.querySelectorAll("main > section.admin-only").forEach(s=>s.style.display="none");
+      const n=document.getElementById("viewerNotice"); if(n)n.style.display="block";
+      document.querySelectorAll(".competition-actions button").forEach(b=>{
+        const t=(b.textContent||"").trim();
+        if(/hariri|futa|vilabu/i.test(t)) b.style.display="none";
+      });
+    }
+  }catch(e){console.warn("Viewer mode:",e);
+}})();
 /* =====================================================
    START
 ===================================================== */
