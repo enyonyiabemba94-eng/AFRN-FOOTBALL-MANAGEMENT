@@ -10,7 +10,7 @@
 
 <title>AFRN Football Management - Competitions</title>
 
-<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<script src="https://unpkg.com/@supabase/supabase-js@2"></script>
 <script src="./afrn-standings-engine.js"></script>
 
 <style>
@@ -1440,7 +1440,7 @@ Cancelled
 
 <div class="empty">
 
-⏳ Inapakia competitions...
+⏳ Inapakia competitions... (v34)
 
 </div>
 
@@ -1565,24 +1565,11 @@ async function loadCompetitions(){
 
 try{
 
-setStatus("⏳ Inapakia Mashindano...");
+setStatus("⏳ Inapakia Mashindano... v34");
 
 const result=await db
 .from(COMPETITIONS_TABLE)
-.select(`
-id,
-name,
-competition_type,
-logo_url,
-organizer,
-season,
-start_date,
-end_date,
-status,
-format,
-team_count,
-created_at
-`)
+.select("*")
 .order("created_at",{ascending:false});
 
 if(result.error) throw result.error;
