@@ -46,6 +46,18 @@ if(window.supabase && typeof window.supabase.createClient==="function" && !windo
       }
       lockClubAdminUI();
 
+      /* ---------- VIEWER: COMPETITION HISTORY = MATCHES + STANDINGS ---------- */
+      if(viewOnly && /competition-history\.html$/i.test(location.pathname)){
+        const keepHistoryTabs=()=>{
+          document.querySelectorAll("#tabs .tab").forEach(btn=>{
+            const t=(btn.textContent||"").trim().toUpperCase();
+            if(t!=="MECHI" && t!=="MSIMAMO") btn.style.display="none";
+          });
+        };
+        keepHistoryTabs();
+        new MutationObserver(keepHistoryTabs).observe(document.getElementById("tabs")||document.body,{subtree:true,childList:true});
+      }
+
       /* ---------- SAME-CLUB CONTRACT RENEWAL ---------- */
       if(/transfers\.html$/i.test(location.pathname)){
         const box=()=>document.getElementById("afrnEligibilityBox");
