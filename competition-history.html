@@ -241,37 +241,71 @@ const awardTypes = [
   ["BEST_YOUNG_PLAYER","Chipukizi Bora"],
   ["BEST_COACH","Coach Bora"]
 ];
-function playerLabel(p){
-  return [p.first_name,p.middle_name,p.last_name].filter(Boolean).join(" ") || "Mchezaji";
+
+function playerLabel(p){ return [p.first_name,p.middle_name,p.last_name].filter(Boolean).join(" ") || "Mchezaji"; }
+function playerAge(p){
+  if(!p.date_of_birth) return 999;
+  const d=new Date(p.date_of_birth), now=new Date();
+  let age=now.getFullYear()-d.getFullYear();
+  const md=now.getMonth()-d.getMonth();
+  if(md<0 || (md===0 && now.getDate()<d.getDate())) age--;
+  return age;
 }
-async function saveAward(type){
-  const playerEl=document.getElementById("award-player-"+type);
-  const coachEl=document.getElementById("award-coach-"+type);
-  const playerId=playerEl ? playerEl.value || null : null;
-  const coachName=coachEl ? coachEl.value.trim() || null : null;
-  const payload={competition_id:id,award_type:type,player_id:playerId,coach_name:coachName};
-  const r=await db.from("competition_awards").upsert(payload,{onConflict:"competition_id,award_type"}).select().single();
-  if(r.error){alert("Imeshindikana kuhifadhi: "+r.error.message);return;}
-  const i=awards.findIndex(a=>a.award_type===type);
-  if(i>=0) awards[i]=r.data; else awards.push(r.data);
-  awardsView();
+function competitionPlayerStats(){
+  const map=new Map();
+  players.forEach(p=>map.set(String(p.id),{p,apps:0,goals:0,yellow:0,red:0,clean:0,club:p.club_id}));
+  const byMatch=new Map();
+  matches.forEach(m=>byMatch.set(String(m.id),m));
+  events.forEach(e=>{
+    const s=map.get(String(e.player_id)); if(!s) return;
+    const t=String(e.event_type||"").toLowerCase();
+    if(t==="goal" || t.includes("goal")) s.goals++;
+    if(t.includes("yellow")) s.yellow++;
+    if(t.includes("red")) s.red++;
+    if(t==="lineup_starting" || t==="lineup_substitute") s.apps++;
+  });
+  // Count clean sheets from played matches for goalkeepers/defenders whose club kept the opponent at 0.
+  matches.filter(m=>played(m.status)).forEach(m=>{
+    const hs=Number(m.home_score||0), as=Number(m.away_score||0);
+    if(hs===0) players.filter(p=>String(p.club_id)===String(m.away_team_id) && /goalkeeper|keeper|kipa/i.test(String(p.position||""))).forEach(p=>{const s=map.get(String(p.id));if(s)s.clean++;});
+    if(as===0) players.filter(p=>String(p.club_id)===String(m.home_team_id) && /goalkeeper|keeper|kipa/i.test(String(p.position||""))).forEach(p=>{const s=map.get(String(p.id));if(s)s.clean++;});
+  });
+  return [...map.values()].filter(s=>s.apps>0 || s.goals>0);
+}
+function automaticAwards(){
+  const ss=competitionPlayerStats();
+  const score=(s)=>s.goals*5+s.apps+s.clean*2-s.yellow*0.5-s.red*2;
+  const top=(arr,fn)=>arr.slice().sort((a,b)=>fn(b)-fn(a))[0]||null;
+  const topScorer=top(ss,s=>s.goals);
+  const keepers=ss.filter(s=>/goalkeeper|keeper|kipa/i.test(String(s.p.position||"")));
+  const defenders=ss.filter(s=>/defender|defence|beki|centre back|full back/i.test(String(s.p.position||"")));
+  const young=ss.filter(s=>playerAge(s.p)<23);
+  const mvp=top(ss,score);
+  const bestKeeper=top(keepers,s=>s.clean*5+s.apps+s.goals*2-s.yellow);
+  const bestDefender=top(defenders,s=>s.clean*4+s.apps+s.goals*3-s.yellow-s.red*2);
+  const bestYoung=top(young,s=>score(s));
+  const p=competitionPodium();
+  return {
+    MVP:mvp, TOP_SCORER:topScorer, BEST_GOALKEEPER:bestKeeper,
+    BEST_DEFENDER:bestDefender, BEST_YOUNG_PLAYER:bestYoung,
+    BEST_COACH:null, champion:p.champion
+  };
+}
+function awardCard(label, s, extra){
+  if(!s) return '<div style="padding:12px;border:1px solid #e1e6ee;border-radius:12px;margin:9px 0"><b>🏅 '+esc(label)+'</b><div class="muted" style="margin-top:8px">Bado hakuna takwimu za kutosha.</div></div>';
+  return '<div style="padding:12px;border:1px solid #e1e6ee;border-radius:12px;margin:9px 0"><b>🏅 '+esc(label)+'</b><div style="margin-top:8px;font-size:16px;font-weight:800">'+esc(playerLabel(s.p))+'</div><div class="muted">'+esc(name(s.p.club_id))+' · Mechi: '+s.apps+' · Magoli: '+s.goals+(extra? ' · '+extra:'')+'</div></div>';
 }
 function awardsView(){
-  const labels=Object.fromEntries(awardTypes);
-  const current=t=>awards.find(a=>a.award_type===t)||{};
-  const playerOptions=(selected)=>'<option value="">-- Chagua mchezaji --</option>'+players.map(p=>'<option value="'+esc(p.id)+'" '+(String(selected||"")===String(p.id)?"selected":"")+'>'+esc(playerLabel(p))+' — '+esc(name(p.club_id))+'</option>').join("");
-  $("content").innerHTML='<h3>🏅 TUZO ZA UPENDO WA WAKIMBIZI CUP 2026</h3>'+
-    '<div class="muted" style="margin-bottom:12px">Chagua washindi wa tuzo na bonyeza HIFADHI. Unaweza kuwabadilisha baadaye.</div>'+
-    awardTypes.map(([type,label])=>{
-      const a=current(type);
-      const isCoach=type==="BEST_COACH";
-      return '<div style="padding:12px;border:1px solid #e1e6ee;border-radius:12px;margin:9px 0"><b>🏅 '+label+'</b>'+
-        (isCoach
-          ? '<input id="award-coach-'+type+'" value="'+esc(a.coach_name||"")+'" placeholder="Jina la coach" style="width:100%;box-sizing:border-box;margin:9px 0;padding:10px">'
-          : '<select id="award-player-'+type+'" style="width:100%;margin:9px 0;padding:10px">'+playerOptions(a.player_id)+'</select>')+
-        '<button class="secondary small-btn" onclick="saveAward(\''+type+'\')">💾 HIFADHI</button></div>';
-    }).join("")+
-    podiumHtml();
+  const a=automaticAwards();
+  let html='<h3>🏅 TUZO ZA UPENDO WA WAKIMBIZI CUP 2026</h3><div class="muted" style="margin-bottom:12px">Tuzo hizi zinahesabiwa moja kwa moja kutoka kwenye mechi na matukio yaliyorekodiwa. Ukibadilisha matokeo/matukio, takwimu hubadilika.</div>';
+  html+=awardCard("Mchezaji Bora (MVP)",a.MVP,"Alama ya MVP: "+(a.MVP?(a.MVP.goals*5+a.MVP.apps+a.MVP.clean*2-a.MVP.yellow*.5-a.MVP.red*2).toFixed(1):"—"));
+  html+=awardCard("Mfungaji Bora",a.TOP_SCORER,"Magoli: "+(a.TOP_SCORER?a.TOP_SCORER.goals:0));
+  html+=awardCard("Kipa Bora",a.BEST_GOALKEEPER,"Clean sheets: "+(a.BEST_GOALKEEPER?a.BEST_GOALKEEPER.clean:0));
+  html+=awardCard("Beki Bora",a.BEST_DEFENDER,"Clean sheets: "+(a.BEST_DEFENDER?a.BEST_DEFENDER.clean:0));
+  html+=awardCard("Chipukizi Bora (<23)",a.BEST_YOUNG_PLAYER,a.BEST_YOUNG_PLAYER?"Umri: "+playerAge(a.BEST_YOUNG_PLAYER.p):"");
+  html+='<div style="padding:12px;border:1px solid #e1e6ee;border-radius:12px;margin:9px 0"><b>🏅 Coach Bora</b><div class="muted" style="margin-top:8px">Ili hii iwe automatic, tunahitaji jina la kocha lihusishwe na timu kwenye mfumo. Kwa sasa hakuna taarifa ya kocha kwenye jedwali la clubs.</div></div>';
+  html+=podiumHtml();
+  $("content").innerHTML=html;
 }
 
 function cards(){
