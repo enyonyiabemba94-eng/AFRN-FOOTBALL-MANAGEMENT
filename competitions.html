@@ -1563,58 +1563,72 @@ return club
 
 async function loadCompetitions(){
 
-const {
-  data,
-  error
-} =
-await db
+try{
+
+setStatus("⏳ Inapakia Mashindano...");
+
+const result=await db
 .from(COMPETITIONS_TABLE)
 .select(`
-  id,
-  name,
-  competition_type,
-  logo_url,
-  organizer,
-  season,
-  start_date,
-  end_date,
-  status,
-  format,
-  team_count,
-  created_at
+id,
+name,
+competition_type,
+logo_url,
+organizer,
+season,
+start_date,
+end_date,
+status,
+format,
+team_count,
+created_at
 `)
-.order(
-  "created_at",
-  {
-    ascending:false
-  }
-);
+.order("created_at",{ascending:false});
 
-if(error){
+if(result.error) throw result.error;
 
-console.error(error);
+competitions=Array.isArray(result.data)
+? result.data
+: [];
 
-setStatus(
-  "❌ Competition haijapakiwa: " +
-  error.message,
-  "err"
-);
+renderCompetitionSelects();
+renderCompetitions();
 
-return;
+return true;
 
-}
+}catch(error){
 
-competitions =
-data || [];
+console.error("loadCompetitions:",error);
+
+competitions=[];
 
 renderCompetitionSelects();
 
-renderCompetitions();
+$("competitionsContainer").innerHTML=`
+<div class="empty" style="color:#c62828">
+❌ Imeshindikana kupakia Mashindano.<br><br>
+<b>${esc(error?.message || error)}</b><br><br>
+<button class="secondary small-btn" onclick="loadCompetitions()">
+🔄 Jaribu tena
+</button>
+</div>
+`;
+
+setStatus(
+"❌ Mashindano hayajapakiwa: "+
+(error?.message || error),
+"err"
+);
+
+return false;
+
+}
 
 }
 
 
 /* =====================================================
+
    LOAD CLUBS
 ===================================================== */
 
@@ -3288,7 +3302,7 @@ async function generateStage(stage){
     const made=await makeKOMatches(stage,competitionId,pairs);
     alert("✅ "+stage+" imeunganishwa. Mechi mpya: "+made);
     setStatus("✅ "+stage+" imeunganishwa kwenye competition hii.","ok");
-  }catch(e){alert("❌ "+e.message);setStatus("❌ Knockout: "+e.message,"error");}
+  }catch(e){alert("❌ "+e.message);setStatus("❌ Knockout: "+e.message,"err");}
 }
 $("generate16Btn").onclick=()=>generateStage("R16");
 $("generateQfBtn").onclick=()=>generateStage("QF");
@@ -3302,36 +3316,59 @@ $("generateClassificationBtn").onclick=()=>alert("ℹ️ Classification itaongez
 
 async function init(){
 
-setStatus(
-"⏳ Inapakia mfumo..."
-);
+try{
 
+setStatus("⏳ Inapakia Mashindano...");
 
-await loadClubs();
-
+/* Mashindano yanapakiwa kwanza na kujitegemea. */
 await loadCompetitions();
 
-await loadCompetitionTeams();
+/* Data nyingine haiwezi kuzuia list ya Mashindano kuonekana. */
+await Promise.all([
+  loadClubs(),
+  loadCompetitionTeams()
+]);
 
-
+renderCompetitionSelects();
 renderAvailableClubs();
-
 renderCompetitionClubs();
-
 renderGroups();
-
 renderStandings();
-
 renderCompetitions();
 
-
 setStatus(
-"✅ Supabase imeunganishwa vizuri.",
+"✅ Supabase imeunganishwa vizuri. Mashindano: " +
+competitions.length,
 "ok"
 );
 
+}catch(error){
+
+console.error("AFRN competitions init:",error);
+
+setStatus(
+"❌ Mfumo haukuweza kuanza: " +
+(error?.message || error),
+"err"
+);
+
+const container=$("competitionsContainer");
+
+if(container){
+container.innerHTML=`
+<div class="empty" style="color:#c62828">
+❌ Mfumo haukuweza kupakia data.<br><br>
+<b>${esc(error?.message || error)}</b><br><br>
+<button class="secondary small-btn" onclick="location.reload()">
+🔄 Reload
+</button>
+</div>
+`;
 }
 
+}
+
+}
 
 init();
 
@@ -3343,13 +3380,13 @@ init();
 <script src="./afrn-knockout-engine.js"></script>
 <script src="./afrn-penalty-shootout.js?v=20260911"></script>
 <script src="./afrn-knockout-fixtures.js?v=20260911"></script>
-<script src="./afrn-penalty-shootout.js?v=20260911"></script>
+
 <script src="./afrn-period-breakdown.js?v=20260911"></script>
 <script src="./afrn-extra-time-setting.js?v=20260911"></script>
-<script src="./afrn-penalty-shootout.js?v=20260911"></script>
+
 <script src="./afrn-knockout-persistence-v2.js?v=20260911"></script>
 <script src="./afrn-league-engine.js?v=20260927-logos"></script>
-  <script src="./afrn-penalty-shootout.js?v=20260911"></script>
+  
 <script src="./afrn-r16-schedule.js?v=20260911"></script>
 <script src="./afrn-knockout-center.js?v=20260911"></script>
 </body>
