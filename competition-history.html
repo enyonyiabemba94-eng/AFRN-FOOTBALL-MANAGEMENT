@@ -17,7 +17,7 @@ const $ = id => document.getElementById(id);
 const esc = v => String(v ?? "").replace(/[&<>"']/g, c => ({
   "&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#039;"
 }[c]));
-let C = null, teams = [], matches = [], events = [], clubs = [], tab = "MECHI";
+let C = null, teams = [], matches = [], events = [], clubs = [], players = [], awards = [], tab = "MECHI";
 
 const played = s => window.AFRNStandings && window.AFRNStandings.playedStatus
   ? window.AFRNStandings.playedStatus(s)
@@ -56,10 +56,20 @@ async function load(){
   const clr = await db.from("clubs")
     .select("id,name,logo_url,afrn_club_id");
   if(clr.error) throw clr.error;
+  const pr = await db.from("players")
+    .select("id,club_id,first_name,middle_name,last_name,position,status")
+    .order("first_name", {ascending:true});
+  if(pr.error) throw pr.error;
+  const ar = await db.from("competition_awards")
+    .select("*")
+    .eq("competition_id", id);
+  if(ar.error) throw ar.error;
 
   teams = tr.data || [];
   matches = mr.data || [];
   clubs = clr.data || [];
+  players = pr.data || [];
+  awards = ar.data || [];
   events = [];
 
   const matchIds = matches.map(m => m.id).filter(Boolean);
@@ -83,7 +93,7 @@ async function load(){
       </div>
     </div>`;
 
-  const tabs = ["MECHI","MAKUNDI","MSIMAMO","KNOCKOUT","TIMU","WAFUNGAJI","KADI","TAKWIMU"];
+  const tabs = ["MECHI","MAKUNDI","MSIMAMO","KNOCKOUT","TIMU","WAFUNGAJI","KADI","TAKWIMU","TUZO"];
   $("tabs").innerHTML = '<div class="tabs">' +
     tabs.map(t => `<button class="tab ${t===tab?"active":""}" onclick="showTab('${t}')">${t}</button>`).join("") +
     '</div>';
@@ -104,6 +114,7 @@ function render(){
   else if(tab === "KADI") cards();
   else if(tab === "WAFUNGAJI") scorers();
   else if(tab === "TAKWIMU") stats();
+  else if(tab === "TUZO") awardsView();
   else if(tab === "KNOCKOUT") knockout();
 }
 
@@ -186,13 +197,54 @@ function knockout(){
       html += `<div style="padding:12px;border:1px solid #e1e6ee;border-radius:12px;margin:8px 0">
         <div class="muted">MECHI #${esc(m.match_number || i+1)} · ${esc(m.match_date || "—")} ${esc(m.match_time || "")}</div>
         <b>${esc(name(m.home_team_id))}</b> <strong style="margin:0 8px">${result}</strong> <b>${esc(name(m.away_team_id))}</b>
-        <div class="muted">Hali: ${esc(m.status || "scheduled")}</div>
+        <div class="muted">Hali: ${esc(m.status || "scheduled")}${m.notes && /AFRN_DECISION=PENALTIES/.test(m.notes) ? " · 🥅 Ushindi kwa penalti" : ""}</div>
         <div style="margin-top:9px"><button class="secondary small-btn" onclick="editHistoryMatch('${esc(m.id)}')">✏️ Edit Mechi</button></div>
       </div>`;
     });
     html += "</div>";
   });
   $("content").innerHTML = html;
+}
+
+const awardTypes = [
+  ["MVP","Mchezaji Bora"],
+  ["TOP_SCORER","Mfungaji Bora"],
+  ["BEST_GOALKEEPER","Kipa Bora"],
+  ["BEST_DEFENDER","Beki Bora"],
+  ["BEST_YOUNG_PLAYER","Chipukizi Bora"],
+  ["BEST_COACH","Coach Bora"]
+];
+function playerLabel(p){
+  return [p.first_name,p.middle_name,p.last_name].filter(Boolean).join(" ") || "Mchezaji";
+}
+async function saveAward(type){
+  const playerEl=document.getElementById("award-player-"+type);
+  const coachEl=document.getElementById("award-coach-"+type);
+  const playerId=playerEl ? playerEl.value || null : null;
+  const coachName=coachEl ? coachEl.value.trim() || null : null;
+  const payload={competition_id:id,award_type:type,player_id:playerId,coach_name:coachName};
+  const r=await db.from("competition_awards").upsert(payload,{onConflict:"competition_id,award_type"}).select().single();
+  if(r.error){alert("Imeshindikana kuhifadhi: "+r.error.message);return;}
+  const i=awards.findIndex(a=>a.award_type===type);
+  if(i>=0) awards[i]=r.data; else awards.push(r.data);
+  awardsView();
+}
+function awardsView(){
+  const labels=Object.fromEntries(awardTypes);
+  const current=t=>awards.find(a=>a.award_type===t)||{};
+  const playerOptions=(selected)=>'<option value="">-- Chagua mchezaji --</option>'+players.map(p=>'<option value="'+esc(p.id)+'" '+(String(selected||"")===String(p.id)?"selected":"")+'>'+esc(playerLabel(p))+' — '+esc(name(p.club_id))+'</option>').join("");
+  $("content").innerHTML='<h3>🏅 TUZO ZA UPENDO WA WAKIMBIZI CUP 2026</h3>'+
+    '<div class="muted" style="margin-bottom:12px">Chagua washindi wa tuzo na bonyeza HIFADHI. Unaweza kuwabadilisha baadaye.</div>'+
+    awardTypes.map(([type,label])=>{
+      const a=current(type);
+      const isCoach=type==="BEST_COACH";
+      return '<div style="padding:12px;border:1px solid #e1e6ee;border-radius:12px;margin:9px 0"><b>🏅 '+label+'</b>'+
+        (isCoach
+          ? '<input id="award-coach-'+type+'" value="'+esc(a.coach_name||"")+'" placeholder="Jina la coach" style="width:100%;box-sizing:border-box;margin:9px 0;padding:10px">'
+          : '<select id="award-player-'+type+'" style="width:100%;margin:9px 0;padding:10px">'+playerOptions(a.player_id)+'</select>')+
+        '<button class="secondary small-btn" onclick="saveAward(\''+type+'\')">💾 HIFADHI</button></div>';
+    }).join("")+
+    '<div style="margin-top:16px;padding:12px;background:#f7f9fc;border-radius:12px"><b>🏆 Bingwa:</b> FEBA ESPOIR &nbsp; | &nbsp; <b>🥈:</b> GHI1 BILOMBE FC &nbsp; | &nbsp; <b>🥉:</b> ASKU O3</div>';
 }
 
 function cards(){
