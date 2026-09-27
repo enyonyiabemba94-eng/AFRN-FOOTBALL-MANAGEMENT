@@ -13,8 +13,8 @@ if(window.supabase && typeof window.supabase.createClient==="function" && !windo
       async function identity(){const u=await client.auth.getUser();if(!u.data?.user)return null;const p=await client.from("profiles").select("id,role,club_id,full_name").eq("id",u.data.user.id).maybeSingle();return p.data||null;}
       const me=await identity();
       const role=String(me?.role||"").toLowerCase();
-      const clubAdmin=["club_admin","club","club_account"].includes(role); const viewOnly=!afrnAdmin;
       const afrnAdmin=["super_admin","superadmin","admin","administrator","afrn_admin","secretary_general"].includes(role);
+      const clubAdmin=["club_admin","club","club_account"].includes(role); const viewOnly=!afrnAdmin;
 
       /* ---------- GLOBAL NON-ADMIN VIEW-ONLY LOCK ---------- */
       function lockClubAdminUI(){
