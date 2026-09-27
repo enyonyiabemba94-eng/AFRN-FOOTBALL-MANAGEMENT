@@ -107,6 +107,9 @@ function render(){
   else if(tab === "KNOCKOUT") knockout();
 }
 
+function editHistoryMatch(matchId){ location.href="./matches.html?edit="+encodeURIComponent(matchId); }
+function addKnockout(stage){ location.href="./matches.html?competition="+encodeURIComponent(id)+"&stage="+encodeURIComponent(stage); }
+
 function matchesView(){
   $("content").innerHTML = `
     <h3>🏟️ Mechi</h3>
@@ -170,7 +173,7 @@ function knockout(){
     $("content").innerHTML = '<div class="empty"><h3>⚔️ Knockout</h3><p>Hakuna mechi za knockout zilizotengenezwa.</p></div>';
     return;
   }
-  let html = "<h3>⚔️ KNOCKOUT</h3>";
+  let html = "<h3>⚔️ KNOCKOUT</h3><div style="display:flex;gap:8px;flex-wrap:wrap;margin:10px 0"><button class="btn-primary" onclick="addKnockout('FINAL')">➕ Ongeza FAINALI</button><button class="secondary small-btn" onclick="addKnockout('3RD')">➕ Ongeza MSHINDI WA 3</button></div>";
   keys.forEach(stage => {
     const rows = groups[stage].slice().sort((a,b) => {
       const aa = Number(String(a.notes || "").match(/AFRN_SLOT=(\\d+)/)?.[1] || 999);
@@ -184,6 +187,7 @@ function knockout(){
         <div class="muted">MECHI #${esc(m.match_number || i+1)} · ${esc(m.match_date || "—")} ${esc(m.match_time || "")}</div>
         <b>${esc(name(m.home_team_id))}</b> <strong style="margin:0 8px">${result}</strong> <b>${esc(name(m.away_team_id))}</b>
         <div class="muted">Hali: ${esc(m.status || "scheduled")}</div>
+        <div style="margin-top:9px"><button class="secondary small-btn" onclick="editHistoryMatch('${esc(m.id)}')">✏️ Edit Mechi</button></div>
       </div>`;
     });
     html += "</div>";
