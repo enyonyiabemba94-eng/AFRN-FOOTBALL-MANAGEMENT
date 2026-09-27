@@ -13,10 +13,10 @@ if(window.supabase && typeof window.supabase.createClient==="function" && !windo
       async function identity(){const u=await client.auth.getUser();if(!u.data?.user)return null;const p=await client.from("profiles").select("id,role,club_id,full_name").eq("id",u.data.user.id).maybeSingle();return p.data||null;}
       const me=await identity();
       const role=String(me?.role||"").toLowerCase();
-      const clubAdmin=["club_admin","club","club_account"].includes(role); const viewOnly=clubAdmin || ["official","committee","kamati","kamati_husika","viewer","public_viewer"].includes(role);
+      const clubAdmin=["club_admin","club","club_account"].includes(role); const viewOnly=!afrnAdmin;
       const afrnAdmin=["super_admin","superadmin","admin","administrator","afrn_admin","secretary_general"].includes(role);
 
-      /* ---------- GLOBAL CLUB-ADMIN UI LOCK ---------- */
+      /* ---------- GLOBAL NON-ADMIN VIEW-ONLY LOCK ---------- */
       function lockClubAdminUI(){
         if(!viewOnly)return;
         const viewerCss=document.createElement("style");
@@ -25,7 +25,7 @@ if(window.supabase && typeof window.supabase.createClient==="function" && !windo
         document.head.appendChild(viewerCss);
         const path=location.pathname.toLowerCase();
         const page=path.split("/").pop()||"";
-        const blockAll=page==="clubs.html"||page==="competitions.html"||page==="matches.html"||page==="reports.html"||page==="contracts.html"||page==="transfers.html";
+        const blockAll=true;
         const blocked=/^(hariri|edit|futa|delete|ongeza klabu|add club|ongeza timu|add team|weka matokeo|hifadhi matokeo|save result|add match|ongeza mechi|ongeza mashindano|add competition)$/i;
         const scan=()=>{
           document.querySelectorAll("button,a").forEach(el=>{
