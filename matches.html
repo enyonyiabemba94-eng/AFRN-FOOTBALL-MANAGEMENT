@@ -55,7 +55,11 @@ function selectedPlayers(side,type){return Array.from(document.querySelectorAll(
 async function deleteMatch(id){if(!confirm('Una uhakika unataka kufuta mechi hii?'))return;try{await db.from('match_events').delete().eq('match_id',id);const {error}=await db.from('matches').delete().eq('id',id);if(error)throw error;setStatus('✅ Mechi imefutwa.','success');if(String(currentMatchId)===String(id))resetMatchForm();await loadMatches()}catch(error){console.error(error);alert('❌ Imeshindikana kufuta mechi:\n\n'+error.message)}}
 function updateStats(){document.getElementById('totalMatches').textContent=matches.length;document.getElementById('scheduledMatches').textContent=matches.filter(m=>String(m.status).toLowerCase()==='scheduled').length;document.getElementById('liveMatches').textContent=matches.filter(m=>String(m.status).toLowerCase()==='live').length;document.getElementById('finishedMatches').textContent=matches.filter(m=>['finished','completed'].includes(String(m.status).toLowerCase())).length}
 function resetMatchForm(){currentMatchId=null;document.getElementById('editMatchId').value='';document.getElementById('matchFormTitle').textContent='➕ Tengeneza Mechi';['competitionId','matchDate','matchWeek','matchTime','venue','homeClubId','awayClubId','refereeMain','matchNotes'].forEach(id=>setField(id,''));setField('matchStatus','Scheduled');setField('homeScore',0);setField('awayScore',0);clearLineupSelections()}
-async function init(){try{db=getSupabaseClient();if(!db)throw new Error('supabaseClient haikupatikana kutoka supabase-config.js');await loadCompetitions();await loadClubs();await loadMatches();setStatus('✅ Mfumo umeunganishwa na Supabase.','success')}catch(error){console.error(error);setStatus('❌ Imeshindikana kuanzisha Supabase: '+error.message,'error')}}
+async function init(){try{db=getSupabaseClient();if(!db)throw new Error('supabaseClient haikupatikana kutoka supabase-config.js');await loadCompetitions();await loadClubs();await loadMatches();
+const qp=new URLSearchParams(location.search), editId=qp.get('edit'), competitionId=qp.get('competition'), stage=qp.get('stage');
+if(editId){await editMatch(editId);}
+else if(competitionId){setField('competitionId',competitionId);if(stage){setField('matchNotes','AFRN_STAGE='+stage);document.getElementById('matchFormTitle').textContent='➕ Ongeza '+(stage==='FINAL'?'FAINALI':'MSHINDI WA 3');}}
+setStatus('✅ Mfumo umeunganishwa na Supabase.','success')}catch(error){console.error(error);setStatus('❌ Imeshindikana kuanzisha Supabase: '+error.message,'error')}}
 init();
 </script>
 
