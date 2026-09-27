@@ -2777,7 +2777,7 @@ async function renderStandings(){
    const teams=allTeams.filter(t=>String(t.group_name||"")===String(group||""));
    if(!teams.length)continue;
    const rows=window.AFRNStandings.buildStandings({teams,matches,events:er.data||[],clubName:getClubName,groupFilter:group});
-   html+='<div class="group-title">GROUP '+esc(group||"ALL")+'</div><div class="table-wrap"><table class="standings-table"><thead><tr><th>#</th><th>KLABU</th><th>P</th><th>W</th><th>D</th><th>L</th><th>GF</th><th>GA</th><th>PTS</th></tr></thead><tbody>'+rows.map((row,i)=>'<tr><td>'+String(i+1)+'</td><td>'+esc(row.name)+'</td><td>'+row.P+'</td><td>'+row.W+'</td><td>'+row.D+'</td><td>'+row.L+'</td><td>'+row.GF+'</td><td>'+row.GA+'</td><td><strong>'+row.PTS+'</strong></td></tr>').join("")+'</tbody></table></div>';
+   html+='<div class="group-title">GROUP '+esc(group||"ALL")+'</div><div class="table-wrap"><table class="standings-table"><thead><tr><th>#</th><th>KLABU</th><th>PTS</th><th>MP</th><th>W</th><th>D</th><th>L</th><th>GD</th></tr></thead><tbody>'+rows.map((row,i)=>{const club=clubs.find(x=>String(x.id)===String(row.club_id));return '<tr><td>'+String(i+1)+'</td><td><div style="display:flex;align-items:center;gap:8px"><img src="'+(club?.logo_url||"")+'" onerror="this.style.display=\\'none\\'" style="width:30px;height:30px;object-fit:contain;border-radius:7px;background:#f4f6fa;border:1px solid #e0e5ed"><b>'+esc(row.name)+'</b></div></td><td><strong>'+row.PTS+'</strong></td><td>'+row.P+'</td><td>'+row.W+'</td><td>'+row.D+'</td><td>'+row.L+'</td><td>'+row.GF+'-'+row.GA+'</td></tr>'}).join("")+'</tbody></table></div>';
  }
  container.innerHTML=html||'<div class="empty">Hakuna makundi yenye timu.</div>';
 }
