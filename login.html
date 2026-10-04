@@ -69,7 +69,7 @@ input{width:100%;padding:13px;border:1px solid #d0d5dd;border-radius:10px;font-s
     </div>
   </form>
 
-  <button class="linkbtn" id="forgotBtn" type="button">🔑 Umesahau password? Tuma link ya kubadilisha</button><a class="linkbtn" href="./signup.html" style="display:block;text-align:center;text-decoration:none">📝 Huna akaunti? Fungua Akaunti</a><a class="linkbtn" href="./signup.html" style="display:block;text-align:center;text-decoration:none">📝 Huna akaunti? Fungua Akaunti</a>
+  <button class="linkbtn" id="forgotBtn" type="button">🔑 Umesahau password? Tuma link ya kubadilisha</button><a class="linkbtn" href="./signup.html" style="display:block;text-align:center;text-decoration:none">📝 Huna akaunti? Fungua Akaunti</a>
   <div id="msg" class="msg"></div>
   <div class="public">⚽ AFRN Football App</div>
 </div>
@@ -136,32 +136,6 @@ document.addEventListener('DOMContentLoaded',async function(){
         loginBtn.disabled=false;
         loginBtn.textContent='🔐 Ingia kwenye App';
         return;
-      }
-      if(data?.user){
-        const {data:existingProfile,error:profileReadError}=await client.from('profiles').select('id,role,account_status').eq('id',data.user.id).maybeSingle();
-        if(profileReadError){ show('❌ Profile haijasomeka: '+profileReadError.message); await client.auth.signOut({scope:'local'}); loginBtn.disabled=false; loginBtn.textContent='🔐 Ingia kwenye App'; return; }
-        if(!existingProfile){
-          const meta=data.user.user_metadata||{};
-          const {error:profileError}=await client.from('profiles').insert({id:data.user.id,full_name:meta.full_name||'',phone:meta.phone||'',role:'user',account_status:'PENDING'});
-          if(profileError){ show('❌ Akaunti imeingia lakini profile haikuanzishwa: '+profileError.message); await client.auth.signOut({scope:'local'}); loginBtn.disabled=false; loginBtn.textContent='🔐 Ingia kwenye App'; return; }
-        }
-        const profile=existingProfile;
-        if(profile && String(profile.role||'user').toLowerCase()==='user' && String(profile.account_status||'PENDING').toUpperCase()!=='APPROVED'){
-          show('⏳ Akaunti yako bado inasubiri approval ya AFRN. Huwezi kuingia kwenye mfumo mpaka iidhinishwe.');
-          await client.auth.signOut({scope:'local'});
-          loginBtn.disabled=false; loginBtn.textContent='🔐 Ingia kwenye App'; return;
-        }
-      }
-      if(data?.user){
-        const {data:existingProfile,error:profileReadError}=await client.from('profiles').select('id,role,account_status').eq('id',data.user.id).maybeSingle();
-        if(profileReadError){ show('❌ Profile haijasomeka: '+profileReadError.message); await client.auth.signOut({scope:'local'}); loginBtn.disabled=false; loginBtn.textContent='🔐 Ingia kwenye App'; return; }
-        if(!existingProfile){
-          const meta=data.user.user_metadata||{};
-          const {error:profileError}=await client.from('profiles').insert({id:data.user.id,full_name:meta.full_name||'',phone:meta.phone||'',role:'user',account_status:'PENDING'});
-          if(profileError){ show('❌ Profile haikuanzishwa: '+profileError.message); await client.auth.signOut({scope:'local'}); loginBtn.disabled=false; loginBtn.textContent='🔐 Ingia kwenye App'; return; }
-        }else if(String(existingProfile.role||'user').toLowerCase()==='user' && String(existingProfile.account_status||'PENDING').toUpperCase()!=='APPROVED'){
-          show('⏳ Akaunti yako bado inasubiri approval ya AFRN.'); await client.auth.signOut({scope:'local'}); loginBtn.disabled=false; loginBtn.textContent='🔐 Ingia kwenye App'; return;
-        }
       }
       if(!data || !data.session){
         show('❌ Session haikupatikana. Refresh ujaribu tena.');
