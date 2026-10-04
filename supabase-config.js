@@ -44,7 +44,8 @@ if(window.supabase && typeof window.supabase.createClient==="function" && !windo
         scan();
         new MutationObserver(scan).observe(document.body,{subtree:true,childList:true});
       }
-      lockClubAdminUI();
+      /* Login/reset pages must never be modified by the role-based view-only lock. */
+      if(!/\/((login|reset-password)\.html)$/i.test(location.pathname)) lockClubAdminUI();
 
       /* ---------- VIEWER: COMPETITION HISTORY = MATCHES + STANDINGS ---------- */
       if(viewOnly && /competition-history\.html$/i.test(location.pathname)){
