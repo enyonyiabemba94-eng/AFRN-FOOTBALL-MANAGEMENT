@@ -101,6 +101,9 @@ document.addEventListener('DOMContentLoaded',function(){
     }
 
     try{
+      // Ondoa session/token ya zamani iliyokwama kwenye browser kabla ya login mpya.
+      // scope: 'local' haifuti akaunti wala password ya Supabase.
+      try{ await client.auth.signOut({scope:'local'}); }catch(_e){}
       const {data,error}=await client.auth.signInWithPassword({email,password});
       if(error){
         show('❌ Login imekataa: '+error.message);
