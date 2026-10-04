@@ -117,7 +117,7 @@ document.addEventListener('DOMContentLoaded',function(){
         loginBtn.textContent='🔐 Ingia kwenye App';
         return;
       }
-      location.href='app.html';
+      location.replace('./app.html?auth='+Date.now());
     }catch(err){
       show('❌ Hitilafu ya login: '+(err && err.message ? err.message : err));
       loginBtn.disabled=false;
