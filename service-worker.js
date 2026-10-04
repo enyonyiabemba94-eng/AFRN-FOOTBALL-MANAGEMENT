@@ -1,5 +1,179 @@
-const CACHE_NAME='afrn-football-v38';
-const APP_SHELL=['./','./app.html','./index.html','./login.html','./club-dashboard.html','./clubs.html','./club-profile.html','./players.html','./player-profile.html','./transfers.html','./competitions.html','./competition-history.html','./matches.html','./reports.html','./accounts.html','./contracts.html','./reset-password.html','./supabase-config.js','./supabase-config-original.js','./afrn-transfer-workflow.js','./afrn-registration-workflow.js','./afrn-standings-workflow.js','./afrn-standings-ui.js','./afrn-dashboard-standings.js','./afrn-player-stats.js','./afrn-player-profile-stats.js','./afrn-player-record.js','./afrn-player-card.js','./afrn-competition-stats.js','./afrn-match-center.js','./afrn-match-events.js','./afrn-live-match.js','./afrn-match-sheet.js','./afrn-lineup-protection.js','./afrn-realtime.js','./afrn-free-agent-workflow.js','./afrn-club-record.js','./manifest.json','./css/style.css','./IMG-20260319-WA0093.jpg'];
-self.addEventListener('install',e=>e.waitUntil(caches.open(CACHE_NAME).then(c=>c.addAll(APP_SHELL)).then(()=>self.skipWaiting())));
-self.addEventListener('activate',e=>e.waitUntil(caches.keys().then(keys=>Promise.all(keys.filter(k=>k!==CACHE_NAME).map(k=>caches.delete(k)))).then(()=>self.clients.claim())));
-self.addEventListener('fetch',e=>{if(e.request.method!=='GET')return;const u=new URL(e.request.url);if(u.origin!==self.location.origin)return;e.respondWith(fetch(e.request).then(async r=>{const inject={'/transfers.html':['afrn-transfer-workflow.js'],'/players.html':['afrn-registration-workflow.js'],'/matches.html':['afrn-standings-workflow.js','afrn-match-center.js','afrn-lineup-protection.js','afrn-match-events.js','afrn-live-match.js','afrn-match-sheet.js'],'/competitions.html':['afrn-standings-ui.js','afrn-competition-stats.js'],'/index.html':['afrn-dashboard-standings.js'],'/club-dashboard.html':['afrn-dashboard-standings.js'],'/reports.html':['afrn-player-stats.js'],'/player-profile.html':['afrn-player-profile-stats.js','afrn-player-record.js','afrn-player-card.js'],'/contracts.html':['afrn-free-agent-workflow.js'],'/club-profile.html':['afrn-club-record.js']};const ss=Object.entries(inject).find(([x])=>u.pathname.endsWith(x));if(ss)try{let t=await r.clone().text();for(const s of ss[1])if(!t.includes(s))t=t.replace(/<\/body>/i,`<script src="./${s}"></script></body>`);t=t.replace(/<\/style>/i,`#afrn-player-card{margin-top:12px}.afrn-print{width:100%;border:0;border-radius:12px;padding:12px;background:#071a33;color:#fff;font-weight:800;margin-bottom:10px}.afrn-card{background:#fff;border:2px solid #071a33;border-radius:16px;overflow:hidden}.afrn-card-head{padding:12px;background:#071a33;color:#fff;text-align:center;font-size:11px}.afrn-card-head small{display:block;opacity:.75;margin-top:4px}.afrn-card-body{display:flex;gap:14px;padding:15px;align-items:center}.afrn-card-body img,.afrn-avatar{width:86px;height:100px;object-fit:cover;border-radius:10px;background:#eef2f7;display:flex;align-items:center;justify-content:center;font-size:34px}.afrn-card-body h2{margin:0 0 5px;font-size:18px}.afrn-card-body p{margin:4px 0;font-size:11px}.afrn-card-foot{padding:8px 12px;border-top:1px solid #e1e6ef;font-size:9px;color:#667085}@media print{body{background:#fff}main{max-width:none}.back,.afrn-print{display:none!important}.afrn-card{break-inside:avoid}}<\/style>`);r=new Response(t,{status:r.status,statusText:r.statusText,headers:r.headers})}catch(_){}caches.open(CACHE_NAME).then(c=>c.put(e.request,r.clone()));return r}).catch(()=>caches.match(e.request).then(c=>c||caches.match('./app.html'))))});
+<!doctype html>
+<html lang="sw">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<meta name="theme-color" content="#071a33">
+<meta http-equiv="Cache-Control" content="no-cache,no-store,must-revalidate">
+<meta http-equiv="Pragma" content="no-cache">
+<meta http-equiv="Expires" content="0">
+<link rel="manifest" href="./manifest.json">
+<title>AFRN — Ingia</title>
+<script>
+(async function(){
+  try{
+    if('serviceWorker' in navigator){
+      const regs=await navigator.serviceWorker.getRegistrations();
+      await Promise.all(regs.map(r=>r.unregister()));
+    }
+    if(window.caches){
+      const keys=await caches.keys();
+      await Promise.all(keys.filter(k=>k.indexOf('afrn-football-')===0).map(k=>caches.delete(k)));
+    }
+  }catch(_e){}
+  try{window.scrollTo(0,0)}catch(_e){}
+})();
+</script>
+<style>
+*{box-sizing:border-box}
+body{margin:0;font-family:Arial,sans-serif;background:#f4f6f8;color:#17202a;min-height:100vh;padding:20px;overflow-y:auto}.card{margin:0 auto}
+.card{width:min(440px,100%);background:#fff;border-radius:18px;padding:28px;box-shadow:0 10px 35px #0001}
+.brand{text-align:center;margin-bottom:22px}
+.brand h1{margin:8px 0 4px;font-size:23px}
+.brand p{margin:0;color:#667085;font-size:12px;font-weight:700}
+.logo{width:82px;height:82px;object-fit:contain;border-radius:18px;background:#071a33;padding:7px}
+label{display:block;font-weight:700;margin:14px 0 7px}
+input{width:100%;padding:13px;border:1px solid #d0d5dd;border-radius:10px;font-size:16px}
+.passrow{display:flex;gap:8px}
+.passrow input{flex:1}
+.showpass{width:auto;margin:0;padding:0 13px;background:#eef4ff;color:#0b5ed7;font-size:14px;border:0;border-radius:10px}
+.actions button{width:100%;margin-top:18px;padding:13px;border:0;border-radius:10px;background:#0b5ed7;color:#fff;font-weight:700;font-size:16px;cursor:pointer}
+.actions button:disabled,.linkbtn:disabled{opacity:.6;cursor:not-allowed}
+.linkbtn{width:100%;border:0;background:transparent;color:#0b5ed7;margin-top:8px;padding:10px;font-weight:700;cursor:pointer}
+.msg{margin-top:14px;padding:11px;border-radius:9px;display:none;line-height:1.45}
+.error{background:#fff0f0;color:#b42318}
+.ok{background:#ecfdf3;color:#027a48}
+.public{text-align:center;margin-top:18px;color:#667085}
+</style>
+</head>
+<body>
+<div class="card">
+  <div class="brand">
+    <img class="logo" src="./IMG-20260319-WA0093.jpg" alt="AFRN">
+    <h1>AFRN FOOTBALL MANAGEMENT</h1>
+    <p>SHIRIKISHO LA MPIRA WA MIGUU KAMBINI NYARUGUSU</p>
+  </div>
+
+  <form id="loginForm">
+    <label for="email">Email</label>
+    <input id="email" type="email" autocomplete="username" placeholder="Weka email" required>
+
+    <label for="password">Password</label>
+    <div class="passrow">
+      <input id="password" type="password" autocomplete="current-password" placeholder="Weka password" required>
+      <button class="showpass" id="showPass" type="button">👁️</button>
+    </div>
+
+    <div class="actions">
+      <button id="loginBtn" type="submit">🔐 Ingia kwenye App</button>
+    </div>
+  </form>
+
+  <button class="linkbtn" id="forgotBtn" type="button">🔑 Umesahau password? Tuma link ya kubadilisha</button>
+  <div id="msg" class="msg"></div>
+  <div class="public">⚽ AFRN Football App</div>
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<script src="./supabase-config.js?v=20261004-authfix2"></script>
+<script>
+document.addEventListener('DOMContentLoaded',function(){
+  const client=window.supabaseClient;
+  const form=document.getElementById('loginForm');
+  const msg=document.getElementById('msg');
+  const emailEl=document.getElementById('email');
+  const passwordEl=document.getElementById('password');
+  const loginBtn=document.getElementById('loginBtn');
+  const forgotBtn=document.getElementById('forgotBtn');
+  const showPass=document.getElementById('showPass');
+
+  function show(text,ok=false){
+    msg.textContent=text;
+    msg.className='msg '+(ok?'ok':'error');
+    msg.style.display='block';
+  }
+
+  showPass.addEventListener('click',function(){
+    const visible=passwordEl.type==='text';
+    passwordEl.type=visible?'password':'text';
+    showPass.textContent=visible?'👁️':'🙈';
+  });
+
+  form.addEventListener('submit',async function(e){
+    e.preventDefault();
+    loginBtn.disabled=true;
+    loginBtn.textContent='Inaingia...';
+    msg.style.display='none';
+
+    const email=emailEl.value.trim().toLowerCase();
+    const password=passwordEl.value;
+
+    if(!client){
+      show('❌ Supabase haijaunganishwa. Refresh ukurasa ujaribu tena.');
+      loginBtn.disabled=false;
+      loginBtn.textContent='🔐 Ingia kwenye App';
+      return;
+    }
+
+    try{
+      // Ondoa session/token ya zamani iliyokwama kwenye browser kabla ya login mpya.
+      // scope: 'local' haifuti akaunti wala password ya Supabase.
+      try{ await client.auth.signOut({scope:'local'}); }catch(_e){}
+      const {data,error}=await client.auth.signInWithPassword({email,password});
+      if(error){
+        show('❌ Login imekataa: '+error.message);
+        loginBtn.disabled=false;
+        loginBtn.textContent='🔐 Ingia kwenye App';
+        return;
+      }
+      if(!data || !data.session){
+        show('❌ Session haikupatikana. Refresh ujaribu tena.');
+        loginBtn.disabled=false;
+        loginBtn.textContent='🔐 Ingia kwenye App';
+        return;
+      }
+      location.replace('./app.html?auth='+Date.now());
+    }catch(err){
+      show('❌ Hitilafu ya login: '+(err && err.message ? err.message : err));
+      loginBtn.disabled=false;
+      loginBtn.textContent='🔐 Ingia kwenye App';
+    }
+  });
+
+  forgotBtn.addEventListener('click',async function(){
+    const email=emailEl.value.trim().toLowerCase();
+    if(!email){
+      show('⚠️ Weka email yako kwanza.');
+      return;
+    }
+    if(!client){
+      show('❌ Supabase haijaunganishwa. Refresh ukurasa ujaribu tena.');
+      return;
+    }
+
+    forgotBtn.disabled=true;
+    forgotBtn.textContent='⏳ Inatuma link...';
+    msg.style.display='none';
+
+    const redirect=location.origin+location.pathname.replace(/login\.html?$/i,'')+'reset-password.html';
+
+    try{
+      const {error}=await client.auth.resetPasswordForEmail(email,{redirectTo:redirect});
+      if(error){
+        show('❌ Reset haikutumwa: '+error.message);
+      }else{
+        show('✅ Link ya kubadilisha password imetumwa. Fungua email yako na bonyeza link hiyo.',true);
+      }
+    }catch(err){
+      show('❌ Hitilafu ya reset: '+(err && err.message ? err.message : err));
+    }finally{
+      forgotBtn.disabled=false;
+      forgotBtn.textContent='🔑 Umesahau password? Tuma link ya kubadilisha';
+    }
+  });
+});
+</script>
+
+<script src="./afrn-player-photo-global.js"></script>
+</body>
+</html>
