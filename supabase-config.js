@@ -4,7 +4,7 @@ const AFRN_SUPABASE_KEY="sb_publishable_02hhRG8bgDOqSFxva8IMvQ_zWTLMa3G";
 if(window.supabase && typeof window.supabase.createClient==="function" && !window.supabaseClient){window.supabaseClient=window.supabase.createClient(AFRN_SUPABASE_URL,AFRN_SUPABASE_KEY);}
 (function(){
   const s=document.createElement("script");
-  s.src="supabase-config-original.js";
+  s.src="supabase-config-original.js?v=20261004-authfix";
   s.onload=function(){
     setTimeout(async function(){
       const client=window.supabaseClient;if(!client)return;
