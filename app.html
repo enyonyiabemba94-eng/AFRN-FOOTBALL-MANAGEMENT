@@ -15,7 +15,7 @@
     }
     if(!user){
       alert('❌ Session ya login haijaonekana. Tafadhali ingia tena.');
-      location.replace('./login.html');
+      location.replace('./login.html?reason=session');
       return;
     }
     let p=null,lastError=null;
@@ -37,6 +37,6 @@
     console.error('AFRN app start failed',e);
     alert('❌ Hitilafu ya kufungua mfumo: '+(e?.message||e));
   }
-}if('serviceWorker'in navigator)window.addEventListener('load',()=>navigator.serviceWorker.register('./service-worker.js').catch(()=>{}));start();</script>
+}start();</script>
 <script src="./afrn-player-photo-global.js"></script>
 </body></html>
