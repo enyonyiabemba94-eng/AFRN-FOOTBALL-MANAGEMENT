@@ -74,3 +74,4 @@ jobs:
           if-no-files-found: error
 
 # Build trigger/verification marker: AFRN release candidate 2026-09-07.
+# APK build trigger 2026-10-04T14:00
