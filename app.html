@@ -31,6 +31,7 @@
       alert('❌ Login imefanikiwa, lakini profile ya akaunti haisomeki. Usifute akaunti. Tatizo ni ruhusa ya profile/database.');
       return;
     }
+    if(String(p.role||'user').toLowerCase()==='user' && String(p.account_status||'PENDING').toUpperCase()!=='APPROVED'){ alert('⏳ Akaunti yako bado inasubiri approval ya AFRN.'); await db.auth.signOut({scope:'local'}); location.replace('./login.html?pending='+Date.now()); return; }
     currentProfile=p;
     go('index.html',{replace:true});
   }catch(e){
