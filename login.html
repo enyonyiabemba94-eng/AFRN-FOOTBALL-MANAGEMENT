@@ -75,10 +75,21 @@ input{width:100%;padding:13px;border:1px solid #d0d5dd;border-radius:10px;font-s
 </div>
 
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
-<script src="./supabase-config.js?v=20261004-authfix2"></script>
+
 <script>
-document.addEventListener('DOMContentLoaded',function(){
-  const client=window.supabaseClient;
+/* LOGIN ISOLATION: do not load the app-wide supabase-config.js on this page. */
+document.addEventListener('DOMContentLoaded',async function(){
+  try{
+    if('serviceWorker' in navigator){
+      const regs=await navigator.serviceWorker.getRegistrations();
+      await Promise.all(regs.map(r=>r.unregister()));
+    }
+    if(window.caches){
+      const keys=await caches.keys();
+      await Promise.all(keys.filter(k=>k.startsWith('afrn-football-')).map(k=>caches.delete(k)));
+    }
+  }catch(_e){}
+  const client=window.supabaseClient || window.supabase.createClient("https://jjqhvruppafpumcthmwe.supabase.co","sb_publishable_02hhRG8bgDOqSFxva8IMvQ_zWTLMa3G");
   const form=document.getElementById('loginForm');
   const msg=document.getElementById('msg');
   const emailEl=document.getElementById('email');
