@@ -793,6 +793,17 @@ Friendly
 
 
 <div>
+<label>Daraja la Mashindano *</label>
+<select id="competitionDivision" class="field" required>
+<option value="">Chagua Daraja</option>
+<option value="1">DARAJA LA I</option>
+<option value="2">DARAJA LA II</option>
+<option value="3">DARAJA LA III</option>
+<option value="4">DARAJA LA IV</option>
+</select>
+</div>
+
+<div>
 <label>Format *</label>
 <select id="competitionFormat" class="field" required>
 <option value="League">League</option><option value="Knockout">Knockout</option><option value="Group Stage">Group Stage</option><option value="Group Stage + Knockout">Group Stage + Knockout</option><option value="Two-leg Knockout">Two-leg Knockout</option><option value="Single-leg Knockout">Single-leg Knockout</option>
@@ -995,8 +1006,7 @@ Group *
 
 <select
 id="groupName"
-class="field"
-required>
+class="field">
 
 <option value="">
 Chagua Group
@@ -1840,6 +1850,9 @@ return;
    in this competition.
 */
 
+const selectedCompetition = competitions.find(c => String(c.id) === String(competitionId));
+const selectedDivision = String(selectedCompetition?.division || "").trim();
+
 const registeredClubIds =
 new Set(
   competitionTeams
@@ -1864,9 +1877,8 @@ new Set(
 const available =
 clubs.filter(
   club =>
-  !registeredClubIds.has(
-    String(club.id)
-  )
+  !registeredClubIds.has(String(club.id)) &&
+  (!selectedDivision || String(club.division || "").trim() === selectedDivision)
 );
 
 
@@ -1963,13 +1975,14 @@ $("competitionStatus")
 
 const logoUrl=$("logoUrl").value.trim()||null;
 const format=$("competitionFormat").value;
+const division=$("competitionDivision").value;
 const teamCount=$("teamCount").value?Number($("teamCount").value):null;
 
 
-if(!name || !competitionType || !format || !season || !startDate){
+if(!name || !competitionType || !format || !division || !season || !startDate){
 
 alert(
-"⚠️ Jina, aina, season na start date ni lazima."
+"⚠️ Jina, aina, daraja, format, season na start date ni lazima."
 );
 
 return;
@@ -2002,7 +2015,8 @@ endDate,
 status:
 status,
 format,
-team_count:teamCount
+team_count:teamCount,
+division:division
 
 };
 
@@ -2159,6 +2173,7 @@ $("competitionStatus")
 competition.status || "Upcoming";
 
 $("logoUrl").value=competition.logo_url||"";
+$("competitionDivision").value=String(competition.division||"");
 $("competitionFormat").value=competition.format||(competition.competition_type==="League"?"League":"Group Stage");
 $("teamCount").value=competition.team_count||"";
 
@@ -2304,11 +2319,31 @@ const groupName =
 $("groupName")
 .value;
 
+const selectedCompetition =
+competitions.find(c => String(c.id) === String(competitionId));
+
+const isLeague =
+String(selectedCompetition?.competition_type || "").toLowerCase() === "league";
+
+const selectedClub =
+clubs.find(c => String(c.id) === String(clubId));
+
+const competitionDivision =
+String(selectedCompetition?.division || "").trim();
+
+if(competitionDivision &&
+   String(selectedClub?.division || "").trim() !== competitionDivision){
+  alert("❌ Klabu hii si ya " + ({
+    "1":"DARAJA LA I","2":"DARAJA LA II","3":"DARAJA LA III","4":"DARAJA LA IV"
+  }[competitionDivision] || ("DARAJA " + competitionDivision)) + ".");
+  return;
+}
+
 
 if(
 !competitionId ||
 !clubId ||
-!groupName
+(!isLeague && !groupName)
 ){
 
 alert(
@@ -2375,7 +2410,7 @@ club_id:
 clubId,
 
 group_name:
-groupName
+isLeague ? null : groupName
 
 });
 
@@ -2938,6 +2973,13 @@ Season:
 ${esc(
 competition.season
 )}
+
+</div>
+
+<div class="meta">
+
+🏷️ Daraja:
+<b>${esc(({"1":"I","2":"II","3":"III","4":"—"}[String(competition.division||"")] || "—"))}</b>
 
 </div>
 
