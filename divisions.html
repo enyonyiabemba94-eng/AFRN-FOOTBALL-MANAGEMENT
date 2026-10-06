@@ -72,7 +72,7 @@ async function loadDivision(d){
   }
   $('selectedCount').textContent=rows.length+' '+(rows.length===1?'klabu':'klabu');
   if(!rows.length){$('clubsList').innerHTML='<div class="empty">Hakuna timu iliyosajiliwa katika '+names[d]+' bado.<br><br><a class="btn primary" href="add-club.html?division='+d+'">➕ Ongeza Timu ya Kwanza</a></div>';return;}
-  $('clubsList').innerHTML=rows.map(c=>'<div class="club"><div class="logo">'+(c.logo_url?'<img class="logo" src="'+esc(c.logo_url)+'" alt="Logo">':'⚽')+'</div><div class="clubinfo"><div class="clubname">'+esc(c.name)+'</div><div class="meta">'+esc(c.afrn_club_id||'—')+' · Zone '+esc(c.zone||'—')+' · '+esc(c.status||'—')+'</div></div><div class="actions"><a class="btn secondary" href="add-club.html?edit='+encodeURIComponent(c.id)+'">✏️ Hariri</a></div></div>').join('');
+  $('clubsList').innerHTML=rows.map(c=>'<div class="club"><div class="logo">'+(c.logo_url?'<img class="logo" src="'+esc(c.logo_url)+'" alt="Logo">':'⚽')+'</div><div class="clubinfo"><div class="clubname">'+esc(c.name)+'</div><div class="meta">'+esc(c.afrn_club_id||'—')+' · Zone '+esc(c.zone||'—')+' · '+esc(c.status||'—')+'</div></div><div class="actions"><a class="btn primary" href="players.html?club='+encodeURIComponent(c.id)+'&division='+encodeURIComponent(d)+'&add=1">➕ Mchezaji</a><a class="btn secondary" href="add-club.html?edit='+encodeURIComponent(c.id)+'">✏️ Hariri</a></div></div>').join('');
  }catch(e){$('selectedCount').textContent='';$('clubsList').innerHTML='<div class="status">❌ Imeshindikana kupakia timu: '+esc(e.message)+'</div>';}
 }
 function $(id){return document.getElementById(id)}
