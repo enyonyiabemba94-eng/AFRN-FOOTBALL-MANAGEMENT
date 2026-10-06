@@ -57,11 +57,11 @@ async function loadDivision(d){
  $('selectedTitle').textContent='🏆 '+names[d]; $('addTeam').href='add-club.html?division='+encodeURIComponent(d);
  $('clubsList').innerHTML='<div class="empty">⏳ Inapakia timu...</div>';
  try{
-  let r=await getDB().from('clubs').select('id,name,afrn_club_id,division,zone,status,logo_url').eq('division',String(d)).order('name');
+  let r=await getDB().from('clubs').select('id,name,afrn_club_id,division,zone,status,logo_url').order('name');
   if(r.error)throw r.error;
   // clubs haina league_id/competition_id. Uhusiano wa ligi huhifadhiwa
   // kwenye competition_teams (competition_id + club_id).
-  let rows=r.data||[];
+  let rows=(r.data||[]).filter(c=>({1:'1',2:'2',3:'3',4:'4',I:'1',II:'2',III:'3',IV:'4'}[String(c.division).trim().toUpperCase()]||String(c.division).trim())===String(d));
   const params=new URLSearchParams(location.search);
   const league=params.get('league')||params.get('league_id')||params.get('competition')||params.get('competition_id');
   if(league){
