@@ -1271,6 +1271,14 @@ id="generateGroupBtn">
 </button>
 
 <button
+class="primary"
+id="finalizeGroupBtn">
+
+✅ Kamilisha Makundi + Best Loser
+
+</button>
+
+<button
 class="gold"
 id="generate16Btn">
 
@@ -1311,6 +1319,34 @@ id="generateFinalBtn">
 </button>
 
 </div>
+
+</section>
+
+
+<!-- =================================================
+     GROUP STAGE QUALIFICATION / BEST LOSER
+================================================= -->
+
+<section class="card admin-only">
+
+<h2>⭐ Kufuzu Kutoka Makundi + Best Loser</h2>
+
+<div class="info">
+<b>Sheria za AFRN:</b><br>
+• Kundi la timu 3 → timu 2 bora zinafuzu; hakuna Best Loser.<br>
+• Kundi la timu 4 → timu 2 bora zinafuzu; nafasi ya 3 hushindania Best Loser.<br>
+• Kundi la timu 5 → timu 3 bora zinafuzu; hakuna Best Loser.<br><br>
+<b>Tiebreaker:</b> PTS → GF → GA → Red Cards → Yellow Cards → Sarafu.
+</div>
+
+<div class="toolbar">
+<select id="qualifierCompetitionId" class="field">
+<option value="">Chagua Competition</option>
+</select>
+<button class="primary" id="calculateQualifiersBtn">🔄 Hesabu Wanaofuzu</button>
+</div>
+
+<div id="bestLoserPanel" style="margin-top:12px"></div>
 
 </section>
 
@@ -3246,6 +3282,94 @@ totalInserted
 
 
 /* =====================================================
+   GROUP STAGE RULES — AFRN OFFICIAL FORMAT
+===================================================== */
+function groupStagePlayed(s){
+  return window.AFRNStandings?.playedStatus
+    ? window.AFRNStandings.playedStatus(s)
+    : ["completed","finished","played","full_time","ft"].includes(String(s||"").toLowerCase());
+}
+
+async function loadQualifierCompetitionSelect(){
+  const s=$("qualifierCompetitionId"); if(!s) return;
+  s.innerHTML='<option value="">Chagua Competition</option>'+
+    competitions.map(c=>'<option value="'+esc(c.id)+'">'+esc(c.name)+'</option>').join('');
+}
+
+function qualifierEventsRows(events,matches,teams){
+  const ids=new Set(teams.map(t=>String(t.club_id)));
+  const map=new Map([...ids].map(id=>[id,{RC:0,YC:0}]));
+  for(const e of events||[]){
+    const r=map.get(String(e.club_id)); if(!r) continue;
+    const t=String(e.event_type||'').toLowerCase().replace(/\s+/g,'_');
+    if(["yellow_card","yellow","yc","second_yellow","secondyellow"].includes(t)) r.YC++;
+    if(["red_card","red","rc","second_yellow","secondyellow"].includes(t)) r.RC++;
+  }
+  return map;
+}
+
+async function calculateGroupQualification(competitionId){
+  const teams=competitionTeams.filter(t=>String(t.competition_id)===String(competitionId));
+  if(!teams.length) throw new Error("Competition haina timu.");
+  const mr=await db.from("matches").select("id,competition_id,home_team_id,away_team_id,home_score,away_score,status").eq("competition_id",competitionId);
+  if(mr.error) throw mr.error;
+  const matches=mr.data||[];
+  const ids=matches.map(m=>m.id);
+  const er=ids.length?await db.from("match_events").select("match_id,club_id,event_type").in("match_id",ids):{data:[],error:null};
+  if(er.error) throw er.error;
+  const groups=[...new Set(teams.map(t=>String(t.group_name||'')).filter(Boolean))].sort();
+  const qualifiers=[];
+  const bestCandidates=[];
+  for(const g of groups){
+    const gt=teams.filter(t=>String(t.group_name)===g);
+    const gm=matches.filter(m=>gt.some(t=>String(t.club_id)===String(m.home_team_id)) && gt.some(t=>String(t.club_id)===String(m.away_team_id)));
+    const expected=gt.length*(gt.length-1)/2;
+    if(gt.length<3 || gt.length>5) throw new Error("Group "+g+" ina "+gt.length+" timu. Mfumo unaruhusu 3, 4 au 5.");
+    if(gm.length<expected || gm.some(m=>!groupStagePlayed(m.status))) throw new Error("Group "+g+" haijamaliza mechi zote za makundi.");
+    const rows=window.AFRNStandings.buildStandings({teams:gt,matches:gm,events:er.data||[],clubName:getClubName,groupFilter:g});
+    const take=gt.length===5?3:2;
+    rows.slice(0,take).forEach((r,i)=>qualifiers.push({competition_id:competitionId,slot:(i+1)+g,team_id:r.club_id,source_group:g,source_rank:i+1}));
+    if(gt.length===4 && rows[2]) bestCandidates.push(rows[2]);
+  }
+  bestCandidates.sort((a,b)=>(b.PTS-a.PTS)||(b.GF-a.GF)||(a.GA-b.GA)||(a.RC-b.RC)||(a.YC-b.YC)||(a.coin_toss_rank-b.coin_toss_rank));
+  return {qualifiers,bestLoser:bestCandidates[0]||null,candidates:bestCandidates};
+}
+
+async function saveGroupQualification(){
+  const competitionId=$("qualifierCompetitionId").value;
+  if(!competitionId){alert("⚠️ Chagua Competition kwanza.");return;}
+  try{
+    const result=await calculateGroupQualification(competitionId);
+    await db.from("competition_qualifiers").delete().eq("competition_id",competitionId);
+    if(result.qualifiers.length){
+      const ins=await db.from("competition_qualifiers").insert(result.qualifiers);
+      if(ins.error) throw ins.error;
+    }
+    const p=$("bestLoserPanel");
+    if(result.bestLoser){
+      p.innerHTML='<div class="warning"><b>⭐ BEST LOSER:</b> '+esc(result.bestLoser.name)+'<br>Imetoka nafasi ya 3 kwenye Group yenye timu 4.<br><br><b>Kwa 16 Bora:</b> kwa kuwa Best Loser ni nyongeza, Admin lazima amchague <u>Group</u> na <u>slot (1 au 2)</u> ya knockout atakayopewa. Hii inaweka bracket kuwa na timu 16 bila mfumo kubadilisha pairing.</div>'+
+      '<div class="toolbar"><select id="bestLoserGroup" class="field">'+["A","B","C","D","E","F","G","H"].map(g=>'<option value="'+g+'">Group '+g+'</option>').join('')+'</select><select id="bestLoserSlot" class="field"><option value="1">Slot 1 (1X)</option><option value="2">Slot 2 (2X)</option></select><button class="gold" id="assignBestLoserBtn">⭐ Mweka Best Loser</button></div>';
+      $("assignBestLoserBtn").onclick=async()=>{
+        const g=$("bestLoserGroup").value, slot=$("bestLoserSlot").value;
+        const all=(await db.from("competition_qualifiers").select("*").eq("competition_id",competitionId)).data||[];
+        const target=(slot+g);
+        await db.from("competition_qualifiers").delete().eq("competition_id",competitionId).eq("slot",target);
+        const ins=await db.from("competition_qualifiers").insert({competition_id:competitionId,slot:target,team_id:result.bestLoser.club_id,source_group:result.bestLoser.group,source_rank:3});
+        if(ins.error){alert("❌ "+ins.error.message);return;}
+        alert("✅ Best Loser amewekwa kwenye "+target+".");
+        setStatus("✅ Best Loser amewekwa kwenye "+target,"ok");
+      };
+    }else{
+      p.innerHTML='<div class="info">Hakuna Best Loser: hakuna kundi lenye timu 4.</div>';
+    }
+    alert("✅ Makundi yamehesabiwa. Wanaofuzu: "+result.qualifiers.length+(result.bestLoser?". Best Loser: "+result.bestLoser.name:"."));
+    setStatus("✅ Qualification ya makundi imekamilika.","ok");
+  }catch(e){console.error(e);alert("❌ "+e.message);setStatus("❌ "+e.message,"err");}
+}
+$("calculateQualifiersBtn").onclick=saveGroupQualification;
+$("finalizeGroupBtn").onclick=saveGroupQualification;
+
+/* =====================================================
    KNOCKOUT ENGINE — COMPETITION ISOLATED
 ===================================================== */
 async function koData(competitionId){
@@ -3274,8 +3398,26 @@ async function generateStage(stage){
     const x=await koData(competitionId);
     let teams=[];
     if(stage==="R16"){
-      teams=x.q.filter(q=>/^Q\d+$/.test(q.slot)).sort((a,b)=>+a.slot.slice(1)-+b.slot.slice(1)).map(q=>String(q.team_id));
-      if(teams.length!==16){alert("⚠️ R16 inahitaji qualifiers 16. Kwa sasa zipo "+teams.length+".");return;}
+      const bySlot=new Map(x.q.map(q=>[String(q.slot),String(q.team_id)]));
+      const required=["1A","2B","1C","2D","1B","2A","1D","2C","1E","2F","1G","2H","1F","2E","1H","2G"];
+      if(required.some(s=>!bySlot.has(s))){
+        alert("⚠️ 16 Bora haijakamilika. Mfumo unahitaji slots zote: "+required.join(", ")+". Kwanza kamilisha makundi na Best Loser.");
+        return;
+      }
+      const pairs=[
+        [bySlot.get("1A"),bySlot.get("2B")],
+        [bySlot.get("1C"),bySlot.get("2D")],
+        [bySlot.get("1B"),bySlot.get("2A")],
+        [bySlot.get("1D"),bySlot.get("2C")],
+        [bySlot.get("1E"),bySlot.get("2F")],
+        [bySlot.get("1G"),bySlot.get("2H")],
+        [bySlot.get("1F"),bySlot.get("2E")],
+        [bySlot.get("1H"),bySlot.get("2G")]
+      ];
+      const made=await makeKOMatches(stage,competitionId,pairs);
+      alert("✅ 16 Bora imeunganishwa kwa pairing rasmi ya AFRN. Mechi mpya: "+made);
+      setStatus("✅ 16 Bora imeunganishwa kwa mpangilio rasmi.","ok");
+      return;
     }else{
       const prev=stage==="QF"?"R16":stage==="SF"?"QF":"SF";
       const ms=x.m.filter(m=>String(m.notes||"").includes("AFRN_STAGE="+prev+"|")).sort((a,b)=>Number(String(a.notes).match(/AFRN_SLOT=(\d+)/)?.[1]||999)-Number(String(b.notes).match(/AFRN_SLOT=(\d+)/)?.[1]||999));
@@ -3355,6 +3497,7 @@ try{
 
 try{
   renderCompetitionSelects();
+  loadQualifierCompetitionSelect();
   renderAvailableClubs();
   renderCompetitionClubs();
   renderGroups();
