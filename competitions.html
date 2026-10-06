@@ -3396,52 +3396,46 @@ async function generateStage(stage){
   if(!competitionId){alert("⚠️ Chagua Competition kwanza.");return;}
   try{
     const x=await koData(competitionId);
-    let teams=[];
-    if(stage==="R16"){
-      const bySlot=new Map(x.q.map(q=>[String(q.slot),String(q.team_id)]));
-      const required=["1A","2B","1C","2D","1B","2A","1D","2C","1E","2F","1G","2H","1F","2E","1H","2G"];
-      if(required.some(s=>!bySlot.has(s))){
-        alert("⚠️ 16 Bora haijakamilika. Mfumo unahitaji slots zote: "+required.join(", ")+". Kwanza kamilisha makundi na Best Loser.");
-        return;
+    const stagePrev={QF:"R16",SF:"QF",FINAL:"SF",CLASSIFICATION:"SF"};
+    const prev=stagePrev[stage];
+    const ms=x.m.filter(m=>String(m.notes||"").includes("AFRN_STAGE="+prev+"|"))
+      .sort((a,b)=>Number(String(a.notes).match(/AFRN_SLOT=(\d+)/)?.[1]||999)-Number(String(b.notes).match(/AFRN_SLOT=(\d+)/)?.[1]||999));
+    const expected=prev==="R16"?8:prev==="QF"?4:2;
+    if(ms.length!==expected){alert("⚠️ "+prev+" haijakamilika au haina idadi sahihi ya mechi.");return;}
+
+    const winners=[], losers=[];
+    for(const m of ms){
+      if(m.home_score==null||m.away_score==null||String(m.status).toLowerCase()==="scheduled"){
+        alert("⚠️ Kwanza maliza mechi zote za "+prev+".");return;
       }
-      const pairs=[
-        [bySlot.get("1A"),bySlot.get("2B")],
-        [bySlot.get("1C"),bySlot.get("2D")],
-        [bySlot.get("1B"),bySlot.get("2A")],
-        [bySlot.get("1D"),bySlot.get("2C")],
-        [bySlot.get("1E"),bySlot.get("2F")],
-        [bySlot.get("1G"),bySlot.get("2H")],
-        [bySlot.get("1F"),bySlot.get("2E")],
-        [bySlot.get("1H"),bySlot.get("2G")]
-      ];
-      const made=await makeKOMatches(stage,competitionId,pairs);
-      alert("✅ 16 Bora imeunganishwa kwa pairing rasmi ya AFRN. Mechi mpya: "+made);
-      setStatus("✅ 16 Bora imeunganishwa kwa mpangilio rasmi.","ok");
-      return;
-    }else{
-      const prev=stage==="QF"?"R16":stage==="SF"?"QF":"SF";
-      const ms=x.m.filter(m=>String(m.notes||"").includes("AFRN_STAGE="+prev+"|")).sort((a,b)=>Number(String(a.notes).match(/AFRN_SLOT=(\d+)/)?.[1]||999)-Number(String(b.notes).match(/AFRN_SLOT=(\d+)/)?.[1]||999));
-      if(ms.length!== (prev==="R16"?8:prev==="QF"?4:2)){alert("⚠️ "+prev+" haijakamilika au haina idadi sahihi ya mechi.");return;}
-      const winners=[];
-      for(const m of ms){
-        if(m.home_score==null||m.away_score==null||String(m.status).toLowerCase()==="scheduled"){alert("⚠️ Kwanza maliza mechi zote za "+prev+".");return;}
-        const hs=Number(m.home_score),as=Number(m.away_score);
-        if(hs===as){alert("⚠️ "+prev+" ina sare. Mshindi wa knockout anahitaji kuthibitishwa kupitia extra-time/penalty.");return;}
-        winners.push(hs>as?m.home_team_id:m.away_team_id);
-      }
-      teams=winners;
+      const hs=Number(m.home_score),as=Number(m.away_score);
+      if(hs===as){alert("⚠️ "+prev+" ina sare. Mshindi wa knockout anahitaji kuthibitishwa kupitia extra-time/penalty.");return;}
+      winners.push(hs>as?m.home_team_id:m.away_team_id);
+      losers.push(hs>as?m.away_team_id:m.home_team_id);
     }
-    const pairs=[]; for(let i=0;i<teams.length;i+=2)pairs.push([teams[i],teams[i+1]]);
+
+    let pairs=[];
+    if(stage==="QF"){
+      pairs=[[winners[0],winners[1]],[winners[2],winners[3]],[winners[4],winners[5]],[winners[6],winners[7]]];
+    }else if(stage==="SF"){
+      pairs=[[winners[0],winners[2]],[winners[1],winners[3]]];
+    }else if(stage==="FINAL"){
+      pairs=[[winners[0],winners[1]]];
+    }else if(stage==="CLASSIFICATION"){
+      pairs=[[losers[0],losers[1]]];
+    }
+
     const made=await makeKOMatches(stage,competitionId,pairs);
-    alert("✅ "+stage+" imeunganishwa. Mechi mpya: "+made);
-    setStatus("✅ "+stage+" imeunganishwa kwenye competition hii.","ok");
+    const label=stage==="CLASSIFICATION"?"MSHINDI WA 3":stage;
+    alert("✅ "+label+" imeunganishwa. Mechi mpya: "+made);
+    setStatus("✅ "+label+" imeunganishwa kwa bracket rasmi ya AFRN.","ok");
   }catch(e){alert("❌ "+e.message);setStatus("❌ Knockout: "+e.message,"err");}
 }
 $("generate16Btn").onclick=()=>generateStage("R16");
 $("generateQfBtn").onclick=()=>generateStage("QF");
 $("generateSfBtn").onclick=()=>generateStage("SF");
+$("generateClassificationBtn").onclick=()=>generateStage("CLASSIFICATION");
 $("generateFinalBtn").onclick=()=>generateStage("FINAL");
-$("generateClassificationBtn").onclick=()=>alert("ℹ️ Classification itaongezwa baada ya mfumo wa nafasi ya 3 kuthibitishwa.");
 
 /* =====================================================
    VIEWER MODE — STANDINGS + MATCH HISTORY ONLY
