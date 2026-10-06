@@ -86,7 +86,7 @@ async function load(){
       <img class="logo" src="${esc(C.logo_url || "./afrn-logo.png")}" onerror="this.style.display='none'">
       <div>
         <h2 style="margin:0">🏆 ${esc(C.name)}</h2>
-        <div class="muted">${esc(C.season || "—")} · ${esc(C.format || C.competition_type || "—")} ·
+        <div class="muted">${esc(C.season || "—")} · ${esc(C.format || C.competition_type || "—")} · Daraja ${esc(C.division || "—")} ·
           <span class="badge">${esc(C.status || "—")}</span>
         </div>
         <div class="muted">${esc(C.start_date || "—")} → ${esc(C.end_date || "—")}</div>
