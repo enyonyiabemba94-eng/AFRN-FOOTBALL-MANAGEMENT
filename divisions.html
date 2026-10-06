@@ -57,14 +57,19 @@ async function loadDivision(d){
  $('selectedTitle').textContent='🏆 '+names[d]; $('addTeam').href='add-club.html?division='+encodeURIComponent(d);
  $('clubsList').innerHTML='<div class="empty">⏳ Inapakia timu...</div>';
  try{
-  let r=await getDB().from('clubs').select('id,name,afrn_club_id,division,zone,status,logo_url,league_id,competition_id').eq('division',String(d)).order('name');
+  let r=await getDB().from('clubs').select('id,name,afrn_club_id,division,zone,status,logo_url').eq('division',String(d)).order('name');
   if(r.error)throw r.error;
-  // Ikiwa clubs ina league/competition field, tumia ligi hiyo; vinginevyo tumia division pekee.
-  // Mfumo hauonyeshi timu za ligi nyingine ndani ya daraja lililochaguliwa.
+  // clubs haina league_id/competition_id. Uhusiano wa ligi huhifadhiwa
+  // kwenye competition_teams (competition_id + club_id).
   let rows=r.data||[];
   const params=new URLSearchParams(location.search);
   const league=params.get('league')||params.get('league_id')||params.get('competition')||params.get('competition_id');
-  if(league) rows=rows.filter(c=>String(c.league_id||c.competition_id||'')===String(league));
+  if(league){
+    const tr=await getDB().from('competition_teams').select('club_id').eq('competition_id',String(league));
+    if(tr.error) throw tr.error;
+    const ids=new Set((tr.data||[]).map(x=>String(x.club_id)));
+    rows=rows.filter(c=>ids.has(String(c.id)));
+  }
   $('selectedCount').textContent=rows.length+' '+(rows.length===1?'klabu':'klabu');
   if(!rows.length){$('clubsList').innerHTML='<div class="empty">Hakuna timu iliyosajiliwa katika '+names[d]+' bado.<br><br><a class="btn primary" href="add-club.html?division='+d+'">➕ Ongeza Timu ya Kwanza</a></div>';return;}
   $('clubsList').innerHTML=rows.map(c=>'<div class="club"><div class="logo">'+(c.logo_url?'<img class="logo" src="'+esc(c.logo_url)+'" alt="Logo">':'⚽')+'</div><div class="clubinfo"><div class="clubname">'+esc(c.name)+'</div><div class="meta">'+esc(c.afrn_club_id||'—')+' · Zone '+esc(c.zone||'—')+' · '+esc(c.status||'—')+'</div></div><div class="actions"><a class="btn secondary" href="add-club.html?edit='+encodeURIComponent(c.id)+'">✏️ Hariri</a></div></div>').join('');
