@@ -3605,5 +3605,34 @@ loadData();
 <script src="./afrn-player-photo-global.js"></script>
 
 <script id="afrn-two-level-registration-loader" src="./afrn-two-level-registration.js?v=20260910"></script>
+
+<script id="afrn-club-add-player-route">
+(() => {
+  const params = new URLSearchParams(location.search);
+  const clubId = params.get('club');
+  const add = params.get('add') === '1';
+  if (!clubId || !add) return;
+
+  function openForClub() {
+    const select = document.getElementById('clubId');
+    const addBtn = document.getElementById('addBtn');
+    if (!select || !addBtn) return false;
+
+    const option = Array.from(select.options).find(o => String(o.value) === String(clubId));
+    if (!option) return false;
+
+    select.value = clubId;
+    addBtn.click();
+    return true;
+  }
+
+  let tries = 0;
+  const timer = setInterval(() => {
+    tries++;
+    if (openForClub() || tries > 40) clearInterval(timer);
+  }, 250);
+})();
+</script>
+
 </body>
 </html>
