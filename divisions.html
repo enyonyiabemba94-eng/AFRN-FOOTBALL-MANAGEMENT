@@ -15,7 +15,7 @@ h1,h2,h3{margin-top:0}.intro{color:#667085;font-size:14px}
 .divisions{display:grid;grid-template-columns:repeat(2,1fr);gap:12px}.division{border:1px solid #dfe6ef;background:#fff;border-radius:16px;padding:18px;cursor:pointer;transition:.15s}.division:hover{transform:translateY(-1px);box-shadow:0 5px 15px #0001}.division strong{display:block;font-size:18px}.division span{font-size:12px;color:#667085}.division .arrow{float:right;font-size:22px}
 #selected{display:none}.topline{display:flex;align-items:center;justify-content:space-between;gap:10px;flex-wrap:wrap}
 .btn{border:0;border-radius:10px;padding:11px 15px;font-weight:bold;cursor:pointer;text-decoration:none;display:inline-block}.primary{background:#0d6efd;color:#fff}.secondary{background:#eef2f6;color:#172033}
-.club{display:flex;align-items:center;gap:12px;border:1px solid #e4e9f0;border-radius:13px;padding:11px;margin-top:9px}.logo{width:48px;height:48px;border-radius:50%;object-fit:cover;background:#eef2f6;display:flex;align-items:center;justify-content:center;font-size:22px;flex:none}.clubinfo{flex:1;min-width:0;padding-right:8px}.clubname{font-weight:bold;line-height:1.35;overflow-wrap:anywhere}.team-link{color:#0d47a1;text-decoration:none}.team-link:hover{text-decoration:underline}.meta{font-size:11px;color:#667085;margin-top:5px;line-height:1.4}.actions{display:flex;gap:7px;flex:0 0 auto;flex-wrap:wrap}
+.club{display:flex;align-items:center;gap:12px;border:1px solid #e4e9f0;border-radius:13px;padding:11px;margin-top:9px}.logo{width:48px;height:48px;border-radius:50%;object-fit:cover;background:#eef2f6;display:flex;align-items:center;justify-content:center;font-size:22px;flex:none}.clubinfo{flex:1;min-width:0;padding-right:8px}.clubname{font-weight:bold;line-height:1.35;overflow-wrap:anywhere}.team-link{color:#0d47a1;text-decoration:none}.team-link:hover{text-decoration:underline}.team-card-link{color:inherit;text-decoration:none}.team-card-link:hover{background:#f8fbff;border-color:#b9d3f7}.team-open{font-size:28px;color:#0d47a1;flex:none}.meta{font-size:11px;color:#667085;margin-top:5px;line-height:1.4}.actions{display:flex;gap:7px;flex:0 0 auto;flex-wrap:wrap}
 .empty{text-align:center;padding:28px 10px;color:#667085;background:#f8fafc;border-radius:12px}.status{padding:12px;border-radius:10px;background:#fdecec;color:#b42318}
 @media(max-width:650px){.divisions{grid-template-columns:1fr}.division{padding:16px}.club{align-items:flex-start;gap:10px}.clubinfo{padding-right:4px}.clubname{font-size:15px}.actions{flex:0 0 auto}.actions .btn{white-space:nowrap;padding:9px 10px}}
 </style>
@@ -29,7 +29,7 @@ h1,h2,h3{margin-top:0}.intro{color:#667085;font-size:14px}
 <main>
 <section class="card">
 <h2>🏆 VILABU NA MADARAJA</h2>
-<p class="intro">Chagua daraja kwanza, kisha timu zitaonekana kulingana na ligi inayohusishwa na daraja hilo.</p>
+<p class="intro">Chagua daraja kwanza. Bonyeza jina la timu kufungua faili lake, kuongeza wachezaji na kuona wachezaji waliosajiliwa kwenye timu hiyo pekee.</p>
 <div id="divisionGrid" class="divisions">
 <button class="division" data-division="1"><span class="arrow">›</span><strong>DARAJA LA I</strong><span>Fungua vilabu vya Daraja la I</span></button>
 <button class="division" data-division="2"><span class="arrow">›</span><strong>DARAJA LA II</strong><span>Fungua vilabu vya Daraja la II</span></button>
@@ -72,7 +72,7 @@ async function loadDivision(d){
   }
   $('selectedCount').textContent=rows.length+' '+(rows.length===1?'klabu':'klabu');
   if(!rows.length){$('clubsList').innerHTML='<div class="empty">Hakuna timu iliyosajiliwa katika '+names[d]+' bado.<br><br><a class="btn primary" href="add-club.html?division='+d+'">➕ Ongeza Timu ya Kwanza</a></div>';return;}
-  $('clubsList').innerHTML=rows.map(c=>'<div class="club"><div class="logo">'+(c.logo_url?'<img class="logo" src="'+esc(c.logo_url)+'" alt="Logo">':'⚽')+'</div><div class="clubinfo"><div class="clubname"><a class="team-link" href="team.html?id='+encodeURIComponent(c.id)+'">'+esc(c.name)+'</a></div><div class="meta">'+esc(c.afrn_club_id||'—')+' · Zone '+esc(c.zone||'—')+' · '+esc(c.status||'—')+'</div></div><div class="actions"><a class="btn primary" href="players.html?club='+encodeURIComponent(c.id)+'&division='+encodeURIComponent(d)+'&add=1">➕ Mchezaji</a><a class="btn secondary" href="add-club.html?edit='+encodeURIComponent(c.id)+'">✏️ Hariri</a></div></div>').join('');
+  $('clubsList').innerHTML=rows.map(c=>'<a class="club team-card-link" href="team.html?id='+encodeURIComponent(c.id)+'"><div class="logo">'+(c.logo_url?'<img class="logo" src="'+esc(c.logo_url)+'" alt="Logo">':'⚽')+'</div><div class="clubinfo"><div class="clubname">'+esc(c.name)+'</div><div class="meta">'+esc(c.afrn_club_id||'—')+' · Zone '+esc(c.zone||'—')+' · '+esc(c.status||'—')+'</div></div><div class="team-open">›</div></a>').join('');
  }catch(e){$('selectedCount').textContent='';$('clubsList').innerHTML='<div class="status">❌ Imeshindikana kupakia timu: '+esc(e.message)+'</div>';}
 }
 function $(id){return document.getElementById(id)}
