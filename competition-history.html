@@ -93,7 +93,8 @@ async function load(){
       </div>
     </div>`;
 
-  const tabs = ["MECHI","MAKUNDI","MSIMAMO","KNOCKOUT","TIMU","WAFUNGAJI","KADI","TAKWIMU","TUZO"];
+  const isLeague = String(C.competition_type || C.format || "").toLowerCase().includes("league");
+  const tabs = isLeague ? ["MECHI","MSIMAMO","TIMU","WAFUNGAJI","KADI","TAKWIMU"] : ["MECHI","MAKUNDI","MSIMAMO","KNOCKOUT","TIMU","WAFUNGAJI","KADI","TAKWIMU","TUZO"];
   $("tabs").innerHTML = '<div class="tabs">' +
     tabs.map(t => `<button class="tab ${t===tab?"active":""}" onclick="showTab('${t}')">${t}</button>`).join("") +
     '</div>';
@@ -158,7 +159,7 @@ function matchesView(){
         <td>${esc(m.match_date || "—")}</td>
         <td>${esc(name(m.home_team_id))} vs ${esc(name(m.away_team_id))}</td>
         <td><b>${played(m.status) ? esc(m.home_score ?? 0)+" - "+esc(m.away_score ?? 0) : "—"}</b></td>
-        <td>${esc(m.status || "Scheduled")}</td>
+        <td>${esc(m.status || "Scheduled")}<br><button class="secondary small-btn" onclick="editHistoryMatch('${esc(m.id)}')">✏️ Edit</button></td>
       </tr>`).join("")}
     </tbody></table></div>`;
 }
@@ -189,9 +190,9 @@ function standings(){
   $("content").innerHTML = `
     <h3>📊 Msimamo</h3>
     <div class="table-wrap"><table><thead><tr>
-      <th>#</th><th>KLABU</th><th>P</th><th>W</th><th>D</th><th>L</th><th>GF</th><th>GA</th><th>PTS</th>
+      <th>#</th><th>KLABU</th><th>PTS</th><th>MP</th><th>W</th><th>D</th><th>L</th><th>GD</th>
     </tr></thead><tbody>
-    ${rows.map((r,i) => `<tr><td>${i+1}</td><td>${esc(r.name)}</td><td>${r.P}</td><td>${r.W}</td><td>${r.D}</td><td>${r.L}</td><td>${r.GF}</td><td>${r.GA}</td><td><b>${r.PTS}</b></td></tr>`).join("")}
+    ${rows.map((r,i) => `<tr><td>${i+1}</td><td>${esc(r.name)}</td><td><b>${r.PTS}</b></td><td>${r.P}</td><td>${r.W}</td><td>${r.D}</td><td>${r.L}</td><td>${r.GF}-${r.GA}</td></tr>`).join("")}
     </tbody></table></div>`;
 }
 
