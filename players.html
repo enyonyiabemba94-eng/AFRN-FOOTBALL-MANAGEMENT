@@ -234,6 +234,56 @@ button:disabled{
 }
 
 /* =========================
+   TEAM BLOCK
+========================= */
+
+.team-block{
+  background:#fff;
+  border:1px solid #e1e7ef;
+  border-radius:14px;
+  padding:12px;
+  margin:12px 0;
+  box-shadow:0 2px 8px #14213d08;
+}
+
+.team-header{
+  display:flex;
+  align-items:center;
+  justify-content:space-between;
+  gap:10px;
+  padding:4px 2px 12px;
+  border-bottom:1px solid #edf0f4;
+  margin-bottom:12px;
+}
+
+.team-name{
+  font-size:16px;
+  font-weight:800;
+}
+
+.team-meta{
+  margin-top:4px;
+  color:var(--muted);
+  font-size:11px;
+}
+
+.team-add{
+  text-decoration:none;
+  white-space:nowrap;
+  background:var(--blue);
+  color:#fff;
+  padding:9px 11px;
+  border-radius:9px;
+  font-size:12px;
+  font-weight:700;
+}
+
+@media(max-width:600px){
+  .team-header{align-items:flex-start;}
+  .team-add{padding:8px 9px;}
+}
+
+/* =========================
    GRID
 ========================= */
 
@@ -625,6 +675,8 @@ id="search"
 type="search"
 placeholder="🔎 Tafuta jina au Player ID"
 >
+
+<select id="filterDivision"><option value="">🏆 Madaraja yote</option><option value="1">Daraja la I</option><option value="2">Daraja la II</option><option value="3">Daraja la III</option><option value="4">Daraja la IV</option></select>
 
 <select id="filterClub">
 
