@@ -1,0 +1,58 @@
+<!DOCTYPE html>
+<html lang="sw">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>AFRN - Faili la Timu</title>
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<script src="supabase-config.js"></script>
+<style>
+*{box-sizing:border-box}body{margin:0;background:#f4f7fb;color:#172033;font-family:Arial,sans-serif}
+header{background:#071a33;color:#fff;padding:18px 16px}header h1{margin:0;font-size:20px}header p{margin:5px 0 0;font-size:12px;opacity:.9}
+nav{background:#fff;padding:10px;display:flex;gap:8px;overflow:auto;border-bottom:1px solid #ddd}nav a{text-decoration:none;color:#172033;padding:9px 11px;border-radius:9px;white-space:nowrap;font-size:13px;font-weight:bold}
+main{max-width:1000px;margin:auto;padding:16px}.card{background:#fff;border-radius:18px;padding:18px;margin-bottom:15px;box-shadow:0 4px 16px #14213d10}
+.team-head{display:flex;gap:15px;align-items:center}.logo{width:82px;height:82px;border-radius:18px;object-fit:cover;background:#eef2f6;display:flex;align-items:center;justify-content:center;font-size:34px;flex:none}
+h2{margin:0 0 6px;font-size:22px}.meta{color:#667085;font-size:12px;line-height:1.6}
+.actions{display:flex;gap:8px;flex-wrap:wrap;margin-top:15px}.btn{display:inline-block;text-decoration:none;border:0;border-radius:10px;padding:11px 14px;font-weight:700;cursor:pointer}.primary{background:#0d47a1;color:#fff}.secondary{background:#e9eef6;color:#172033}
+.grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(260px,1fr));gap:12px}.player{border:1px solid #e1e7ef;border-radius:14px;padding:12px;background:#fff}.pname{font-weight:800;font-size:16px}.pid,.small{font-size:11px;color:#667085;margin-top:4px}.chips{display:flex;gap:6px;flex-wrap:wrap;margin-top:9px}.chip{background:#eef4ff;color:#174ea6;padding:5px 8px;border-radius:999px;font-size:11px;font-weight:700}
+.status{padding:13px;border-radius:10px;background:#fff}.err{color:#b42318;background:#fdecec}.empty{text-align:center;padding:25px;color:#667085;background:#f8fafc;border-radius:12px}
+@media(max-width:600px){main{padding:12px}.team-head{align-items:flex-start}.logo{width:68px;height:68px;border-radius:14px}h2{font-size:18px}.grid{grid-template-columns:1fr}}
+</style>
+</head>
+<body>
+<header><h1>⚽ AFRN FOOTBALL MANAGEMENT</h1><p>SHIRIKISHO LA MPIRA WA MIGUU KAMBINI NYARUGUSU</p></header>
+<nav><a href="index.html">🏠 Dashboard</a><a href="divisions.html">🏆 Madaraja</a><a href="players.html">👤 Wachezaji</a><a href="competitions.html">🏆 Mashindano</a></nav>
+<main>
+<div id="status" class="status">⏳ Inapakia faili la timu...</div>
+<section id="teamCard" class="card" style="display:none"></section>
+<section id="playersCard" class="card" style="display:none">
+<h2>👥 Wachezaji wa Timu</h2><div id="playerCount" class="small"></div><div id="playersList" style="margin-top:12px"></div>
+</section>
+</main>
+<script>
+const db=window.supabaseClient;
+const id=new URLSearchParams(location.search).get("id");
+const esc=v=>String(v??"").replace(/[&<>"']/g,x=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#039;"}[x]));
+const full=p=>[p.first_name,p.middle_name,p.last_name].filter(Boolean).join(" ")||"Bila jina";
+function $(x){return document.getElementById(x)}
+async function load(){
+ if(!db){$("status").className="status err";$("status").textContent="❌ Supabase haijaunganishwa.";return}
+ if(!id){$("status").className="status err";$("status").textContent="❌ Faili la timu halijatajwa.";return}
+ try{
+  const [{data:club,error:ce},{data:players,error:pe}]=await Promise.all([
+   db.from("clubs").select("id,name,afrn_club_id,division,zone,phone,email,founded_year,status,logo_url").eq("id",id).maybeSingle(),
+   db.from("players").select("id,player_id_number,first_name,middle_name,last_name,position,jersey_number,nationality,status,photo_url").eq("club_id",id).order("last_name")
+  ]);
+  if(ce)throw ce;if(pe)throw pe;if(!club){throw new Error("Timu haikupatikana.")}
+  $("status").style.display="none";
+  const logo=club.logo_url?'<img class="logo" src="'+esc(club.logo_url)+'" alt="Logo ya timu">':'<div class="logo">⚽</div>';
+  $("teamCard").style.display="block";
+  $("teamCard").innerHTML='<div class="team-head">'+logo+'<div><h2>'+esc(club.name)+'</h2><div class="meta"><b>'+esc(club.afrn_club_id||"—")+'</b><br>Daraja la '+esc(club.division||"—")+' · Zone '+esc(club.zone||"—")+'<br>Status: '+esc(club.status||"—")+' · Ilianzishwa: '+esc(club.founded_year||"—")+'</div></div></div><div class="actions"><a class="btn primary" href="players.html?club='+encodeURIComponent(id)+'&division='+encodeURIComponent(club.division||"")+'&add=1">➕ Ongeza Mchezaji</a><a class="btn secondary" href="add-club.html?edit='+encodeURIComponent(id)+'">✏️ Hariri Timu</a><a class="btn secondary" href="divisions.html">← Rudi Madaraja</a></div>';
+  $("playersCard").style.display="block";$("playerCount").textContent=(players||[]).length+" wachezaji";
+  if(!players?.length){$("playersList").innerHTML='<div class="empty">Hakuna mchezaji aliyesajiliwa kwenye timu hii bado.</div>';return}
+  $("playersList").innerHTML='<div class="grid">'+players.map(p=>'<div class="player"><div class="pname">'+esc(full(p))+'</div><div class="pid">'+esc(p.player_id_number||"—")+'</div><div class="chips"><span class="chip">'+esc(p.position||"—")+'</span>'+(p.jersey_number?'<span class="chip">#'+esc(p.jersey_number)+'</span>':"")+'<span class="chip">'+esc(p.status||"—")+'</span></div><div class="small">Nationality: '+esc(p.nationality||"—")+'</div></div>').join("")+'</div>';
+ }catch(e){$("status").className="status err";$("status").textContent="❌ "+esc(e.message||"Imeshindikana kupakia.");}
+}
+load();
+</script>
+</body></html>
