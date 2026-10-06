@@ -8,7 +8,10 @@
 <meta name="viewport"
       content="width=device-width, initial-scale=1.0">
 
-<title>AFRN Football Management - Competitions</title>
+<title>AFRN Football Management — Mashindano</title>
+<meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
+<meta http-equiv="Pragma" content="no-cache">
+<meta http-equiv="Expires" content="0">
 
 <script src="https://unpkg.com/@supabase/supabase-js@2"></script>
 <script src="./supabase-config.js"></script>
@@ -1106,7 +1109,7 @@ id="addTeamBtn">
 
 <section class="card admin-only" id="farajaGroupSetupCard">
 
-<h2>🧩 FARAJA YA WAKIMBIZI — Mpangilio wa Makundi</h2>
+<h2>🧩 FARAJA YA WAKIMBIZI — USIMAMIZI WA MAKUNDI</h2>
 
 <div class="info">
 <b>Jinsi ya kuingiza makundi:</b><br>
@@ -1514,7 +1517,7 @@ Cancelled
 
 <div class="empty">
 
-⏳ Inapakia competitions... (v36)
+⏳ Inapakia competitions... (v39)
 
 </div>
 
@@ -1531,7 +1534,7 @@ Cancelled
    SUPABASE
 ===================================================== */
 
-const BOOT_VERSION = "v38";
+const BOOT_VERSION = "v39";
 
 const SUPABASE_URL =
 "https://jjqhvruppafpumcthmwe.supabase.co";
@@ -2860,6 +2863,7 @@ ${html}
 }
 
 
+window.selectFarajaGroup=function(group){const compSel=$("teamCompetitionId");const comp=[...compSel.options].find(o=>String(o.textContent||"").toUpperCase().includes("FARAJA YA WAKIMBIZI"));if(comp){compSel.value=comp.value;}const gs=$("groupName");if(gs)gs.value=group;renderAvailableClubs();document.querySelector("#teamForm")?.scrollIntoView({behavior:"smooth",block:"center"});};
 function renderFarajaGroupSummary(){
   const card=$("farajaGroupSetupCard"), out=$("farajaGroupSummary");
   if(!card||!out)return;
@@ -2873,7 +2877,7 @@ function renderFarajaGroupSummary(){
   const groups=["A","B","C","D","E","F","G","H"];
   out.innerHTML=groups.map(g=>{
     const ts=competitionTeams.filter(t=>String(t.competition_id)===String(id)&&String(t.group_name)===g);
-    return '<div class="group-card"><div class="group-header"><strong>GROUP '+g+'</strong><span class="group-count">'+ts.length+' timu</span></div><div class="group-body">'+(ts.length?ts.map((t,i)=>'<div class="club-row"><div class="club-left"><span class="club-number">'+(i+1)+'</span><span class="club-name">'+esc(getClubName(t.club_id))+'</span></div></div>').join(""):'<div class="empty-group">Hakuna timu bado.</div>')+'</div></div>';
+    return '<div class="group-card"><div class="group-header"><strong>GROUP '+g+'</strong><span class="group-count">'+ts.length+' timu</span></div><div class="group-body">'+(ts.length?ts.map((t,i)=>'<div class="club-row"><div class="club-left"><span class="club-number">'+(i+1)+'</span><span class="club-name">'+esc(getClubName(t.club_id))+'</span></div></div>').join(""):'<div class="empty-group">Hakuna timu bado.</div>')+'<button type="button" class="secondary small-btn" style="margin:10px" onclick="selectFarajaGroup(\''+g+'\')">➕ Ongeza timu kwenye Group '+g+'</button></div></div>';
   }).join("");
 }
 /* =====================================================
@@ -3424,7 +3428,7 @@ async function calculateGroupQualification(competitionId){
     if(gm.length<expected || gm.some(m=>!groupStagePlayed(m.status))) throw new Error("Group "+g+" haijamaliza mechi zote za makundi.");
     const rows=window.AFRNStandings.buildStandings({teams:gt,matches:gm,events:er.data||[],clubName:getClubName,groupFilter:g});
     const take=gt.length===5?3:2;
-    rows.slice(0,take).forEach((r,i)=>qualifiers.push({competition_id:competitionId,slot:(i+1)+g,team_id:r.club_id,source_group:g,source_rank:i+1}));
+    rows.slice(0,take).forEach((r,i)=>qualifiers.push({competition_id:competitionId,slot:g+(i+1),team_id:r.club_id,source_group:g,source_rank:i+1}));
     if(gt.length===4 && rows[2]) bestCandidates.push(rows[2]);
   }
   bestCandidates.sort((a,b)=>(b.PTS-a.PTS)||(b.GF-a.GF)||(a.GA-b.GA)||(a.RC-b.RC)||(a.YC-b.YC)||(a.coin_toss_rank-b.coin_toss_rank));
