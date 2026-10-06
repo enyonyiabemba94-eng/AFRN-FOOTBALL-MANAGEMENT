@@ -2,6 +2,7 @@
 (function(){
 'use strict';
 const ROOT='afrn-knockout-center', STYLE='afrn-ko-style';
+const VERSION='20261006-01';
 const URL='https://jjqhvruppafpumcthmwe.supabase.co';
 const KEY='sb_publishable_02hhRG8bgDOqSFxva8IMvQ_zWTLMa3G';
 const db=()=>window.supabaseClient||(window.supabase&&window.supabase.createClient?window.supabase.createClient(URL,KEY):null);
@@ -19,7 +20,7 @@ async function load(){
  const D=db();if(!D)return;
  const cr=await D.from('competitions').select('*').order('created_at',{ascending:false});if(cr.error)return console.warn(cr.error);
  const root=document.createElement('section');root.id=ROOT;
- root.innerHTML=`<div class="ko-head"><h2>⚔️ AFRN KNOCKOUT — DROW + MFUMO RASMI</h2><p>Admin anaweka timu kwenye A–H na namba za mechi. Mfumo hauundi timu za kubuni.</p></div><div class="ko-bar"><select id="koCompetition" class="ko-input" style="max-width:420px"><option value="">Chagua Competition ya Knockout</option>${(cr.data||[]).map(c=>`<option value="${esc(c.id)}">${esc(c.name)} · ${esc(c.season||'')}</option>`).join('')}</select><button class="ko-btn ko-primary" id="koRefresh">↻ Refresh</button></div><div id="koBody" class="ko-muted">Chagua competition ili kuanza.</div>`;
+ root.innerHTML=`<div class="ko-head"><h2>⚔️ AFRN KNOCKOUT — DRAW + MFUMO RASMI</h2><p>Admin anaweka timu kwenye A–H na namba za mechi. Mfumo hauundi timu za kubuni.</p></div><div class="ko-bar"><select id="koCompetition" class="ko-input" style="max-width:420px"><option value="">Chagua Competition ya Knockout</option>${(cr.data||[]).map(c=>`<option value="${esc(c.id)}">${esc(c.name)} · ${esc(c.season||'')}</option>`).join('')}</select><button class="ko-btn ko-primary" id="koRefresh">↻ Refresh</button></div><div id="koBody" class="ko-muted">Chagua competition ili kuanza.</div>`;
  old.replaceWith(root);
  const sel=root.querySelector('#koCompetition');const urlId=new URLSearchParams(location.search).get('competition_id');if(urlId)sel.value=urlId;
  sel.onchange=()=>render(sel.value);root.querySelector('#koRefresh').onclick=()=>render(sel.value);
