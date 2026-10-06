@@ -29,7 +29,7 @@ h1,h2,h3{margin-top:0}.intro{color:#667085;font-size:14px}
 <main>
 <section class="card">
 <h2>🏆 VILABU NA MADARAJA</h2>
-<p class="intro">Chagua daraja kwanza. Timu hazitaonekana mpaka ubofye daraja husika.</p>
+<p class="intro">Chagua daraja kwanza, kisha timu zitaonekana kulingana na ligi inayohusishwa na daraja hilo.</p>
 <div id="divisionGrid" class="divisions">
 <button class="division" data-division="1"><span class="arrow">›</span><strong>DARAJA LA I</strong><span>Fungua vilabu vya Daraja la I</span></button>
 <button class="division" data-division="2"><span class="arrow">›</span><strong>DARAJA LA II</strong><span>Fungua vilabu vya Daraja la II</span></button>
@@ -50,15 +50,22 @@ h1,h2,h3{margin-top:0}.intro{color:#667085;font-size:14px}
 </main>
 <script>
 function getDB(){if(window.supabaseClient&&typeof window.supabaseClient.from==='function')return window.supabaseClient;if(window.afrnSupabase&&typeof window.afrnSupabase.from==='function')return window.afrnSupabase;if(window.sb&&typeof window.sb.from==='function')return window.sb;throw new Error('Supabase client haipatikani.');}
-const names={1:'DARAJA LA I',2:'DARAJA LA II',3:'DARAJA LA III',4:'DARAJA LA IV'};let current=null;
+const names={1:'DARAJA LA I',2:'DARAJA LA II',3:'DARAJA LA III',4:'DARAJA LA IV'};let current=null,currentLeague=null;
 const esc=v=>String(v??'').replace(/[&<>"']/g,x=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#039;'}[x]));
 async function loadDivision(d){
  current=String(d); $('divisionGrid').parentElement.style.display='none'; $('selected').style.display='block';
  $('selectedTitle').textContent='🏆 '+names[d]; $('addTeam').href='add-club.html?division='+encodeURIComponent(d);
  $('clubsList').innerHTML='<div class="empty">⏳ Inapakia timu...</div>';
  try{
-  const r=await getDB().from('clubs').select('id,name,afrn_club_id,division,zone,status,logo_url').eq('division',String(d)).order('name');
-  if(r.error)throw r.error; const rows=r.data||[]; $('selectedCount').textContent=rows.length+' '+(rows.length===1?'klabu':'klabu');
+  let r=await getDB().from('clubs').select('id,name,afrn_club_id,division,zone,status,logo_url,league_id,competition_id').eq('division',String(d)).order('name');
+  if(r.error)throw r.error;
+  // Ikiwa clubs ina league/competition field, tumia ligi hiyo; vinginevyo tumia division pekee.
+  // Mfumo hauonyeshi timu za ligi nyingine ndani ya daraja lililochaguliwa.
+  let rows=r.data||[];
+  const params=new URLSearchParams(location.search);
+  const league=params.get('league')||params.get('league_id')||params.get('competition')||params.get('competition_id');
+  if(league) rows=rows.filter(c=>String(c.league_id||c.competition_id||'')===String(league));
+  $('selectedCount').textContent=rows.length+' '+(rows.length===1?'klabu':'klabu');
   if(!rows.length){$('clubsList').innerHTML='<div class="empty">Hakuna timu iliyosajiliwa katika '+names[d]+' bado.<br><br><a class="btn primary" href="add-club.html?division='+d+'">➕ Ongeza Timu ya Kwanza</a></div>';return;}
   $('clubsList').innerHTML=rows.map(c=>'<div class="club"><div class="logo">'+(c.logo_url?'<img class="logo" src="'+esc(c.logo_url)+'" alt="Logo">':'⚽')+'</div><div class="clubinfo"><div class="clubname">'+esc(c.name)+'</div><div class="meta">'+esc(c.afrn_club_id||'—')+' · Zone '+esc(c.zone||'—')+' · '+esc(c.status||'—')+'</div></div><div class="actions"><a class="btn secondary" href="add-club.html?edit='+encodeURIComponent(c.id)+'">✏️ Hariri</a></div></div>').join('');
  }catch(e){$('selectedCount').textContent='';$('clubsList').innerHTML='<div class="status">❌ Imeshindikana kupakia timu: '+esc(e.message)+'</div>';}
