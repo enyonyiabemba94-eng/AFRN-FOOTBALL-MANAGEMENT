@@ -1,0 +1,70 @@
+<!DOCTYPE html>
+<html lang="sw">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>AFRN - Vilabu na Madaraja</title>
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<script src="supabase-config.js"></script>
+<style>
+*{box-sizing:border-box}body{margin:0;font-family:Arial,sans-serif;background:#f4f7fb;color:#172033}
+header{background:#071a33;color:#fff;padding:18px 16px}header h2{margin:0 0 6px;font-size:20px}header div{font-size:12px;opacity:.9}
+nav{margin-top:12px;display:flex;gap:8px;flex-wrap:wrap}nav a{color:#fff;text-decoration:none;background:#ffffff18;padding:8px 10px;border-radius:8px}
+main{max-width:1000px;margin:20px auto;padding:0 14px}.card{background:#fff;border-radius:18px;padding:18px;margin-bottom:16px;box-shadow:0 5px 18px #0000000d}
+h1,h2,h3{margin-top:0}.intro{color:#667085;font-size:14px}
+.divisions{display:grid;grid-template-columns:repeat(2,1fr);gap:12px}.division{border:1px solid #dfe6ef;background:#fff;border-radius:16px;padding:18px;cursor:pointer;transition:.15s}.division:hover{transform:translateY(-1px);box-shadow:0 5px 15px #0001}.division strong{display:block;font-size:18px}.division span{font-size:12px;color:#667085}.division .arrow{float:right;font-size:22px}
+#selected{display:none}.topline{display:flex;align-items:center;justify-content:space-between;gap:10px;flex-wrap:wrap}
+.btn{border:0;border-radius:10px;padding:11px 15px;font-weight:bold;cursor:pointer;text-decoration:none;display:inline-block}.primary{background:#0d6efd;color:#fff}.secondary{background:#eef2f6;color:#172033}
+.club{display:flex;align-items:center;gap:12px;border:1px solid #e4e9f0;border-radius:13px;padding:11px;margin-top:9px}.logo{width:48px;height:48px;border-radius:50%;object-fit:cover;background:#eef2f6;display:flex;align-items:center;justify-content:center;font-size:22px;flex:none}.clubinfo{flex:1;min-width:0}.clubname{font-weight:bold}.meta{font-size:11px;color:#667085;margin-top:4px}.actions{display:flex;gap:7px;flex-wrap:wrap}
+.empty{text-align:center;padding:28px 10px;color:#667085;background:#f8fafc;border-radius:12px}.status{padding:12px;border-radius:10px;background:#fdecec;color:#b42318}
+@media(max-width:650px){.divisions{grid-template-columns:1fr}.division{padding:16px}.club{align-items:flex-start}.actions{width:100%}.actions .btn{flex:1;text-align:center}}
+</style>
+</head>
+<body>
+<header>
+<h2>⚽ AFRN FOOTBALL MANAGEMENT</h2>
+<div>SHIRIKISHO LA MPIRA WA MIGUU KAMBINI NYARUGUSU</div>
+<nav><a href="index.html">Dashboard</a><a href="clubs.html">Vilabu</a><a href="players.html">Wachezaji</a></nav>
+</header>
+<main>
+<section class="card">
+<h2>🏆 VILABU NA MADARAJA</h2>
+<p class="intro">Chagua daraja kwanza. Timu hazitaonekana mpaka ubofye daraja husika.</p>
+<div id="divisionGrid" class="divisions">
+<button class="division" data-division="1"><span class="arrow">›</span><strong>DARAJA LA I</strong><span>Fungua vilabu vya Daraja la I</span></button>
+<button class="division" data-division="2"><span class="arrow">›</span><strong>DARAJA LA II</strong><span>Fungua vilabu vya Daraja la II</span></button>
+<button class="division" data-division="3"><span class="arrow">›</span><strong>DARAJA LA III</strong><span>Fungua vilabu vya Daraja la III</span></button>
+<button class="division" data-division="4"><span class="arrow">›</span><strong>DARAJA LA IV</strong><span>Fungua vilabu vya Daraja la IV</span></button>
+</div>
+</section>
+<section id="selected" class="card">
+<div class="topline">
+<div><h2 id="selectedTitle">🏆 DARAJA LA I</h2><div id="selectedCount" class="intro"></div></div>
+<div style="display:flex;gap:8px;flex-wrap:wrap">
+<button id="back" class="btn secondary">← Madaraja</button>
+<a id="addTeam" class="btn primary" href="add-club.html">➕ Ongeza Timu</a>
+</div>
+</div>
+<div id="clubsList" style="margin-top:15px"></div>
+</section>
+</main>
+<script>
+function getDB(){if(window.supabaseClient&&typeof window.supabaseClient.from==='function')return window.supabaseClient;if(window.afrnSupabase&&typeof window.afrnSupabase.from==='function')return window.afrnSupabase;if(window.sb&&typeof window.sb.from==='function')return window.sb;throw new Error('Supabase client haipatikani.');}
+const names={1:'DARAJA LA I',2:'DARAJA LA II',3:'DARAJA LA III',4:'DARAJA LA IV'};let current=null;
+const esc=v=>String(v??'').replace(/[&<>"']/g,x=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#039;'}[x]));
+async function loadDivision(d){
+ current=String(d); $('divisionGrid').parentElement.style.display='none'; $('selected').style.display='block';
+ $('selectedTitle').textContent='🏆 '+names[d]; $('addTeam').href='add-club.html?division='+encodeURIComponent(d);
+ $('clubsList').innerHTML='<div class="empty">⏳ Inapakia timu...</div>';
+ try{
+  const r=await getDB().from('clubs').select('id,name,afrn_club_id,division,zone,status,logo_url').eq('division',String(d)).order('name');
+  if(r.error)throw r.error; const rows=r.data||[]; $('selectedCount').textContent=rows.length+' '+(rows.length===1?'klabu':'klabu');
+  if(!rows.length){$('clubsList').innerHTML='<div class="empty">Hakuna timu iliyosajiliwa katika '+names[d]+' bado.<br><br><a class="btn primary" href="add-club.html?division='+d+'">➕ Ongeza Timu ya Kwanza</a></div>';return;}
+  $('clubsList').innerHTML=rows.map(c=>'<div class="club"><div class="logo">'+(c.logo_url?'<img class="logo" src="'+esc(c.logo_url)+'" alt="Logo">':'⚽')+'</div><div class="clubinfo"><div class="clubname">'+esc(c.name)+'</div><div class="meta">'+esc(c.afrn_club_id||'—')+' · Zone '+esc(c.zone||'—')+' · '+esc(c.status||'—')+'</div></div><div class="actions"><a class="btn secondary" href="add-club.html?edit='+encodeURIComponent(c.id)+'">✏️ Hariri</a></div></div>').join('');
+ }catch(e){$('selectedCount').textContent='';$('clubsList').innerHTML='<div class="status">❌ Imeshindikana kupakia timu: '+esc(e.message)+'</div>';}
+}
+function $(id){return document.getElementById(id)}
+document.querySelectorAll('.division').forEach(b=>b.addEventListener('click',()=>loadDivision(b.dataset.division)));
+$('back').onclick=()=>{current=null;$('selected').style.display='none';$('divisionGrid').parentElement.style.display='block';};
+</script>
+</body></html>
