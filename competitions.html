@@ -3003,7 +3003,7 @@ onclick="deleteCompetition('${esc(competition.id)}')">
 }
 
 
-window.openCompetitionHistory=function(id){window.location.href="./competition-history.html?id="+encodeURIComponent(id);};
+window.openCompetitionHistory=function(id){const c=competitions.find(x=>String(x.id)===String(id));const isLeague=String(c?.competition_type||"").toLowerCase()==="league" || String(c?.format||"").toLowerCase()==="league";window.location.href=(isLeague?"./league.html":"./competition-history.html")+"?id="+encodeURIComponent(id);};
 
 /* =====================================================
    OPEN COMPETITION
