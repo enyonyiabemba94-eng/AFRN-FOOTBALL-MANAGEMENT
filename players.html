@@ -1725,257 +1725,54 @@ async function loadData(){
 
 async function renderPlayers(){
 
-  const container =
-    $("playersContainer");
+  const container = $("playersContainer");
+  const search = $("search").value.trim().toLowerCase();
+  const clubFilter = $("filterClub").value;
+  const positionFilter = $("filterPosition").value;
+  const statusFilter = $("filterStatus").value;
+  const divisionFilter = $("filterDivision")?.value || "";
 
-
-  const search =
-    $("search").value
-      .trim()
-      .toLowerCase();
-
-
-  const clubFilter =
-    $("filterClub").value;
-
-
-  const positionFilter =
-    $("filterPosition").value;
-
-
-  const statusFilter =
-    $("filterStatus").value;
-
-
-  const filtered =
-    players.filter(player => {
-
-      const name =
-        fullName(player)
-          .toLowerCase();
-
-
-      const id =
-        String(
-          player.player_id_number || ""
-        ).toLowerCase();
-
-
-      return (
-
-        (!search ||
-          name.includes(search) ||
-          id.includes(search))
-
-        &&
-
-        (!clubFilter ||
-          String(player.club_id) ===
-          String(clubFilter))
-
-        &&
-
-        (!positionFilter ||
-          player.position ===
-          positionFilter)
-
-        &&
-
-        (!statusFilter ||
-          player.status ===
-          statusFilter)
-
-      );
-
-    });
-
+  const filtered = players.filter(player => {
+    const name = fullName(player).toLowerCase();
+    const id = String(player.player_id_number || "").toLowerCase();
+    const division = String(getClubDivision(player.club_id) || "");
+    return (!search || name.includes(search) || id.includes(search)) &&
+      (!clubFilter || String(player.club_id) === String(clubFilter)) &&
+      (!positionFilter || player.position === positionFilter) &&
+      (!statusFilter || player.status === statusFilter) &&
+      (!divisionFilter || division === String(divisionFilter));
+  });
 
   if(!filtered.length){
-
-    container.innerHTML = `
-      <div class="empty">
-        Hakuna mchezaji anayepatikana.
-      </div>
-    `;
-
+    container.innerHTML = `<div class="empty">Hakuna mchezaji anayepatikana katika chaguo hili.</div>`;
     return;
-
   }
-
 
   let html = "";
-
-
-  for(
-    const division of [1,2,3,4]
-  ){
-
-    const list =
-      filtered.filter(
-        player =>
-          String(
-            getClubDivision(
-              player.club_id
-            )
-          ) ===
-          String(division)
-      );
-
-
-    if(!list.length){
-
-      continue;
-
+  for(const division of [1,2,3,4]){
+    const divisionPlayers = filtered.filter(player => String(getClubDivision(player.club_id)) === String(division));
+    if(!divisionPlayers.length) continue;
+    const clubIds = [...new Set(divisionPlayers.map(player => String(player.club_id)))];
+    html += `<section class="division"><div class="division-title"><h2>🏆 DARAJA LA ${division}</h2><span class="count">${divisionPlayers.length} wachezaji</span></div>`;
+    for(const clubId of clubIds){
+      const club = clubs.find(c => String(c.id) === String(clubId));
+      const teamPlayers = divisionPlayers.filter(player => String(player.club_id) === String(clubId));
+      if(!club) continue;
+      html += `<div class="team-block"><div class="team-header"><div><div class="team-name">⚽ ${esc(club.name)}</div><div class="team-meta">Daraja la ${division} · ${teamPlayers.length} wachezaji</div></div><a class="team-add" href="players.html?club=${encodeURIComponent(club.id)}&division=${encodeURIComponent(division)}&add=1">＋ Mchezaji</a></div><div class="grid">${teamPlayers.map(playerCard).join("")}</div></div>`;
     }
-
-
-    html += `
-
-      <section class="division">
-
-        <div class="division-title">
-
-          <h2>
-            ⚽ Daraja la ${division}
-          </h2>
-
-          <span class="count">
-            ${list.length} wachezaji
-          </span>
-
-        </div>
-
-        <div class="grid">
-
-          ${list.map(
-            playerCard
-          ).join("")}
-
-        </div>
-
-      </section>
-
-    `;
-
+    html += `</section>`;
   }
 
-
-  /*
-    Players with unknown division
-  */
-
-  const unknownDivision =
-    filtered.filter(
-      player =>
-        ![1,2,3,4].includes(
-          Number(
-            getClubDivision(
-              player.club_id
-            )
-          )
-        )
-    );
-
-
-  if(unknownDivision.length){
-
-    html += `
-
-      <section class="division">
-
-        <div class="division-title">
-
-          <h2>
-            ⚽ Bila Daraja
-          </h2>
-
-          <span class="count">
-            ${unknownDivision.length} wachezaji
-          </span>
-
-        </div>
-
-        <div class="grid">
-
-          ${unknownDivision.map(
-            playerCard
-          ).join("")}
-
-        </div>
-
-      </section>
-
-    `;
-
-  }
-
-
-  container.innerHTML =
-    html;
-
-
-  /*
-    Load Storage images after cards exist.
-  */
-
-  const images =
-    container.querySelectorAll(
-      "img[data-photo]"
-    );
-
-
-  await Promise.all(
-
-    Array.from(images)
-      .map(
-        async img => {
-
-          const stored =
-            img.dataset.photo;
-
-
-          const url =
-            await getPlayerPhotoUrl(
-              stored
-            );
-
-
-          if(url){
-
-            img.src =
-              url;
-
-            img.style.display =
-              "block";
-
-          }else{
-
-            img.style.display =
-              "none";
-
-            const placeholder =
-              img.parentElement
-                ?.querySelector(
-                  ".photo-placeholder"
-                );
-
-            if(placeholder){
-
-              placeholder.style.display =
-                "flex";
-
-            }
-
-          }
-
-        }
-      )
-
-  );
-
+  const unknownDivision = filtered.filter(player => ![1,2,3,4].includes(Number(getClubDivision(player.club_id))));
+  if(unknownDivision.length){ html += `<section class="division"><div class="division-title"><h2>⚽ Bila Daraja</h2><span class="count">${unknownDivision.length} wachezaji</span></div><div class="grid">${unknownDivision.map(playerCard).join("")}</div></section>`; }
+  container.innerHTML = html;
+  const images = container.querySelectorAll("img[data-photo]");
+  await Promise.all(Array.from(images).map(async img => {
+    const url = await getPlayerPhotoUrl(img.dataset.photo);
+    if(url){ img.src = url; img.style.display = "block"; }
+    else { img.style.display = "none"; const placeholder = img.parentElement?.querySelector(".photo-placeholder"); if(placeholder) placeholder.style.display = "flex"; }
+  }));
 }
-
-
 /* =====================================================
    PLAYER CARD
 ===================================================== */
