@@ -1506,7 +1506,7 @@ Cancelled
    SUPABASE
 ===================================================== */
 
-const BOOT_VERSION = "v36";
+const BOOT_VERSION = "v37";
 
 const SUPABASE_URL =
 "https://jjqhvruppafpumcthmwe.supabase.co";
@@ -1616,12 +1616,23 @@ async function loadCompetitions(){
 
 try{
 
-setStatus("⏳ Inapakia Mashindano... v34");
+setStatus("⏳ Inapakia Mashindano... v37");
 
-const result=await db
+/*
+  Do not request every column here. The public viewer only needs
+  these fields, and a timeout prevents the page from remaining
+  permanently stuck on "Inapakia competitions" when the network/API
+  is slow.
+*/
+const query=db
 .from(COMPETITIONS_TABLE)
-.select("*")
+.select("id,name,competition_type,logo_url,organizer,season,start_date,end_date,status,format,team_count,division,knockout_extra_time")
 .order("created_at",{ascending:false});
+
+const result=await Promise.race([
+  query,
+  new Promise((_,reject)=>setTimeout(()=>reject(new Error("Supabase haikujibu ndani ya sekunde 12. Angalia internet au Supabase API.")),12000))
+]);
 
 if(result.error) throw result.error;
 
