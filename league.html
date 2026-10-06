@@ -14,7 +14,7 @@ body{margin:0;background:#f4f7fb;color:#172033;font-family:Arial,sans-serif}head
 <section class="card"><h2>📊 Msimamo wa Ligi</h2><div id="standings"><div class="empty">Inapakia...</div></div></section>
 <section class="card"><h2>🏟️ Mechi Zilizochezwa</h2><div class="muted">Mechi za ligi hii pekee, zimepangwa kwa Wiki / Matchday.</div><div id="results"><div class="empty">Inapakia...</div></div></section></main>
 <script>
-const db=window.supabaseClient||window.supabase.createClient(window.SUPABASE_URL,window.SUPABASE_PUBLISHABLE_KEY);
+const db=window.supabaseClient;
 const id=new URLSearchParams(location.search).get("id"),$=x=>document.getElementById(x);
 const esc=v=>String(v??"").replace(/[&<>"']/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#039;"}[c]));
 const played=s=>window.AFRNStandings?.playedStatus?window.AFRNStandings.playedStatus(s):["completed","finished","played","full_time","ft"].includes(String(s??"").toLowerCase().trim());
