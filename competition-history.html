@@ -379,4 +379,81 @@ load().catch(e => {
 });
 </script>
 <script src="./afrn-player-photo-global.js"></script>
+<script>
+/* AFRN — Competition Team & Division Manager */
+(function(){
+  const esc2=v=>String(v??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#039;'}[c]));
+  const divName=d=>({'1':'DARAJA LA I','2':'DARAJA LA II','3':'DARAJA LA III','4':'DARAJA LA IV'}[String(d)]||'—');
+  async function adminCheck(){
+    try{
+      const u=await db.auth.getUser(); const uid=u.data?.user?.id;
+      if(!uid)return false;
+      const p=await db.from('profiles').select('role').eq('id',uid).maybeSingle();
+      return ['super_admin','superadmin','admin','administrator','afrn_admin','secretary_general'].includes(String(p.data?.role||'').toLowerCase());
+    }catch(e){return false}
+  }
+  async function manager(){
+    if(!C||!id)return;
+    const admin=await adminCheck();
+    const clubRows=(await db.from('clubs').select('id,name,afrn_club_id,division,zone,status,logo_url').order('name')).data||[];
+    const currentIds=new Set(teams.map(t=>String(t.club_id)));
+    const division=String(C.division||'');
+    const eligible=clubRows.filter(c=>{
+      const d=String(c.division||'').trim().toUpperCase();
+      return !division || ({I:'1',II:'2',III:'3',IV:'4'}[d]||d)===division;
+    });
+    let html='<h3>👥 Timu za Mashindano</h3>';
+    html+='<div style="padding:12px;background:#f7f9fc;border:1px solid #d9e0ea;border-radius:12px;margin-bottom:12px">';
+    html+='<b>🏷️ Daraja la mashindano</b>';
+    html+='<div class="muted" style="margin:5px 0 9px">Chagua daraja. Mfumo utaleta klabu za daraja hilo tu.</div>';
+    if(admin){
+      html+='<div style="display:flex;gap:8px;flex-wrap:wrap">';
+      html+='<select id="afrnCompetitionDivision" style="flex:1;min-width:190px;padding:10px;border:1px solid #ccd5e2;border-radius:9px"><option value="">Chagua Daraja</option><option value="1">DARAJA LA I</option><option value="2">DARAJA LA II</option><option value="3">DARAJA LA III</option><option value="4">DARAJA LA IV</option></select>';
+      html+='<button class="primary" id="saveCompetitionDivision">💾 Hifadhi Daraja</button></div>';
+    }else{
+      html+='<b style="color:#0d47a1">'+(division?divName(division):'Daraja halijawekwa')+'</b>';
+    }
+    html+='</div>';
+    html+='<div style="padding:12px;background:#fff;border:1px solid #d9e0ea;border-radius:12px;margin-bottom:12px">';
+    html+='<b>➕ Ongeza timu</b><div class="muted" style="margin:5px 0 9px">Timu tayari kwenye mashindano hazitaonekana tena.</div>';
+    if(admin){
+      if(!division) html+='<div class="empty">Kwanza hifadhi <b>Daraja la mashindano</b>, kisha orodha ya timu za daraja hilo itaonekana hapa.</div>';
+      else if(!eligible.filter(c=>!currentIds.has(String(c.id))).length) html+='<div class="empty">Hakuna klabu nyingine katika '+divName(division)+'.</div>';
+      else html+='<div style="display:grid;gap:8px">'+eligible.filter(c=>!currentIds.has(String(c.id))).map(c=>'<div style="display:flex;align-items:center;gap:9px;padding:9px;border:1px solid #edf0f4;border-radius:10px"><div style="flex:1"><b>'+esc2(c.name)+'</b><div class="muted">'+esc2(c.afrn_club_id||'—')+' · '+divName(c.division)+'</div></div><button class="primary small-btn" onclick="window.afrnAddCompetitionTeam(\''+esc2(c.id)+'\')">➕ Ongeza</button></div>').join('')+'</div>';
+    }else html+='<div class="muted">Ni Admin pekee anayeweza kuongeza timu.</div>';
+    html+='</div>';
+    html+='<div style="margin-top:10px"><b>✅ Timu zilizopo: '+teams.length+'</b></div>';
+    if(!teams.length) html+='<div class="empty" style="margin-top:8px">Hakuna timu bado. Ongeza timu hapo juu.</div>';
+    else html+='<div style="display:grid;gap:8px;margin-top:8px">'+teams.map(t=>{const c=clubRows.find(x=>String(x.id)===String(t.club_id));return '<div style="display:flex;align-items:center;gap:9px;padding:10px;border:1px solid #e1e6ee;border-radius:10px"><div style="flex:1"><b>'+esc2(c?.name||name(t.club_id))+'</b><div class="muted">'+esc2(c?.afrn_club_id||'—')+' · '+divName(c?.division||division)+(t.group_name?' · Group '+esc2(t.group_name):'')+'</div></div>'+(admin?'<button class="secondary small-btn" onclick="window.afrnRemoveCompetitionTeam(\''+esc2(t.id)+'\')">🗑 Ondoa</button>':'')+'</div>'}).join('')+'</div>';
+    if(!String(C.competition_type||C.format||'').toLowerCase().includes('league') && admin && teams.length){
+      html+='<div style="margin-top:14px;padding:10px;background:#fffaf0;border:1px solid #f0d58a;border-radius:10px"><b>📌 Makundi</b><div class="muted">Baada ya kuongeza timu, tumia sehemu ya Makundi kwenye Mashindano kuzipanga A–H.</div></div>';
+    }
+    $("content").innerHTML=html;
+    const ds=$("afrnCompetitionDivision"); if(ds){ds.value=division; $("saveCompetitionDivision").onclick=async()=>{const v=ds.value;if(!v){alert("⚠️ Chagua daraja.");return;}const r=await db.from("competitions").update({division:v}).eq("id",id);if(r.error){alert("❌ "+r.error.message);return;}C.division=v;alert("✅ Daraja limehifadhiwa: "+divName(v));manager();};}
+  }
+  window.afrnAddCompetitionTeam=async function(clubId){
+    const d=String(C.division||''); if(!d){alert("⚠️ Kwanza weka Daraja la mashindano.");return;}
+    const c=await db.from('clubs').select('id,division').eq('id',clubId).maybeSingle();
+    if(c.error) return alert("❌ "+c.error.message);
+    const cd=String(c.data?.division||'').trim().toUpperCase(); const normalized={I:'1',II:'2',III:'3',IV:'4'}[cd]||cd;
+    if(normalized!==d){alert("❌ Timu hii si ya "+divName(d)+".");return;}
+    const x=await db.from('competition_teams').insert({competition_id:id,club_id:clubId,group_name:null});
+    if(x.error){alert("❌ Imeshindikana kuongeza timu: "+x.error.message);return;}
+    const tr=await db.from('competition_teams').select('id,competition_id,club_id,group_name').eq('competition_id',id); teams=tr.data||[];
+    manager();
+  };
+  window.afrnRemoveCompetitionTeam=async function(rowId){
+    if(!confirm("Ondoa timu hii kwenye mashindano?"))return;
+    const r=await db.from('competition_teams').delete().eq('id',rowId);
+    if(r.error){alert("❌ "+r.error.message);return;}
+    const tr=await db.from('competition_teams').select('id,competition_id,club_id,group_name').eq('competition_id',id); teams=tr.data||[];
+    manager();
+  };
+  const oldShowTab=window.showTab;
+  window.showTab=function(t){oldShowTab(t);if(t==='TIMU')manager();};
+  const oldRender=window.render;
+  window.render=function(){oldRender();if(tab==='TIMU')manager();};
+  window.addEventListener('load',()=>setTimeout(()=>{if(tab==='TIMU')manager();},0));
+})();
+</script>
 </body></html>
