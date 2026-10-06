@@ -1101,6 +1101,31 @@ id="addTeamBtn">
 
 
 <!-- =================================================
+     FARaja GROUP SETUP
+================================================= -->
+
+<section class="card admin-only" id="farajaGroupSetupCard">
+
+<h2>🧩 FARAJA YA WAKIMBIZI — Mpangilio wa Makundi</h2>
+
+<div class="info">
+<b>Jinsi ya kuingiza makundi:</b><br>
+1. Chagua <b>FARAJA YA WAKIMBIZI</b> kwenye sehemu ya “Ongeza Klabu kwenye Competition”.<br>
+2. Chagua <b>Group A, B, C...</b> kisha chagua klabu halisi na ubonyeze “Ongeza Klabu kwenye Group”.<br>
+3. Rudia mpaka kila klabu iwe kwenye kundi moja tu.<br><br>
+Kwa FARAJA yenye <b>timu 28</b>, mfumo unapendekeza admin athibitishe kwanza muundo wa makundi kabla ya kuingiza timu. Mfumo <b>hautagawanya timu automatically</b> wala kubuni timu.
+</div>
+
+<div id="farajaGroupSummary" class="groups-grid"></div>
+
+<div class="warning" style="margin-top:12px">
+⚠️ <b>Usichanganye Group Stage na Knockout.</b>
+Group A–H hapa ni makundi ya mashindano. Baada ya makundi kukamilika ndipo mfumo utahesabu wanaofuzu na kuendelea kwenye Hatua ya 16.
+</div>
+
+</section>
+
+<!-- =================================================
      CLUBS IN COMPETITION
 ================================================= -->
 
@@ -1506,7 +1531,7 @@ Cancelled
    SUPABASE
 ===================================================== */
 
-const BOOT_VERSION = "v37";
+const BOOT_VERSION = "v38";
 
 const SUPABASE_URL =
 "https://jjqhvruppafpumcthmwe.supabase.co";
@@ -2835,6 +2860,22 @@ ${html}
 }
 
 
+function renderFarajaGroupSummary(){
+  const card=$("farajaGroupSetupCard"), out=$("farajaGroupSummary");
+  if(!card||!out)return;
+  const sel=$("teamCompetitionId");
+  const id=sel?.value;
+  const comp=competitions.find(x=>String(x.id)===String(id));
+  if(String(comp?.name||"").toUpperCase()!=="FARAJA YA WAKIMBIZI"){
+    card.style.display="none"; return;
+  }
+  card.style.display="";
+  const groups=["A","B","C","D","E","F","G","H"];
+  out.innerHTML=groups.map(g=>{
+    const ts=competitionTeams.filter(t=>String(t.competition_id)===String(id)&&String(t.group_name)===g);
+    return '<div class="group-card"><div class="group-header"><strong>GROUP '+g+'</strong><span class="group-count">'+ts.length+' timu</span></div><div class="group-body">'+(ts.length?ts.map((t,i)=>'<div class="club-row"><div class="club-left"><span class="club-number">'+(i+1)+'</span><span class="club-name">'+esc(getClubName(t.club_id))+'</span></div></div>').join(""):'<div class="empty-group">Hakuna timu bado.</div>')+'</div></div>';
+  }).join("");
+}
 /* =====================================================
    STANDINGS
 ===================================================== */
@@ -3371,6 +3412,8 @@ async function calculateGroupQualification(competitionId){
   const er=ids.length?await db.from("match_events").select("match_id,club_id,event_type").in("match_id",ids):{data:[],error:null};
   if(er.error) throw er.error;
   const groups=[...new Set(teams.map(t=>String(t.group_name||'')).filter(Boolean))].sort();
+  /* Kwa FARAJA, admin anaweza kutumia A-H; hatubuni kundi wala timu.
+     Taarifa ya idadi ya timu inatumika kusaidia admin kuthibitisha mpangilio. */
   const qualifiers=[];
   const bestCandidates=[];
   for(const g of groups){
@@ -3385,7 +3428,12 @@ async function calculateGroupQualification(competitionId){
     if(gt.length===4 && rows[2]) bestCandidates.push(rows[2]);
   }
   bestCandidates.sort((a,b)=>(b.PTS-a.PTS)||(b.GF-a.GF)||(a.GA-b.GA)||(a.RC-b.RC)||(a.YC-b.YC)||(a.coin_toss_rank-b.coin_toss_rank));
-  return {qualifiers,bestLoser:bestCandidates[0]||null,candidates:bestCandidates};
+  return {
+    qualifiers,
+    bestLoser:bestCandidates[0]||null,
+    bestLosers:bestCandidates.slice(0,2),
+    candidates:bestCandidates
+  };
 }
 
 async function saveGroupQualification(){
@@ -3400,17 +3448,27 @@ async function saveGroupQualification(){
     }
     const p=$("bestLoserPanel");
     if(result.bestLoser){
-      p.innerHTML='<div class="warning"><b>⭐ BEST LOSER:</b> '+esc(result.bestLoser.name)+'<br>Imetoka nafasi ya 3 kwenye Group yenye timu 4.<br><br><b>Kwa 16 Bora:</b> kwa kuwa Best Loser ni nyongeza, Admin lazima amchague <u>Group</u> na <u>slot (1 au 2)</u> ya knockout atakayopewa. Hii inaweka bracket kuwa na timu 16 bila mfumo kubadilisha pairing.</div>'+
-      '<div class="toolbar"><select id="bestLoserGroup" class="field">'+["A","B","C","D","E","F","G","H"].map(g=>'<option value="'+g+'">Group '+g+'</option>').join('')+'</select><select id="bestLoserSlot" class="field"><option value="1">Slot 1 (1X)</option><option value="2">Slot 2 (2X)</option></select><button class="gold" id="assignBestLoserBtn">⭐ Mweka Best Loser</button></div>';
-      $("assignBestLoserBtn").onclick=async()=>{
-        const g=$("bestLoserGroup").value, slot=$("bestLoserSlot").value;
-        const all=(await db.from("competition_qualifiers").select("*").eq("competition_id",competitionId)).data||[];
-        const target=(slot+g);
-        await db.from("competition_qualifiers").delete().eq("competition_id",competitionId).eq("slot",target);
-        const ins=await db.from("competition_qualifiers").insert({competition_id:competitionId,slot:target,team_id:result.bestLoser.club_id,source_group:result.bestLoser.group,source_rank:3});
-        if(ins.error){alert("❌ "+ins.error.message);return;}
-        alert("✅ Best Loser amewekwa kwenye "+target+".");
-        setStatus("✅ Best Loser amewekwa kwenye "+target,"ok");
+      const candidates=result.bestLosers||[];
+      p.innerHTML='<div class="warning"><b>⭐ BEST LOSERS</b><br>'+
+        candidates.map((x,i)=>'<b>'+(i+1)+'. '+esc(x.name)+'</b> — Group '+esc(x.group||'—')+' · nafasi ya 3 · '+x.PTS+' PTS · GD '+x.GF+'-'+x.GA).join('<br>')+
+        '<br><br>Admin ndiye atakayepanga slots za knockout. Mfumo hautabadilisha pairing yenyewe.</div>'+
+        '<div class="toolbar">'+
+        candidates.map((x,i)=>'<div style="flex:1;min-width:260px"><label>Best Loser '+(i+1)+'</label><select class="field best-loser-slot-select" data-candidate="'+i+'"><option value="">Chagua slot ya knockout</option>'+["G1","G2","H1","H2"].map(s=>'<option value="'+s+'">'+s+'</option>').join('')+'</select></div>').join('')+
+        '</div><button class="gold" id="assignBestLosersBtn" style="margin-top:10px">⭐ Hifadhi Best Losers kwenye Slots</button>';
+      $("assignBestLosersBtn").onclick=async()=>{
+        const selects=[...document.querySelectorAll('.best-loser-slot-select')];
+        const chosen=selects.map(s=>s.value).filter(Boolean);
+        if(chosen.length!==candidates.length || new Set(chosen).size!==chosen.length){
+          alert("⚠️ Chagua slot tofauti kwa kila Best Loser.");return;
+        }
+        for(let i=0;i<candidates.length;i++){
+          const target=selects[i].value, x=candidates[i];
+          await db.from("competition_qualifiers").delete().eq("competition_id",competitionId).eq("slot",target);
+          const ins=await db.from("competition_qualifiers").insert({competition_id:competitionId,slot:target,team_id:x.club_id,source_group:x.group,source_rank:3});
+          if(ins.error){alert("❌ "+ins.error.message);return;}
+        }
+        alert("✅ Best Losers wamehifadhiwa kwenye slots za knockout.");
+        setStatus("✅ Best Losers wamehifadhiwa.","ok");
       };
     }else{
       p.innerHTML='<div class="info">Hakuna Best Loser: hakuna kundi lenye timu 4.</div>';
