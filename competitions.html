@@ -2393,16 +2393,25 @@ clubs.find(c => String(c.id) === String(clubId));
 const isCupOrGroupCompetition =
   String(selectedCompetition?.competition_type || "").toLowerCase() !== "league";
 
+function normalizeDivisionForLeague(value){
+  const v=String(value ?? "").trim().toUpperCase();
+  const map={I:"1",II:"2",III:"3",IV:"4","1":"1","2":"2","3":"3","4":"4"};
+  return map[v] || v;
+}
+
 const competitionDivision =
-String(selectedCompetition?.division || "").trim();
+normalizeDivisionForLeague(selectedCompetition?.division);
 
 /*
-   League: lazima klabu iwe kwenye Division ya competition.
-   Cup / Group Stage + Knockout: Division si kizuizi.
+   SHERIA RASMI:
+   League ya Division fulani inaruhusu klabu za Division hiyo tu.
+   Mfano: League ya Daraja II -> Daraja II pekee.
+   Cup / Group Stage + Knockout inaweza kuchukua klabu kutoka
+   madaraja tofauti.
 */
 if(!isCupOrGroupCompetition &&
    competitionDivision &&
-   String(selectedClub?.division || "").trim() !== competitionDivision){
+   normalizeDivisionForLeague(selectedClub?.division) !== competitionDivision){
   alert("❌ Klabu hii si ya " + ({
     "1":"DARAJA LA I","2":"DARAJA LA II","3":"DARAJA LA III","4":"DARAJA LA IV"
   }[competitionDivision] || ("DARAJA " + competitionDivision)) + ".");
