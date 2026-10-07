@@ -3566,7 +3566,7 @@ $("generateFinalBtn").onclick=()=>generateStage("FINAL");
     const isAdmin=["super_admin","superadmin","admin","administrator","afrn_admin","secretary_general"].includes(role);
     if(!isAdmin){
       document.querySelectorAll("main > section.admin-only").forEach(s=>s.style.display="none");
-      const n=document.getElementById("viewerNotice"); if(n)n.style.display="block";
+      const n=document.getElementById("viewerNotice"); if(n)n.style.display="block"; const mg=document.getElementById("competitionManagementToggle"); if(mg)mg.style.display="none";
       document.querySelectorAll(".competition-actions button").forEach(b=>{
         const t=(b.textContent||"").trim();
         if(/hariri|futa|vilabu/i.test(t)) b.style.display="none";
@@ -3589,7 +3589,7 @@ $("generateFinalBtn").onclick=()=>generateStage("FINAL");
     bar.id="competitionManagementToggle";
     bar.className="card";
     bar.style.cssText="display:flex;justify-content:space-between;align-items:center;gap:10px;flex-wrap:wrap";
-    bar.innerHTML='<div><b>⚙️ Usimamizi wa Mashindano</b><div class="meta">Admin anaweza kufungua zana za usimamizi hapa.</div></div><button class="secondary small-btn" id="toggleCompetitionManagement">Fungua Usimamizi</button>';
+    bar.innerHTML='<div><b>⚙️ Usimamizi wa Mashindano</b><div class="meta">Tengeneza ligi/cup mpya, ongeza timu, panga makundi na simamia taarifa za competition.</div></div><button class="secondary small-btn" id="toggleCompetitionManagement">Fungua Usimamizi</button>';
     listSection.insertAdjacentElement("afterend",bar);
     const btn=bar.querySelector("#toggleCompetitionManagement");
     btn.onclick=()=>{
