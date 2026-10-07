@@ -3090,9 +3090,9 @@ ${teamsCount}
 
 <button
 class="primary small-btn"
-onclick="openCompetition('${esc(competition.id)}')">
+onclick="openCompetitionHistory('${esc(competition.id)}')">
 
-⚽ Vilabu
+📂 Fungua Competition
 
 </button>
 
@@ -3574,6 +3574,34 @@ $("generateFinalBtn").onclick=()=>generateStage("FINAL");
   }catch(e){console.warn("Viewer mode:",e);
 }})();
 /* =====================================================
+   COMPETITION LANDING PAGE
+===================================================== */
+(function(){
+  function setupCompetitionLanding(){
+    const main=document.querySelector("main");
+    const listSection=document.getElementById("competitionsContainer")?.closest("section");
+    if(!main || !listSection) return;
+    document.querySelectorAll("#competitionManagementToggle").forEach(x=>x.remove());
+    const others=[...main.querySelectorAll(":scope > section")].filter(s=>s!==listSection && !s.id.includes("viewerNotice"));
+    others.forEach(s=>{s.dataset.competitionManagement="1";s.style.display="none";});
+    const bar=document.createElement("div");
+    bar.id="competitionManagementToggle";
+    bar.className="card";
+    bar.style.cssText="display:flex;justify-content:space-between;align-items:center;gap:10px;flex-wrap:wrap";
+    bar.innerHTML='<div><b>⚙️ Usimamizi wa Mashindano</b><div class="meta">Admin anaweza kufungua zana za usimamizi hapa.</div></div><button class="secondary small-btn" id="toggleCompetitionManagement">Fungua Usimamizi</button>';
+    listSection.insertAdjacentElement("afterend",bar);
+    const btn=bar.querySelector("#toggleCompetitionManagement");
+    btn.onclick=()=>{
+      const open=others[0]?.style.display!=="none";
+      others.forEach(s=>s.style.display=open?"none":"block");
+      btn.textContent=open?"Fungua Usimamizi":"Funga Usimamizi";
+    };
+  }
+  if(document.readyState==="loading") document.addEventListener("DOMContentLoaded",()=>setTimeout(setupCompetitionLanding,50));
+  else setTimeout(setupCompetitionLanding,50);
+})();
+
+/* =====================================================
    START
 ===================================================== */
 
@@ -3674,7 +3702,6 @@ init();
 <script src="./afrn-league-engine.js?v=20261006-01"></script>
   
 <script src="./afrn-r16-schedule.js?v=20260911"></script>
-<script src="./afrn-knockout-center.js?v=20261007-02"></script>
 </body>
 
 </html>
