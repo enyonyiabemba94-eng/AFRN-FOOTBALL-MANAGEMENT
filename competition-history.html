@@ -94,7 +94,7 @@ async function load(){
     </div>`;
 
   const isLeague = String(C.competition_type || C.format || "").toLowerCase().includes("league");
-  const tabs = isLeague ? ["MECHI","MSIMAMO","TIMU","WAFUNGAJI","KADI","TAKWIMU"] : ["MECHI","MAKUNDI","MSIMAMO","KNOCKOUT","TIMU","WAFUNGAJI","KADI","TAKWIMU","TUZO"];
+  const tabs = isLeague ? ["MECHI","MSIMAMO","TIMU","WAFUNGAJI","KADI","TAKWIMU","KNOCKOUT"] : ["MECHI","MAKUNDI","MSIMAMO","KNOCKOUT","TIMU","WAFUNGAJI","KADI","TAKWIMU","TUZO"];
   $("tabs").innerHTML = '<div class="tabs">' +
     tabs.map(t => `<button class="tab ${t===tab?"active":""}" onclick="showTab('${t}')">${t}</button>`).join("") +
     '</div>';
