@@ -2,7 +2,7 @@
 (function(){
 'use strict';
 const ROOT='afrn-knockout-center', STYLE='afrn-ko-style';
-const VERSION='20261006-01';
+const VERSION='20261007-02';
 const URL='https://jjqhvruppafpumcthmwe.supabase.co';
 const KEY='sb_publishable_02hhRG8bgDOqSFxva8IMvQ_zWTLMa3G';
 const db=()=>window.supabaseClient||(window.supabase&&window.supabase.createClient?window.supabase.createClient(URL,KEY):null);
@@ -14,16 +14,17 @@ const compId=()=>new URLSearchParams(location.search).get('competition_id')||doc
 function css(){if(document.getElementById(STYLE))return;const s=document.createElement('style');s.id=STYLE;s.textContent=`#${ROOT}{margin:18px 0;font-family:Arial,sans-serif}.ko-head{background:linear-gradient(135deg,#06152b,#0d47a1);color:#fff;border-radius:18px;padding:18px}.ko-head h2{margin:0;font-size:21px}.ko-head p{margin:6px 0 0;font-size:12px;opacity:.88}.ko-bar{display:flex;gap:8px;flex-wrap:wrap;margin:12px 0}.ko-card{background:#fff;border:1px solid #dfe5ee;border-radius:15px;padding:14px;box-shadow:0 3px 14px #0000000b}.ko-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(270px,1fr));gap:12px}.ko-label{font-size:11px;font-weight:900;color:#0d47a1}.ko-input{width:100%;padding:9px;border:1px solid #d5dce7;border-radius:8px;background:#fff;font-size:12px}.ko-btn{border:0;border-radius:9px;padding:9px 12px;font-weight:800;cursor:pointer}.ko-primary{background:#0d47a1;color:#fff}.ko-green{background:#e8f7ef;color:#087443}.ko-gold{background:#fff5cf;color:#6b4f00}.ko-danger{background:#fff0f0;color:#c62828}.ko-muted{color:#687386;font-size:12px}.ko-title{font-size:15px;font-weight:900;margin-bottom:10px}.ko-match{display:grid;grid-template-columns:1fr auto 1fr;gap:8px;align-items:center;font-weight:900}.ko-match div:last-child{text-align:right}.ko-score{font-size:18px}.ko-meta{margin-top:10px;padding-top:9px;border-top:1px solid #edf0f4;font-size:11px;color:#687386}.ko-tabs{display:flex;gap:7px;overflow:auto;margin:12px 0}.ko-tab{white-space:nowrap;border:1px solid #d5dce7;background:#fff;border-radius:999px;padding:9px 12px;font-weight:800}.ko-tab.active{background:#0d47a1;color:#fff}.ko-panel{display:none}.ko-panel.active{display:block}.ko-draw{display:grid;grid-template-columns:repeat(2,1fr);gap:10px}.ko-field label{display:block;font-size:10px;font-weight:800;color:#687386;margin-bottom:4px}@media(max-width:600px){.ko-draw{grid-template-columns:1fr}.ko-match{grid-template-columns:1fr}.ko-match div:last-child{text-align:left}.ko-grid{grid-template-columns:1fr}}`;document.head.appendChild(s)}
 async function load(){
  css();
- if(document.getElementById(ROOT))return;
+ const existing=document.getElementById(ROOT);
+ if(existing) existing.remove();
  const old=document.getElementById('afrnR16Schedule')||[...document.querySelectorAll('section,div,article')].find(x=>x.id!==ROOT&&(x.innerText||'').toUpperCase().includes('HATUA YA 16')&&(x.innerText||'').toUpperCase().includes('BEST LOSERS'));
  if(!old)return setTimeout(load,500);
  const D=db();if(!D)return;
- const cr=await D.from('competitions').select('*').order('created_at',{ascending:false});if(cr.error)return console.warn(cr.error);
+ const cr=await D.from('competitions').select('*').order('created_at',{ascending:false});if(cr.error){console.warn('AFRN Knockout competitions:',cr.error);return;}const allCompetitions=cr.data||[];const knockoutCompetitions=allCompetitions.filter(c=>{const f=String(c.format||'').toLowerCase().trim();const t=String(c.competition_type||'').toLowerCase().trim();return f.includes('knockout')||f.includes('group stage + knockout')||t.includes('cup')||t.includes('group stage');});
  const root=document.createElement('section');root.id=ROOT;
- root.innerHTML=`<div class="ko-head"><h2>⚔️ AFRN KNOCKOUT — DRAW + MFUMO RASMI</h2><p>Admin anaweka timu kwenye A–H na namba za mechi. Mfumo hauundi timu za kubuni.</p></div><div class="ko-bar"><select id="koCompetition" class="ko-input" style="max-width:420px"><option value="">Chagua Competition ya Knockout</option>${(cr.data||[]).map(c=>`<option value="${esc(c.id)}">${esc(c.name)} · ${esc(c.season||'')}</option>`).join('')}</select><button class="ko-btn ko-primary" id="koRefresh">↻ Refresh</button></div><div id="koBody" class="ko-muted">Chagua competition ili kuanza.</div>`;
+ root.innerHTML=`<div class="ko-head"><h2>⚔️ AFRN KNOCKOUT — DRAW + MFUMO RASMI</h2><p>Admin anaweka timu kwenye A–H na namba za mechi. Mfumo hauundi timu za kubuni.</p></div><div class="ko-bar"><select id="koCompetition" class="ko-input" style="max-width:420px"><option value="">Chagua Competition ya Knockout</option>${knockoutCompetitions.map(c=>`<option value="${esc(c.id)}">${esc(c.name)} · ${esc(c.season||'')}</option>`).join('')}</select><button class="ko-btn ko-primary" id="koRefresh">↻ Refresh</button></div><div id="koBody" class="ko-muted">Chagua competition ili kuanza.</div>`;
  old.replaceWith(root);
  const sel=root.querySelector('#koCompetition');const urlId=new URLSearchParams(location.search).get('competition_id');if(urlId)sel.value=urlId;
- sel.onchange=()=>render(sel.value);root.querySelector('#koRefresh').onclick=()=>render(sel.value);
+ sel.onchange=()=>{window.__AFRN_SELECTED_COMPETITION_ID__=sel.value;render(sel.value)};root.querySelector('#koRefresh').onclick=async()=>{const n=await D.from('competitions').select('*').order('created_at',{ascending:false});if(!n.error){const keep=sel.value;sel.innerHTML='<option value="">Chagua Competition ya Knockout</option>'+((n.data||[]).filter(c=>String(c.format||'').toLowerCase().includes('knockout')||String(c.competition_type||'').toLowerCase().includes('cup')||String(c.competition_type||'').toLowerCase().includes('group stage')).map(c=>'<option value="'+esc(c.id)+'">'+esc(c.name)+' · '+esc(c.season||'')+'</option>').join(''));sel.value=keep;}render(sel.value)};
  if(sel.value)render(sel.value);
 }
 async function render(id){
