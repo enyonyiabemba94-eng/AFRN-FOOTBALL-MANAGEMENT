@@ -1891,7 +1891,18 @@ return;
 */
 
 const selectedCompetition = competitions.find(c => String(c.id) === String(competitionId));
-const selectedDivision = String(selectedCompetition?.division || "").trim();
+
+/*
+   Division values are stored in different forms in older club records:
+   1 / 2 / 3 / 4 and I / II / III / IV.
+   Normalize both sides so a valid club is not hidden.
+*/
+function normalizeDivision(value){
+  const v=String(value ?? "").trim().toUpperCase();
+  const map={I:"1",II:"2",III:"3",IV:"4","1":"1","2":"2","3":"3","4":"4"};
+  return map[v] || v;
+}
+const selectedDivision = normalizeDivision(selectedCompetition?.division);
 
 const registeredClubIds =
 new Set(
@@ -1918,7 +1929,7 @@ const available =
 clubs.filter(
   club =>
   !registeredClubIds.has(String(club.id)) &&
-  (!selectedDivision || String(club.division || "").trim() === selectedDivision)
+  (!selectedDivision || normalizeDivision(club.division) === selectedDivision)
 );
 
 
