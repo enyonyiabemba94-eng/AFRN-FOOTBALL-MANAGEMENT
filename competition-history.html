@@ -151,6 +151,8 @@ function podiumHtml(){
 
 let selectedMatchWeek = "ALL";
 
+const isLeagueCompetition = () => String(C?.competition_type || C?.format || "").toLowerCase().includes("league");
+
 function matchWeekOf(m){
   const n = Number(m?.match_week);
   if(Number.isFinite(n) && n > 0) return n;
@@ -158,21 +160,28 @@ function matchWeekOf(m){
   return z ? Number(z[1]) : 0;
 }
 
-function addLeagueMatch(){
+function matchNumberOf(m){
+  const n = Number(m?.match_number);
+  return Number.isFinite(n) && n > 0 ? n : 0;
+}
+
+function addCompetitionMatch(){
   location.href="./matches.html?competition="+encodeURIComponent(id);
 }
 
 function matchesView(){
+  const league = isLeagueCompetition();
   const weeks=[...new Set(matches.map(matchWeekOf).filter(n=>n>0))].sort((a,b)=>a-b);
-  const visible=selectedMatchWeek==="ALL"
-    ? matches
-    : matches.filter(m=>String(matchWeekOf(m))===String(selectedMatchWeek));
+  const visible=league && selectedMatchWeek!=="ALL"
+    ? matches.filter(m=>String(matchWeekOf(m))===String(selectedMatchWeek))
+    : matches;
 
   $("content").innerHTML = `
     <div style="display:flex;justify-content:space-between;align-items:center;gap:10px;flex-wrap:wrap">
       <h3 style="margin:0">🏟️ Mechi</h3>
-      <button class="btn-primary" onclick="addLeagueMatch()">➕ Ongeza Mechi</button>
+      <button class="btn-primary" onclick="addCompetitionMatch()">➕ Ongeza Mechi</button>
     </div>
+    ${league ? `
     <div class="card" style="margin-top:12px;padding:12px;background:#f7f9fc">
       <label style="font-weight:800">📅 Chagua Wiki / Matchday</label>
       <select id="historyWeekSelect" onchange="selectedMatchWeek=this.value;matchesView()" style="margin-top:7px;width:100%;padding:10px;border:1px solid #d9e0ea;border-radius:9px">
@@ -180,13 +189,13 @@ function matchesView(){
         ${Array.from({length:34},(_,i)=>i+1).map(w=>`<option value="${w}" ${String(selectedMatchWeek)===String(w)?"selected":""}>Wiki ${w}</option>`).join("")}
       </select>
       ${weeks.length ? '<div class="muted" style="margin-top:7px">Wiki zenye mechi: '+weeks.join(", ")+'</div>' : '<div class="muted" style="margin-top:7px">Bado hakuna Wiki yenye mechi zilizohifadhiwa.</div>'}
-    </div>
+    </div>` : ""}
     ${visible.length ? `
     <div class="table-wrap"><table><thead><tr>
-      <th>Wiki</th><th>Tarehe</th><th>Mechi</th><th>Uwanja</th><th>Matokeo</th><th>Hali</th>
+      <th>${league ? "Wiki" : "Mechi #"}</th><th>Tarehe</th><th>Mechi</th><th>Uwanja</th><th>Matokeo</th><th>Hali</th>
     </tr></thead><tbody>
-      ${visible.map(m => `<tr>
-        <td><b>${matchWeekOf(m)>0 ? "Wiki "+matchWeekOf(m) : "—"}</b></td>
+      ${visible.map((m,i) => `<tr>
+        <td><b>${league ? (matchWeekOf(m)>0 ? "Wiki "+matchWeekOf(m) : "—") : (matchNumberOf(m)>0 ? matchNumberOf(m) : "—")}</b></td>
         <td>${esc(m.match_date || "—")}<br><span class="muted">${esc(m.match_time || "")}</span></td>
         <td>${esc(name(m.home_team_id))} vs ${esc(name(m.away_team_id))}</td>
         <td>${esc(m.venue || "—")}</td>
@@ -194,7 +203,7 @@ function matchesView(){
         <td>${esc(m.status || "Scheduled")}<br><button class="secondary small-btn" onclick="editHistoryMatch('${esc(m.id)}')">✏️ Edit</button></td>
       </tr>`).join("")}
     </tbody></table></div>`
-    : '<div class="empty">Hakuna mechi kwenye Wiki hii.</div>'}`;
+    : '<div class="empty">'+(league ? 'Hakuna mechi kwenye Wiki hii.' : 'Hakuna mechi zilizohifadhiwa kwenye mashindano haya.')+'</div>'}`;
 }
 
 function groups(){
