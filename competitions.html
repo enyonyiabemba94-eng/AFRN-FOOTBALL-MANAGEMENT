@@ -1902,7 +1902,18 @@ function normalizeDivision(value){
   const map={I:"1",II:"2",III:"3",IV:"4","1":"1","2":"2","3":"3","4":"4"};
   return map[v] || v;
 }
-const selectedDivision = normalizeDivision(selectedCompetition?.division);
+const isLeagueCompetition =
+  String(selectedCompetition?.competition_type || "").toLowerCase() === "league";
+
+/*
+   League hufuata Division ya competition.
+   Cup / Group Stage + Knockout inaweza kuchukua klabu kutoka
+   madaraja tofauti, hivyo Division ya record ya competition
+   haitumiki kuzuia klabu.
+*/
+const selectedDivision = isLeagueCompetition
+  ? normalizeDivision(selectedCompetition?.division)
+  : "";
 
 const registeredClubIds =
 new Set(
@@ -2379,10 +2390,18 @@ String(selectedCompetition?.competition_type || "").toLowerCase() === "league";
 const selectedClub =
 clubs.find(c => String(c.id) === String(clubId));
 
+const isCupOrGroupCompetition =
+  String(selectedCompetition?.competition_type || "").toLowerCase() !== "league";
+
 const competitionDivision =
 String(selectedCompetition?.division || "").trim();
 
-if(competitionDivision &&
+/*
+   League: lazima klabu iwe kwenye Division ya competition.
+   Cup / Group Stage + Knockout: Division si kizuizi.
+*/
+if(!isCupOrGroupCompetition &&
+   competitionDivision &&
    String(selectedClub?.division || "").trim() !== competitionDivision){
   alert("❌ Klabu hii si ya " + ({
     "1":"DARAJA LA I","2":"DARAJA LA II","3":"DARAJA LA III","4":"DARAJA LA IV"
