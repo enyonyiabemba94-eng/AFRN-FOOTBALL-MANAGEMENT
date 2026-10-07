@@ -6,7 +6,7 @@ body{margin:0;background:#f4f7fb;color:#172033;font-family:Arial,sans-serif}head
 </style></head><body>
 <header><div class="wrap"><b>⚽ AFRN FOOTBALL MANAGEMENT</b><div class="muted" style="color:#fff">Mashindano na historia rasmi</div></div></header>
 <nav><a href="./index.html">🏠 Dashboard</a><a href="./competitions.html">🏆 Mashindano</a><a href="./matches.html">🏟️ Mechi</a></nav>
-<main class="wrap"><a href="./competitions.html">← Rudi kwenye Mashindano</a><section id="hero" class="card">Inapakia...</section><section id="tabs" class="card"></section><section id="content" class="card">Inapakia...</section></main>
+<main class="wrap"><a href="./competitions.html">← Rudi kwenye Mashindano</a><div class="muted" style="margin:8px 0 12px">📌 Hapa ndipo taarifa zote za competition hii zinaonekana. Knockout ni sehemu ya competition hii pekee.</div><section id="hero" class="card">Inapakia...</section><section id="tabs" class="card"></section><section id="content" class="card">Inapakia...</section></main>
 <script>
 const db = window.supabaseClient || window.supabase.createClient(
   "https://jjqhvruppafpumcthmwe.supabase.co",
@@ -379,6 +379,10 @@ load().catch(e => {
 });
 </script>
 <script src="./afrn-player-photo-global.js"></script>
+<script>
+/* Prevent legacy global League/Knockout centers from appearing on this history page. */
+window.__AFRN_COMPETITION_HISTORY__ = true;
+</script>
 <script>
 /* AFRN — Competition Team & Division Manager */
 (function(){
