@@ -134,7 +134,10 @@ async function saveReviewedMatchEvent(){
   const description=JSON.stringify({source:'reviewed_match_report',event_type:eventType,player_name:playerName(selectedPlayer),jersey_number:selectedPlayer.jersey_number??null,notes,confirmed_by_admin:true,confirmed_at:new Date().toISOString()});
   const {error}=await db.from('match_events').insert({match_id:currentMatchId,player_id:playerId,club_id:clubId,event_type:eventType,minute:minute?Number(minute):null,description});
   if(error)throw error;
-  setReportStatus('Tukio la '+label+' limehifadhiwa baada ya uthibitisho.','success');
+  const matchRecord=matches.find(m=>String(m.id)===String(currentMatchId));
+  const performance=await db.from('player_performance_events').insert({player_id:playerId,club_id:clubId,competition_id:matchRecord?.competition_id||null,match_id:currentMatchId,event_type:eventType,event_date:matchRecord?.match_date||new Date().toISOString().slice(0,10),minute:minute?Number(minute):null,notes:notes||'Imethibitishwa na msimamizi kutoka ripoti ya mechi'});
+  if(performance.error)throw new Error('Tukio limehifadhiwa kwenye mechi, lakini takwimu za mchezaji hazikuhifadhiwa: '+performance.error.message);
+  setReportStatus('Tukio la '+label+' limehifadhiwa na kuongezwa kwenye takwimu za mchezaji.','success');
   alert('Tukio limehifadhiwa. Hakikisha matokeo na takwimu za mashindano zinaendana na ripoti.');
   setField('reviewEventMinute','');setField('reviewEventNotes','');
  }catch(e){console.error(e);alert('Imeshindikana kuhifadhi tukio: '+e.message)}
