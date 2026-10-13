@@ -5,6 +5,7 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>AFRN Football Management - Match Center</title>
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<script src="https://cdn.jsdelivr.net/npm/tesseract.js@5/dist/tesseract.min.js"></script>
 <script src="./supabase-config.js"></script>
 <style>
 :root{--navy:#071a33;--blue:#0b5ed7;--light:#f4f7fb;--white:#fff;--green:#198754;--red:#dc3545;--orange:#fd7e14;--gray:#6c757d;--border:#dfe5ec;--shadow:0 4px 18px rgba(0,0,0,.08)}*{box-sizing:border-box}body{margin:0;font-family:Arial,Helvetica,sans-serif;background:var(--light);color:#172033}header{background:var(--navy);color:white;padding:18px 15px}.header-inner{max-width:1400px;margin:auto;display:flex;align-items:center;gap:15px}.logo{width:65px;height:65px;border-radius:50%;object-fit:cover;background:white}header h1{margin:0;font-size:24px}header p{margin:5px 0 0;opacity:.85}nav{background:#fff;border-bottom:1px solid var(--border);position:sticky;top:0;z-index:50}.nav-inner{max-width:1400px;margin:auto;display:flex;flex-wrap:wrap}nav a{padding:14px 13px;text-decoration:none;color:var(--navy);font-weight:bold}nav a:hover,nav a.active{background:var(--blue);color:white}main{max-width:1400px;margin:auto;padding:20px}h2{color:var(--navy)}h3{margin-top:0;color:var(--navy)}.card{background:white;border-radius:12px;padding:20px;margin-bottom:20px;box-shadow:var(--shadow)}.grid{display:grid;grid-template-columns:repeat(2,1fr);gap:18px}.grid-3{display:grid;grid-template-columns:repeat(3,1fr);gap:15px}.grid-4{display:grid;grid-template-columns:repeat(4,1fr);gap:15px}label{display:block;font-weight:bold;margin-bottom:6px}input,select,textarea{width:100%;padding:11px;border:1px solid var(--border);border-radius:8px;font-size:15px;background:white}textarea{min-height:90px;resize:vertical}.form-group{margin-bottom:14px}button{border:0;border-radius:8px;padding:11px 16px;cursor:pointer;font-weight:bold;font-size:14px}.btn-primary{background:var(--blue);color:white}.btn-success{background:var(--green);color:white}.btn-danger{background:var(--red);color:white}.btn-secondary{background:#6c757d;color:white}.btn-warning{background:var(--orange);color:white}.btn-light{background:#eef2f7;color:#172033}.buttons{display:flex;flex-wrap:wrap;gap:10px;margin-top:15px}.status{padding:12px 15px;border-radius:8px;margin-bottom:15px;font-weight:bold}.status.success{background:#d1e7dd;color:#0f5132}.status.error{background:#f8d7da;color:#842029}.status.info{background:#cff4fc;color:#055160}.stats{display:grid;grid-template-columns:repeat(4,1fr);gap:15px;margin-bottom:20px}.stat{background:white;border-radius:12px;padding:18px;box-shadow:var(--shadow);text-align:center}.stat strong{display:block;font-size:30px;color:var(--blue)}.stat span{color:var(--gray);font-weight:bold}.team-box{border:1px solid var(--border);border-radius:10px;padding:15px;background:#fafcff}.team-box h3{border-bottom:2px solid var(--blue);padding-bottom:10px}.referee-box{background:#f8f9fa;border-radius:10px;padding:15px;border:1px solid var(--border)}.lineup-columns{display:grid;grid-template-columns:1fr 1fr;gap:20px}.lineup-box{border:1px solid var(--border);border-radius:12px;overflow:hidden}.lineup-header{background:var(--navy);color:white;padding:14px}.lineup-body{padding:15px}.player-selector{max-height:500px;overflow:auto}.player-row{display:grid;grid-template-columns:35px 45px 1fr;align-items:center;gap:10px;padding:10px;border-bottom:1px solid #eee}.player-row input{width:18px;height:18px}.player-name{font-weight:bold}.player-info{font-size:12px;color:var(--gray);margin-top:3px}.player-photo{width:40px;height:40px;border-radius:50%;object-fit:cover;background:#ddd}.counter{background:#eef4ff;color:var(--blue);font-weight:bold;padding:8px 12px;border-radius:20px;display:inline-block;margin-bottom:10px}.table-wrap{overflow-x:auto}table{width:100%;border-collapse:collapse;min-width:1100px}th,td{padding:11px;border-bottom:1px solid var(--border);text-align:left}th{background:var(--navy);color:white}tr:hover td{background:#f8fbff}.action-buttons{display:flex;gap:6px;flex-wrap:wrap}.badge{display:inline-block;padding:5px 9px;border-radius:15px;font-size:12px;font-weight:bold}.badge-scheduled{background:#fff3cd;color:#664d03}.badge-live{background:#f8d7da;color:#842029}.badge-finished{background:#d1e7dd;color:#0f5132}.badge-other{background:#e2e3e5;color:#41464b}.team-name{font-weight:bold}.team-id{font-size:11px;color:#777;margin-top:3px}.hidden{display:none!important}.empty{padding:25px;text-align:center;color:var(--gray)}.small{font-size:12px;color:var(--gray)}footer{text-align:center;padding:25px;color:var(--gray)}@media(max-width:900px){.grid,.lineup-columns{grid-template-columns:1fr}.grid-3{grid-template-columns:1fr 1fr}.grid-4,.stats{grid-template-columns:1fr 1fr}}@media(max-width:600px){main{padding:10px}header h1{font-size:18px}.logo{width:50px;height:50px}nav a{font-size:12px;padding:10px 8px}.grid-3,.grid-4,.stats{grid-template-columns:1fr}}
@@ -34,6 +35,26 @@
 </div>
 <div class="buttons"><button class="btn-success" onclick="uploadMatchReports()">⬆️ Pakia Ripoti Zilizochaguliwa</button><button class="btn-primary" onclick="loadMatchReports()">🔄 Onyesha Ripoti</button></div>
 <div id="matchReportsList" class="grid" style="margin-top:15px"><div class="empty">Chagua mechi ili kuona ripoti.</div></div>
+<hr style="margin:22px 0;border:0;border-top:1px solid var(--border)">
+<h3>🔎 SOMA PICHA NA KAGUA TAKWIMU (OCR)</h3>
+<p class="small">Chagua picha ya ripoti kutoka simu, soma maandishi, kisha msimamizi athibitishe mchezaji, dakika na tukio kabla ya kuhifadhi. OCR inaweza kukosea; PDF bado inahitaji kugeuzwa kuwa picha kwanza.</p>
+<div class="form-group"><label>Picha ya ripoti ya kusoma</label><input id="reportOcrFile" type="file" accept="image/*"></div>
+<div class="buttons"><button class="btn-primary" onclick="readMatchReportImage()">🔎 Soma Picha (OCR)</button></div>
+<div id="reportOcrStatus" class="status info">Chagua picha ya ripoti.</div>
+<div class="form-group"><label>Maandishi yaliyosomwa — kagua na sahihisha</label><textarea id="reportOcrText" rows="7" placeholder="Maandishi yatatokea hapa baada ya OCR..."></textarea></div>
+<div class="buttons"><button class="btn-light" onclick="saveOcrText()">💾 Hifadhi Nakala ya OCR</button></div>
+<div class="team-box" style="margin-top:16px">
+<h3>✅ Uthibitisho wa Tukio la Mechi</h3>
+<p class="small">Chagua tukio kutoka kwenye ripoti iliyosomwa. Takwimu hazitaingizwa kwenye mfumo hadi msimamizi athibitishe.</p>
+<div class="grid">
+<div class="form-group"><label>Aina ya Tukio</label><select id="reviewEventType"><option value="goal">⚽ Goli</option><option value="assist">🅰️ Assist</option><option value="yellow_card">🟨 Kadi ya Njano</option><option value="red_card">🟥 Kadi Nyekundu</option></select></div>
+<div class="form-group"><label>Timu</label><select id="reviewEventClub" onchange="loadReviewPlayers()"><option value="">Chagua timu</option></select></div>
+<div class="form-group"><label>Mchezaji</label><select id="reviewEventPlayer"><option value="">Chagua mchezaji</option></select></div>
+<div class="form-group"><label>Dakika ya tukio</label><input id="reviewEventMinute" type="number" min="1" max="130" placeholder="Mfano: 67"></div>
+</div>
+<div class="form-group"><label>Maelezo / ushahidi kutoka ripoti</label><textarea id="reviewEventNotes" placeholder="Mfano: Refa amethibitisha mchezaji namba 9 alifunga dakika ya 67."></textarea></div>
+<div class="buttons"><button class="btn-success" onclick="saveReviewedMatchEvent()">✅ Thibitisha na Hifadhi Tukio</button></div>
+</div>
 </section>
 <section class="card"><h2>📅 Mechi Zote</h2><div class="grid"><div><label>Competition</label><select id="filterCompetition"><option value="">Mashindano yote</option></select></div><div><label>Status</label><select id="filterStatus"><option value="">Status zote</option><option value="Scheduled">Scheduled</option><option value="Live">Live</option><option value="Finished">Finished</option><option value="Postponed">Postponed</option><option value="Cancelled">Cancelled</option></select></div></div><div class="buttons"><button class="btn-primary" onclick="loadMatches()">🔄 Refresh</button></div><div class="table-wrap"><table><thead><tr><th>#</th><th>Competition</th><th>Wiki / Mechi #</th><th>Tarehe</th><th>Muda</th><th>Nyumbani</th><th>Ugenini</th><th>Score</th><th>Status</th><th>Action</th></tr></thead><tbody id="matchesTable"><tr><td colspan="9" class="empty">Inapakia mechi...</td></tr></tbody></table></div></section>
 </main><footer>AFRN FOOTBALL MANAGEMENT © 2026</footer>
@@ -78,6 +99,52 @@ async function loadMatchReports(){const out=document.getElementById('matchReport
 async function openMatchReportFile(path){const r=await db.storage.from('AFRN FILES').createSignedUrl(path,3600);if(r.error){alert('Imeshindwa kufungua faili: '+r.error.message);return}window.open(r.data.signedUrl,'_blank','noopener')}
 async function deleteMatchReport(id,path){if(!confirm('Una uhakika unataka kufuta ripoti hii?'))return;const s=await db.storage.from('AFRN FILES').remove([path]);if(s.error){alert('Faili halikufutwa: '+s.error.message);return}const r=await db.from('match_events').delete().eq('id',id).eq('event_type','match_report');if(r.error){alert('Faili limeondolewa lakini rekodi haikufutwa: '+r.error.message);return}setReportStatus('Ripoti imefutwa.','success');loadMatchReports()}
 
+async function readMatchReportImage(){
+ try{
+  if(!currentMatchId)throw new Error('Chagua mechi iliyohifadhiwa kwanza.');
+  const file=document.getElementById('reportOcrFile').files[0];if(!file)throw new Error('Chagua picha kwanza.');
+  if(!file.type.startsWith('image/'))throw new Error('OCR ya sasa inasoma picha tu. Geuza PDF kuwa picha kwanza.');
+  if(!window.Tesseract)throw new Error('Huduma ya OCR haijapakiwa. Angalia intaneti kisha jaribu tena.');
+  const status=document.getElementById('reportOcrStatus');status.className='status info';status.textContent='Inasoma picha... tafadhali subiri.';
+  const result=await Tesseract.recognize(file,'eng+fra',{logger:m=>{if(m.status==='recognizing text')status.textContent='Inasoma maandishi: '+Math.round((m.progress||0)*100)+'%';}});
+  document.getElementById('reportOcrText').value=(result.data.text||'').trim();
+  status.className='status success';status.textContent='OCR imekamilika. Kagua maandishi kwa makini; mfumo haujahifadhi takwimu moja kwa moja.';
+ }catch(e){console.error(e);const s=document.getElementById('reportOcrStatus');s.className='status error';s.textContent='OCR imeshindwa: '+e.message;alert(e.message)}
+}
+async function saveOcrText(){
+ try{if(!currentMatchId)throw new Error('Chagua mechi kwanza.');const txt=value('reportOcrText').trim();if(!txt)throw new Error('Hakuna maandishi ya kuhifadhi.');
+ const {error}=await db.from('match_events').insert({match_id:currentMatchId,event_type:'match_report_ocr',minute:null,description:txt});if(error)throw error;
+ setReportStatus('Nakala ya OCR imehifadhiwa kwenye historia ya mechi.','success');alert('Nakala ya OCR imehifadhiwa.');
+ }catch(e){alert('Imeshindikana kuhifadhi OCR: '+e.message)}
+}
+function loadReviewPlayers(){
+ const clubId=value('reviewEventClub'),sel=document.getElementById('reviewEventPlayer');sel.innerHTML='<option value="">Chagua mchezaji</option>';
+ const list=players.filter(p=>String(p.club_id)===String(clubId));
+ list.sort((a,b)=>playerName(a).localeCompare(playerName(b))).forEach(p=>{sel.innerHTML+=`<option value="${escapeAttr(p.id)}">${escapeHtml(playerName(p))}${p.jersey_number!=null?' · #'+escapeHtml(p.jersey_number):''}</option>`});
+}
+function initReviewEventTeams(){
+ const sel=document.getElementById('reviewEventClub');if(!sel)return;const h=findClub(value('homeClubId')),a=findClub(value('awayClubId'));
+ sel.innerHTML='<option value="">Chagua timu</option>';
+ [h,a].filter(Boolean).forEach(c=>sel.innerHTML+=`<option value="${escapeAttr(c.id)}">${escapeHtml(getClubName(c))}</option>`);
+}
+async function saveReviewedMatchEvent(){
+ try{
+  if(!currentMatchId)throw new Error('Chagua mechi iliyohifadhiwa kwanza.');
+  const eventType=value('reviewEventType'),clubId=value('reviewEventClub'),playerId=value('reviewEventPlayer'),minute=value('reviewEventMinute');
+  if(!clubId||!playerId)throw new Error('Chagua timu na mchezaji.');
+  const selectedPlayer=players.find(p=>String(p.id)===String(playerId));if(!selectedPlayer)throw new Error('Mchezaji hakupatikana kwenye orodha iliyopakiwa.');
+  const notes=value('reviewEventNotes').trim();
+  const label={goal:'Goli',assist:'Assist',yellow_card:'Kadi ya njano',red_card:'Kadi nyekundu'}[eventType]||eventType;
+  const description=JSON.stringify({source:'reviewed_match_report',event_type:eventType,player_name:playerName(selectedPlayer),jersey_number:selectedPlayer.jersey_number??null,notes,confirmed_by_admin:true,confirmed_at:new Date().toISOString()});
+  const {error}=await db.from('match_events').insert({match_id:currentMatchId,player_id:playerId,club_id:clubId,event_type:eventType,minute:minute?Number(minute):null,description});
+  if(error)throw error;
+  setReportStatus('Tukio la '+label+' limehifadhiwa baada ya uthibitisho.','success');
+  alert('Tukio limehifadhiwa. Hakikisha matokeo na takwimu za mashindano zinaendana na ripoti.');
+  setField('reviewEventMinute','');setField('reviewEventNotes','');
+ }catch(e){console.error(e);alert('Imeshindikana kuhifadhi tukio: '+e.message)}
+}
+document.getElementById('homeClubId')?.addEventListener('change',initReviewEventTeams);
+document.getElementById('awayClubId')?.addEventListener('change',initReviewEventTeams);
 async function deleteMatch(id){if(!confirm('Una uhakika unataka kufuta mechi hii?'))return;try{await db.from('match_events').delete().eq('match_id',id);const {error}=await db.from('matches').delete().eq('id',id);if(error)throw error;setStatus('✅ Mechi imefutwa.','success');if(String(currentMatchId)===String(id))resetMatchForm();await loadMatches()}catch(error){console.error(error);alert('❌ Imeshindikana kufuta mechi:\n\n'+error.message)}}
 function updateStats(){document.getElementById('totalMatches').textContent=matches.length;document.getElementById('scheduledMatches').textContent=matches.filter(m=>String(m.status).toLowerCase()==='scheduled').length;document.getElementById('liveMatches').textContent=matches.filter(m=>String(m.status).toLowerCase()==='live').length;document.getElementById('finishedMatches').textContent=matches.filter(m=>['finished','completed'].includes(String(m.status).toLowerCase())).length}
 function resetMatchForm(){currentMatchId=null;document.getElementById('editMatchId').value='';document.getElementById('matchFormTitle').textContent='➕ Tengeneza Mechi';['competitionId','matchDate','matchWeek','matchNumber','matchTime','venue','homeClubId','awayClubId','refereeMain','matchNotes'].forEach(id=>setField(id,''));setField('matchStatus','Scheduled');setField('homeScore',0);setField('awayScore',0);clearLineupSelections()}
