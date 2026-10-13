@@ -132,7 +132,7 @@ async function saveReviewedMatchEvent(){
   if(!currentMatchId)throw new Error('Chagua mechi iliyohifadhiwa kwanza.');
   const eventType=value('reviewEventType'),clubId=value('reviewEventClub'),playerId=value('reviewEventPlayer'),minute=value('reviewEventMinute');
   if(!clubId||!playerId)throw new Error('Chagua timu na mchezaji.');
-  const selectedPlayer=players.find(p=>String(p.id)===String(playerId));if(!selectedPlayer)throw new Error('Mchezaji hakupatikana kwenye orodha iliyopakiwa.');
+  const {data:selectedPlayer,error:playerLookupError}=await db.from('players').select('id,first_name,middle_name,last_name,jersey_number').eq('id',playerId).maybeSingle();if(playerLookupError||!selectedPlayer)throw new Error(playerLookupError?.message||'Mchezaji hakupatikana.');
   const notes=value('reviewEventNotes').trim();
   const label={goal:'Goli',assist:'Assist',yellow_card:'Kadi ya njano',red_card:'Kadi nyekundu'}[eventType]||eventType;
   const description=JSON.stringify({source:'reviewed_match_report',event_type:eventType,player_name:playerName(selectedPlayer),jersey_number:selectedPlayer.jersey_number??null,notes,confirmed_by_admin:true,confirmed_at:new Date().toISOString()});
