@@ -117,11 +117,7 @@ async function saveOcrText(){
  setReportStatus('Nakala ya OCR imehifadhiwa kwenye historia ya mechi.','success');alert('Nakala ya OCR imehifadhiwa.');
  }catch(e){alert('Imeshindikana kuhifadhi OCR: '+e.message)}
 }
-function loadReviewPlayers(){
- const clubId=value('reviewEventClub'),sel=document.getElementById('reviewEventPlayer');sel.innerHTML='<option value="">Chagua mchezaji</option>';
- const list=players.filter(p=>String(p.club_id)===String(clubId));
- list.sort((a,b)=>playerName(a).localeCompare(playerName(b))).forEach(p=>{sel.innerHTML+=`<option value="${escapeAttr(p.id)}">${escapeHtml(playerName(p))}${p.jersey_number!=null?' · #'+escapeHtml(p.jersey_number):''}</option>`});
-}
+async function loadReviewPlayers(){const clubId=value('reviewEventClub'),sel=document.getElementById('reviewEventPlayer');sel.innerHTML='<option value="">Inapakia...</option>';if(!clubId){sel.innerHTML='<option value="">Chagua mchezaji</option>';return}const {data,error}=await db.from('players').select('id,club_id,first_name,middle_name,last_name,jersey_number').eq('club_id',clubId).order('first_name',{ascending:true});if(error){sel.innerHTML='<option value="">Hitilafu ya kupakia</option>';alert(error.message);return}sel.innerHTML='<option value="">Chagua mchezaji</option>';(data||[]).forEach(p=>{const opt=document.createElement('option');opt.value=p.id;opt.textContent=playerName(p)+(p.jersey_number!=null?' · #'+p.jersey_number:'');sel.appendChild(opt)})}
 function initReviewEventTeams(){
  const sel=document.getElementById('reviewEventClub');if(!sel)return;const h=findClub(value('homeClubId')),a=findClub(value('awayClubId'));
  sel.innerHTML='<option value="">Chagua timu</option>';
