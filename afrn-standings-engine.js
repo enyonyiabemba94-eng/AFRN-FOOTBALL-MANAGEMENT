@@ -1,6 +1,6 @@
 /* AFRN Competition/League standings engine — one rule everywhere */
 (function(){
-  const norm=v=>String(v??'').trim().toLowerCase().replace(/\s+/g,'_');
+  const norm=v=>String(v??'').trim().toLowerCase().replace(/\\s+/g,'_');
   function playedStatus(s){ return ['completed','finished','played','full_time','ft'].includes(norm(s)); }
   function buildStandings({teams=[],matches=[],events=[],clubName=()=>'',groupFilter=null}={}){
     const rows=teams.filter(t=>!groupFilter||String(t.group_name||'')===String(groupFilter)).map(t=>({
@@ -12,12 +12,23 @@
     for(const m of matches){
       if(!playedStatus(m.status)) continue;
       const h=map.get(String(m.home_team_id)), a=map.get(String(m.away_team_id));
-      if(!h||!a) continue;
+      // Historical matches remain valid even when one club is no longer registered
+      // in this competition. Update only the currently listed club(s), never recreate
+      // a removed club in the active standings.
+      if(!h&&!a) continue;
       const hs=Number(m.home_score)||0, as=Number(m.away_score)||0;
-      h.P++;a.P++;h.GF+=hs;h.GA+=as;a.GF+=as;a.GA+=hs;
-      if(hs>as){h.W++;a.L++;h.PTS+=3}
-      else if(hs<as){a.W++;h.L++;a.PTS+=3}
-      else {h.D++;a.D++;h.PTS++;a.PTS++}
+      if(h){
+        h.P++; h.GF+=hs; h.GA+=as;
+        if(hs>as){h.W++;h.PTS+=3}
+        else if(hs<as){h.L++}
+        else {h.D++;h.PTS++}
+      }
+      if(a){
+        a.P++; a.GF+=as; a.GA+=hs;
+        if(as>hs){a.W++;a.PTS+=3}
+        else if(as<hs){a.L++}
+        else {a.D++;a.PTS++}
+      }
     }
     const eventMap=new Map();
     for(const e of events){
