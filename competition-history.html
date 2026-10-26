@@ -302,7 +302,7 @@ function competitionPlayerStats(){
   events.forEach(e=>{
     const s=map.get(String(e.player_id)); if(!s) return;
     const t=String(e.event_type||"").toLowerCase();
-    if(t==="goal" || t.includes("goal")) s.goals++;
+    if(t==="goal") s.goals++;
     if(t.includes("yellow")) s.yellow++;
     if(t.includes("red")) s.red++;
     if(t==="lineup_starting" || t==="lineup_substitute") s.apps++;
@@ -398,8 +398,9 @@ function cards(){
 }
 
 function scorers(){
-  const goals = events.filter(e => String(e.event_type || "").toLowerCase().includes("goal"));
-  $("content").innerHTML = `<h3>⚽ Wafungaji</h3><div class="empty">${goals.length} matukio ya magoli yameandikwa.</div>`;
+  const goals = events.filter(e => String(e.event_type || "").toLowerCase() === "goal");
+  const ownGoals = events.filter(e => String(e.event_type || "").toLowerCase() === "own_goal");
+  $("content").innerHTML = `<h3>⚽ Wafungaji</h3><div class="grid"><div class="stat"><b>${goals.length}</b>MAGOLI YA KAWAIDA</div><div class="stat"><b>${ownGoals.length}</b>O.G. (OWN GOAL)</div></div><div class="muted" style="margin-top:10px">O.G. huhesabiwa kama goli la timu pinzani, si goli la kawaida la mchezaji aliyejifunga.</div>`;
 }
 
 function stats(){
@@ -504,7 +505,7 @@ window.__AFRN_COMPETITION_HISTORY__ = true;
 </script>
 <script>
 function eventIsPerson(type){return String(type||"").startsWith("coach_")||String(type||"").startsWith("supporter_");}
-function eventTypeLabel(type){return ({goal:"Goli",assist:"Assist",yellow_card:"Kadi ya njano — mchezaji",red_card:"Kadi nyekundu — mchezaji",coach_yellow_card:"Kadi ya njano — kocha",coach_red_card:"Kadi nyekundu — kocha",supporter_yellow_card:"Kadi ya njano — shabiki",supporter_red_card:"Kadi nyekundu — shabiki"})[type]||type;}
+function eventTypeLabel(type){return ({goal:"Goli",own_goal:"O.G. (Own Goal)",assist:"Assist",yellow_card:"Kadi ya njano — mchezaji",red_card:"Kadi nyekundu — mchezaji",coach_yellow_card:"Kadi ya njano — kocha",coach_red_card:"Kadi nyekundu — kocha",supporter_yellow_card:"Kadi ya njano — shabiki",supporter_red_card:"Kadi nyekundu — shabiki"})[type]||type;}
 function openCompetitionEventEditor(matchId){
  const m=matches.find(x=>String(x.id)===String(matchId));if(!m){alert("Mechi haijapatikana.");return;}
  const home=clubs.find(c=>String(c.id)===String(m.home_team_id)),away=clubs.find(c=>String(c.id)===String(m.away_team_id));
@@ -515,7 +516,7 @@ function openCompetitionEventEditor(matchId){
  let h='<div class="event-overlay" id="competitionEventOverlay" onclick="if(event.target===this)this.remove()"><section class="event-modal" role="dialog" aria-modal="true">';
  h+='<div style="display:flex;justify-content:space-between;align-items:flex-start;gap:10px"><div><h3 style="margin:0 0 5px">⚽ Wafungaji na Kadi</h3><b>'+esc(home?.name||"Timu ya nyumbani")+' vs '+esc(away?.name||"Timu ya ugenini")+'</b><div class="muted" style="margin-top:5px">'+esc(m.match_date||"—")+' · Matokeo: '+(finished?esc(m.home_score??0)+" - "+esc(m.away_score??0):"Bado")+'</div></div><button class="small-btn" onclick="document.getElementById(\'competitionEventOverlay\').remove()">✖ Funga</button></div>';
  h+=finished?'':'<div class="event-warning" style="padding:10px;border-radius:9px;margin-top:12px">⚠️ Hifadhi baada ya hali ya mechi kuwa Finished.</div>';
- h+='<div class="event-modal-grid" style="margin-top:12px"><div><label>Aina ya tukio</label><select id="compEventType" onchange="updateCompetitionEventFields()"><option value="goal">⚽ Goli</option><option value="assist">🅰️ Assist</option><option value="yellow_card">🟨 Kadi ya njano — mchezaji</option><option value="red_card">🟥 Kadi nyekundu — mchezaji</option><option value="coach_yellow_card">🟨 Kadi ya njano — kocha</option><option value="coach_red_card">🟥 Kadi nyekundu — kocha</option><option value="supporter_yellow_card">🟨 Kadi ya njano — shabiki</option><option value="supporter_red_card">🟥 Kadi nyekundu — shabiki</option></select></div>';
+ h+='<div class="event-modal-grid" style="margin-top:12px"><div><label>Aina ya tukio</label><select id="compEventType" onchange="updateCompetitionEventFields()"><option value="goal">⚽ Goli</option><option value="own_goal">🥅 O.G. (Own Goal)</option><option value="assist">🅰️ Assist</option><option value="yellow_card">🟨 Kadi ya njano — mchezaji</option><option value="red_card">🟥 Kadi nyekundu — mchezaji</option><option value="coach_yellow_card">🟨 Kadi ya njano — kocha</option><option value="coach_red_card">🟥 Kadi nyekundu — kocha</option><option value="supporter_yellow_card">🟨 Kadi ya njano — shabiki</option><option value="supporter_red_card">🟥 Kadi nyekundu — shabiki</option></select></div>';
  h+='<div><label>Timu</label><select id="compEventClub" onchange="updateCompetitionEventPlayers()">'+teamHtml+'</select></div><div id="compEventPlayerWrap"><label>Mchezaji</label><select id="compEventPlayer"></select></div><div id="compEventPersonWrap" style="display:none"><label>Jina la kocha/shabiki (si lazima)</label><input id="compEventPerson" maxlength="160" placeholder="Jina si lazima"></div>';
  h+='<div><label>Dakika (si lazima)</label><input id="compEventMinute" type="number" min="1" max="130" placeholder="Mfano: 67"></div><div><label>Maelezo (si lazima)</label><input id="compEventNotes" maxlength="500" placeholder="Maelezo au ushahidi"></div></div>';
  h+='<div style="display:flex;gap:8px;flex-wrap:wrap;margin-top:14px"><button class="small-btn event-primary" '+(finished?'':'disabled')+' onclick="saveCompetitionEvent(\''+esc(m.id)+'\')">💾 Hifadhi Tukio</button><button class="small-btn" onclick="document.getElementById(\'competitionEventOverlay\').remove()">Ghairi</button></div>';
