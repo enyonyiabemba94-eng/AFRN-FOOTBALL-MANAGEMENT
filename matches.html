@@ -171,10 +171,10 @@ async function saveReviewedMatchEvent(){
   if(![String(m.home_team_id),String(m.away_team_id)].includes(String(clubId)))throw new Error('Timu uliyochagua si sehemu ya mechi hii.');
   if(minuteText&&(!Number.isInteger(Number(minuteText))||Number(minuteText)<1||Number(minuteText)>130))throw new Error('Dakika lazima iwe namba kati ya 1 na 130.');
   const isPerson=eventType.startsWith('coach_')||eventType.startsWith('supporter_');let p=null;
-  if(isPerson){if(!personName)throw new Error('Andika jina la kocha au shabiki.');}
+  if(isPerson&&personName.length>160)throw new Error('Jina likizidi herufi 160.');
   else{if(!playerId)throw new Error('Chagua mchezaji.');const r=await db.from('players').select('id,club_id,first_name,middle_name,last_name,jersey_number').eq('id',playerId).maybeSingle();if(r.error||!r.data)throw new Error(r.error?.message||'Mchezaji hakupatikana.');p=r.data;if(String(p.club_id)!==String(clubId))throw new Error('Mchezaji huyu hajasajiliwa kwenye timu uliyochagua.');}
   const labels={goal:'Goli',assist:'Assist',yellow_card:'Kadi ya njano ya mchezaji',red_card:'Kadi nyekundu ya mchezaji',coach_yellow_card:'Kadi ya njano ya kocha',coach_red_card:'Kadi nyekundu ya kocha',supporter_yellow_card:'Kadi ya njano ya shabiki',supporter_red_card:'Kadi nyekundu ya shabiki'};
-  const who=isPerson?((eventType.startsWith('coach_')?'Kocha: ':'Shabiki: ')+personName):('Mchezaji: '+playerName(p)+(p.jersey_number!=null?' | Namba ya jezi: '+p.jersey_number:''));
+  const who=isPerson?((eventType.startsWith('coach_')?'Kadi kwa kocha':'Kadi kwa shabiki')+(personName?' — '+personName:'')):('Mchezaji: '+playerName(p)+(p.jersey_number!=null?' | Namba ya jezi: '+p.jersey_number:''));
   const description=[value('reviewEventNotes').trim(),who,'Imethibitishwa na msimamizi'].filter(Boolean).join(' | ');
   const {error}=await db.from('match_events').insert({match_id:currentMatchId,player_id:p?.id||null,club_id:clubId,event_type:eventType,minute:minuteText?Number(minuteText):null,description});
   if(error)throw error;setReportStatus('✅ '+labels[eventType]+' imehifadhiwa.','success');alert(labels[eventType]+' imehifadhiwa vizuri.');setField('reviewEventMinute','');setField('reviewEventNotes','');setField('reviewEventPerson','');
