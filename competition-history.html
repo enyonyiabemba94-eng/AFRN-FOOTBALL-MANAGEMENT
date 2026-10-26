@@ -2,7 +2,7 @@
 <html lang="sw"><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>AFRN — Competition</title>
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script><script src="./supabase-config.js"></script><script src="./afrn-standings-engine.js"></script>
 <style>
-body{margin:0;background:#f4f7fb;color:#172033;font-family:Arial,sans-serif}header{background:linear-gradient(135deg,#06152b,#0d47a1);color:#fff;padding:16px}nav{display:flex;gap:7px;overflow:auto;background:#fff;padding:9px}nav a{padding:9px 12px;text-decoration:none;color:#172033;font-weight:700;white-space:nowrap}.wrap{max-width:1200px;margin:auto;padding:12px}.card{background:#fff;border:1px solid #d9e0ea;border-radius:15px;padding:16px;margin-bottom:14px}.hero{display:flex;gap:14px;align-items:center}.logo{width:70px;height:70px;object-fit:contain;border-radius:12px;border:1px solid #ddd}.muted{color:#687386;font-size:12px}.tabs{display:flex;gap:7px;overflow:auto}.tab{border:0;background:#e8edf5;padding:10px 13px;border-radius:9px;font-weight:800;white-space:nowrap}.tab.active{background:#0d47a1;color:#fff}.table-wrap{overflow:auto}table{width:100%;border-collapse:collapse;font-size:12px}th{background:#071a33;color:#fff;padding:9px;white-space:nowrap}td{padding:9px;border-bottom:1px solid #edf0f4;white-space:nowrap}td:nth-child(2){font-weight:800}.badge{display:inline-block;padding:5px 9px;border-radius:999px;background:#e9f8ef;color:#16834b;font-size:10px;font-weight:800}.empty{text-align:center;padding:28px;color:#687386}.grid{display:grid;grid-template-columns:repeat(4,1fr);gap:10px}.stat{border:1px solid #d9e0ea;border-radius:12px;padding:12px;text-align:center}.stat b{display:block;font-size:22px;color:#0d47a1}@media(max-width:700px){.grid{grid-template-columns:repeat(2,1fr)}}
+body{margin:0;background:#f4f7fb;color:#172033;font-family:Arial,sans-serif}header{background:linear-gradient(135deg,#06152b,#0d47a1);color:#fff;padding:16px}nav{display:flex;gap:7px;overflow:auto;background:#fff;padding:9px}nav a{padding:9px 12px;text-decoration:none;color:#172033;font-weight:700;white-space:nowrap}.wrap{max-width:1200px;margin:auto;padding:12px}.card{background:#fff;border:1px solid #d9e0ea;border-radius:15px;padding:16px;margin-bottom:14px}.hero{display:flex;gap:14px;align-items:center}.logo{width:70px;height:70px;object-fit:contain;border-radius:12px;border:1px solid #ddd}.muted{color:#687386;font-size:12px}.tabs{display:flex;gap:7px;overflow:auto}.tab{border:0;background:#e8edf5;padding:10px 13px;border-radius:9px;font-weight:800;white-space:nowrap}.tab.active{background:#0d47a1;color:#fff}.table-wrap{overflow:auto}table{width:100%;border-collapse:collapse;font-size:12px}th{background:#071a33;color:#fff;padding:9px;white-space:nowrap}td{padding:9px;border-bottom:1px solid #edf0f4;white-space:nowrap}td:nth-child(2){font-weight:800}.small-btn{padding:7px 10px;font-size:11px;border:0;border-radius:8px;background:#e8edf5;color:#172033;font-weight:800;cursor:pointer}.event-primary{background:#0d47a1;color:#fff}.event-warning{background:#fff5d6;color:#6b4a00}.event-overlay{position:fixed;inset:0;background:#071a33b8;z-index:9999;display:flex;align-items:center;justify-content:center;padding:12px}.event-modal{background:#fff;border-radius:15px;padding:16px;width:min(620px,100%);max-height:92vh;overflow:auto;box-shadow:0 10px 40px #0004}.event-modal label{display:block;font-weight:800;font-size:12px;margin:9px 0 5px}.event-modal input,.event-modal select{width:100%;box-sizing:border-box;padding:10px;border:1px solid #ccd5e2;border-radius:9px;font:inherit}.event-modal-grid{display:grid;grid-template-columns:1fr 1fr;gap:10px}@media(max-width:520px){.event-modal-grid{grid-template-columns:1fr}}.badge{display:inline-block;padding:5px 9px;border-radius:999px;background:#e9f8ef;color:#16834b;font-size:10px;font-weight:800}.empty{text-align:center;padding:28px;color:#687386}.grid{display:grid;grid-template-columns:repeat(4,1fr);gap:10px}.stat{border:1px solid #d9e0ea;border-radius:12px;padding:12px;text-align:center}.stat b{display:block;font-size:22px;color:#0d47a1}@media(max-width:700px){.grid{grid-template-columns:repeat(2,1fr)}}
 </style></head><body>
 <header><div class="wrap"><b>⚽ AFRN FOOTBALL MANAGEMENT</b><div class="muted" style="color:#fff">Mashindano na historia rasmi</div></div></header>
 <nav><a href="./index.html">🏠 Dashboard</a><a href="./competitions.html">🏆 Mashindano</a><a href="./matches.html">🏟️ Mechi</a></nav>
@@ -75,7 +75,7 @@ async function load(){
   const matchIds = matches.map(m => m.id).filter(Boolean);
   if(matchIds.length){
     const er = await db.from("match_events")
-      .select("match_id,club_id,event_type,player_id,minute")
+      .select("match_id,club_id,event_type,player_id,minute,description")
       .in("match_id", matchIds);
     if(er.error) throw er.error;
     events = er.data || [];
@@ -200,7 +200,7 @@ function matchesView(){
         <td>${esc(name(m.home_team_id))} vs ${esc(name(m.away_team_id))}</td>
         <td>${esc(m.venue || "—")}</td>
         <td><b>${played(m.status) ? esc(m.home_score ?? 0)+" - "+esc(m.away_score ?? 0) : "—"}</b></td>
-        <td>${esc(m.status || "Scheduled")}<br><button class="secondary small-btn" onclick="editHistoryMatch('${esc(m.id)}')">✏️ Edit</button></td>
+        <td>${esc(m.status || "Scheduled")}<br><button class="secondary small-btn" onclick="editHistoryMatch('${esc(m.id)}')">✏️ Edit</button><br><button class="small-btn event-primary" style="margin-top:6px" onclick="openCompetitionEventEditor('${esc(m.id)}')">⚽ Wafungaji/Kadi</button></td>
       </tr>`).join("")}
     </tbody></table></div>`
     : '<div class="empty">'+(league ? 'Hakuna mechi kwenye Wiki hii.' : 'Hakuna mechi zilizohifadhiwa kwenye mashindano haya.')+'</div>'}`;
@@ -502,4 +502,54 @@ window.__AFRN_COMPETITION_HISTORY__ = true;
   window.addEventListener('load',()=>setTimeout(()=>{if(tab==='TIMU')manager();},0));
 })();
 </script>
-</body></html>
+<script>
+function eventIsPerson(type){return String(type||"").startsWith("coach_")||String(type||"").startsWith("supporter_");}
+function eventTypeLabel(type){return ({goal:"Goli",assist:"Assist",yellow_card:"Kadi ya njano — mchezaji",red_card:"Kadi nyekundu — mchezaji",coach_yellow_card:"Kadi ya njano — kocha",coach_red_card:"Kadi nyekundu — kocha",supporter_yellow_card:"Kadi ya njano — shabiki",supporter_red_card:"Kadi nyekundu — shabiki"})[type]||type;}
+function openCompetitionEventEditor(matchId){
+ const m=matches.find(x=>String(x.id)===String(matchId));if(!m){alert("Mechi haijapatikana.");return;}
+ const home=clubs.find(c=>String(c.id)===String(m.home_team_id)),away=clubs.find(c=>String(c.id)===String(m.away_team_id));
+ document.getElementById("competitionEventOverlay")?.remove();
+ const finished=played(m.status),teamHtml=[home,away].filter(Boolean).map(c=>'<option value="'+esc(c.id)+'">'+esc(c.name)+'</option>').join("");
+ const existing=events.filter(e=>String(e.match_id)===String(matchId)&&(/goal|assist|yellow|red/i.test(String(e.event_type||""))));
+ const oldHtml=existing.length?existing.map(e=>'<div style="padding:7px 0;border-bottom:1px solid #edf0f4"><b>'+esc(eventTypeLabel(e.event_type))+'</b> · '+esc(name(e.club_id))+' · Dakika '+esc(e.minute||"—")+(e.description?'<div class="muted">'+esc(e.description)+'</div>':'')+'</div>').join(""):'<div class="muted">Bado hakuna goli au kadi zilizohifadhiwa.</div>';
+ let h='<div class="event-overlay" id="competitionEventOverlay" onclick="if(event.target===this)this.remove()"><section class="event-modal" role="dialog" aria-modal="true">';
+ h+='<div style="display:flex;justify-content:space-between;align-items:flex-start;gap:10px"><div><h3 style="margin:0 0 5px">⚽ Wafungaji na Kadi</h3><b>'+esc(home?.name||"Timu ya nyumbani")+' vs '+esc(away?.name||"Timu ya ugenini")+'</b><div class="muted" style="margin-top:5px">'+esc(m.match_date||"—")+' · Matokeo: '+(finished?esc(m.home_score??0)+" - "+esc(m.away_score??0):"Bado")+'</div></div><button class="small-btn" onclick="document.getElementById(\'competitionEventOverlay\').remove()">✖ Funga</button></div>';
+ h+=finished?'':'<div class="event-warning" style="padding:10px;border-radius:9px;margin-top:12px">⚠️ Hifadhi baada ya hali ya mechi kuwa Finished.</div>';
+ h+='<div class="event-modal-grid" style="margin-top:12px"><div><label>Aina ya tukio</label><select id="compEventType" onchange="updateCompetitionEventFields()"><option value="goal">⚽ Goli</option><option value="assist">🅰️ Assist</option><option value="yellow_card">🟨 Kadi ya njano — mchezaji</option><option value="red_card">🟥 Kadi nyekundu — mchezaji</option><option value="coach_yellow_card">🟨 Kadi ya njano — kocha</option><option value="coach_red_card">🟥 Kadi nyekundu — kocha</option><option value="supporter_yellow_card">🟨 Kadi ya njano — shabiki</option><option value="supporter_red_card">🟥 Kadi nyekundu — shabiki</option></select></div>';
+ h+='<div><label>Timu</label><select id="compEventClub" onchange="updateCompetitionEventPlayers()">'+teamHtml+'</select></div><div id="compEventPlayerWrap"><label>Mchezaji</label><select id="compEventPlayer"></select></div><div id="compEventPersonWrap" style="display:none"><label>Jina la kocha/shabiki (si lazima)</label><input id="compEventPerson" maxlength="160" placeholder="Jina si lazima"></div>';
+ h+='<div><label>Dakika (si lazima)</label><input id="compEventMinute" type="number" min="1" max="130" placeholder="Mfano: 67"></div><div><label>Maelezo (si lazima)</label><input id="compEventNotes" maxlength="500" placeholder="Maelezo au ushahidi"></div></div>';
+ h+='<div style="display:flex;gap:8px;flex-wrap:wrap;margin-top:14px"><button class="small-btn event-primary" '+(finished?'':'disabled')+' onclick="saveCompetitionEvent(\''+esc(m.id)+'\')">💾 Hifadhi Tukio</button><button class="small-btn" onclick="document.getElementById(\'competitionEventOverlay\').remove()">Ghairi</button></div>';
+ h+='<hr style="border:0;border-top:1px solid #e5eaf1;margin:16px 0"><h4 style="margin:0 0 8px">Matukio yaliyohifadhiwa kwenye mechi hii</h4><div id="compEventExisting">'+oldHtml+'</div></section></div>';
+ document.body.insertAdjacentHTML("beforeend",h);updateCompetitionEventFields();
+}
+function updateCompetitionEventFields(){
+ const type=document.getElementById("compEventType")?.value||"goal",person=eventIsPerson(type);
+ const pw=document.getElementById("compEventPlayerWrap"),nw=document.getElementById("compEventPersonWrap");
+ if(pw)pw.style.display=person?"none":"block";if(nw)nw.style.display=person?"block":"none";updateCompetitionEventPlayers();
+}
+function updateCompetitionEventPlayers(){
+ const sel=document.getElementById("compEventPlayer"),club=document.getElementById("compEventClub");if(!sel||!club)return;
+ const available=players.filter(p=>String(p.club_id)===String(club.value)&&String(p.status||"").toLowerCase()!=="inactive");
+ sel.innerHTML='<option value="">Chagua mchezaji</option>'+available.map(p=>'<option value="'+esc(p.id)+'">'+esc([p.first_name,p.middle_name,p.last_name].filter(Boolean).join(" ")||"Mchezaji")+(p.jersey_number!=null?' · #'+esc(p.jersey_number):"")+'</option>').join("");
+}
+async function saveCompetitionEvent(matchId){
+ try{
+  const m=matches.find(x=>String(x.id)===String(matchId));if(!m)throw new Error("Mechi haijapatikana.");
+  if(!played(m.status))throw new Error("Kwanza weka hali ya mechi kuwa Finished.");
+  const type=document.getElementById("compEventType").value,clubId=document.getElementById("compEventClub").value;
+  const playerId=document.getElementById("compEventPlayer")?.value||"",personName=document.getElementById("compEventPerson")?.value.trim()||"";
+  const minuteText=document.getElementById("compEventMinute").value,notes=document.getElementById("compEventNotes").value.trim();
+  if(!clubId)throw new Error("Chagua timu.");
+  if(![String(m.home_team_id),String(m.away_team_id)].includes(String(clubId)))throw new Error("Timu hiyo si sehemu ya mechi hii.");
+  if(minuteText&&(!Number.isInteger(Number(minuteText))||Number(minuteText)<1||Number(minuteText)>130))throw new Error("Dakika lazima iwe kati ya 1 na 130.");
+  let player=null;
+  if(!eventIsPerson(type)){if(!playerId)throw new Error("Chagua mchezaji.");player=players.find(p=>String(p.id)===String(playerId));if(!player||String(player.club_id)!==String(clubId))throw new Error("Mchezaji si wa timu uliyochagua.");}
+  if(personName.length>160)throw new Error("Jina limezidi herufi 160.");
+  const playerName=player?[player.first_name,player.middle_name,player.last_name].filter(Boolean).join(" "):"";
+  const who=eventIsPerson(type)?((type.startsWith("coach_")?"Kadi kwa kocha":"Kadi kwa shabiki")+(personName?" — "+personName:"")):("Mchezaji: "+playerName+(player?.jersey_number!=null?" | Namba ya jezi: "+player.jersey_number:""));
+  const result=await db.from("match_events").insert({match_id:matchId,player_id:player?.id||null,club_id:clubId,event_type:type,minute:minuteText?Number(minuteText):null,description:[notes,who,"Imethibitishwa na msimamizi"].filter(Boolean).join(" | ")});
+  if(result.error)throw result.error;
+  alert("✅ "+eventTypeLabel(type)+" limehifadhiwa.");await load();openCompetitionEventEditor(matchId);
+ }catch(e){console.error(e);alert("❌ Imeshindikana kuhifadhi tukio: "+e.message);}
+}
+</script>\n</body></html>
