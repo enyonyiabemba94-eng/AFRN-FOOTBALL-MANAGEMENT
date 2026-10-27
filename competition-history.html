@@ -463,7 +463,7 @@ async function downloadGoalsScorersPDF(){
     // Weka nembo rasmi ya AFRN pande zote mbili za kichwa cha PDF.
     try{
       const logoImage=new Image();
-      logoImage.src=new URL("./afrn-logo.png",window.location.href).href;
+      logoImage.src=new URL("./IMG-20260319-WA0093.jpg",window.location.href).href;
       await new Promise((resolve,reject)=>{logoImage.onload=resolve;logoImage.onerror=reject;});
       const canvas=document.createElement("canvas");
       canvas.width=logoImage.naturalWidth||logoImage.width;canvas.height=logoImage.naturalHeight||logoImage.height;
