@@ -624,7 +624,17 @@ async function saveCompetitionEvent(matchId){
   if(personName.length>160)throw new Error("Jina limezidi herufi 160.");
   const playerName=player?[player.first_name,player.middle_name,player.last_name].filter(Boolean).join(" "):"";
   const who=eventIsPerson(type)?((type.startsWith("coach_")?"Kadi kwa kocha":"Kadi kwa shabiki")+(personName?" — "+personName:"")):("Mchezaji: "+playerName+(player?.jersey_number!=null?" | Namba ya jezi: "+player.jersey_number:""));
-  const result=await db.from("match_events").insert({match_id:matchId,player_id:player?.id||null,club_id:clubId,event_type:type,minute:minuteText?Number(minuteText):null,description:[notes,who,"Imethibitishwa na msimamizi"].filter(Boolean).join(" | ")});
+  const eventMinute=minuteText?Number(minuteText):null;
+  const eventDescription=[notes,who,"Imethibitishwa na msimamizi"].filter(Boolean).join(" | ");
+  // Zuia kuhifadhi tukio lilelile mara mbili, hasa kubofya Hifadhi mara nyingi.
+  const duplicateQuery=db.from("match_events").select("id").eq("match_id",matchId).eq("club_id",clubId).eq("event_type",type);
+  if(player?.id)duplicateQuery.eq("player_id",player.id);else duplicateQuery.is("player_id",null);
+  if(eventMinute===null)duplicateQuery.is("minute",null);else duplicateQuery.eq("minute",eventMinute);
+  duplicateQuery.eq("description",eventDescription);
+  const duplicateCheck=await duplicateQuery.limit(1);
+  if(duplicateCheck.error)throw duplicateCheck.error;
+  if(duplicateCheck.data?.length)throw new Error("Tukio hili tayari limehifadhiwa kwenye mechi hii. Hakuna haja ya kuliongeza tena.");
+  const result=await db.from("match_events").insert({match_id:matchId,player_id:player?.id||null,club_id:clubId,event_type:type,minute:eventMinute,description:eventDescription});
   if(result.error)throw result.error;
   alert("✅ "+eventTypeLabel(type)+" limehifadhiwa.");await load();openCompetitionEventEditor(matchId);
  }catch(e){console.error(e);alert("❌ Imeshindikana kuhifadhi tukio: "+e.message);}
