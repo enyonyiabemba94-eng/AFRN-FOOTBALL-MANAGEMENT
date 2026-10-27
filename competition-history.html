@@ -455,10 +455,22 @@ function downloadGoalsScorersWord(){
   setTimeout(()=>{try{URL.revokeObjectURL(url)}catch(_){}},10*60*1000);
  }catch(e){console.error(e);alert("Imeshindikana kutengeneza ripoti ya Word: "+(e.message||e));}
 }
-function downloadGoalsScorersPDF(){
+async function downloadGoalsScorersPDF(){
   try{
     if(!window.jspdf||!window.jspdf.jsPDF)throw new Error("Huduma ya kutengeneza PDF haijapakia. Hakikisha intaneti ipo kisha jaribu tena.");
     const {jsPDF}=window.jspdf,doc=new jsPDF({orientation:"landscape",unit:"mm",format:"a4"});
+    // Weka nembo rasmi ya AFRN pande zote mbili za kichwa cha PDF.
+    try{
+      const logoImage=new Image();
+      logoImage.src=new URL("./afrn-logo.png",window.location.href).href;
+      await new Promise((resolve,reject)=>{logoImage.onload=resolve;logoImage.onerror=reject;});
+      const canvas=document.createElement("canvas");
+      canvas.width=logoImage.naturalWidth||logoImage.width;canvas.height=logoImage.naturalHeight||logoImage.height;
+      canvas.getContext("2d").drawImage(logoImage,0,0);
+      const logoData=canvas.toDataURL("image/png");
+      doc.addImage(logoData,"PNG",10,5,22,22);
+      doc.addImage(logoData,"PNG",265,5,22,22);
+    }catch(logoError){console.warn("Nembo ya AFRN haikuweza kupakiwa kwenye PDF.",logoError);}
     const completed=matches.filter(m=>played(m.status)).slice().sort((a,b)=>String(a.match_date||"").localeCompare(String(b.match_date||""))||String(a.match_time||"").localeCompare(String(b.match_time||"")));
     const total=completed.reduce((sum,m)=>sum+Math.max(0,Number(m.home_score)||0)+Math.max(0,Number(m.away_score)||0),0);
     const homeGoals=completed.reduce((sum,m)=>sum+Math.max(0,Number(m.home_score)||0),0);
@@ -466,8 +478,8 @@ function downloadGoalsScorersPDF(){
     const scorerRows=reportScorerRows();
     const safeText=v=>String(v??"").replace(/[–—•]/g,"-").replace(/[^\x20-\xFF]/g,"");
     let y=15;
-    doc.setFont("helvetica","bold");doc.setFontSize(16);doc.text(safeText("AFRN FOOTBALL MANAGEMENT"),14,y);y+=8;
-    doc.setFontSize(13);doc.text(safeText("RIPOTI YA MAGOLI NA WAFUNGAJI BORA"),14,y);y+=7;
+    doc.setFont("helvetica","bold");doc.setFontSize(16);doc.text(safeText("AFRN FOOTBALL MANAGEMENT"),148,y,{align:"center"});y+=8;
+    doc.setFontSize(13);doc.text(safeText("RIPOTI YA MAGOLI NA WAFUNGAJI BORA"),148,y,{align:"center"});y+=7;
     doc.setFont("helvetica","normal");doc.setFontSize(11);
     doc.text(safeText((C?.name||"Mashindano")+" "+(C?.season||"2026")),14,y);y+=6;
     doc.text(safeText("Mechi zilizokamilika: "+completed.length+" | Jumla ya magoli: "+total+" | Nyumbani: "+homeGoals+" | Ugenini: "+awayGoals),14,y);y+=8;
