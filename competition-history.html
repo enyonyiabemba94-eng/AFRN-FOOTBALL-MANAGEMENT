@@ -435,10 +435,8 @@ function downloadGoalsScorersWord(){
   const blob=new Blob(["\ufeff",html],{type:"application/msword;charset=utf-8"}),slug=String(C?.name||"Mashindano").toLowerCase().replace(/[^a-z0-9]+/g,"-").replace(/^-|-$/g,"")||"mashindano";
   const filename="AFRN-"+slug+"-magoli-wafungaji-"+(C?.season||"2026")+".doc";
   const url=URL.createObjectURL(blob),a=document.createElement("a");a.href=url;a.download=filename;a.style.display="none";document.body.appendChild(a);
-  try{a.click();}catch(downloadError){console.warn("Direct download failed; opening report instead.",downloadError);}
+  try{a.click();}catch(downloadError){console.warn("Direct download failed; opening report instead.",downloadError);try{window.open(url,"_blank");}catch(openError){console.warn("Could not open report preview.",openError);}}
   a.remove();
-  // Baadhi ya vivinjari vya simu huzuia blob download; acha ripoti ifunguke ili ihifadhiwe kutoka kwa kivinjari.
-  setTimeout(()=>{try{if(!document.hidden)window.open(url,"_blank");}catch(openError){console.warn("Could not open report preview.",openError);}},700);
   setTimeout(()=>{try{URL.revokeObjectURL(url)}catch(_){}},120000);
  }catch(e){console.error(e);alert("Imeshindikana kutengeneza ripoti ya Word: "+(e.message||e));}
 }
