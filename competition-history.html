@@ -398,9 +398,28 @@ function cards(){
 }
 
 function scorers(){
-  const goals = events.filter(e => String(e.event_type || "").toLowerCase() === "goal");
+  const goals = events.filter(e => String(e.event_type || "").toLowerCase() === "goal" && e.player_id);
   const ownGoals = events.filter(e => String(e.event_type || "").toLowerCase() === "own_goal");
-  $("content").innerHTML = `<h3>⚽ Wafungaji</h3><div class="grid"><div class="stat"><b>${goals.length}</b>MAGOLI YA KAWAIDA</div><div class="stat"><b>${ownGoals.length}</b>O.G. (OWN GOAL)</div></div><div class="muted" style="margin-top:10px">O.G. huhesabiwa kama goli la timu pinzani, si goli la kawaida la mchezaji aliyejifunga.</div>`;
+  const tally = new Map();
+  goals.forEach(e => {
+    const pid=String(e.player_id);
+    const p=players.find(x=>String(x.id)===pid);
+    if(!p)return;
+    const item=tally.get(pid)||{player:p,clubId:e.club_id||p.club_id,count:0};
+    item.count++;
+    tally.set(pid,item);
+  });
+  const rows=[...tally.values()].sort((a,b)=>b.count-a.count||([a.player.first_name,a.player.middle_name,a.player.last_name].filter(Boolean).join(" ")).localeCompare([b.player.first_name,b.player.middle_name,b.player.last_name].filter(Boolean).join(" ")));
+  const top=rows.length?rows[0].count:0;
+  const leaders=rows.filter(r=>r.count===top&&top>0);
+  const playerName=p=>[p.first_name,p.middle_name,p.last_name].filter(Boolean).join(" ")||"Mchezaji";
+  const leaderHtml=leaders.length
+    ? '<div style="margin:12px 0;padding:14px;border-radius:12px;background:#fff7db;border:1px solid #f3d879"><b>🏆 '+(leaders.length===1?'MFUNGAJI BORA WA SASA':'WAFUNGAJI BORA WANAOFUNGANA')+'</b><div style="margin-top:8px">'+leaders.map(r=>'<div style="padding:4px 0"><b>'+esc(playerName(r.player))+'</b> — '+esc(name(r.clubId))+' · <b>'+r.count+' '+(r.count===1?'goli':'magoli')+'</b></div>').join("")+'</div></div>'
+    : '<div class="empty" style="margin:12px 0">Bado hakuna magoli ya kawaida yaliyorekodiwa kwa wachezaji katika mashindano haya.</div>';
+  const table=rows.length
+    ? '<div style="overflow-x:auto"><table style="width:100%;border-collapse:collapse;margin-top:10px"><thead><tr><th style="text-align:left;padding:9px;border-bottom:1px solid #ddd">#</th><th style="text-align:left;padding:9px;border-bottom:1px solid #ddd">Mchezaji</th><th style="text-align:left;padding:9px;border-bottom:1px solid #ddd">Klabu</th><th style="text-align:right;padding:9px;border-bottom:1px solid #ddd">Magoli</th></tr></thead><tbody>'+rows.map((r,i)=>'<tr style="'+(r.count===top?'background:#fffaf0;':'')+'"><td style="padding:9px;border-bottom:1px solid #eee">'+(i+1)+'</td><td style="padding:9px;border-bottom:1px solid #eee">'+(r.count===top?'🏆 ':'')+esc(playerName(r.player))+'</td><td style="padding:9px;border-bottom:1px solid #eee">'+esc(name(r.clubId))+'</td><td style="padding:9px;text-align:right;border-bottom:1px solid #eee"><b>'+r.count+'</b></td></tr>').join("")+'</tbody></table></div>'
+    : '';
+  $("content").innerHTML = '<h3>⚽ Ripoti ya Wafungaji Bora</h3><div class="grid"><div class="stat"><b>'+goals.length+'</b>MAGOLI YA KAWAIDA</div><div class="stat"><b>'+ownGoals.length+'</b>MAGOLI YA KUJIFUNGA</div><div class="stat"><b>'+rows.length+'</b>WAFUNGAJI WALIOREKODIWA</div></div>'+leaderHtml+'<h4 style="margin-top:18px">📊 Orodha ya wafungaji — wengi hadi wachache</h4>'+table+'<div class="muted" style="margin-top:10px">Goli la kujifunga halihesabiwi kwenye magoli binafsi ya mchezaji wala orodha ya wafungaji bora. Wachezaji wenye idadi sawa ya magoli wanaonyeshwa kama viongozi wanaofungana.</div>';
 }
 
 function stats(){
