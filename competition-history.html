@@ -428,8 +428,8 @@ function showReportDownloadLink(url,filename,kind){
   if(!box){box=document.createElement("div");box.id="report-download-fallback";box.style.cssText="margin:12px 0;padding:14px;border:2px solid #16834b;border-radius:12px;background:#effcf4;color:#14532d";content.prepend(box);}
   box.innerHTML="";
   const title=document.createElement("b");title.textContent="Ripoti ya "+kind+" iko tayari";box.appendChild(title);
-  const note=document.createElement("p");note.textContent="Ikiwa haijapakuliwa moja kwa moja, gusa kiungo hiki hapa chini:";note.style.margin="8px 0";box.appendChild(note);
-  const link=document.createElement("a");link.href=url;link.download=filename;link.target="_blank";link.rel="noopener";link.textContent="⬇️ BONYEZA HAPA KUPAKUA "+kind.toUpperCase();link.style.cssText="display:inline-block;padding:12px;background:#16834b;color:white;font-weight:bold;border-radius:8px;text-decoration:none;overflow-wrap:anywhere";box.appendChild(link);
+  const note=document.createElement("p");note.textContent="Ikiwa faili halijapakuliwa, fungua kiungo hiki. Kwa PDF, itafunguka kwanza ili uhifadhi kwa kutumia kitufe cha kupakua cha PDF viewer:";note.style.margin="8px 0";box.appendChild(note);
+  const link=document.createElement("a");link.href=url;link.target="_blank";link.rel="noopener";if(kind==="PDF"){link.textContent="📄 FUNGUA PDF KISHA HIFADHI KWENYE SIMU";link.removeAttribute("download");}else{link.download=filename;link.textContent="⬇️ BONYEZA HAPA KUPAKUA "+kind.toUpperCase();}link.style.cssText="display:inline-block;padding:12px;background:#16834b;color:white;font-weight:bold;border-radius:8px;text-decoration:none;overflow-wrap:anywhere";box.appendChild(link);
   const filenameText=document.createElement("div");filenameText.textContent=filename;filenameText.style.cssText="font-size:12px;margin-top:8px;overflow-wrap:anywhere";box.appendChild(filenameText);
 }
 
