@@ -514,7 +514,7 @@ function openCompetitionEventEditor(matchId){
  const scoreIsZeroZero=hs===0&&as===0;
  const teamPlayers=clubId=>players.filter(p=>String(p.club_id)===String(clubId)&&String(p.status||"").toLowerCase()!=="inactive");
  const playerOptions=clubId=>'<option value="">Chagua mchezaji</option>'+teamPlayers(clubId).map(p=>'<option value="'+esc(p.id)+'">'+esc([p.first_name,p.middle_name,p.last_name].filter(Boolean).join(" ")||"Mchezaji")+(p.jersey_number!=null?' · #'+esc(p.jersey_number):"")+'</option>').join("");
- const goalRow=(clubId,n)=>'<div class="event-modal-grid" style="padding:10px;border:1px solid #e1e6ee;border-radius:10px;margin:8px 0"><div><label>⚽ Goli '+n+' — Mfungaji *</label><select class="compGoalScorer" data-club="'+esc(clubId)+'">'+playerOptions(clubId)+'</select></div><div><label>🅰️ Assist (si lazima)</label><select class="compGoalAssist" data-club="'+esc(clubId)+'">'+playerOptions(clubId)+'</select></div></div>';
+ const goalRow=(clubId,opponentClubId,n,index)=>'<div class="event-modal-grid compGoalRow" style="padding:10px;border:1px solid #e1e6ee;border-radius:10px;margin:8px 0"><div style="grid-column:1/-1"><label><input type="checkbox" class="compGoalOwnGoal" data-club="'+esc(clubId)+'" data-opponent="'+esc(opponentClubId)+'" onchange="toggleCompetitionOwnGoal('+index+')" style="width:auto;margin-right:6px">🥅 Goli la kujifunga (Own Goal)</label></div><div id="compGoalNormal_'+index+'"><label>⚽ Goli '+n+' — Mfungaji *</label><select class="compGoalScorer" data-club="'+esc(clubId)+'">'+playerOptions(clubId)+'</select><div style="margin-top:8px"><label>🅰️ Assist (si lazima)</label><select class="compGoalAssist" data-club="'+esc(clubId)+'">'+playerOptions(clubId)+'</select></div></div><div id="compGoalOwnWrap_'+index+'" style="display:none"><label>🥅 Mchezaji aliyejifunga *</label><select class="compOwnGoalPlayer" data-club="'+esc(opponentClubId)+'">'+playerOptions(opponentClubId)+'</select><div class="muted">Goli litaongezwa kwa '+esc(name(clubId))+'; mchezaji huyu hataongezwa kwenye wafungaji bora.</div></div></div>';
  const existing=events.filter(e=>String(e.match_id)===String(matchId)&&(/goal|assist|yellow|red/i.test(String(e.event_type||""))));
  const oldHtml=existing.length?existing.map(e=>'<div style="padding:7px 0;border-bottom:1px solid #edf0f4"><b>'+esc(eventTypeLabel(e.event_type))+'</b> · '+esc(name(e.club_id))+' · Dakika '+esc(e.minute||"—")+(e.description?'<div class="muted">'+esc(e.description)+'</div>':'')+'</div>').join(""):'<div class="muted">Bado hakuna goli au kadi zilizohifadhiwa.</div>';
  const cardOptions='<option value="yellow_card">🟨 Kadi ya njano — mchezaji</option><option value="red_card">🟥 Kadi nyekundu — mchezaji</option><option value="coach_yellow_card">🟨 Kadi ya njano — kocha</option><option value="coach_red_card">🟥 Kadi nyekundu — kocha</option><option value="supporter_yellow_card">🟨 Kadi ya njano — shabiki</option><option value="supporter_red_card">🟥 Kadi nyekundu — shabiki</option>';
@@ -525,8 +525,8 @@ function openCompetitionEventEditor(matchId){
    h+='<div style="margin-top:12px;padding:12px;border-radius:10px;background:#f7f9fc"><b>⚽ Mechi imeisha 0 - 0</b><div class="muted" style="margin-top:5px">Hakuna sehemu ya goli au assist. Unaweza kurekodi kadi pekee.</div></div>';
  }else{
    h+='<div style="margin-top:12px"><h4 style="margin:0 0 5px">⚽ Wafungaji kulingana na matokeo</h4><div class="muted">Kila goli lina mfungaji mmoja na assist moja tu ya hiari. Usichague mchezaji yuleyule kama mfungaji na assist wa goli hilo hilo.</div>';
-   for(let i=1;i<=hs;i++)h+=goalRow(m.home_team_id,i+' — '+(home?.name||'Nyumbani'));
-   for(let i=1;i<=as;i++)h+=goalRow(m.away_team_id,i+' — '+(away?.name||'Ugenini'));
+   for(let i=1;i<=hs;i++)h+=goalRow(m.home_team_id,m.away_team_id,i+' — '+(home?.name||'Nyumbani'),i);
+   for(let i=1;i<=as;i++)h+=goalRow(m.away_team_id,m.home_team_id,i+' — '+(away?.name||'Ugenini'),hs+i);
    h+='<div><label>Dakika za magoli (si lazima, weka dakika kwa kila goli kwa mpangilio)</label><input id="compGoalMinutes" placeholder="Mfano: 12, 45, 78" maxlength="100"></div>';
    h+='<button class="small-btn event-primary" style="margin-top:10px" '+(finished?'':'disabled')+' onclick="saveCompetitionGoals(\''+esc(m.id)+'\')">💾 Hifadhi Wafungaji na Assist</button></div>';
  }
@@ -535,24 +535,41 @@ function openCompetitionEventEditor(matchId){
  h+='<hr style="border:0;border-top:1px solid #e5eaf1;margin:16px 0"><h4 style="margin:0 0 8px">Matukio yaliyohifadhiwa kwenye mechi hii</h4><div id="compEventExisting">'+oldHtml+'</div></section></div>';
  document.body.insertAdjacentHTML("beforeend",h);updateCompetitionEventFields();
 }
+function toggleCompetitionOwnGoal(index){
+ const own=document.querySelector('.compGoalOwnGoal[data-club]')&&[...document.querySelectorAll('.compGoalOwnGoal')].find(x=>String(x.getAttribute('onchange')||'').includes('('+index+')'));
+ const checked=!!own?.checked,normal=document.getElementById('compGoalNormal_'+index),ownWrap=document.getElementById('compGoalOwnWrap_'+index);
+ if(normal)normal.style.display=checked?'none':'block';
+ if(ownWrap)ownWrap.style.display=checked?'block':'none';
+}
 async function saveCompetitionGoals(matchId){
  try{
   const m=matches.find(x=>String(x.id)===String(matchId));if(!m)throw new Error("Mechi haijapatikana.");
   if(!played(m.status))throw new Error("Kwanza weka hali ya mechi kuwa Finished.");
   const hs=Math.max(0,Number(m.home_score)||0),as=Math.max(0,Number(m.away_score)||0);
   if(hs===0&&as===0)throw new Error("Mechi ya 0 - 0 haina magoli ya kurekodi.");
-  const scorers=[...document.querySelectorAll(".compGoalScorer")],assists=[...document.querySelectorAll(".compGoalAssist")];
-  if(scorers.length!==hs+as)throw new Error("Idadi ya sehemu za wafungaji haiendani na matokeo.");
+  const goalRows=[...document.querySelectorAll(".compGoalRow")];
+  if(goalRows.length!==hs+as)throw new Error("Idadi ya sehemu za magoli haiendani na matokeo.");
   const rows=[];
-  scorers.forEach((sel,i)=>{
-    const playerId=sel.value,clubId=sel.dataset.club,assistId=assists[i]?.value||"";
+  goalRows.forEach((row)=>{
+    const ownToggle=row.querySelector(".compGoalOwnGoal"),own=!!ownToggle?.checked;
+    const clubId=ownToggle?.dataset.club||row.querySelector(".compGoalScorer")?.dataset.club;
+    const scorerSel=row.querySelector(".compGoalScorer"),assistSel=row.querySelector(".compGoalAssist");
+    if(own){
+      const ownPlayerId=row.querySelector(".compOwnGoalPlayer")?.value||"";
+      if(!ownPlayerId)throw new Error("Chagua mchezaji aliyejifunga.");
+      const p=players.find(x=>String(x.id)===String(ownPlayerId));
+      if(!p||String(p.club_id)!==String(ownToggle.dataset.opponent))throw new Error("Mchezaji aliyejifunga lazima awe wa timu pinzani.");
+      rows.push({clubId,player:p,assist:null,ownGoal:true});
+      return;
+    }
+    const playerId=scorerSel?.value||"",assistId=assistSel?.value||"";
     if(!playerId)throw new Error("Chagua mfungaji kwa kila goli.");
     const p=players.find(x=>String(x.id)===String(playerId));
     if(!p||String(p.club_id)!==String(clubId))throw new Error("Mfungaji lazima awe wa timu husika.");
     if(assistId&&assistId===playerId)throw new Error("Mfungaji hawezi kuwa assist wa goli lake mwenyewe.");
     let ap=null;
     if(assistId){ap=players.find(x=>String(x.id)===String(assistId));if(!ap||String(ap.club_id)!==String(clubId))throw new Error("Assist lazima awe mchezaji wa timu hiyo hiyo.");}
-    rows.push({clubId,player:p,assist:ap});
+    rows.push({clubId,player:p,assist:ap,ownGoal:false});
   });
   const minuteText=(document.getElementById("compGoalMinutes")?.value||"").trim();
   const minutes=minuteText?minuteText.split(",").map(x=>x.trim()):[];
@@ -562,14 +579,18 @@ async function saveCompetitionGoals(matchId){
   rows.forEach((r,i)=>{
     const minute=minutes[i]?Number(minutes[i]):null;
     const who="Mchezaji: "+[r.player.first_name,r.player.middle_name,r.player.last_name].filter(Boolean).join(" ");
+    if(r.ownGoal){
+      payload.push({match_id:matchId,player_id:r.player.id,club_id:r.clubId,event_type:"own_goal",minute,description:[who,"Goli la kujifunga — limehesabiwa kwa timu pinzani","Imethibitishwa na msimamizi"].join(" | ")});
+      return;
+    }
     payload.push({match_id:matchId,player_id:r.player.id,club_id:r.clubId,event_type:"goal",minute,description:[who,"Imethibitishwa na msimamizi"].join(" | ")});
     if(r.assist)payload.push({match_id:matchId,player_id:r.assist.id,club_id:r.clubId,event_type:"assist",minute,description:["Assist kwa goli la "+[r.player.first_name,r.player.middle_name,r.player.last_name].filter(Boolean).join(" "),"Imethibitishwa na msimamizi"].join(" | ")});
   });
-  const del=await db.from("match_events").delete().eq("match_id",matchId).in("event_type",["goal","assist"]);
+  const del=await db.from("match_events").delete().eq("match_id",matchId).in("event_type",["goal","assist","own_goal"]);
   if(del.error)throw del.error;
   const ins=await db.from("match_events").insert(payload);
   if(ins.error)throw ins.error;
-  alert("✅ Wafungaji na assist zimehifadhiwa kulingana na matokeo.");
+  alert("✅ Magoli, magoli ya kujifunga na assist zimehifadhiwa kulingana na matokeo.");
   await load();openCompetitionEventEditor(matchId);
  }catch(e){console.error(e);alert("❌ Imeshindikana kuhifadhi wafungaji: "+e.message);}
 }
