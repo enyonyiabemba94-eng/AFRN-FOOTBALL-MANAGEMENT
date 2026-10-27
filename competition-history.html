@@ -229,14 +229,109 @@ function standings(){
     $("content").innerHTML = '<div class="empty">Engine ya msimamo haijapakia.</div>';
     return;
   }
-  const rows = window.AFRNStandings.buildStandings({teams,matches,events,clubName:name});
+  const rows = window.AFRNStandings.buildStandings({teams,matches,events,clubName:name})
+    .slice().sort((a,b) =>
+      (Number(b.PTS)||0)-(Number(a.PTS)||0) ||
+      ((Number(b.GF)||0)-(Number(b.GA)||0))-((Number(a.GF)||0)-(Number(a.GA)||0)) ||
+      (Number(b.GF)||0)-(Number(a.GF)||0) ||
+      (Number(a.GA)||0)-(Number(b.GA)||0) ||
+      (Number(a.redCards)||0)-(Number(b.redCards)||0) ||
+      (Number(a.yellowCards)||0)-(Number(b.yellowCards)||0) ||
+      String(a.name||"").localeCompare(String(b.name||""))
+    );
+  window.afrnCurrentStandingsRows = rows;
+  const today = new Date();
+  const todayStr = today.getFullYear()+"-"+String(today.getMonth()+1).padStart(2,"0")+"-"+String(today.getDate()).padStart(2,"0");
   $("content").innerHTML = `
-    <h3>📊 Msimamo</h3>
+    <div style="display:flex;gap:10px;justify-content:space-between;align-items:center;flex-wrap:wrap">
+      <h3 style="margin:0">📊 Msimamo Rasmi</h3>
+      <div style="display:flex;gap:7px;flex-wrap:wrap">
+        <button class="small-btn event-primary" onclick="downloadStandingsPDF()">⬇️ Pakua PDF</button>
+        <button class="small-btn" style="background:#e7f7ef;color:#087443" onclick="downloadStandingsExcel()">⬇️ Pakua Excel</button>
+      </div>
+    </div>
+    <div style="display:flex;align-items:center;gap:8px;flex-wrap:wrap;margin:12px 0">
+      <label for="standingsDate" style="font-weight:800">TAREHE YA RIPOTI:</label>
+      <input id="standingsDate" type="date" value="${todayStr}" style="padding:8px;border:1px solid #ccd5e2;border-radius:8px">
+    </div>
     <div class="table-wrap"><table><thead><tr>
-      <th>#</th><th>KLABU</th><th>PTS</th><th>MP</th><th>W</th><th>D</th><th>L</th><th>GD</th>
+      <th>#</th><th>KLABU</th><th>MP</th><th>W</th><th>D</th><th>L</th><th>GF</th><th>GA</th><th>GD</th><th>PTS</th>
     </tr></thead><tbody>
-    ${rows.map((r,i) => `<tr><td>${i+1}</td><td>${esc(r.name)}</td><td><b>${r.PTS}</b></td><td>${r.P}</td><td>${r.W}</td><td>${r.D}</td><td>${r.L}</td><td>${r.GF}-${r.GA}</td></tr>`).join("")}
-    </tbody></table></div>`;
+    ${rows.map((r,i) => `<tr><td>${i+1}</td><td>${esc(r.name)}</td><td>${r.P}</td><td>${r.W}</td><td>${r.D}</td><td>${r.L}</td><td>${r.GF}</td><td>${r.GA}</td><td>${(Number(r.GF)||0)-(Number(r.GA)||0)}</td><td><b>${r.PTS}</b></td></tr>`).join("")}
+    </tbody></table></div>
+    <div class="muted" style="margin-top:9px">Mpangilio: Pointi nyingi, tofauti ya magoli, magoli ya kufunga, magoli ya kufungwa; kisha nidhamu na jina la klabu.</div>`;
+}
+
+function standingsReportDate(){
+  const v=document.getElementById("standingsDate")?.value;
+  if(!v) return "________________";
+  const p=v.split("-");
+  return p.length===3 ? p[2]+"/"+p[1]+"/"+p[0] : v;
+}
+function standingsReportRows(){
+  return (window.afrnCurrentStandingsRows||[]).map((r,i)=>({
+    "#":i+1,"KLABU":r.name,"MP":Number(r.P)||0,"W":Number(r.W)||0,
+    "D":Number(r.D)||0,"L":Number(r.L)||0,"GF":Number(r.GF)||0,
+    "GA":Number(r.GA)||0,"GD":(Number(r.GF)||0)-(Number(r.GA)||0),"PTS":Number(r.PTS)||0
+  }));
+}
+function downloadStandingsExcel(){
+  try{
+    if(!window.XLSX) throw new Error("Huduma ya Excel haijapakia. Angalia intaneti kisha jaribu tena.");
+    const data=standingsReportRows();
+    const title=[["AFRN FOOTBALL MANAGEMENT"],["MSIMAMO WA "+String(C?.name||"MASHINDANO").toUpperCase()+" "+String(C?.season||"")],["TAREHE: "+standingsReportDate()],[],Object.keys(data[0]||{"#":"KLABU"})];
+    const ws=window.XLSX.utils.aoa_to_sheet(title);
+    window.XLSX.utils.sheet_add_json(ws,data,{origin:"A5",skipHeader:true});
+    ws["!cols"]=[{wch:6},{wch:30},{wch:7},{wch:7},{wch:7},{wch:7},{wch:7},{wch:7},{wch:7},{wch:8}];
+    const wb=window.XLSX.utils.book_new();
+    window.XLSX.utils.book_append_sheet(wb,ws,"Msimamo");
+    const slug=String(C?.name||"mashindano").toLowerCase().replace(/[^a-z0-9]+/g,"-").replace(/^-|-$/g,"");
+    window.XLSX.writeFile(wb,"AFRN-Msimamo-"+slug+"-"+String(C?.season||"").replace(/[^a-z0-9]/gi,"")+".xlsx");
+  }catch(e){alert("Imeshindikana kupakua Excel: "+e.message);}
+}
+async function downloadStandingsPDF(){
+  let pdfWindow=null;try{pdfWindow=window.open("about:blank","_blank")}catch(_){}
+  try{
+    if(!window.jspdf?.jsPDF) throw new Error("Huduma ya PDF haijapakia. Hakikisha intaneti ipo kisha jaribu tena.");
+    const {jsPDF}=window.jspdf;
+    const doc=new jsPDF({orientation:"landscape",unit:"mm",format:"a4"});
+    const logo=new Image(); logo.src=new URL("./IMG-20260319-WA0093.jpg",window.location.href).href;
+    try{
+      await new Promise((resolve,reject)=>{logo.onload=resolve;logo.onerror=reject;});
+      const cv=document.createElement("canvas");cv.width=logo.naturalWidth||logo.width;cv.height=logo.naturalHeight||logo.height;
+      cv.getContext("2d").drawImage(logo,0,0);
+      const img=cv.toDataURL("image/jpeg",0.92);
+      doc.addImage(img,"JPEG",8,5,20,20);doc.addImage(img,"JPEG",269,5,20,20);
+    }catch(_){
+      doc.setFont("helvetica","bold");doc.setFontSize(9);doc.text("AFRN",18,15,{align:"center"});doc.text("AFRN",279,15,{align:"center"});
+    }
+    const safe=v=>String(v??"—").replace(/[–—•]/g,"-").replace(/[^\x20-\xFF]/g,"");
+    doc.setTextColor(7,26,51);doc.setFont("helvetica","bold");doc.setFontSize(15);
+    doc.text("AFRN FOOTBALL MANAGEMENT",148.5,10,{align:"center"});
+    doc.setFontSize(12);doc.text(safe("MSIMAMO WA "+String(C?.name||"MASHINDANO").toUpperCase()+" "+String(C?.season||"")),148.5,17,{align:"center",maxWidth:225});
+    doc.setFont("helvetica","normal");doc.setFontSize(9);doc.text("TAREHE: "+standingsReportDate(),148.5,23,{align:"center"});
+    const data=standingsReportRows();
+    const headers=["#","KLABU","MP","W","D","L","GF","GA","GD","PTS"];
+    const x=[10,22,119,137,153,169,185,201,217,239];
+    const widths=[10,95,15,14,14,14,14,14,14,18];
+    const top=35, bottom=190, rowH=Math.min(8,(bottom-top)/(Math.max(data.length,1)+1));
+    const fs=Math.max(6,Math.min(9,rowH*0.82));
+    const draw=(vals,y,header=false)=>{
+      if(header){doc.setFillColor(7,26,51);doc.setTextColor(255,255,255);doc.rect(8,y-rowH+1,281,rowH,"F");}
+      else{doc.setTextColor(25,32,45);if(Math.round((y-top)/rowH)%2===0){doc.setFillColor(243,246,250);doc.rect(8,y-rowH+1,281,rowH,"F");}}
+      doc.setFont("helvetica",header?"bold":"normal");doc.setFontSize(fs);
+      vals.forEach((v,i)=>doc.text(safe(v),x[i],y,{maxWidth:widths[i],align:i===1?"left":"center"}));
+    };
+    draw(headers,top,true);
+    data.forEach((r,i)=>draw(headers.map(h=>r[h]),top+(i+1)*rowH,false));
+    doc.setFont("helvetica","normal");doc.setFontSize(7);doc.setTextColor(100,100,100);
+    doc.text("AFRN FOOTBALL MANAGEMENT | MSIMAMO RASMI | Ukurasa 1/1",148.5,201,{align:"center"});
+    const slug=String(C?.name||"mashindano").toLowerCase().replace(/[^a-z0-9]+/g,"-").replace(/^-|-$/g,"")||"mashindano";
+    const url=URL.createObjectURL(doc.output("blob"));const filename="AFRN-Msimamo-"+slug+".pdf";
+    if(pdfWindow&&!pdfWindow.closed){pdfWindow.location.href=url;const a=document.createElement("a");a.href=url;a.download=filename;a.click();}
+    else{const a=document.createElement("a");a.href=url;a.download=filename;document.body.appendChild(a);a.click();a.remove();}
+    setTimeout(()=>{try{URL.revokeObjectURL(url)}catch(_){}},10*60*1000);
+  }catch(e){if(pdfWindow&&!pdfWindow.closed){try{pdfWindow.close()}catch(_){}}alert("Imeshindikana kupakua PDF: "+e.message);}
 }
 
 function knockout(){
