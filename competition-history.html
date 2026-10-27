@@ -281,7 +281,7 @@ function downloadStandingsExcel(){
     const data=standingsReportRows();
     const title=[["AFRN FOOTBALL MANAGEMENT"],["MSIMAMO WA "+String(C?.name||"MASHINDANO").toUpperCase()+" "+String(C?.season||"")],["TAREHE: "+standingsReportDate()],[],Object.keys(data[0]||{"#":"KLABU"})];
     const ws=window.XLSX.utils.aoa_to_sheet(title);
-    window.XLSX.utils.sheet_add_json(ws,data,{origin:"A5",skipHeader:true});
+    window.XLSX.utils.sheet_add_json(ws,data,{origin:"A6",skipHeader:true});
     ws["!cols"]=[{wch:6},{wch:30},{wch:7},{wch:7},{wch:7},{wch:7},{wch:7},{wch:7},{wch:7},{wch:8}];
     const wb=window.XLSX.utils.book_new();
     window.XLSX.utils.book_append_sheet(wb,ws,"Msimamo");
