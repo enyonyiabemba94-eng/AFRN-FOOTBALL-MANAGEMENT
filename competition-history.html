@@ -407,7 +407,7 @@ async function downloadCardsPDF(clubId=null){
     doc.setFont("helvetica","normal");doc.setFontSize(8);doc.text(safe((C?.name||"Mashindano")+" "+(C?.season||"")),148.5,23,{align:"center"});
     const yellow=rows.filter(e=>String(e.event_type||"").toLowerCase().includes("yellow")).length,red=rows.filter(e=>String(e.event_type||"").toLowerCase().includes("red")).length;
     doc.setFont("helvetica","bold");doc.setFontSize(8);doc.text(safe("Jumla ya kadi: "+rows.length+" | Njano: "+yellow+" | Nyekundu: "+red),10,30);
-    const headers=["#","Tarehe","Mechi","Timu","Aliyepewa kadi","Aina","Dak."],xs=[10,19,43,111,153,239,280],ws=[7,22,65,39,82,38,8];
+    const headers=["#","Tarehe","Mechi","Jina la Timu","Aina ya Kadi","Dak."],xs=[10,19,43,118,211,280],ws=[7,22,72,88,65,8];
     const top=35,bottom=201,rowH=Math.min(7,(bottom-top)/(Math.max(rows.length,1)+1));
     const fontSize=Math.max(4,Math.min(8,rowH*0.85));
     const draw=(vals,y,header=false)=>{
@@ -418,11 +418,10 @@ async function downloadCardsPDF(clubId=null){
     };
     draw(headers,top,true);
     rows.forEach((e,i)=>{
-      const type=String(e.event_type||"").toLowerCase(),p=players.find(x=>String(x.id)===String(e.player_id));
-      const who=p?[p.first_name,p.middle_name,p.last_name].filter(Boolean).join(" "):String(e.description||"").split("|").find(x=>/Kadi kwa (kocha|shabiki)/i.test(x))?.trim()||"Jina halijawekwa";
+      const type=String(e.event_type||"").toLowerCase();
       const m=matches.find(x=>String(x.id)===String(e.match_id));
       const match=m?name(m.home_team_id)+" vs "+name(m.away_team_id):"—";
-      draw([i+1,m?.match_date||"—",match,name(e.club_id),who,type.includes("red")?"Kadi nyekundu":"Kadi ya njano",e.minute??"—"],top+(i+1)*rowH,false);
+      draw([i+1,m?.match_date||"—",match,name(e.club_id),type.includes("red")?"Kadi nyekundu":"Kadi ya njano",e.minute??"—"],top+(i+1)*rowH,false);
     });
     if(!rows.length){doc.setFont("helvetica","normal");doc.setFontSize(9);doc.text("Hakuna kadi zilizorekodiwa.",10,top+10);}
     doc.setFontSize(6);doc.setTextColor(100,100,100);doc.text("AFRN FOOTBALL MANAGEMENT | Ripoti rasmi ya kadi | Ukurasa 1/1",148.5,207,{align:"center"});
@@ -442,15 +441,11 @@ function cards(){
     const rows=c.filter(e=>String(e.club_id)===String(clubId)).slice().sort((a,b)=>(Number(a.minute)||999)-(Number(b.minute)||999));
     const details=rows.map(e=>{
       const type=String(e.event_type||"").toLowerCase(),red=type.includes("red");
-      const p=players.find(x=>String(x.id)===String(e.player_id));
-      const playerName=p?[p.first_name,p.middle_name,p.last_name].filter(Boolean).join(" "):"";
-      const who=playerName||String(e.description||"").split("|").find(x=>/Kadi kwa (kocha|shabiki)/i.test(x))?.trim()||"Jina halijawekwa";
-      const label=type.includes("coach_")?"Kocha":type.includes("supporter_")?"Shabiki":"Mchezaji";
-      return '<div style="padding:10px;border-bottom:1px solid #e5eaf1;display:flex;gap:10px;align-items:flex-start"><span style="font-size:20px">'+(red?"🟥":"🟨")+'</span><div><b>'+esc(who)+'</b><div style="font-size:13px;color:#64748b">'+esc(label)+' · '+esc(type.includes("red")?"Kadi nyekundu":"Kadi ya njano")+' · Dakika '+esc(e.minute??"—")+'</div>'+(e.description?'<div style="font-size:12px;color:#64748b">'+esc(e.description)+'</div>':'')+'</div></div>';
+      return '<div style="padding:10px;border-bottom:1px solid #e5eaf1;display:flex;gap:10px;align-items:flex-start"><span style="font-size:20px">'+(red?"🟥":"🟨")+'</span><div><b>'+esc(name(clubId))+'</b><div style="font-size:13px;color:#64748b">'+esc(type.includes("red")?"Kadi nyekundu":"Kadi ya njano")+' · Dakika '+esc(e.minute??"—")+'</div></div></div>';
     }).join("");
     $("content").innerHTML='<button class="small-btn" onclick="cards()">← Rudi kwenye timu zote</button> <button class="small-btn event-primary" onclick="downloadCardsPDF(\''+esc(clubId)+'\')">⬇️ Pakua PDF (ukurasa 1)</button><h3>🟨🟥 Historia ya Kadi: '+esc(name(clubId))+'</h3><div style="padding:12px;border:1px solid #e2e8f0;border-radius:12px;margin:10px 0"><b>Jumla ya kadi: '+rows.length+'</b><div>🟨 Kadi za njano: '+count(rows,"yellow")+'　 🟥 Kadi nyekundu: '+count(rows,"red")+'</div></div>'+(details||'<div class="empty">Hakuna kadi za timu hii.</div>');
   };
-  $("content").innerHTML='<h3>🟨🟥 Kadi kwa Timu</h3><button class="small-btn event-primary" onclick="downloadCardsPDF()">⬇️ Pakua PDF ya Kadi Zote (ukurasa 1)</button><p style="color:#64748b">Bonyeza jina la timu kuona wachezaji/kocha/shabiki waliopokea kadi na historia yao.</p>'+
+  $("content").innerHTML='<h3>🟨🟥 Kadi kwa Timu</h3><button class="small-btn event-primary" onclick="downloadCardsPDF()">⬇️ Pakua PDF ya Kadi Zote (ukurasa 1)</button><p style="color:#64748b">Ripoti inaonyesha majina ya timu pekee; majina ya wachezaji waliopewa kadi hayaonyeshwi.</p>'+
     (clubIds.length?'<div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(230px,1fr));gap:10px">'+clubIds.map(id=>{
       const rows=c.filter(e=>String(e.club_id)===id),yellow=count(rows,"yellow"),red=count(rows,"red");
       return '<button type="button" onclick="openCompetitionClubCards(\''+esc(id)+'\')" style="width:100%;text-align:left;padding:13px;border:1px solid #dbe3ed;border-radius:12px;background:#fff;color:#172033;cursor:pointer"><b>'+esc(name(id))+'</b><div style="margin-top:7px">🟨 '+yellow+'　 🟥 '+red+'</div><div style="font-size:12px;color:#64748b;margin-top:3px">Jumla ya kadi: '+rows.length+' · Bonyeza kuona historia</div></button>';
