@@ -433,7 +433,13 @@ function downloadGoalsScorersWord(){
   const scorerData=scorerRows.map((r,i)=>[i+1,playerLabel(r.player),name(r.clubId),r.count]);if(!scorerData.length)scorerData.push(["—","Hakuna wafungaji waliorekodiwa","—",0]);
   const html=['<!doctype html><html><head><meta charset="utf-8"><style>body{font-family:Arial,sans-serif;color:#172033}h1{font-size:20pt;color:#0d47a1}h2{font-size:14pt;margin-top:24px}table{border-collapse:collapse;width:100%;margin:10px 0 20px}th{background:#071a33;color:#fff}th,td{border:1px solid #cbd5e1;padding:6px;text-align:left;font-size:10pt}tr:nth-child(even){background:#f3f6fa}</style></head><body><h1>AFRN FOOTBALL MANAGEMENT</h1><h2>',cell((C?.name||"Mashindano")+" "+(C?.season||"2026")),'</h2><p><b>RIPOTI YA MAGOLI NA WAFUNGAJI BORA</b></p><p>Mechi zilizokamilika: ',completed.length,' | Jumla ya magoli: ',totalGoals,' | Nyumbani: ',homeGoals,' | Ugenini: ',awayGoals,' | Magoli ya kujifunga: ',ownGoals,'</p><h2>A. MATOKEO NA MAGOLI KWA KILA MECHI</h2>',table(["#","Tarehe","Timu ya Nyumbani","Timu ya Ugenini","Magoli Nyumbani","Magoli Ugenini","Matokeo","Jumla ya Magoli","Hali"],matchRows),'<h2>B. ORODHA YA WAFUNGAJI BORA</h2>',table(["Nafasi","Mchezaji","Klabu","Magoli"],scorerData),'<p><i>Magoli ya kujifunga yanajumuishwa kwenye jumla ya matokeo ya mechi, lakini hayahesabiwi kama magoli binafsi ya mchezaji.</i></p></body></html>'].join("");
   const blob=new Blob(["\ufeff",html],{type:"application/msword;charset=utf-8"}),slug=String(C?.name||"Mashindano").toLowerCase().replace(/[^a-z0-9]+/g,"-").replace(/^-|-$/g,"")||"mashindano";
-  const url=URL.createObjectURL(blob),a=document.createElement("a");a.href=url;a.download="AFRN-"+slug+"-magoli-wafungaji-"+(C?.season||"2026")+".doc";a.style.display="none";document.body.appendChild(a);a.click();a.remove();setTimeout(()=>URL.revokeObjectURL(url),30000);
+  const filename="AFRN-"+slug+"-magoli-wafungaji-"+(C?.season||"2026")+".doc";
+  const url=URL.createObjectURL(blob),a=document.createElement("a");a.href=url;a.download=filename;a.style.display="none";document.body.appendChild(a);
+  try{a.click();}catch(downloadError){console.warn("Direct download failed; opening report instead.",downloadError);}
+  a.remove();
+  // Baadhi ya vivinjari vya simu huzuia blob download; acha ripoti ifunguke ili ihifadhiwe kutoka kwa kivinjari.
+  setTimeout(()=>{try{if(!document.hidden)window.open(url,"_blank");}catch(openError){console.warn("Could not open report preview.",openError);}},700);
+  setTimeout(()=>{try{URL.revokeObjectURL(url)}catch(_){}},120000);
  }catch(e){console.error(e);alert("Imeshindikana kutengeneza ripoti ya Word: "+(e.message||e));}
 }
 function downloadGoalsScorersPDF(){
@@ -477,7 +483,9 @@ function downloadGoalsScorersPDF(){
     const note="Kumbuka: Magoli ya kujifunga yanajumuishwa kwenye jumla ya matokeo ya mechi, lakini hayahesabiwi kama magoli binafsi ya mchezaji.";
     const lines=doc.splitTextToSize(safeText(note),265);if(y+lines.length*4>195){doc.addPage();y=15;}doc.text(lines,14,y);
     const slug=String(C?.name||"Mashindano").toLowerCase().replace(/[^a-z0-9]+/g,"-").replace(/^-|-$/g,"")||"mashindano";
-    const filename="AFRN-"+slug+"-magoli-wafungaji-"+(C?.season||"2026")+".pdf";const blob=doc.output("blob"),url=URL.createObjectURL(blob),a=document.createElement("a");a.href=url;a.download=filename;a.style.display="none";document.body.appendChild(a);a.click();a.remove();setTimeout(()=>{try{URL.revokeObjectURL(url)}catch(_){}},30000);
+    const filename="AFRN-"+slug+"-magoli-wafungaji-"+(C?.season||"2026")+".pdf";
+    // Tumia save ya jsPDF yenyewe, ambayo inaendana vizuri zaidi na simu kuliko blob-link.
+    doc.save(filename);
   }catch(e){console.error(e);alert("Imeshindikana kutengeneza PDF: "+(e.message||e));}
 }
 
