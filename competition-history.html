@@ -408,36 +408,21 @@ function reportScorerRows(){
   });
   return [...tally.values()].sort((a,b)=>b.count-a.count||playerLabel(a.player).localeCompare(playerLabel(b.player)));
 }
-function downloadGoalsScorersExcel(){
-  try{
-    if(!window.XLSX)throw new Error("Huduma ya Excel haijapakia. Hakikisha intaneti ipo kisha ujaribu tena.");
-    const completed=matches.filter(m=>played(m.status)).slice().sort((a,b)=>String(a.match_date||"").localeCompare(String(b.match_date||""))||String(a.match_time||"").localeCompare(String(b.match_time||"")));
-    const totalGoals=completed.reduce((sum,m)=>sum+Math.max(0,Number(m.home_score)||0)+Math.max(0,Number(m.away_score)||0),0);
-    const homeGoals=completed.reduce((sum,m)=>sum+Math.max(0,Number(m.home_score)||0),0);
-    const awayGoals=completed.reduce((sum,m)=>sum+Math.max(0,Number(m.away_score)||0),0);
-    const ownGoals=events.filter(e=>String(e.event_type||"").toLowerCase()==="own_goal").length;
-    const scorerRows=reportScorerRows(),wb=XLSX.utils.book_new();
-    const summary=[["AFRN FOOTBALL MANAGEMENT"],[(C?.name||"Mashindano")+" "+(C?.season||"2026")],["RIPOTI YA MAGOLI NA WAFUNGAJI BORA"],[],["Taarifa","Jumla"],["Mechi zilizokamilika",completed.length],["Jumla ya magoli",totalGoals],["Magoli ya timu za nyumbani",homeGoals],["Magoli ya timu za ugenini",awayGoals],["Magoli ya kujifunga (yamo kwenye matokeo)",ownGoals]];
-    const summarySheet=XLSX.utils.aoa_to_sheet(summary);
-    summarySheet["!cols"]=[{wch:42},{wch:28}];
-    XLSX.utils.book_append_sheet(wb,summarySheet,"Muhtasari");
-    const matchData=[["#","Tarehe","Timu ya Nyumbani","Timu ya Ugenini","Magoli Nyumbani","Magoli Ugenini","Matokeo","Jumla ya Magoli","Hali"],...completed.map((m,i)=>{
-      const h=Math.max(0,Number(m.home_score)||0),a=Math.max(0,Number(m.away_score)||0);
-      return [i+1,m.match_date||"—",name(m.home_team_id),name(m.away_team_id),h,a,h+" - "+a,h+a,m.status||"Finished"];
-    })];
-    const matchSheet=XLSX.utils.aoa_to_sheet(matchData);
-    matchSheet["!cols"]=[{wch:6},{wch:14},{wch:28},{wch:28},{wch:16},{wch:16},{wch:12},{wch:17},{wch:16}];
-    XLSX.utils.book_append_sheet(wb,matchSheet,"Magoli ya Mechi");
-    const scorerData=[["Nafasi","Mchezaji","Klabu","Magoli"],...scorerRows.map((r,i)=>[i+1,playerLabel(r.player),name(r.clubId),r.count])];
-    if(!scorerRows.length)scorerData.push(["—","Hakuna wafungaji waliorekodiwa","—",0]);
-    const scorerSheet=XLSX.utils.aoa_to_sheet(scorerData);
-    scorerSheet["!cols"]=[{wch:10},{wch:32},{wch:30},{wch:12}];
-    XLSX.utils.book_append_sheet(wb,scorerSheet,"Wafungaji Bora");
-    const slug=String(C?.name||"Mashindano").toLowerCase().replace(/[^a-z0-9]+/g,"-").replace(/^-|-$/g,"")||"mashindano";
-    XLSX.writeFile(wb,"AFRN-"+slug+"-magoli-wafungaji-"+(C?.season||"2026")+".xlsx");
-  }catch(e){console.error(e);alert("Imeshindikana kutengeneza Excel: "+(e.message||e));}
+function downloadGoalsScorersWord(){
+ try{
+  const completed=matches.filter(m=>played(m.status)).slice().sort((a,b)=>String(a.match_date||"").localeCompare(String(b.match_date||""))||String(a.match_time||"").localeCompare(String(b.match_time||"")));
+  const totalGoals=completed.reduce((sum,m)=>sum+Math.max(0,Number(m.home_score)||0)+Math.max(0,Number(m.away_score)||0),0);
+  const homeGoals=completed.reduce((sum,m)=>sum+Math.max(0,Number(m.home_score)||0),0),awayGoals=completed.reduce((sum,m)=>sum+Math.max(0,Number(m.away_score)||0),0);
+  const ownGoals=events.filter(e=>String(e.event_type||"").toLowerCase()==="own_goal").length,scorerRows=reportScorerRows();
+  const cell=v=>String(v??"—").replace(/[&<>"]/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;"}[c]));
+  const table=(headers,rows)=>"<table><thead><tr>"+headers.map(x=>"<th>"+cell(x)+"</th>").join("")+"</tr></thead><tbody>"+rows.map(r=>"<tr>"+r.map(x=>"<td>"+cell(x)+"</td>").join("")+"</tr>").join("")+"</tbody></table>";
+  const matchRows=completed.map((m,i)=>{const h=Math.max(0,Number(m.home_score)||0),a=Math.max(0,Number(m.away_score)||0);return [i+1,m.match_date||"—",name(m.home_team_id),name(m.away_team_id),h,a,h+" - "+a,h+a,m.status||"Finished"];});
+  const scorerData=scorerRows.map((r,i)=>[i+1,playerLabel(r.player),name(r.clubId),r.count]);if(!scorerData.length)scorerData.push(["—","Hakuna wafungaji waliorekodiwa","—",0]);
+  const html=['<!doctype html><html><head><meta charset="utf-8"><style>body{font-family:Arial,sans-serif;color:#172033}h1{font-size:20pt;color:#0d47a1}h2{font-size:14pt;margin-top:24px}table{border-collapse:collapse;width:100%;margin:10px 0 20px}th{background:#071a33;color:#fff}th,td{border:1px solid #cbd5e1;padding:6px;text-align:left;font-size:10pt}tr:nth-child(even){background:#f3f6fa}</style></head><body><h1>AFRN FOOTBALL MANAGEMENT</h1><h2>',cell((C?.name||"Mashindano")+" "+(C?.season||"2026")),'</h2><p><b>RIPOTI YA MAGOLI NA WAFUNGAJI BORA</b></p><p>Mechi zilizokamilika: ',completed.length,' | Jumla ya magoli: ',totalGoals,' | Nyumbani: ',homeGoals,' | Ugenini: ',awayGoals,' | Magoli ya kujifunga: ',ownGoals,'</p><h2>A. MATOKEO NA MAGOLI KWA KILA MECHI</h2>',table(["#","Tarehe","Timu ya Nyumbani","Timu ya Ugenini","Magoli Nyumbani","Magoli Ugenini","Matokeo","Jumla ya Magoli","Hali"],matchRows),'<h2>B. ORODHA YA WAFUNGAJI BORA</h2>',table(["Nafasi","Mchezaji","Klabu","Magoli"],scorerData),'<p><i>Magoli ya kujifunga yanajumuishwa kwenye jumla ya matokeo ya mechi, lakini hayahesabiwi kama magoli binafsi ya mchezaji.</i></p></body></html>'].join("");
+  const blob=new Blob(["\ufeff",html],{type:"application/msword;charset=utf-8"}),slug=String(C?.name||"Mashindano").toLowerCase().replace(/[^a-z0-9]+/g,"-").replace(/^-|-$/g,"")||"mashindano";
+  const url=URL.createObjectURL(blob),a=document.createElement("a");a.href=url;a.download="AFRN-"+slug+"-magoli-wafungaji-"+(C?.season||"2026")+".doc";a.style.display="none";document.body.appendChild(a);a.click();a.remove();setTimeout(()=>URL.revokeObjectURL(url),30000);
+ }catch(e){console.error(e);alert("Imeshindikana kutengeneza ripoti ya Word: "+(e.message||e));}
 }
-
 function downloadGoalsScorersPDF(){
   try{
     if(!window.jspdf||!window.jspdf.jsPDF)throw new Error("Huduma ya kutengeneza PDF haijapakia. Hakikisha intaneti ipo kisha jaribu tena.");
@@ -479,7 +464,7 @@ function downloadGoalsScorersPDF(){
     const note="Kumbuka: Magoli ya kujifunga yanajumuishwa kwenye jumla ya matokeo ya mechi, lakini hayahesabiwi kama magoli binafsi ya mchezaji.";
     const lines=doc.splitTextToSize(safeText(note),265);if(y+lines.length*4>195){doc.addPage();y=15;}doc.text(lines,14,y);
     const slug=String(C?.name||"Mashindano").toLowerCase().replace(/[^a-z0-9]+/g,"-").replace(/^-|-$/g,"")||"mashindano";
-    doc.save("AFRN-"+slug+"-magoli-wafungaji-"+(C?.season||"2026")+".pdf");
+    const filename="AFRN-"+slug+"-magoli-wafungaji-"+(C?.season||"2026")+".pdf";const blob=doc.output("blob"),url=URL.createObjectURL(blob),a=document.createElement("a");a.href=url;a.download=filename;a.style.display="none";document.body.appendChild(a);a.click();a.remove();setTimeout(()=>{try{URL.revokeObjectURL(url)}catch(_){}},30000);
   }catch(e){console.error(e);alert("Imeshindikana kutengeneza PDF: "+(e.message||e));}
 }
 
@@ -495,7 +480,7 @@ function goalsReport(){
       sorted.map((m,i)=>{const h=Math.max(0,Number(m.home_score)||0),a=Math.max(0,Number(m.away_score)||0);return '<tr><td>'+(i+1)+'</td><td>'+esc(m.match_date||"—")+'</td><td>'+esc(name(m.home_team_id))+' vs '+esc(name(m.away_team_id))+'</td><td><b>'+h+' - '+a+'</b></td><td><b>'+(h+a)+'</b></td></tr>';}).join("")+
       '</tbody></table></div>'
     : '<div class="empty">Bado hakuna mechi zilizokamilika zenye matokeo katika mashindano haya.</div>';
-  $("content").innerHTML='<h3>⚽ Ripoti ya Magoli — '+esc(C?.name||"Mashindano")+'</h3><div style="display:flex;gap:8px;flex-wrap:wrap;margin:10px 0 16px"><button class="small-btn event-primary" onclick="downloadGoalsScorersPDF()">⬇️ Pakua Ripoti Kamili (PDF)</button><button class="small-btn" style="background:#16834b;color:#fff" onclick="downloadGoalsScorersExcel()">📊 Pakua Excel (.xlsx)</button></div>'+
+  $("content").innerHTML='<h3>⚽ Ripoti ya Magoli — '+esc(C?.name||"Mashindano")+'</h3><div style="display:flex;gap:8px;flex-wrap:wrap;margin:10px 0 16px"><button class="small-btn event-primary" onclick="downloadGoalsScorersPDF()">⬇️ Pakua Ripoti Kamili (PDF)</button><button class="small-btn" style="background:#16834b;color:#fff" onclick="downloadGoalsScorersWord()">📝 Pakua Microsoft Word (.doc)</button></div>'+
     '<div class="grid" style="margin:12px 0"><div class="stat"><b>'+totalGoals+'</b>JUMLA YA MAGOLI</div><div class="stat"><b>'+completed.length+'</b>MECHI ZILIZOCHEZWA</div><div class="stat"><b>'+totalHome+'</b>MAGOLI YA TIMU ZA NYUMBANI</div><div class="stat"><b>'+totalAway+'</b>MAGOLI YA TIMU ZA UGENINI</div></div>'+
     '<div class="muted" style="margin:8px 0 12px">Jumla huhesabiwa kutoka kwenye matokeo rasmi ya mechi zilizokamilika. Mechi '+pending+' bado hazijahesabiwa kwa sababu hazijamalizika. Magoli ya kujifunga yanahesabiwa kwa timu iliyopata goli kupitia matokeo ya mechi.</div>'+
     '<h4>Magoli ya kila mechi</h4>'+table+
@@ -524,7 +509,7 @@ function scorers(){
   const table=rows.length
     ? '<div style="overflow-x:auto"><table style="width:100%;border-collapse:collapse;margin-top:10px"><thead><tr><th style="text-align:left;padding:9px;border-bottom:1px solid #ddd">#</th><th style="text-align:left;padding:9px;border-bottom:1px solid #ddd">Mchezaji</th><th style="text-align:left;padding:9px;border-bottom:1px solid #ddd">Klabu</th><th style="text-align:right;padding:9px;border-bottom:1px solid #ddd">Magoli</th></tr></thead><tbody>'+rows.map((r,i)=>'<tr style="'+(r.count===top?'background:#fffaf0;':'')+'"><td style="padding:9px;border-bottom:1px solid #eee">'+(i+1)+'</td><td style="padding:9px;border-bottom:1px solid #eee">'+(r.count===top?'🏆 ':'')+esc(playerName(r.player))+'</td><td style="padding:9px;border-bottom:1px solid #eee">'+esc(name(r.clubId))+'</td><td style="padding:9px;text-align:right;border-bottom:1px solid #eee"><b>'+r.count+'</b></td></tr>').join("")+'</tbody></table></div>'
     : '';
-  $("content").innerHTML = '<h3>⚽ Ripoti ya Wafungaji Bora</h3><div style="display:flex;gap:8px;flex-wrap:wrap;margin:10px 0 16px"><button class="small-btn event-primary" onclick="downloadGoalsScorersPDF()">⬇️ Pakua Ripoti Kamili (PDF)</button><button class="small-btn" style="background:#16834b;color:#fff" onclick="downloadGoalsScorersExcel()">📊 Pakua Excel (.xlsx)</button></div><div class="grid"><div class="stat"><b>'+goals.length+'</b>MAGOLI YA KAWAIDA</div><div class="stat"><b>'+ownGoals.length+'</b>MAGOLI YA KUJIFUNGA</div><div class="stat"><b>'+rows.length+'</b>WAFUNGAJI WALIOREKODIWA</div></div>'+leaderHtml+'<h4 style="margin-top:18px">📊 Orodha ya wafungaji — wengi hadi wachache</h4>'+table+'<div class="muted" style="margin-top:10px">Goli la kujifunga halihesabiwi kwenye magoli binafsi ya mchezaji wala orodha ya wafungaji bora. Wachezaji wenye idadi sawa ya magoli wanaonyeshwa kama viongozi wanaofungana.</div>';
+  $("content").innerHTML = '<h3>⚽ Ripoti ya Wafungaji Bora</h3><div style="display:flex;gap:8px;flex-wrap:wrap;margin:10px 0 16px"><button class="small-btn event-primary" onclick="downloadGoalsScorersPDF()">⬇️ Pakua Ripoti Kamili (PDF)</button><button class="small-btn" style="background:#16834b;color:#fff" onclick="downloadGoalsScorersWord()">📝 Pakua Microsoft Word (.doc)</button></div><div class="grid"><div class="stat"><b>'+goals.length+'</b>MAGOLI YA KAWAIDA</div><div class="stat"><b>'+ownGoals.length+'</b>MAGOLI YA KUJIFUNGA</div><div class="stat"><b>'+rows.length+'</b>WAFUNGAJI WALIOREKODIWA</div></div>'+leaderHtml+'<h4 style="margin-top:18px">📊 Orodha ya wafungaji — wengi hadi wachache</h4>'+table+'<div class="muted" style="margin-top:10px">Goli la kujifunga halihesabiwi kwenye magoli binafsi ya mchezaji wala orodha ya wafungaji bora. Wachezaji wenye idadi sawa ya magoli wanaonyeshwa kama viongozi wanaofungana.</div>';
 }
 
 function stats(){
