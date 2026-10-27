@@ -312,10 +312,15 @@ async function downloadStandingsWord(){
       return "<tr>"+headers.map(h=>h==="KLABU"?'<td style="text-align:left">'+logo+safe(r[h])+"</td>":"<td>"+safe(r[h])+"</td>").join("")+"</tr>";
     }).join("");
     const html='<!DOCTYPE html><html><head><meta charset="utf-8"><style>body{font-family:Arial,sans-serif;color:#071a33}h1,h2,p{text-align:center;margin:6px}table{border-collapse:collapse;width:100%;margin-top:22px}th{background:#071a33;color:white}th,td{border:1px solid #9aa7b5;padding:7px;text-align:center}td:nth-child(2){text-align:left}.logos{display:flex;justify-content:space-between;align-items:center}</style></head><body><div class="logos">'+logoHtml+logoHtml+'</div><h1>AFRN FOOTBALL MANAGEMENT</h1><h2>MSIMAMO WA '+safe(String(C?.name||"MASHINDANO").toUpperCase()+" "+String(C?.season||""))+'</h2><p><b>TAREHE: '+safe(standingsReportDate())+'</b></p><table><thead><tr>'+headers.map(h=>"<th>"+h+"</th>").join("")+'</tr></thead><tbody>'+tableRows+'</tbody></table><p style="margin-top:20px;font-size:10px">AFRN FOOTBALL MANAGEMENT | MSIMAMO RASMI</p></body></html>';
-    const blob=new Blob(["\ufeff",html],{type:"application/msword"});
+    const blob=new Blob(["\ufeff",html],{type:"application/msword;charset=utf-8"});
     const url=URL.createObjectURL(blob);
-    const a=document.createElement("a");a.href=url;a.download="AFRN-Msimamo-"+String(C?.name||"mashindano").toLowerCase().replace(/[^a-z0-9]+/g,"-")+".doc";document.body.appendChild(a);a.click();a.remove();
-    setTimeout(()=>URL.revokeObjectURL(url),60000);
+    const slug=String(C?.name||"mashindano").toLowerCase().replace(/[^a-z0-9]+/g,"-").replace(/^-|-$/g,"")||"mashindano";
+    const filename="AFRN-Msimamo-"+slug+".doc";
+    showReportDownloadLink(url,filename,"Word");
+    const a=document.createElement("a");a.href=url;a.download=filename;a.rel="noopener";document.body.appendChild(a);
+    try{a.click();}catch(downloadError){console.warn("Upakuaji wa moja kwa moja umezuiwa; tumia kiungo kinachoonekana.",downloadError);}
+    a.remove();
+    setTimeout(()=>{try{URL.revokeObjectURL(url)}catch(_){}},10*60*1000);
   }catch(e){alert("Imeshindikana kupakua Word: "+e.message);}
 }
 async function downloadStandingsPDF(){
@@ -379,8 +384,8 @@ async function downloadStandingsPDF(){
     doc.text("AFRN FOOTBALL MANAGEMENT | MSIMAMO RASMI | Ukurasa 1/1",148.5,201,{align:"center"});
     const slug=String(C?.name||"mashindano").toLowerCase().replace(/[^a-z0-9]+/g,"-").replace(/^-|-$/g,"")||"mashindano";
     const url=URL.createObjectURL(doc.output("blob"));const filename="AFRN-Msimamo-"+slug+".pdf";
-    if(pdfWindow&&!pdfWindow.closed){pdfWindow.location.href=url;const a=document.createElement("a");a.href=url;a.download=filename;a.click();}
-    else{const a=document.createElement("a");a.href=url;a.download=filename;document.body.appendChild(a);a.click();a.remove();}
+    showReportDownloadLink(url,filename,"PDF");
+    if(pdfWindow&&!pdfWindow.closed){try{pdfWindow.location.href=url;}catch(_){}}
     setTimeout(()=>{try{URL.revokeObjectURL(url)}catch(_){}},10*60*1000);
   }catch(e){if(pdfWindow&&!pdfWindow.closed){try{pdfWindow.close()}catch(_){}}alert("Imeshindikana kupakua PDF: "+e.message);}
 }
