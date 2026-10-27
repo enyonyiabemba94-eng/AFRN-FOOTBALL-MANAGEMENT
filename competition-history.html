@@ -293,11 +293,23 @@ async function downloadStandingsWord(){
       logoHtml='<img src="'+cv.toDataURL("image/jpeg",0.9)+'" width="75" height="75">';
     }catch(_){}
     const headers=["#","KLABU","PTS","MP","W","D","L","GD"];
+    const wordClubLogos=new Map();
+    await Promise.all((window.afrnCurrentStandingsRows||[]).map(async r=>{
+      const club=clubs.find(x=>String(x.id)===String(r.club_id));
+      if(!club?.logo_url)return;
+      try{
+        const im=new Image();im.crossOrigin="anonymous";im.src=club.logo_url;
+        await new Promise((resolve,reject)=>{im.onload=resolve;im.onerror=reject;});
+        const cv=document.createElement("canvas");cv.width=im.naturalWidth||im.width;cv.height=im.naturalHeight||im.height;
+        cv.getContext("2d").drawImage(im,0,0);
+        wordClubLogos.set(String(r.club_id),cv.toDataURL("image/png"));
+      }catch(_){}
+    }));
     const tableRows=data.map((r,i)=>{
       const source=(window.afrnCurrentStandingsRows||[])[i];
-      const club=clubs.find(x=>String(x.id)===String(source?.club_id));
-      const img=club?.logo_url?'<img src="'+safe(club.logo_url)+'" style="width:28px;height:28px;object-fit:contain;vertical-align:middle;margin-right:7px"> ':"";
-      return "<tr>"+headers.map(h=>h==="KLABU"?'<td style="text-align:left">'+img+safe(r[h])+"</td>":"<td>"+safe(r[h])+"</td>").join("")+"</tr>";
+      const img=wordClubLogos.get(String(source?.club_id));
+      const logo=img?'<img src="'+img+'" style="width:28px;height:28px;object-fit:contain;vertical-align:middle;margin-right:7px"> ':"";
+      return "<tr>"+headers.map(h=>h==="KLABU"?'<td style="text-align:left">'+logo+safe(r[h])+"</td>":"<td>"+safe(r[h])+"</td>").join("")+"</tr>";
     }).join("");
     const html='<!DOCTYPE html><html><head><meta charset="utf-8"><style>body{font-family:Arial,sans-serif;color:#071a33}h1,h2,p{text-align:center;margin:6px}table{border-collapse:collapse;width:100%;margin-top:22px}th{background:#071a33;color:white}th,td{border:1px solid #9aa7b5;padding:7px;text-align:center}td:nth-child(2){text-align:left}.logos{display:flex;justify-content:space-between;align-items:center}</style></head><body><div class="logos">'+logoHtml+logoHtml+'</div><h1>AFRN FOOTBALL MANAGEMENT</h1><h2>MSIMAMO WA '+safe(String(C?.name||"MASHINDANO").toUpperCase()+" "+String(C?.season||""))+'</h2><p><b>TAREHE: '+safe(standingsReportDate())+'</b></p><table><thead><tr>'+headers.map(h=>"<th>"+h+"</th>").join("")+'</tr></thead><tbody>'+tableRows+'</tbody></table><p style="margin-top:20px;font-size:10px">AFRN FOOTBALL MANAGEMENT | MSIMAMO RASMI</p></body></html>';
     const blob=new Blob(["\ufeff",html],{type:"application/msword"});
