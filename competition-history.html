@@ -230,14 +230,19 @@ function standings(){
     return;
   }
   const rows = window.AFRNStandings.buildStandings({teams,matches,events,clubName:name})
+    .map(r => {
+      const clubId = clubs.find(c => String(c.name||"") === String(r.name||""))?.id;
+      const teamEvents = events.filter(e => String(e.club_id||"") === String(clubId||""));
+      const reds = teamEvents.filter(e => /red|nyekundu/i.test(String(e.event_type||""))).length;
+      const yellows = teamEvents.filter(e => /yellow|njano/i.test(String(e.event_type||""))).length;
+      return {...r, _reds: reds, _yellows: yellows};
+    })
     .slice().sort((a,b) =>
       (Number(b.PTS)||0)-(Number(a.PTS)||0) ||
-      ((Number(b.GF)||0)-(Number(b.GA)||0))-((Number(a.GF)||0)-(Number(a.GA)||0)) ||
       (Number(b.GF)||0)-(Number(a.GF)||0) ||
       (Number(a.GA)||0)-(Number(b.GA)||0) ||
-      (Number(a.redCards)||0)-(Number(b.redCards)||0) ||
-      (Number(a.yellowCards)||0)-(Number(b.yellowCards)||0) ||
-      String(a.name||"").localeCompare(String(b.name||""))
+      (Number(a._reds)||0)-(Number(b._reds)||0) ||
+      (Number(a._yellows)||0)-(Number(b._yellows)||0)
     );
   window.afrnCurrentStandingsRows = rows;
   const today = new Date();
@@ -259,7 +264,7 @@ function standings(){
     </tr></thead><tbody>
     ${rows.map((r,i) => `<tr><td>${i+1}</td><td>${esc(r.name)}</td><td>${r.P}</td><td>${r.W}</td><td>${r.D}</td><td>${r.L}</td><td>${r.GF}</td><td>${r.GA}</td><td>${(Number(r.GF)||0)-(Number(r.GA)||0)}</td><td><b>${r.PTS}</b></td></tr>`).join("")}
     </tbody></table></div>
-    <div class="muted" style="margin-top:9px">Mpangilio: Pointi nyingi, tofauti ya magoli, magoli ya kufunga, magoli ya kufungwa; kisha nidhamu na jina la klabu.</div>`;
+    <div class="muted" style="margin-top:9px">Mpangilio rasmi: Pointi → magoli ya kufunga → magoli ya kufungwa → kadi nyekundu chache → kadi za njano chache → sarafu ikiwa bado sare.</div>`;
 }
 
 function standingsReportDate(){
