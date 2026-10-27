@@ -468,9 +468,9 @@ async function downloadGoalsScorersPDF(){
       const canvas=document.createElement("canvas");
       canvas.width=logoImage.naturalWidth||logoImage.width;canvas.height=logoImage.naturalHeight||logoImage.height;
       canvas.getContext("2d").drawImage(logoImage,0,0);
-      const logoData=canvas.toDataURL("image/png");
-      doc.addImage(logoData,"PNG",10,5,22,22);
-      doc.addImage(logoData,"PNG",265,5,22,22);
+      const logoData=canvas.toDataURL("image/jpeg",0.95);
+      doc.addImage(logoData,"JPEG",10,5,22,22);
+      doc.addImage(logoData,"JPEG",265,5,22,22);
     }catch(logoError){console.warn("Nembo ya AFRN haikuweza kupakiwa kwenye PDF.",logoError);}
     const completed=matches.filter(m=>played(m.status)).slice().sort((a,b)=>String(a.match_date||"").localeCompare(String(b.match_date||""))||String(a.match_time||"").localeCompare(String(b.match_time||"")));
     const total=completed.reduce((sum,m)=>sum+Math.max(0,Number(m.home_score)||0)+Math.max(0,Number(m.away_score)||0),0);
