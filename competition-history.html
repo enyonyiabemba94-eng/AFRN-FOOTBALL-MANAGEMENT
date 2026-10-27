@@ -389,13 +389,26 @@ function awardsView(){
 }
 
 function cards(){
-  const c = events.filter(e => {
-    const t = String(e.event_type || "").toLowerCase();
-    return t.includes("yellow") || t.includes("red");
-  });
-  $("content").innerHTML = '<h3>🟨🟥 Kadi</h3>' +
-    (c.length ? c.map(e => `<div style="padding:9px;border-bottom:1px solid #eee">${String(e.event_type).toLowerCase().includes("red")?"🟥":"🟨"} ${esc(name(e.club_id))} · dakika ${esc(e.minute || "—")}</div>`).join("")
-    : '<div class="empty">Hakuna kadi.</div>');
+  const c=events.filter(e=>{const t=String(e.event_type||"").toLowerCase();return t.includes("yellow")||t.includes("red");});
+  const clubIds=[...new Set(c.map(e=>String(e.club_id)).filter(Boolean))];
+  const count=(rows,colour)=>rows.filter(e=>String(e.event_type||"").toLowerCase().includes(colour)).length;
+  window.openCompetitionClubCards=function(clubId){
+    const rows=c.filter(e=>String(e.club_id)===String(clubId)).slice().sort((a,b)=>(Number(a.minute)||999)-(Number(b.minute)||999));
+    const details=rows.map(e=>{
+      const type=String(e.event_type||"").toLowerCase(),red=type.includes("red");
+      const p=players.find(x=>String(x.id)===String(e.player_id));
+      const playerName=p?[p.first_name,p.middle_name,p.last_name].filter(Boolean).join(" "):"";
+      const who=playerName||String(e.description||"").split("|").find(x=>/Kadi kwa (kocha|shabiki)/i.test(x))?.trim()||"Jina halijawekwa";
+      const label=type.includes("coach_")?"Kocha":type.includes("supporter_")?"Shabiki":"Mchezaji";
+      return '<div style="padding:10px;border-bottom:1px solid #e5eaf1;display:flex;gap:10px;align-items:flex-start"><span style="font-size:20px">'+(red?"🟥":"🟨")+'</span><div><b>'+esc(who)+'</b><div style="font-size:13px;color:#64748b">'+esc(label)+' · '+esc(type.includes("red")?"Kadi nyekundu":"Kadi ya njano")+' · Dakika '+esc(e.minute??"—")+'</div>'+(e.description?'<div style="font-size:12px;color:#64748b">'+esc(e.description)+'</div>':'')+'</div></div>';
+    }).join("");
+    $("content").innerHTML='<button class="small-btn" onclick="cards()">← Rudi kwenye timu zote</button><h3>🟨🟥 Historia ya Kadi: '+esc(name(clubId))+'</h3><div style="padding:12px;border:1px solid #e2e8f0;border-radius:12px;margin:10px 0"><b>Jumla ya kadi: '+rows.length+'</b><div>🟨 Kadi za njano: '+count(rows,"yellow")+'　 🟥 Kadi nyekundu: '+count(rows,"red")+'</div></div>'+(details||'<div class="empty">Hakuna kadi za timu hii.</div>');
+  };
+  $("content").innerHTML='<h3>🟨🟥 Kadi kwa Timu</h3><p style="color:#64748b">Bonyeza jina la timu kuona wachezaji/kocha/shabiki waliopokea kadi na historia yao.</p>'+
+    (clubIds.length?'<div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(230px,1fr));gap:10px">'+clubIds.map(id=>{
+      const rows=c.filter(e=>String(e.club_id)===id),yellow=count(rows,"yellow"),red=count(rows,"red");
+      return '<button type="button" onclick="openCompetitionClubCards(\''+esc(id)+'\')" style="width:100%;text-align:left;padding:13px;border:1px solid #dbe3ed;border-radius:12px;background:#fff;color:#172033;cursor:pointer"><b>'+esc(name(id))+'</b><div style="margin-top:7px">🟨 '+yellow+'　 🟥 '+red+'</div><div style="font-size:12px;color:#64748b;margin-top:3px">Jumla ya kadi: '+rows.length+' · Bonyeza kuona historia</div></button>';
+    }).join("")+'</div>':'<div class="empty">Hakuna kadi.</div>');
 }
 
 function reportScorerRows(){
