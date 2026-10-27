@@ -421,6 +421,18 @@ function reportScorerRows(){
   });
   return [...tally.values()].sort((a,b)=>b.count-a.count||playerLabel(a.player).localeCompare(playerLabel(b.player)));
 }
+function showReportDownloadLink(url,filename,kind){
+  const content=document.getElementById("content");
+  if(!content)return;
+  let box=document.getElementById("report-download-fallback");
+  if(!box){box=document.createElement("div");box.id="report-download-fallback";box.style.cssText="margin:12px 0;padding:14px;border:2px solid #16834b;border-radius:12px;background:#effcf4;color:#14532d";content.prepend(box);}
+  box.innerHTML="";
+  const title=document.createElement("b");title.textContent="Ripoti ya "+kind+" iko tayari";box.appendChild(title);
+  const note=document.createElement("p");note.textContent="Ikiwa haijapakuliwa moja kwa moja, gusa kiungo hiki hapa chini:";note.style.margin="8px 0";box.appendChild(note);
+  const link=document.createElement("a");link.href=url;link.download=filename;link.target="_blank";link.rel="noopener";link.textContent="⬇️ BONYEZA HAPA KUPAKUA "+kind.toUpperCase();link.style.cssText="display:inline-block;padding:12px;background:#16834b;color:white;font-weight:bold;border-radius:8px;text-decoration:none;overflow-wrap:anywhere";box.appendChild(link);
+  const filenameText=document.createElement("div");filenameText.textContent=filename;filenameText.style.cssText="font-size:12px;margin-top:8px;overflow-wrap:anywhere";box.appendChild(filenameText);
+}
+
 function downloadGoalsScorersWord(){
  try{
   const completed=matches.filter(m=>played(m.status)).slice().sort((a,b)=>String(a.match_date||"").localeCompare(String(b.match_date||""))||String(a.match_time||"").localeCompare(String(b.match_time||"")));
@@ -434,10 +446,13 @@ function downloadGoalsScorersWord(){
   const html=['<!doctype html><html><head><meta charset="utf-8"><style>body{font-family:Arial,sans-serif;color:#172033}h1{font-size:20pt;color:#0d47a1}h2{font-size:14pt;margin-top:24px}table{border-collapse:collapse;width:100%;margin:10px 0 20px}th{background:#071a33;color:#fff}th,td{border:1px solid #cbd5e1;padding:6px;text-align:left;font-size:10pt}tr:nth-child(even){background:#f3f6fa}</style></head><body><h1>AFRN FOOTBALL MANAGEMENT</h1><h2>',cell((C?.name||"Mashindano")+" "+(C?.season||"2026")),'</h2><p><b>RIPOTI YA MAGOLI NA WAFUNGAJI BORA</b></p><p>Mechi zilizokamilika: ',completed.length,' | Jumla ya magoli: ',totalGoals,' | Nyumbani: ',homeGoals,' | Ugenini: ',awayGoals,' | Magoli ya kujifunga: ',ownGoals,'</p><h2>A. MATOKEO NA MAGOLI KWA KILA MECHI</h2>',table(["#","Tarehe","Timu ya Nyumbani","Timu ya Ugenini","Magoli Nyumbani","Magoli Ugenini","Matokeo","Jumla ya Magoli","Hali"],matchRows),'<h2>B. ORODHA YA WAFUNGAJI BORA</h2>',table(["Nafasi","Mchezaji","Klabu","Magoli"],scorerData),'<p><i>Magoli ya kujifunga yanajumuishwa kwenye jumla ya matokeo ya mechi, lakini hayahesabiwi kama magoli binafsi ya mchezaji.</i></p></body></html>'].join("");
   const blob=new Blob(["\ufeff",html],{type:"application/msword;charset=utf-8"}),slug=String(C?.name||"Mashindano").toLowerCase().replace(/[^a-z0-9]+/g,"-").replace(/^-|-$/g,"")||"mashindano";
   const filename="AFRN-"+slug+"-magoli-wafungaji-"+(C?.season||"2026")+".doc";
-  const url=URL.createObjectURL(blob),a=document.createElement("a");a.href=url;a.download=filename;a.style.display="none";document.body.appendChild(a);
-  try{a.click();}catch(downloadError){console.warn("Direct download failed; opening report instead.",downloadError);try{window.open(url,"_blank");}catch(openError){console.warn("Could not open report preview.",openError);}}
+  const url=URL.createObjectURL(blob);
+  showReportDownloadLink(url,filename,"Microsoft Word");
+  const a=document.createElement("a");a.href=url;a.download=filename;a.style.display="none";document.body.appendChild(a);
+  try{a.click();}catch(downloadError){console.warn("Automatic download was blocked; use the visible download link.",downloadError);}
   a.remove();
-  setTimeout(()=>{try{URL.revokeObjectURL(url)}catch(_){}},120000);
+  // Keep the file URL alive while the user taps the visible link.
+  setTimeout(()=>{try{URL.revokeObjectURL(url)}catch(_){}},10*60*1000);
  }catch(e){console.error(e);alert("Imeshindikana kutengeneza ripoti ya Word: "+(e.message||e));}
 }
 function downloadGoalsScorersPDF(){
@@ -482,8 +497,11 @@ function downloadGoalsScorersPDF(){
     const lines=doc.splitTextToSize(safeText(note),265);if(y+lines.length*4>195){doc.addPage();y=15;}doc.text(lines,14,y);
     const slug=String(C?.name||"Mashindano").toLowerCase().replace(/[^a-z0-9]+/g,"-").replace(/^-|-$/g,"")||"mashindano";
     const filename="AFRN-"+slug+"-magoli-wafungaji-"+(C?.season||"2026")+".pdf";
-    // Tumia save ya jsPDF yenyewe, ambayo inaendana vizuri zaidi na simu kuliko blob-link.
-    doc.save(filename);
+    // Tengeneza kiungo kinachoonekana ili mtumiaji aweze kukigusa mwenyewe ikiwa simu imezuia upakuaji wa moja kwa moja.
+    const blob=doc.output("blob"),url=URL.createObjectURL(blob);
+    showReportDownloadLink(url,filename,"PDF");
+    try{doc.save(filename);}catch(downloadError){console.warn("Automatic PDF download was blocked; use the visible download link.",downloadError);}
+    setTimeout(()=>{try{URL.revokeObjectURL(url)}catch(_){}},10*60*1000);
   }catch(e){console.error(e);alert("Imeshindikana kutengeneza PDF: "+(e.message||e));}
 }
 
