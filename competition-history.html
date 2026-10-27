@@ -94,7 +94,7 @@ async function load(){
     </div>`;
 
   const isLeague = String(C.competition_type || C.format || "").toLowerCase().includes("league");
-  const tabs = isLeague ? ["MECHI","MSIMAMO","TIMU","WAFUNGAJI","KADI","TAKWIMU","KNOCKOUT"] : ["MECHI","MAKUNDI","MSIMAMO","KNOCKOUT","TIMU","WAFUNGAJI","KADI","TAKWIMU","TUZO"];
+  const tabs = isLeague ? ["MECHI","MSIMAMO","TIMU","MAGOLI","WAFUNGAJI","KADI","TAKWIMU","KNOCKOUT"] : ["MECHI","MAKUNDI","MSIMAMO","KNOCKOUT","TIMU","MAGOLI","WAFUNGAJI","KADI","TAKWIMU","TUZO"];
   $("tabs").innerHTML = '<div class="tabs">' +
     tabs.map(t => `<button class="tab ${t===tab?"active":""}" onclick="showTab('${t}')">${t}</button>`).join("") +
     '</div>';
@@ -113,6 +113,7 @@ function render(){
   else if(tab === "TIMU") teamsView();
   else if(tab === "MECHI") matchesView();
   else if(tab === "KADI") cards();
+  else if(tab === "MAGOLI") goalsReport();
   else if(tab === "WAFUNGAJI") scorers();
   else if(tab === "TAKWIMU") stats();
   else if(tab === "TUZO") awardsView();
@@ -395,6 +396,25 @@ function cards(){
   $("content").innerHTML = '<h3>🟨🟥 Kadi</h3>' +
     (c.length ? c.map(e => `<div style="padding:9px;border-bottom:1px solid #eee">${String(e.event_type).toLowerCase().includes("red")?"🟥":"🟨"} ${esc(name(e.club_id))} · dakika ${esc(e.minute || "—")}</div>`).join("")
     : '<div class="empty">Hakuna kadi.</div>');
+}
+
+function goalsReport(){
+  const completed=matches.filter(m=>played(m.status));
+  const totalGoals=completed.reduce((sum,m)=>sum+Math.max(0,Number(m.home_score)||0)+Math.max(0,Number(m.away_score)||0),0);
+  const totalHome=completed.reduce((sum,m)=>sum+Math.max(0,Number(m.home_score)||0),0);
+  const totalAway=completed.reduce((sum,m)=>sum+Math.max(0,Number(m.away_score)||0),0);
+  const sorted=completed.slice().sort((a,b)=>String(a.match_date||"").localeCompare(String(b.match_date||""))||String(a.match_time||"").localeCompare(String(b.match_time||"")));
+  const pending=matches.filter(m=>!played(m.status)).length;
+  const table=sorted.length
+    ? '<div class="table-wrap"><table><thead><tr><th>#</th><th>Tarehe</th><th>Mechi</th><th>Matokeo</th><th>Magoli</th></tr></thead><tbody>'+
+      sorted.map((m,i)=>{const h=Math.max(0,Number(m.home_score)||0),a=Math.max(0,Number(m.away_score)||0);return '<tr><td>'+(i+1)+'</td><td>'+esc(m.match_date||"—")+'</td><td>'+esc(name(m.home_team_id))+' vs '+esc(name(m.away_team_id))+'</td><td><b>'+h+' - '+a+'</b></td><td><b>'+(h+a)+'</b></td></tr>';}).join("")+
+      '</tbody></table></div>'
+    : '<div class="empty">Bado hakuna mechi zilizokamilika zenye matokeo katika mashindano haya.</div>';
+  $("content").innerHTML='<h3>⚽ Ripoti ya Magoli — '+esc(C?.name||"Mashindano")+'</h3>'+
+    '<div class="grid" style="margin:12px 0"><div class="stat"><b>'+totalGoals+'</b>JUMLA YA MAGOLI</div><div class="stat"><b>'+completed.length+'</b>MECHI ZILIZOCHEZWA</div><div class="stat"><b>'+totalHome+'</b>MAGOLI YA TIMU ZA NYUMBANI</div><div class="stat"><b>'+totalAway+'</b>MAGOLI YA TIMU ZA UGENINI</div></div>'+
+    '<div class="muted" style="margin:8px 0 12px">Jumla huhesabiwa kutoka kwenye matokeo rasmi ya mechi zilizokamilika. Mechi '+pending+' bado hazijahesabiwa kwa sababu hazijamalizika. Magoli ya kujifunga yanahesabiwa kwa timu iliyopata goli kupitia matokeo ya mechi.</div>'+
+    '<h4>Magoli ya kila mechi</h4>'+table+
+    '<div style="margin-top:18px"><button class="small-btn event-primary" onclick="showTab(\'WAFUNGAJI\')">🏆 Angalia Ripoti ya Wafungaji Bora</button></div>';
 }
 
 function scorers(){
