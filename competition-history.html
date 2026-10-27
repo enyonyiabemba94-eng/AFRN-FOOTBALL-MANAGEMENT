@@ -448,14 +448,15 @@ function downloadGoalsScorersWord(){
   const filename="AFRN-"+slug+"-magoli-wafungaji-"+(C?.season||"2026")+".doc";
   const url=URL.createObjectURL(blob);
   showReportDownloadLink(url,filename,"Microsoft Word");
-  const a=document.createElement("a");a.href=url;a.download=filename;a.style.display="none";document.body.appendChild(a);
+  const a=document.createElement("a");a.href=url;a.download=filename;a.target="_blank";a.rel="noopener";a.textContent="Pakua ripoti";a.style.cssText="position:fixed;left:8px;bottom:8px;z-index:99999;padding:14px;background:#16834b;color:#fff;border-radius:8px";document.body.appendChild(a);
   try{a.click();}catch(downloadError){console.warn("Automatic download was blocked; use the visible download link.",downloadError);}
-  a.remove();
   // Keep the file URL alive while the user taps the visible link.
   setTimeout(()=>{try{URL.revokeObjectURL(url)}catch(_){}},10*60*1000);
  }catch(e){console.error(e);alert("Imeshindikana kutengeneza ripoti ya Word: "+(e.message||e));}
 }
 async function downloadGoalsScorersPDF(){
+  // Fungua dirisha wakati mguso wa mtumiaji bado unatumika; baadhi ya simu huzuia dirisha baada ya await.
+  let pdfWindow=null;try{pdfWindow=window.open("about:blank","_blank");}catch(_){}
   try{
     if(!window.jspdf||!window.jspdf.jsPDF)throw new Error("Huduma ya kutengeneza PDF haijapakia. Hakikisha intaneti ipo kisha jaribu tena.");
     const {jsPDF}=window.jspdf,doc=new jsPDF({orientation:"landscape",unit:"mm",format:"a4"});
@@ -512,9 +513,11 @@ async function downloadGoalsScorersPDF(){
     // Tengeneza kiungo kinachoonekana ili mtumiaji aweze kukigusa mwenyewe ikiwa simu imezuia upakuaji wa moja kwa moja.
     const blob=doc.output("blob"),url=URL.createObjectURL(blob);
     showReportDownloadLink(url,filename,"PDF");
-    try{doc.save(filename);}catch(downloadError){console.warn("Automatic PDF download was blocked; use the visible download link.",downloadError);}
+    let opened=false;
+    if(pdfWindow&&!pdfWindow.closed){try{pdfWindow.location.href=url;opened=true;}catch(_){}}
+    if(!opened){try{const a=document.createElement("a");a.href=url;a.download=filename;a.target="_blank";a.rel="noopener";document.body.appendChild(a);a.click();a.remove();}catch(downloadError){console.warn("PDF download fallback failed.",downloadError);}}
     setTimeout(()=>{try{URL.revokeObjectURL(url)}catch(_){}},10*60*1000);
-  }catch(e){console.error(e);alert("Imeshindikana kutengeneza PDF: "+(e.message||e));}
+  }catch(e){if(pdfWindow&&!pdfWindow.closed){try{pdfWindow.close()}catch(_){}}console.error(e);alert("Imeshindikana kutengeneza PDF: "+(e.message||e));}
 }
 
 function goalsReport(){
