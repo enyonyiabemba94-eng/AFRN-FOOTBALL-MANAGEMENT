@@ -323,11 +323,29 @@ async function downloadStandingsWord(){
     setTimeout(()=>{try{URL.revokeObjectURL(url)}catch(_){}},10*60*1000);
   }catch(e){alert("Imeshindikana kupakua Word: "+e.message);}
 }
+async function ensureAFRNJsPDF(){
+  if(window.jspdf&&window.jspdf.jsPDF)return window.jspdf.jsPDF;
+  const sources=[
+    "https://cdn.jsdelivr.net/npm/jspdf@2.5.1/dist/jspdf.umd.min.js",
+    "https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js",
+    "https://unpkg.com/jspdf@2.5.1/dist/jspdf.umd.min.js"
+  ];
+  for(const src of sources){
+    try{
+      await new Promise((resolve,reject)=>{
+        const script=document.createElement("script");script.src=src;script.async=true;
+        script.onload=resolve;script.onerror=()=>{script.remove();reject(new Error("Imeshindwa kupakia PDF library"));};
+        document.head.appendChild(script);
+      });
+      if(window.jspdf&&window.jspdf.jsPDF)return window.jspdf.jsPDF;
+    }catch(err){console.warn("AFRN jsPDF loader:",err);}
+  }
+  throw new Error("Huduma ya PDF haijapakia. Hakikisha intaneti ipo kisha jaribu tena.");
+}
+
 async function downloadStandingsPDF(){
-  let pdfWindow=null;try{pdfWindow=window.open("about:blank","_blank")}catch(_){}
-  try{
-    if(!window.jspdf?.jsPDF) throw new Error("Huduma ya PDF haijapakia. Hakikisha intaneti ipo kisha jaribu tena.");
-    const {jsPDF}=window.jspdf;
+  const button=document.activeElement;if(button)button.disabled=true;
+  try{const jsPDF=await ensureAFRNJsPDF();
     const doc=new jsPDF({orientation:"landscape",unit:"mm",format:"a4"});
     const logo=new Image(); logo.src=new URL("./IMG-20260319-WA0093.jpg",window.location.href).href;
     try{
@@ -384,11 +402,11 @@ async function downloadStandingsPDF(){
     doc.setFont("helvetica","normal");doc.setFontSize(7);doc.setTextColor(100,100,100);
     doc.text("AFRN FOOTBALL MANAGEMENT | MSIMAMO RASMI | Ukurasa 1/1",148.5,201,{align:"center"});
     const slug=String(C?.name||"mashindano").toLowerCase().replace(/[^a-z0-9]+/g,"-").replace(/^-|-$/g,"")||"mashindano";
-    const url=URL.createObjectURL(doc.output("blob"));const filename="AFRN-Msimamo-"+slug+".pdf";
-    showReportDownloadLink(url,filename,"PDF");
-    if(pdfWindow&&!pdfWindow.closed){try{pdfWindow.location.href=url;}catch(_){}}
+    const filename="AFRN-Msimamo-"+slug+".pdf";
+    const url=URL.createObjectURL(doc.output("blob"));showReportDownloadLink(url,filename,"PDF");doc.save(filename);
     setTimeout(()=>{try{URL.revokeObjectURL(url)}catch(_){}},10*60*1000);
-  }catch(e){if(pdfWindow&&!pdfWindow.closed){try{pdfWindow.close()}catch(_){}}alert("Imeshindikana kupakua PDF: "+e.message);}
+  }catch(e){console.error("AFRN standings PDF:",e);alert("Imeshindikana kupakua PDF: "+(e.message||e));}
+  finally{if(button)button.disabled=false;}
 }
 
 function knockout(){
@@ -649,11 +667,8 @@ function downloadGoalsScorersWord(){
  }catch(e){console.error(e);alert("Imeshindikana kutengeneza ripoti ya Word: "+(e.message||e));}
 }
 async function downloadGoalsScorersPDF(){
-  // Fungua dirisha wakati mguso wa mtumiaji bado unatumika; baadhi ya simu huzuia dirisha baada ya await.
-  let pdfWindow=null;try{pdfWindow=window.open("about:blank","_blank");}catch(_){}
-  try{
-    if(!window.jspdf||!window.jspdf.jsPDF)throw new Error("Huduma ya kutengeneza PDF haijapakia. Hakikisha intaneti ipo kisha jaribu tena.");
-    const {jsPDF}=window.jspdf,doc=new jsPDF({orientation:"landscape",unit:"mm",format:"a4"});
+  const button=document.activeElement;if(button)button.disabled=true;
+  try{const jsPDF=await ensureAFRNJsPDF(),doc=new jsPDF({orientation:"landscape",unit:"mm",format:"a4"});
     // Weka nembo rasmi ya AFRN pande zote mbili za kichwa cha PDF.
     try{
       const logoImage=new Image();
@@ -705,13 +720,10 @@ async function downloadGoalsScorersPDF(){
     const slug=String(C?.name||"Mashindano").toLowerCase().replace(/[^a-z0-9]+/g,"-").replace(/^-|-$/g,"")||"mashindano";
     const filename="AFRN-"+slug+"-magoli-wafungaji-"+(C?.season||"2026")+".pdf";
     // Tengeneza kiungo kinachoonekana ili mtumiaji aweze kukigusa mwenyewe ikiwa simu imezuia upakuaji wa moja kwa moja.
-    const blob=doc.output("blob"),url=URL.createObjectURL(blob);
-    showReportDownloadLink(url,filename,"PDF");
-    let opened=false;
-    if(pdfWindow&&!pdfWindow.closed){try{pdfWindow.location.href=url;opened=true;}catch(_){}}
-    if(!opened){try{const a=document.createElement("a");a.href=url;a.download=filename;a.target="_blank";a.rel="noopener";document.body.appendChild(a);a.click();a.remove();}catch(downloadError){console.warn("PDF download fallback failed.",downloadError);}}
+    const blob=doc.output("blob"),url=URL.createObjectURL(blob);showReportDownloadLink(url,filename,"PDF");doc.save(filename);
     setTimeout(()=>{try{URL.revokeObjectURL(url)}catch(_){}},10*60*1000);
-  }catch(e){if(pdfWindow&&!pdfWindow.closed){try{pdfWindow.close()}catch(_){}}console.error(e);alert("Imeshindikana kutengeneza PDF: "+(e.message||e));}
+  }catch(e){console.error("AFRN goals/scorers PDF:",e);alert("Imeshindikana kutengeneza PDF: "+(e.message||e));}
+  finally{if(button)button.disabled=false;}
 }
 
 function goalsReport(){
