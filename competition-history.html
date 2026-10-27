@@ -262,7 +262,7 @@ function standings(){
     <div class="table-wrap"><table><thead><tr>
       <th>#</th><th>KLABU</th><th>PTS</th><th>MP</th><th>W</th><th>D</th><th>L</th><th>GD</th>
     </tr></thead><tbody>
-    ${rows.map((r,i) => `<tr><td>${i+1}</td><td>${esc(r.name)}</td><td><b>${r.PTS}</b></td><td>${r.P}</td><td>${r.W}</td><td>${r.D}</td><td>${r.L}</td><td>${Number(r.GF)||0}-${Number(r.GA)||0}</td></tr>`).join("")}
+    ${rows.map((r,i) => `<tr><td>${i+1}</td><td><div style="display:flex;align-items:center;gap:8px"><img src="${esc(clubs.find(x=>String(x.id)===String(r.club_id))?.logo_url||'')}" alt="" style="width:28px;height:28px;object-fit:contain;border-radius:50%;border:1px solid #d9e1ec" onerror="this.style.display='none'"><b>${esc(r.name)}</b></div></td><td><b>${r.PTS}</b></td><td>${r.P}</td><td>${r.W}</td><td>${r.D}</td><td>${r.L}</td><td>${Number(r.GF)||0}-${Number(r.GA)||0}</td></tr>`).join("")}
     </tbody></table></div>
     <div class="muted" style="margin-top:9px">Mpangilio rasmi: Pointi → magoli ya kufunga → magoli ya kufungwa → kadi nyekundu chache → kadi za njano chache → sarafu ikiwa bado sare.</div>`;
 }
