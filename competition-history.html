@@ -18,6 +18,8 @@ const esc = v => String(v ?? "").replace(/[&<>"']/g, c => ({
   "&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#039;"
 }[c]));
 let C = null, teams = [], matches = [], events = [], clubs = [], players = [], awards = [], tab = "MECHI";
+let activeLoadStep = "kuanza kupakia ukurasa";
+let loadAttempt = 0;
 
 const played = s => window.AFRNStandings && window.AFRNStandings.playedStatus
   ? window.AFRNStandings.playedStatus(s)
@@ -25,13 +27,14 @@ const played = s => window.AFRNStandings && window.AFRNStandings.playedStatus
 
 const name = id => (clubs.find(c => String(c.id) === String(id)) || {}).name || "Timu";
 
-async function load(){
+async function loadData(){
   if(!id){
     $("hero").innerHTML = '<div class="empty">Competition ID haipo.</div>';
     $("content").innerHTML = '<div class="empty">Fungua History kupitia ukurasa wa Mashindano.</div>';
     return;
   }
 
+  activeLoadStep = "kupata taarifa za mashindano (competitions)";
   const cr = await db.from("competitions").select("*").eq("id", id).maybeSingle();
   if(cr.error) throw cr.error;
   if(!cr.data){
@@ -41,11 +44,13 @@ async function load(){
   }
   C = cr.data;
 
+  activeLoadStep = "kupata timu za mashindano (competition_teams)";
   const tr = await db.from("competition_teams")
     .select("id,competition_id,club_id,group_name")
     .eq("competition_id", id);
   if(tr.error) throw tr.error;
 
+  activeLoadStep = "kupata ratiba na matokeo ya mechi (matches)";
   const mr = await db.from("matches")
     .select("*")
     .eq("competition_id", id)
@@ -53,13 +58,16 @@ async function load(){
     .order("match_time", {ascending:true});
   if(mr.error) throw mr.error;
 
+  activeLoadStep = "kupata orodha ya vilabu (clubs)";
   const clr = await db.from("clubs")
     .select("id,name,logo_url,afrn_club_id");
   if(clr.error) throw clr.error;
+  activeLoadStep = "kupata orodha ya wachezaji (players)";
   const pr = await db.from("players")
     .select("id,club_id,first_name,middle_name,last_name,position,status,date_of_birth,jersey_number")
     .order("first_name", {ascending:true});
   if(pr.error) throw pr.error;
+  activeLoadStep = "kupata tuzo za mashindano (competition_awards)";
   const ar = await db.from("competition_awards")
     .select("*")
     .eq("competition_id", id);
@@ -74,6 +82,7 @@ async function load(){
 
   const matchIds = matches.map(m => m.id).filter(Boolean);
   if(matchIds.length){
+    activeLoadStep = "kupata magoli na kadi za mechi (match_events)";
     const er = await db.from("match_events")
       .select("match_id,club_id,event_type,player_id,minute,description")
       .in("match_id", matchIds);
@@ -814,11 +823,31 @@ function stats(){
     </div>`;
 }
 
-load().catch(e => {
-  console.error("AFRN history:", e);
-  $("hero").innerHTML = '<div class="empty">❌ Imeshindikana kupakia competition.</div>';
-  $("content").innerHTML = '<div class="empty">❌ Imeshindikana kupakia data.<br><small>'+esc(e.message || e)+'</small></div>';
-});
+async function load(){
+  loadAttempt++;
+  const thisAttempt = loadAttempt;
+  activeLoadStep = "kuanza kupakia ukurasa";
+  $("hero").innerHTML = '<div class="empty">⏳ Inapakia taarifa za mashindano...</div>';
+  if (!C) $("content").innerHTML = '<div class="empty">Tafadhali subiri, tunapata taarifa kutoka Supabase.</div>';
+  let timer;
+  try {
+    await Promise.race([
+      loadData(),
+      new Promise((_, reject) => {
+        timer = setTimeout(() => reject(new Error("Muda wa kusubiri umeisha. Hatua iliyokuwa ikifanyika: " + activeLoadStep + ". Angalia intaneti au hali ya Supabase, kisha jaribu tena.")), 20000);
+      })
+    ]);
+  } catch(e) {
+    if (thisAttempt !== loadAttempt) return;
+    console.error("AFRN history load error at " + activeLoadStep + ":", e);
+    $("hero").innerHTML = '<div class="empty">❌ Imeshindikana kupakia taarifa za mashindano.</div>';
+    const detail = esc(e?.message || e || "Hitilafu isiyojulikana");
+    $("content").innerHTML = '<div class="empty"><b>Hatua:</b> '+esc(activeLoadStep)+'<br><small>'+detail+'</small><br><button class="small-btn event-primary" style="margin-top:12px;padding:10px 16px" onclick="load()">🔄 Jaribu tena</button></div>';
+  } finally {
+    clearTimeout(timer);
+  }
+}
+load();
 </script>
 <script src="./afrn-player-photo-global.js"></script>
 <script>
