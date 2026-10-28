@@ -635,10 +635,7 @@ async function downloadCardsPDF(clubId=null){
     const c=events.filter(e=>{const t=String(e.event_type||"").toLowerCase();return t.includes("yellow")||t.includes("red");});
     const filtered=c.filter(e=>!clubId||String(e.club_id)===String(clubId));
     const aggregate=new Map();
-    // Anza na timu zote zilizosajiliwa kwenye mashindano ili hata zisizo na kadi zionekane.
-    (teams||[]).forEach(t=>{
-      const id=String(t.club_id||"");if(id&&!aggregate.has(id))aggregate.set(id,{club_id:t.club_id,yellow:0,red:0,total:0});
-    });
+    (teams||[]).forEach(t=>{const id=String(t.club_id||"");if(id&&!aggregate.has(id))aggregate.set(id,{club_id:t.club_id,yellow:0,red:0,total:0});});
     filtered.forEach(e=>{
       const id=String(e.club_id||"");if(!id)return;
       if(!aggregate.has(id))aggregate.set(id,{club_id:e.club_id,yellow:0,red:0,total:0});
@@ -653,28 +650,50 @@ async function downloadCardsPDF(clubId=null){
     const yellow=filtered.filter(e=>String(e.event_type||"").toLowerCase().includes("yellow")).length;
     const red=filtered.filter(e=>String(e.event_type||"").toLowerCase().includes("red")).length;
     const total=filtered.length;
-    const loadLogo=async url=>{
-      if(!url)return null;
-      try{return await loadImageData(url);}catch(_){return null;}
+    const loadImageForPDF=async(url)=>{
+      try{
+        if(!url)return null;
+        const im=new Image();im.crossOrigin="anonymous";
+        await new Promise((resolve,reject)=>{
+          const timer=setTimeout(()=>reject(new Error("Logo timeout")),3500);
+          im.onload=()=>{clearTimeout(timer);resolve();};
+          im.onerror=()=>{clearTimeout(timer);reject(new Error("Logo haipatikani"));};
+          im.src=new URL(url,window.location.href).href;
+          if(im.complete){if(im.naturalWidth||im.width){clearTimeout(timer);resolve();}else{clearTimeout(timer);reject(new Error("Logo haipatikani"));}}
+        });
+        const cv=document.createElement("canvas");cv.width=im.naturalWidth||im.width;cv.height=im.naturalHeight||im.height;
+        cv.getContext("2d").drawImage(im,0,0);
+        return cv.toDataURL("image/png");
+      }catch(err){console.warn("Logo haikuweza kuingizwa kwenye PDF:",url,err);return null;}
     };
     const teamLogoData=new Map();
     await Promise.all(rows.map(async r=>{
       const club=(clubs||[]).find(x=>String(x.id)===String(r.club_id));
-      if(club?.logo_url){const img=await loadLogo(club.logo_url);if(img)teamLogoData.set(String(r.club_id),img);}
+      if(club?.logo_url){const img=await loadImageForPDF(club.logo_url);if(img)teamLogoData.set(String(r.club_id),img);}
     }));
-    const afrnLogo=await loadLogo(new URL("./IMG-20260319-WA0093.jpg",window.location.href).href);
-    if(afrnLogo){try{doc.addImage(afrnLogo,"JPEG",8,5,15,15);}catch(_){}}
-    doc.setTextColor(7,26,51);doc.setFont("helvetica","bold");doc.setFontSize(14);
-    doc.text("AFRN FOOTBALL MANAGEMENT",105,11,{align:"center"});
-    doc.setFontSize(10.5);doc.text(safe(title),105,19,{align:"center",maxWidth:165});
-    doc.setFont("helvetica","normal");doc.setFontSize(8.5);
-    doc.text(safe((C?.name||"Mashindano")+" "+(C?.season||"")),105,26,{align:"center",maxWidth:165});
+    const afrnLogo=await loadImageForPDF("./IMG-20260319-WA0093.jpg");
+    if(afrnLogo){
+      try{doc.addImage(afrnLogo,"PNG",8,5,17,17);doc.addImage(afrnLogo,"PNG",185,5,17,17);}catch(err){console.warn("Nembo ya AFRN haikuingizwa:",err);}
+    }
+    const matchDates=(matches||[]).map(m=>String(m.match_date||"").slice(0,10)).filter(d=>/^\d{4}-\d{2}-\d{2}$/.test(d)).sort();
+    const formatDate=d=>{if(!d)return "—";const p=d.split("-");return p[2]+"/"+p[1]+"/"+p[0];};
+    const now=new Date();
+    const reportDate=formatDate(now.getFullYear()+"-"+String(now.getMonth()+1).padStart(2,"0")+"-"+String(now.getDate()).padStart(2,"0"));
+    const period=matchDates.length?formatDate(matchDates[0])+" - "+formatDate(matchDates[matchDates.length-1]):"Tarehe za mechi hazijawekwa";
+    doc.setTextColor(7,26,51);doc.setFont("helvetica","bold");doc.setFontSize(13.5);
+    doc.text("AFRN FOOTBALL MANAGEMENT",105,10.5,{align:"center"});
+    doc.setFontSize(10.5);doc.text(safe(title),105,19,{align:"center",maxWidth:156});
     doc.setFont("helvetica","bold");doc.setFontSize(8.5);
-    doc.text(safe("JUMLA YA KADI: "+total+"  |  NJANO: "+yellow+"  |  NYEKUNDU: "+red),105,34,{align:"center"});
+    doc.text(safe((C?.name||"Mashindano")+" "+(C?.season||"")),105,26,{align:"center",maxWidth:155});
+    doc.setFont("helvetica","normal");doc.setFontSize(8);
+    doc.text("TAREHE YA RIPOTI: "+reportDate,105,32,{align:"center"});
+    doc.text(safe("KIPINDI CHA MECHI: "+period),105,37,{align:"center",maxWidth:170});
+    doc.setFont("helvetica","bold");doc.setFontSize(9);
+    doc.text(safe("JUMLA YA KADI: "+total+"   |   NJANO: "+yellow+"   |   NYEKUNDU: "+red),105,43,{align:"center"});
     const headers=["#","JINA LA TIMU","NJANO","NYEKUNDU","JUMLA"];
     const x=[10,25,119,145,174],w=[10,87,24,27,25];
-    const top=46,bottom=273,rowH=Math.min(8.2,(bottom-top)/(Math.max(rows.length,1)+1));
-    const fontSize=Math.max(6.5,Math.min(8.5,rowH*0.88));
+    const top=53,bottom=275,rowH=Math.min(9.2,(bottom-top)/(Math.max(rows.length,1)+1));
+    const fontSize=Math.max(7,Math.min(10.2,rowH*1.02));
     const draw=(vals,y,header=false,index=0)=>{
       if(header){doc.setFillColor(7,26,51);doc.setTextColor(255,255,255);doc.rect(8,y-rowH+1,194,rowH,"F");}
       else{doc.setTextColor(25,32,45);if(index%2===1){doc.setFillColor(243,246,250);doc.rect(8,y-rowH+1,194,rowH,"F");}}
@@ -684,23 +703,21 @@ async function downloadCardsPDF(clubId=null){
     draw(headers,top,true);
     rows.forEach((r,i)=>{
       const y=top+(i+1)*rowH;
-      const club=(clubs||[]).find(z=>String(z.id)===String(r.club_id));
       const img=teamLogoData.get(String(r.club_id));
-      if(img){try{doc.addImage(img,"PNG",25,y-rowH+1.1,Math.min(5.5,rowH-1.5),Math.min(5.5,rowH-1.5));}catch(_){try{doc.addImage(img,"JPEG",25,y-rowH+1.1,Math.min(5.5,rowH-1.5),Math.min(5.5,rowH-1.5));}catch(__){}}}
-      // Jina limeachwa nafasi ya logo halisi; ikiwa logo haipo, jina linaanza kushoto.
+      const logoSize=Math.min(6.5,Math.max(4.5,rowH-1.3));
+      if(img){try{doc.addImage(img,"PNG",25,y-rowH+0.7,logoSize,logoSize);}catch(err){console.warn("Logo ya klabu haikuingizwa:",name(r.club_id),err);}}
       doc.setTextColor(25,32,45);doc.setFont("helvetica","normal");doc.setFontSize(fontSize);
-      doc.text(safe(name(r.club_id)),img?32:25,y,{maxWidth:img?79:87});
-      doc.setFontSize(fontSize);
+      doc.text(safe(name(r.club_id)),img?33:25,y,{maxWidth:img?78:87});
       doc.text(String(r.yellow),119,y,{align:"center"});
       doc.text(String(r.red),145,y,{align:"center"});
       doc.text(String(r.total),174,y,{align:"center"});
     });
-    if(!rows.length){doc.setFont("helvetica","normal");doc.setFontSize(9);doc.text("Hakuna timu au kadi zilizorekodiwa.",12,top+10);}
-    const totalY=top+(rows.length+1)*rowH+4;
-    doc.setFont("helvetica","bold");doc.setFontSize(8);doc.setTextColor(7,26,51);
-    doc.text(safe("JUMLA KUU: "+total+" KADI  |  NJANO: "+yellow+"  |  NYEKUNDU: "+red),105,Math.min(totalY,282),{align:"center"});
-    doc.setFont("helvetica","normal");doc.setFontSize(7);doc.setTextColor(100,100,100);
-    doc.text("AFRN FOOTBALL MANAGEMENT | MUHTASARI RASMI WA KADI | UKURASA 1/1",105,290,{align:"center"});
+    if(!rows.length){doc.setFont("helvetica","normal");doc.setFontSize(10);doc.text("Hakuna timu au kadi zilizorekodiwa.",12,top+12);}
+    const totalY=Math.min(top+(rows.length+1)*rowH+5,284);
+    doc.setFont("helvetica","bold");doc.setFontSize(9);doc.setTextColor(7,26,51);
+    doc.text(safe("JUMLA KUU: "+total+" KADI  |  NJANO: "+yellow+"  |  NYEKUNDU: "+red),105,totalY,{align:"center"});
+    doc.setFont("helvetica","normal");doc.setFontSize(7.5);doc.setTextColor(100,100,100);
+    doc.text("AFRN FOOTBALL MANAGEMENT | MUHTASARI RASMI WA KADI | UKURASA 1/1",105,291,{align:"center"});
     const slug=String(C?.name||"mashindano").toLowerCase().replace(/[^a-z0-9]+/g,"-").replace(/^-|-$/g,"")||"mashindano";
     const suffix=clubId?String(name(clubId)).toLowerCase().replace(/[^a-z0-9]+/g,"-").replace(/^-|-$/g,""):"timu-zote";
     const filename="AFRN-"+slug+"-muhtasari-wa-kadi-"+suffix+".pdf";
