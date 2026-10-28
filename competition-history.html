@@ -633,40 +633,52 @@ async function downloadCardsPDF(clubId=null){
     if(!window.jspdf||!window.jspdf.jsPDF)throw new Error("Huduma ya PDF haijapakia. Hakikisha intaneti ipo kisha jaribu tena.");
     const {jsPDF}=window.jspdf,doc=new jsPDF({orientation:"landscape",unit:"mm",format:"a4"});
     const c=events.filter(e=>{const t=String(e.event_type||"").toLowerCase();return t.includes("yellow")||t.includes("red");});
-    const rows=c.filter(e=>!clubId||String(e.club_id)===String(clubId)).slice().sort((a,b)=>String(a.club_id).localeCompare(String(b.club_id))||(Number(a.minute)||999)-(Number(b.minute)||999));
-    const logo=new Image();logo.src=new URL("./IMG-20260319-WA0093.jpg",window.location.href).href;
-    try{await new Promise((resolve,reject)=>{logo.onload=resolve;logo.onerror=reject;});
+    const filtered=c.filter(e=>!clubId||String(e.club_id)===String(clubId));
+    const aggregate=new Map();
+    filtered.forEach(e=>{
+      const id=String(e.club_id||"");
+      if(!id)return;
+      if(!aggregate.has(id))aggregate.set(id,{club_id:e.club_id,yellow:0,red:0,total:0});
+      const row=aggregate.get(id),type=String(e.event_type||"").toLowerCase();
+      if(type.includes("yellow"))row.yellow++;
+      else if(type.includes("red"))row.red++;
+      row.total++;
+    });
+    const rows=[...aggregate.values()].sort((a,b)=>b.total-a.total||b.red-a.red||name(a.club_id).localeCompare(name(b.club_id)));
+    const logo=new Image();logo.crossOrigin="anonymous";logo.src=new URL("./IMG-20260319-WA0093.jpg",window.location.href).href;
+    try{await new Promise((resolve,reject)=>{const timer=setTimeout(()=>reject(new Error("logo timeout")),2000);logo.onload=()=>{clearTimeout(timer);resolve();};logo.onerror=()=>{clearTimeout(timer);reject(new Error("logo unavailable"));};if(logo.complete&&logo.naturalWidth){clearTimeout(timer);resolve();}});
       const cv=document.createElement("canvas");cv.width=logo.naturalWidth||logo.width;cv.height=logo.naturalHeight||logo.height;cv.getContext("2d").drawImage(logo,0,0);
       const img=cv.toDataURL("image/jpeg",0.92);doc.addImage(img,"JPEG",8,4,20,20);doc.addImage(img,"JPEG",269,4,20,20);
     }catch(e){doc.setFont("helvetica","bold");doc.setFontSize(8);doc.text("AFRN",18,15,{align:"center"});doc.text("AFRN",279,15,{align:"center"});}
     const safe=v=>String(v??"—").replace(/[–—•]/g,"-").replace(/[^\x20-\xFF]/g,"");
-    const title=clubId?"HISTORIA YA KADI - "+name(clubId):"RIPOTI YA KADI ZA MASHINDANO";
-    doc.setTextColor(7,26,51);doc.setFont("helvetica","bold");doc.setFontSize(15);doc.text("AFRN FOOTBALL MANAGEMENT",148.5,10,{align:"center"});
-    doc.setFontSize(11);doc.text(safe(title),148.5,17,{align:"center"});
-    doc.setFont("helvetica","normal");doc.setFontSize(8);doc.text(safe((C?.name||"Mashindano")+" "+(C?.season||"")),148.5,23,{align:"center"});
-    const yellow=rows.filter(e=>String(e.event_type||"").toLowerCase().includes("yellow")).length,red=rows.filter(e=>String(e.event_type||"").toLowerCase().includes("red")).length;
-    doc.setFont("helvetica","bold");doc.setFontSize(8);doc.text(safe("Jumla ya kadi: "+rows.length+" | Njano: "+yellow+" | Nyekundu: "+red),10,30);
-    const headers=["#","Tarehe","Mechi","Jina la Timu","Aina ya Kadi","Dak."],xs=[10,19,43,118,211,280],ws=[7,22,72,88,65,8];
-    const top=35,bottom=201,rowH=Math.min(7,(bottom-top)/(Math.max(rows.length,1)+1));
-    const fontSize=Math.max(4,Math.min(8,rowH*0.85));
-    const draw=(vals,y,header=false)=>{
-      if(header){doc.setFillColor(7,26,51);doc.setTextColor(255,255,255);doc.rect(8,y-rowH+1,281,rowH,"F");}
-      else{doc.setTextColor(25,32,45);if(Math.round((y-top)/rowH)%2===0){doc.setFillColor(243,246,250);doc.rect(8,y-rowH+1,281,rowH,"F");}}
-      doc.setFont("helvetica",header?"bold":"normal");doc.setFontSize(header?Math.max(5,fontSize):fontSize);
-      vals.forEach((v,i)=>doc.text(safe(v),xs[i],y,{maxWidth:ws[i]}));
+    const title=clubId?"MUHTASARI WA KADI - "+name(clubId):"MUHTASARI WA KADI KWA KILA TIMU";
+    doc.setTextColor(7,26,51);doc.setFont("helvetica","bold");doc.setFontSize(16);doc.text("AFRN FOOTBALL MANAGEMENT",148.5,10,{align:"center"});
+    doc.setFontSize(12);doc.text(safe(title),148.5,18,{align:"center"});
+    doc.setFont("helvetica","normal");doc.setFontSize(10);doc.text(safe((C?.name||"Mashindano")+" "+(C?.season||"")),148.5,25,{align:"center"});
+    const yellow=filtered.filter(e=>String(e.event_type||"").toLowerCase().includes("yellow")).length;
+    const red=filtered.filter(e=>String(e.event_type||"").toLowerCase().includes("red")).length;
+    doc.setFont("helvetica","bold");doc.setFontSize(11);
+    doc.text(safe("JUMLA YA KADI: "+filtered.length+"   |   NJANO: "+yellow+"   |   NYEKUNDU: "+red),148.5,33,{align:"center"});
+    const headers=["#","JINA LA TIMU","KADI ZA NJANO","KADI NYEKUNDU","JUMLA YA KADI"];
+    const x=[15,35,160,205,250],w=[12,118,40,40,38];
+    const top=45,bottom=195,rowH=Math.min(12,(bottom-top)/(Math.max(rows.length,1)+1));
+    const fontSize=Math.max(8,Math.min(12,rowH*0.78));
+    const draw=(vals,y,header=false,index=0)=>{
+      if(header){doc.setFillColor(7,26,51);doc.setTextColor(255,255,255);doc.rect(10,y-rowH+2,278,rowH,"F");}
+      else{doc.setTextColor(25,32,45);if(index%2===1){doc.setFillColor(243,246,250);doc.rect(10,y-rowH+2,278,rowH,"F");}}
+      doc.setFont("helvetica",header?"bold":"normal");doc.setFontSize(header?Math.max(8,fontSize):fontSize);
+      vals.forEach((v,i)=>doc.text(safe(v),x[i],y,{maxWidth:w[i],align:i===1?"left":"center"}));
     };
     draw(headers,top,true);
-    rows.forEach((e,i)=>{
-      const type=String(e.event_type||"").toLowerCase();
-      const m=matches.find(x=>String(x.id)===String(e.match_id));
-      const match=m?name(m.home_team_id)+" vs "+name(m.away_team_id):"—";
-      draw([i+1,m?.match_date||"—",match,name(e.club_id),type.includes("red")?"Kadi nyekundu":"Kadi ya njano",e.minute??"—"],top+(i+1)*rowH,false);
-    });
-    if(!rows.length){doc.setFont("helvetica","normal");doc.setFontSize(9);doc.text("Hakuna kadi zilizorekodiwa.",10,top+10);}
-    doc.setFontSize(6);doc.setTextColor(100,100,100);doc.text("AFRN FOOTBALL MANAGEMENT | Ripoti rasmi ya kadi | Ukurasa 1/1",148.5,207,{align:"center"});
+    rows.forEach((r,i)=>draw([i+1,name(r.club_id),r.yellow,r.red,r.total],top+(i+1)*rowH,false,i));
+    if(!rows.length){doc.setFont("helvetica","normal");doc.setFontSize(11);doc.text("Hakuna kadi zilizorekodiwa.",15,top+12);}
+    doc.setFont("helvetica","bold");doc.setFontSize(10);doc.setTextColor(7,26,51);
+    doc.text(safe("JUMLA KUU: "+filtered.length+" KADI  |  NJANO: "+yellow+"  |  NYEKUNDU: "+red),148.5,top+(rows.length+1)*rowH+9,{align:"center"});
+    doc.setFont("helvetica","normal");doc.setFontSize(7);doc.setTextColor(100,100,100);
+    doc.text("AFRN FOOTBALL MANAGEMENT | MUHTASARI RASMI WA KADI | Ukurasa 1/1",148.5,207,{align:"center"});
     const slug=String(C?.name||"mashindano").toLowerCase().replace(/[^a-z0-9]+/g,"-").replace(/^-|-$/g,"")||"mashindano";
     const suffix=clubId?String(name(clubId)).toLowerCase().replace(/[^a-z0-9]+/g,"-").replace(/^-|-$/g,""):"timu-zote";
-    const filename="AFRN-"+slug+"-historia-ya-kadi-"+suffix+".pdf";
+    const filename="AFRN-"+slug+"-muhtasari-wa-kadi-"+suffix+".pdf";
     const pdfBlob=doc.output("blob"),url=URL.createObjectURL(pdfBlob);showReportDownloadLink(url,filename,"PDF",pdfBlob);
     if(pdfWindow&&!pdfWindow.closed){try{pdfWindow.location.href=url;}catch(_){}}else{const a=document.createElement("a");a.href=url;a.download=filename;a.target="_blank";document.body.appendChild(a);a.click();a.remove();}
     setTimeout(()=>{try{URL.revokeObjectURL(url)}catch(_){}},10*60*1000);
