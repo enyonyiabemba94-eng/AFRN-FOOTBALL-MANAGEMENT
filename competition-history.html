@@ -433,8 +433,9 @@ async function downloadStandingsPDF(){
     const xs=[11,22,112,126,139,152,169,193];
     const widths=[8,84,12,12,12,12,20,13];
     const top=39;
-    const rowH=Math.min(11.5,Math.max(8.5,Math.floor((267-top)/(Math.max(data.length,1)+1)*10)/10));
-    const fs=Math.max(8,Math.min(10.5,rowH*0.9));
+    // Tumia nafasi yote iliyopo kabla ya footer ili kuongeza maandishi na kubaki ukurasa mmoja.
+    const rowH=Math.min(11.5,(277-top)/(Math.max(data.length,1)+1));
+    const fs=Math.max(7,Math.min(11,rowH*1.02));
     const clubLogoData=new Map();
     // Picha za vilabu zinapakiwa sambamba; zilizokosekana zitarukwa badala ya kusimamisha PDF.
     await Promise.all((window.afrnCurrentStandingsRows||[]).map(async r=>{
