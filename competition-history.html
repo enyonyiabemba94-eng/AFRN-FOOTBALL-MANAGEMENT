@@ -963,10 +963,11 @@ window.__AFRN_COMPETITION_HISTORY__ = true;
     manager();
   };
   const oldShowTab=window.showTab;
-  window.showTab=function(t){oldShowTab(t);if(t==='TIMU')manager();};
+  window.__AFRN_ACTIVE_TAB = window.__AFRN_ACTIVE_TAB || 'MECHI';
+  window.showTab=function(t){window.__AFRN_ACTIVE_TAB=t;oldShowTab(t);if(t==='TIMU')manager();};
   const oldRender=window.render;
-  window.render=function(){oldRender();if(tab==='TIMU')manager();};
-  window.addEventListener('load',()=>setTimeout(()=>{if(tab==='TIMU')manager();},0));
+  window.render=function(){oldRender();if(window.__AFRN_ACTIVE_TAB==='TIMU')manager();};
+  window.addEventListener('load',()=>setTimeout(()=>{if(window.__AFRN_ACTIVE_TAB==='TIMU')manager();},0));
 })();
 </script>
 <script>
