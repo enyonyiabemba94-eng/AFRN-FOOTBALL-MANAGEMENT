@@ -346,27 +346,27 @@ async function ensureAFRNJsPDF(){
 async function downloadStandingsPDF(){
   const button=document.activeElement;if(button)button.disabled=true;
   try{const jsPDF=await ensureAFRNJsPDF();
-    const doc=new jsPDF({orientation:"landscape",unit:"mm",format:"a4"});
+    const doc=new jsPDF({orientation:"portrait",unit:"mm",format:"a4"});
     const logo=new Image(); logo.src=new URL("./IMG-20260319-WA0093.jpg",window.location.href).href;
     try{
       await new Promise((resolve,reject)=>{logo.onload=resolve;logo.onerror=reject;});
       const cv=document.createElement("canvas");cv.width=logo.naturalWidth||logo.width;cv.height=logo.naturalHeight||logo.height;
       cv.getContext("2d").drawImage(logo,0,0);
       const img=cv.toDataURL("image/jpeg",0.92);
-      doc.addImage(img,"JPEG",8,5,20,20);doc.addImage(img,"JPEG",269,5,20,20);
+      doc.addImage(img,"JPEG",8,5,18,18);doc.addImage(img,"JPEG",184,5,18,18);
     }catch(_){
-      doc.setFont("helvetica","bold");doc.setFontSize(9);doc.text("AFRN",18,15,{align:"center"});doc.text("AFRN",279,15,{align:"center"});
+      doc.setFont("helvetica","bold");doc.setFontSize(9);doc.text("AFRN",17,15,{align:"center"});doc.text("AFRN",193,15,{align:"center"});
     }
     const safe=v=>String(v??"—").replace(/[–—•]/g,"-").replace(/[^\x20-\xFF]/g,"");
     doc.setTextColor(7,26,51);doc.setFont("helvetica","bold");doc.setFontSize(17);
-    doc.text("AFRN FOOTBALL MANAGEMENT",148.5,10,{align:"center"});
-    doc.setFontSize(13);doc.text(safe("MSIMAMO WA "+String(C?.name||"MASHINDANO").toUpperCase()+" "+String(C?.season||"")),148.5,17,{align:"center",maxWidth:225});
-    doc.setFont("helvetica","normal");doc.setFontSize(10);doc.text("TAREHE: "+standingsReportDate(),148.5,23,{align:"center"});
+    doc.text("AFRN FOOTBALL MANAGEMENT",105,10,{align:"center"});
+    doc.setFontSize(13);doc.text(safe("MSIMAMO WA "+String(C?.name||"MASHINDANO").toUpperCase()+" "+String(C?.season||"")),105,17,{align:"center",maxWidth:155});
+    doc.setFont("helvetica","normal");doc.setFontSize(10);doc.text("TAREHE: "+standingsReportDate(),105,23,{align:"center"});
     const data=standingsReportRows();
     const headers=["#","KLABU","PTS","MP","W","D","L","GD"];
-    const x=[12,25,170,190,207,222,237,263];
-    const widths=[10,140,18,15,13,13,13,25];
-    const top=35, bottom=190, rowH=Math.min(8.5,(bottom-top)/(Math.max(data.length,1)+1));
+    const x=[12,25,112,132,146,158,170,182];
+    const widths=[10,84,14,12,10,10,10,16];
+    const top=43, bottom=265, rowH=Math.min(8.5,(bottom-top)/(Math.max(data.length,1)+1));
     // Ongeza ukubwa wa herufi kadri idadi ya timu inavyoruhusu, huku ripoti ikibaki ukurasa mmoja.
     const fs=Math.max(8.5,Math.min(12,rowH*1.6));
     const clubLogoData=new Map();
@@ -385,7 +385,7 @@ async function downloadStandingsPDF(){
       if(club?.logo_url)clubLogoData.set(String(r.club_id),await loadClubLogo(club.logo_url));
     }));
     const draw=(vals,y,header=false,rowIndex=-1)=>{
-      if(header){doc.setFillColor(7,26,51);doc.setTextColor(255,255,255);doc.rect(8,y-rowH+1,281,rowH,"F");}
+      if(header){doc.setFillColor(7,26,51);doc.setTextColor(255,255,255);doc.rect(8,y-rowH+1,194,rowH,"F");}
       else{doc.setTextColor(25,32,45);if(Math.round((y-top)/rowH)%2===0){doc.setFillColor(243,246,250);doc.rect(8,y-rowH+1,281,rowH,"F");}}
       doc.setFont("helvetica",header?"bold":"normal");doc.setFontSize(fs);
       vals.forEach((v,i)=>{
@@ -393,14 +393,14 @@ async function downloadStandingsPDF(){
           const source=(window.afrnCurrentStandingsRows||[])[rowIndex];
           const img=clubLogoData.get(String(source?.club_id));
           if(img){try{const logoSize=Math.max(3.5,Math.min(5.5,rowH-1.5));doc.addImage(img,"PNG",27,y-rowH+(rowH-logoSize)/2,logoSize,logoSize);}catch(_){}}
-          doc.text(safe(v),img?34:27,y,{maxWidth:img?120:127,align:"left"});
+          doc.text(safe(v),img?34:27,y,{maxWidth:img?65:72,align:"left"});
         }else doc.text(safe(v),x[i],y,{maxWidth:widths[i],align:i===1?"left":"center"});
       });
     };
     draw(headers,top,true);
     data.forEach((r,i)=>draw(headers.map(h=>r[h]),top+(i+1)*rowH,false,i));
     doc.setFont("helvetica","normal");doc.setFontSize(7);doc.setTextColor(100,100,100);
-    doc.text("AFRN FOOTBALL MANAGEMENT | MSIMAMO RASMI | Ukurasa 1/1",148.5,201,{align:"center"});
+    doc.text("AFRN FOOTBALL MANAGEMENT | MSIMAMO RASMI | Ukurasa 1/1",105,286,{align:"center"});
     const slug=String(C?.name||"mashindano").toLowerCase().replace(/[^a-z0-9]+/g,"-").replace(/^-|-$/g,"")||"mashindano";
     const filename="AFRN-Msimamo-"+slug+".pdf";
     const url=URL.createObjectURL(doc.output("blob"));showReportDownloadLink(url,filename,"PDF");doc.save(filename);
