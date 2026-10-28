@@ -1,6 +1,6 @@
 <!DOCTYPE html>
 <html lang="sw"><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>AFRN — Competition</title>
-<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script><script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script><script src="./supabase-config.js?v=20261028fix5"></script><script src="./afrn-standings-engine.js?v=20261028fix5"></script>
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script><script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script><script src="./supabase-config.js?v=20261028fix6"></script><script src="./afrn-standings-engine.js?v=20261028fix6"></script>
 <style>
 body{margin:0;background:#f4f7fb;color:#172033;font-family:Arial,sans-serif}header{background:linear-gradient(135deg,#06152b,#0d47a1);color:#fff;padding:16px}nav{display:flex;gap:7px;overflow:auto;background:#fff;padding:9px}nav a{padding:9px 12px;text-decoration:none;color:#172033;font-weight:700;white-space:nowrap}.wrap{max-width:1200px;margin:auto;padding:12px}.card{background:#fff;border:1px solid #d9e0ea;border-radius:15px;padding:16px;margin-bottom:14px}.hero{display:flex;gap:14px;align-items:center}.logo{width:70px;height:70px;object-fit:contain;border-radius:12px;border:1px solid #ddd}.muted{color:#687386;font-size:12px}.tabs{display:flex;gap:7px;overflow:auto}.tab{border:0;background:#e8edf5;padding:10px 13px;border-radius:9px;font-weight:800;white-space:nowrap}.tab.active{background:#0d47a1;color:#fff}.table-wrap{overflow:auto}table{width:100%;border-collapse:collapse;font-size:12px}th{background:#071a33;color:#fff;padding:9px;white-space:nowrap}td{padding:9px;border-bottom:1px solid #edf0f4;white-space:nowrap}td:nth-child(2){font-weight:800}.small-btn{padding:7px 10px;font-size:11px;border:0;border-radius:8px;background:#e8edf5;color:#172033;font-weight:800;cursor:pointer}.event-primary{background:#0d47a1;color:#fff}.event-warning{background:#fff5d6;color:#6b4a00}.event-overlay{position:fixed;inset:0;background:#071a33b8;z-index:9999;display:flex;align-items:center;justify-content:center;padding:12px}.event-modal{background:#fff;border-radius:15px;padding:16px;width:min(620px,100%);max-height:92vh;overflow:auto;box-shadow:0 10px 40px #0004}.event-modal label{display:block;font-weight:800;font-size:12px;margin:9px 0 5px}.event-modal input,.event-modal select{width:100%;box-sizing:border-box;padding:10px;border:1px solid #ccd5e2;border-radius:9px;font:inherit}.event-modal-grid{display:grid;grid-template-columns:1fr 1fr;gap:10px}@media(max-width:520px){.event-modal-grid{grid-template-columns:1fr}}.badge{display:inline-block;padding:5px 9px;border-radius:999px;background:#e9f8ef;color:#16834b;font-size:10px;font-weight:800}.empty{text-align:center;padding:28px;color:#687386}.grid{display:grid;grid-template-columns:repeat(4,1fr);gap:10px}.stat{border:1px solid #d9e0ea;border-radius:12px;padding:12px;text-align:center}.stat b{display:block;font-size:22px;color:#0d47a1}@media(max-width:700px){.grid{grid-template-columns:repeat(2,1fr)}}
 </style></head><body>
@@ -368,7 +368,7 @@ async function downloadStandingsWord(){
     const url=URL.createObjectURL(blob);
     const slug=String(C?.name||"mashindano").toLowerCase().replace(/[^a-z0-9]+/g,"-").replace(/^-|-$/g,"")||"mashindano";
     const filename="AFRN-Msimamo-"+slug+".doc";
-    showReportDownloadLink(url,filename,"Word");
+    showReportDownloadLink(url,filename,"Word",blob);
     const a=document.createElement("a");a.href=url;a.download=filename;a.rel="noopener";document.body.appendChild(a);
     try{a.click();}catch(downloadError){console.warn("Upakuaji wa moja kwa moja umezuiwa; tumia kiungo kinachoonekana.",downloadError);}
     a.remove();
@@ -455,7 +455,7 @@ async function downloadStandingsPDF(){
     doc.text("AFRN FOOTBALL MANAGEMENT | MSIMAMO RASMI | Ukurasa 1/1",105,286,{align:"center"});
     const slug=String(C?.name||"mashindano").toLowerCase().replace(/[^a-z0-9]+/g,"-").replace(/^-|-$/g,"")||"mashindano";
     const filename="AFRN-Msimamo-"+slug+".pdf";
-    const url=URL.createObjectURL(doc.output("blob"));showReportDownloadLink(url,filename,"PDF");doc.save(filename);
+    const pdfBlob=doc.output("blob"),url=URL.createObjectURL(pdfBlob);showReportDownloadLink(url,filename,"PDF",pdfBlob);doc.save(filename);
     setTimeout(()=>{try{URL.revokeObjectURL(url)}catch(_){}},10*60*1000);
   }catch(e){console.error("AFRN standings PDF:",e);alert("Imeshindikana kupakua PDF: "+(e.message||e));}
   finally{if(button)button.disabled=false;}
@@ -650,7 +650,7 @@ async function downloadCardsPDF(clubId=null){
     const slug=String(C?.name||"mashindano").toLowerCase().replace(/[^a-z0-9]+/g,"-").replace(/^-|-$/g,"")||"mashindano";
     const suffix=clubId?String(name(clubId)).toLowerCase().replace(/[^a-z0-9]+/g,"-").replace(/^-|-$/g,""):"timu-zote";
     const filename="AFRN-"+slug+"-historia-ya-kadi-"+suffix+".pdf";
-    const url=URL.createObjectURL(doc.output("blob"));showReportDownloadLink(url,filename,"PDF");
+    const pdfBlob=doc.output("blob"),url=URL.createObjectURL(pdfBlob);showReportDownloadLink(url,filename,"PDF",pdfBlob);
     if(pdfWindow&&!pdfWindow.closed){try{pdfWindow.location.href=url;}catch(_){}}else{const a=document.createElement("a");a.href=url;a.download=filename;a.target="_blank";document.body.appendChild(a);a.click();a.remove();}
     setTimeout(()=>{try{URL.revokeObjectURL(url)}catch(_){}},10*60*1000);
   }catch(e){if(pdfWindow&&!pdfWindow.closed){try{pdfWindow.close()}catch(_){}}console.error(e);alert("Imeshindikana kutengeneza PDF ya kadi: "+(e.message||e));}
@@ -716,15 +716,34 @@ function reportScorerRows(){
   });
   return [...tally.values()].sort((a,b)=>b.count-a.count||playerLabel(a.player).localeCompare(playerLabel(b.player)));
 }
-function showReportDownloadLink(url,filename,kind){
+function showReportDownloadLink(url,filename,kind,blob=null){
   const content=document.getElementById("content");
   if(!content)return;
   let box=document.getElementById("report-download-fallback");
   if(!box){box=document.createElement("div");box.id="report-download-fallback";box.style.cssText="margin:12px 0;padding:14px;border:2px solid #16834b;border-radius:12px;background:#effcf4;color:#14532d";content.prepend(box);}
   box.innerHTML="";
   const title=document.createElement("b");title.textContent="Ripoti ya "+kind+" iko tayari";box.appendChild(title);
-  const note=document.createElement("p");note.textContent="Ikiwa faili halijapakuliwa, fungua kiungo hiki. Kwa PDF, itafunguka kwanza ili uhifadhi kwa kutumia kitufe cha kupakua cha PDF viewer:";note.style.margin="8px 0";box.appendChild(note);
-  const link=document.createElement("a");link.href=url;link.target="_blank";link.rel="noopener";if(kind==="PDF"){link.textContent="📄 FUNGUA PDF KISHA HIFADHI KWENYE SIMU";link.removeAttribute("download");}else{link.download=filename;link.textContent="⬇️ BONYEZA HAPA KUPAKUA "+kind.toUpperCase();}link.style.cssText="display:inline-block;padding:12px;background:#16834b;color:white;font-weight:bold;border-radius:8px;text-decoration:none;overflow-wrap:anywhere";box.appendChild(link);
+  const note=document.createElement("p");note.textContent="Kama kitufe cha kupakua hakifanyi kazi kwenye simu, tumia SHIRIKI/HIFADHI FAILI. Kisha chagua Files, Hifadhi kwenye kifaa, au programu ya kufungua faili.";note.style.margin="8px 0";box.appendChild(note);
+  if(blob){
+    const share=document.createElement("button");share.type="button";share.textContent="📤 SHIRIKI / HIFADHI FAILI";share.style.cssText="display:inline-block;padding:12px;margin:0 8px 8px 0;background:#0d47a1;color:#fff;font-weight:bold;border:0;border-radius:8px";
+    share.addEventListener("click",async()=>{
+      try{
+        const mime=blob.type||(String(filename).toLowerCase().endsWith(".pdf")?"application/pdf":"application/msword");
+        const file=new File([blob],filename,{type:mime});
+        if(navigator.share&&(!navigator.canShare||navigator.canShare({files:[file]}))){
+          await navigator.share({files:[file],title:filename});
+        }else{
+          const opened=window.open(url,"_blank");
+          if(!opened) alert("Simu imezuia kufungua faili. Bonyeza na ushikilie kiungo cha faili kisha chagua Fungua au Pakua.");
+        }
+      }catch(e){if(e?.name!=="AbortError"){console.error("AFRN file share:",e);alert("Kushiriki faili hakukufaulu. Jaribu kiungo cha kufungua faili hapa chini.");}}
+    });
+    box.appendChild(share);
+  }
+  const link=document.createElement("a");link.href=url;link.target="_blank";link.rel="noopener";
+  if(kind==="PDF"){link.textContent="📄 FUNGUA PDF KISHA HIFADHI KWENYE SIMU";link.removeAttribute("download");}
+  else{link.textContent="📄 FUNGUA RIPOTI YA WORD";link.removeAttribute("download");}
+  link.style.cssText="display:inline-block;padding:12px;background:#16834b;color:white;font-weight:bold;border-radius:8px;text-decoration:none;overflow-wrap:anywhere";box.appendChild(link);
   const filenameText=document.createElement("div");filenameText.textContent=filename;filenameText.style.cssText="font-size:12px;margin-top:8px;overflow-wrap:anywhere";box.appendChild(filenameText);
 }
 
@@ -743,7 +762,7 @@ async function downloadGoalsScorersWord(){
   const blob=new Blob(["\ufeff",html],{type:"application/msword;charset=utf-8"}),slug=String(C?.name||"Mashindano").toLowerCase().replace(/[^a-z0-9]+/g,"-").replace(/^-|-$/g,"")||"mashindano";
   const filename="AFRN-"+slug+"-magoli-wafungaji-"+(C?.season||"2026")+".doc";
   const url=URL.createObjectURL(blob);
-  showReportDownloadLink(url,filename,"Microsoft Word");
+  showReportDownloadLink(url,filename,"Microsoft Word",blob);
   const a=document.createElement("a");a.href=url;a.download=filename;a.target="_blank";a.rel="noopener";a.textContent="Pakua ripoti";a.style.cssText="position:fixed;left:8px;bottom:8px;z-index:99999;padding:14px;background:#16834b;color:#fff;border-radius:8px";document.body.appendChild(a);
   try{a.click();}catch(downloadError){console.warn("Automatic download was blocked; use the visible download link.",downloadError);}
   // Keep the file URL alive while the user taps the visible link.
@@ -804,7 +823,7 @@ async function downloadGoalsScorersPDF(){
     const slug=String(C?.name||"Mashindano").toLowerCase().replace(/[^a-z0-9]+/g,"-").replace(/^-|-$/g,"")||"mashindano";
     const filename="AFRN-"+slug+"-magoli-wafungaji-"+(C?.season||"2026")+".pdf";
     // Tengeneza kiungo kinachoonekana ili mtumiaji aweze kukigusa mwenyewe ikiwa simu imezuia upakuaji wa moja kwa moja.
-    const blob=doc.output("blob"),url=URL.createObjectURL(blob);showReportDownloadLink(url,filename,"PDF");doc.save(filename);
+    const blob=doc.output("blob"),url=URL.createObjectURL(blob);showReportDownloadLink(url,filename,"PDF",blob);doc.save(filename);
     setTimeout(()=>{try{URL.revokeObjectURL(url)}catch(_){}},10*60*1000);
   }catch(e){console.error("AFRN goals/scorers PDF:",e);alert("Imeshindikana kutengeneza PDF: "+(e.message||e));}
   finally{if(button)button.disabled=false;}
