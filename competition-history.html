@@ -661,7 +661,7 @@ async function downloadCardsPDF(clubId=null){
     doc.text(safe("JUMLA YA KADI: "+filtered.length+"   |   NJANO: "+yellow+"   |   NYEKUNDU: "+red),148.5,33,{align:"center"});
     const headers=["#","JINA LA TIMU","KADI ZA NJANO","KADI NYEKUNDU","JUMLA YA KADI"];
     const x=[15,35,160,205,250],w=[12,118,40,40,38];
-    const top=45,bottom=195,rowH=Math.min(12,(bottom-top)/(Math.max(rows.length,1)+1));
+    const top=45,bottom=187,rowH=Math.min(12,(bottom-top)/(Math.max(rows.length,1)+1));
     const fontSize=Math.max(8,Math.min(12,rowH*0.78));
     const draw=(vals,y,header=false,index=0)=>{
       if(header){doc.setFillColor(7,26,51);doc.setTextColor(255,255,255);doc.rect(10,y-rowH+2,278,rowH,"F");}
@@ -673,7 +673,7 @@ async function downloadCardsPDF(clubId=null){
     rows.forEach((r,i)=>draw([i+1,name(r.club_id),r.yellow,r.red,r.total],top+(i+1)*rowH,false,i));
     if(!rows.length){doc.setFont("helvetica","normal");doc.setFontSize(11);doc.text("Hakuna kadi zilizorekodiwa.",15,top+12);}
     doc.setFont("helvetica","bold");doc.setFontSize(10);doc.setTextColor(7,26,51);
-    doc.text(safe("JUMLA KUU: "+filtered.length+" KADI  |  NJANO: "+yellow+"  |  NYEKUNDU: "+red),148.5,top+(rows.length+1)*rowH+9,{align:"center"});
+    doc.text(safe("JUMLA KUU: "+filtered.length+" KADI  |  NJANO: "+yellow+"  |  NYEKUNDU: "+red),148.5,top+(rows.length+1)*rowH+5,{align:"center"});
     doc.setFont("helvetica","normal");doc.setFontSize(7);doc.setTextColor(100,100,100);
     doc.text("AFRN FOOTBALL MANAGEMENT | MUHTASARI RASMI WA KADI | Ukurasa 1/1",148.5,207,{align:"center"});
     const slug=String(C?.name||"mashindano").toLowerCase().replace(/[^a-z0-9]+/g,"-").replace(/^-|-$/g,"")||"mashindano";
