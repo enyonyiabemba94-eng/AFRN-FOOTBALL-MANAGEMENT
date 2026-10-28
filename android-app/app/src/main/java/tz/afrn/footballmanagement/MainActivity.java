@@ -1,9 +1,19 @@
 package tz.afrn.footballmanagement;
 
 import android.app.Activity;
+import android.content.ContentValues;
 import android.content.Intent;
 import android.net.Uri;
+import android.os.Build;
 import android.os.Bundle;
+import android.os.Environment;
+import android.provider.MediaStore;
+import android.util.Base64;
+import android.webkit.JavascriptInterface;
+import android.widget.Toast;
+import java.io.File;
+import java.io.FileOutputStream;
+import java.io.OutputStream;
 import android.webkit.CookieManager;
 import android.webkit.ValueCallback;
 import android.webkit.WebChromeClient;
@@ -47,6 +57,8 @@ public class MainActivity extends Activity {
             }
         });
 
+        webView.addJavascriptInterface(new AfrnDownloadBridge(), "AFRNAndroid");
+
         webView.setWebChromeClient(new WebChromeClient() {
             @Override public boolean onShowFileChooser(WebView view, ValueCallback<Uri[]> callback, FileChooserParams params) {
                 if (filePathCallback != null) {
@@ -75,6 +87,56 @@ public class MainActivity extends Activity {
         });
 
         webView.loadUrl(APP_URL + "?app=" + System.currentTimeMillis());
+    }
+
+
+    private class AfrnDownloadBridge {
+        @JavascriptInterface
+        public void saveBase64File(String filename, String mimeType, String base64Data) {
+            try {
+                Uri current = Uri.parse(webView.getUrl() == null ? "" : webView.getUrl());
+                if (!"enyonyiabemba94-eng.github.io".equals(current.getHost())) {
+                    showDownloadMessage("Hifadhi imezuiwa kwa ukurasa usioaminika.");
+                    return;
+                }
+                String safeName = filename == null ? "AFRN-ripoti.pdf" : filename.replaceAll("[^A-Za-z0-9._-]", "_");
+                if (safeName.isEmpty()) safeName = "AFRN-ripoti.pdf";
+                String safeMime = (mimeType == null || mimeType.isEmpty()) ? "application/octet-stream" : mimeType;
+                byte[] bytes = Base64.decode(base64Data, Base64.DEFAULT);
+                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
+                    ContentValues values = new ContentValues();
+                    values.put(MediaStore.Downloads.DISPLAY_NAME, safeName);
+                    values.put(MediaStore.Downloads.MIME_TYPE, safeMime);
+                    values.put(MediaStore.Downloads.RELATIVE_PATH, Environment.DIRECTORY_DOWNLOADS + "/AFRN");
+                    values.put(MediaStore.Downloads.IS_PENDING, 1);
+                    Uri fileUri = getContentResolver().insert(MediaStore.Downloads.EXTERNAL_CONTENT_URI, values);
+                    if (fileUri == null) throw new Exception("Imeshindwa kuunda faili");
+                    try (OutputStream output = getContentResolver().openOutputStream(fileUri)) {
+                        if (output == null) throw new Exception("Imeshindwa kufungua faili");
+                        output.write(bytes);
+                        output.flush();
+                    }
+                    ContentValues done = new ContentValues();
+                    done.put(MediaStore.Downloads.IS_PENDING, 0);
+                    getContentResolver().update(fileUri, done, null, null);
+                } else {
+                    File folder = getExternalFilesDir(Environment.DIRECTORY_DOWNLOADS);
+                    if (folder == null) throw new Exception("Folda ya kuhifadhi haipatikani");
+                    if (!folder.exists() && !folder.mkdirs()) throw new Exception("Imeshindwa kuunda folda");
+                    try (FileOutputStream output = new FileOutputStream(new File(folder, safeName))) {
+                        output.write(bytes);
+                        output.flush();
+                    }
+                }
+                showDownloadMessage("Faili imehifadhiwa: Downloads/AFRN/" + safeName);
+            } catch (Exception e) {
+                showDownloadMessage("Upakuaji umeshindikana. Jaribu tena au tumia Chrome.");
+            }
+        }
+    }
+
+    private void showDownloadMessage(String message) {
+        runOnUiThread(() -> Toast.makeText(MainActivity.this, message, Toast.LENGTH_LONG).show());
     }
 
     @Override protected void onActivityResult(int requestCode, int resultCode, Intent data) {
