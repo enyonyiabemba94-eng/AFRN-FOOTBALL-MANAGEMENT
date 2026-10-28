@@ -93,6 +93,10 @@ public class MainActivity extends Activity {
     private class AfrnDownloadBridge {
         @JavascriptInterface
         public void saveBase64File(String filename, String mimeType, String base64Data) {
+            webView.post(() -> saveBase64FileOnUi(filename, mimeType, base64Data));
+        }
+
+        private void saveBase64FileOnUi(String filename, String mimeType, String base64Data) {
             try {
                 Uri current = Uri.parse(webView.getUrl() == null ? "" : webView.getUrl());
                 if (!"enyonyiabemba94-eng.github.io".equals(current.getHost())) {
