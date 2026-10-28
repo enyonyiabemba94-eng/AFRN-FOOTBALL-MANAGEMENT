@@ -402,19 +402,21 @@ async function downloadStandingsPDF(){
     // A4 portrait: all eight columns fit within the printable width.
     const doc=new jsPDF({orientation:"portrait",unit:"mm",format:"a4"});
     const safe=v=>String(v??"—").replace(/[–—•]/g,"-").replace(/[^\x20-\xFF]/g,"");
+    // Logo haipaswi kuzuia PDF: kila picha ina kikomo cha sekunde 2.
     const loadImageData=async(url)=>{
       try{
         if(!url)return null;
-        const im=new Image();
-        im.crossOrigin="anonymous";
-        im.src=url;
-        await new Promise((resolve,reject)=>{
-          if(im.complete){if(im.naturalWidth||im.width)resolve();else reject(new Error("logo"));return;}
-          im.onload=resolve;im.onerror=reject;
+        const im=new Image();im.crossOrigin="anonymous";
+        const loaded=new Promise((resolve,reject)=>{
+          const timer=setTimeout(()=>reject(new Error("Logo timeout")),2000);
+          im.onload=()=>{clearTimeout(timer);resolve();};
+          im.onerror=()=>{clearTimeout(timer);reject(new Error("Logo haipatikani"));};
+          im.src=url;
+          if(im.complete){if(im.naturalWidth||im.width){clearTimeout(timer);resolve();}else{clearTimeout(timer);reject(new Error("Logo haipatikani"));}}
         });
-        const cv=document.createElement("canvas");
-        cv.width=im.naturalWidth||im.width;cv.height=im.naturalHeight||im.height;
-        const ctx=cv.getContext("2d");ctx.drawImage(im,0,0);
+        await loaded;
+        const cv=document.createElement("canvas");cv.width=im.naturalWidth||im.width;cv.height=im.naturalHeight||im.height;
+        cv.getContext("2d").drawImage(im,0,0);
         return cv.toDataURL("image/png");
       }catch(_){return null;}
     };
@@ -434,9 +436,13 @@ async function downloadStandingsPDF(){
     const rowH=Math.min(11.5,Math.max(8.5,Math.floor((267-top)/(Math.max(data.length,1)+1)*10)/10));
     const fs=Math.max(8,Math.min(10.5,rowH*0.9));
     const clubLogoData=new Map();
+    // Picha za vilabu zinapakiwa sambamba; zilizokosekana zitarukwa badala ya kusimamisha PDF.
     await Promise.all((window.afrnCurrentStandingsRows||[]).map(async r=>{
       const club=clubs.find(x=>String(x.id)===String(r.club_id));
-      if(club?.logo_url)clubLogoData.set(String(r.club_id),await loadImageData(club.logo_url));
+      if(club?.logo_url){
+        const img=await loadImageData(club.logo_url);
+        if(img)clubLogoData.set(String(r.club_id),img);
+      }
     }));
     const draw=(vals,y,header=false,rowIndex=-1)=>{
       if(header){doc.setFillColor(7,26,51);doc.setTextColor(255,255,255);doc.rect(8,y-rowH+1,194,rowH,"F");}
@@ -464,6 +470,7 @@ async function downloadStandingsPDF(){
     const filename="AFRN-Msimamo-"+slug+".pdf";
     const pdfBlob=doc.output("blob"),url=URL.createObjectURL(pdfBlob);
     showReportDownloadLink(url,filename,"PDF",pdfBlob);
+    // PDF inatengenezwa kwanza; Android WebView inaweza kuzuia doc.save, hivyo toa pia kiungo cha kushiriki/hifadhi.
     doc.save(filename);
     setTimeout(()=>{try{URL.revokeObjectURL(url)}catch(_){}},10*60*1000);
   }catch(e){console.error("AFRN standings PDF:",e);alert("Imeshindikana kupakua PDF: "+(e.message||e));}
