@@ -691,9 +691,9 @@ async function downloadCardsPDF(clubId=null){
       doc.setTextColor(25,32,45);doc.setFont("helvetica","normal");doc.setFontSize(fontSize);
       doc.text(safe(name(r.club_id)),img?32:25,y,{maxWidth:img?79:87});
       doc.setFontSize(fontSize);
-      doc.text(String(r.yellow),131,y,{align:"center"});
-      doc.text(String(r.red),158,y,{align:"center"});
-      doc.text(String(r.total),186,y,{align:"center"});
+      doc.text(String(r.yellow),119,y,{align:"center"});
+      doc.text(String(r.red),145,y,{align:"center"});
+      doc.text(String(r.total),174,y,{align:"center"});
     });
     if(!rows.length){doc.setFont("helvetica","normal");doc.setFontSize(9);doc.text("Hakuna timu au kadi zilizorekodiwa.",12,top+10);}
     const totalY=top+(rows.length+1)*rowH+4;
