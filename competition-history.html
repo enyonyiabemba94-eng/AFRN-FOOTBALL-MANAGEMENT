@@ -8,9 +8,13 @@ body{margin:0;background:#f4f7fb;color:#172033;font-family:Arial,sans-serif}head
 <nav><a href="./index.html">🏠 Dashboard</a><a href="./competitions.html">🏆 Mashindano</a><a href="./matches.html">🏟️ Mechi</a></nav>
 <main class="wrap"><a href="./competitions.html">← Rudi kwenye Mashindano</a><div class="muted" style="margin:8px 0 12px">📌 Hapa ndipo taarifa zote za competition hii zinaonekana. Knockout ni sehemu ya competition hii pekee.</div><section id="hero" class="card">Inapakia...</section><section id="tabs" class="card"></section><section id="content" class="card">Inapakia...</section></main>
 <script>
-const db = window.supabaseClient || window.supabase.createClient(
-  "https://jjqhvruppafpumcthmwe.supabase.co",
-  "sb_publishable_02hhRG8bgDOqSFxva8IMvQ_zWTLMa3G"
+const db = window.supabaseClient || (
+  window.supabase && typeof window.supabase.createClient === "function"
+    ? window.supabase.createClient(
+        "https://jjqhvruppafpumcthmwe.supabase.co",
+        "sb_publishable_02hhRG8bgDOqSFxva8IMvQ_zWTLMa3G"
+      )
+    : null
 );
 const id = new URLSearchParams(location.search).get("id");
 const $ = id => document.getElementById(id);
@@ -28,6 +32,10 @@ const played = s => window.AFRNStandings && window.AFRNStandings.playedStatus
 const name = id => (clubs.find(c => String(c.id) === String(id)) || {}).name || "Timu";
 
 async function loadData(){
+  if(!db){
+    activeLoadStep = "kuanzisha muunganisho wa Supabase";
+    throw new Error("Supabase JavaScript haijapakiwa. Hakikisha intaneti inaruhusu cdn.jsdelivr.net na ufungue ukurasa upya.");
+  }
   if(!id){
     $("hero").innerHTML = '<div class="empty">Competition ID haipo.</div>';
     $("content").innerHTML = '<div class="empty">Fungua History kupitia ukurasa wa Mashindano.</div>';
@@ -847,7 +855,12 @@ async function load(){
     clearTimeout(timer);
   }
 }
-load();
+if (!id) {
+  $("hero").innerHTML = '<div class="empty">❌ Competition ID haipo kwenye kiungo.</div>';
+  $("content").innerHTML = '<div class="empty">Rudi kwenye Mashindano kisha bonyeza Fungua Competition.</div>';
+} else {
+  load();
+}
 </script>
 <script src="./afrn-player-photo-global.js"></script>
 <script>
