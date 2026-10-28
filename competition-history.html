@@ -471,7 +471,7 @@ async function downloadStandingsPDF(){
     const pdfBlob=doc.output("blob"),url=URL.createObjectURL(pdfBlob);
     showReportDownloadLink(url,filename,"PDF",pdfBlob);
     // PDF inatengenezwa kwanza; Android WebView inaweza kuzuia doc.save, hivyo toa pia kiungo cha kushiriki/hifadhi.
-    doc.save(filename);
+    if(!window.AFRNAndroid)doc.save(filename);
     setTimeout(()=>{try{URL.revokeObjectURL(url)}catch(_){}},10*60*1000);
   }catch(e){console.error("AFRN standings PDF:",e);alert("Imeshindikana kupakua PDF: "+(e.message||e));}
   finally{if(button)button.disabled=false;}
@@ -742,9 +742,24 @@ function showReportDownloadLink(url,filename,kind,blob=null){
   const note=document.createElement("p");note.textContent="Kama kitufe cha kupakua hakifanyi kazi kwenye simu, tumia SHIRIKI/HIFADHI FAILI. Kisha chagua Files, Hifadhi kwenye kifaa, au programu ya kufungua faili.";note.style.margin="8px 0";box.appendChild(note);
   if(blob){
     const share=document.createElement("button");share.type="button";share.textContent="📤 SHIRIKI / HIFADHI FAILI";share.style.cssText="display:inline-block;padding:12px;margin:0 8px 8px 0;background:#0d47a1;color:#fff;font-weight:bold;border:0;border-radius:8px";
+    share.textContent=window.AFRNAndroid?"⬇️ HIFADHI FAILI KWENYE SIMU":"📤 SHIRIKI / HIFADHI FAILI";
     share.addEventListener("click",async()=>{
       try{
         const mime=blob.type||(String(filename).toLowerCase().endsWith(".pdf")?"application/pdf":"application/msword");
+        if(window.AFRNAndroid&&typeof window.AFRNAndroid.saveBase64File==="function"){
+          const reader=new FileReader();
+          reader.onerror=()=>alert("Imeshindwa kusoma ripoti. Tafadhali jaribu tena.");
+          reader.onload=()=>{
+            try{
+              const dataUrl=String(reader.result||"");
+              const base64=dataUrl.includes(",")?dataUrl.split(",")[1]:"";
+              if(!base64){alert("Faili halijajiandaa vizuri. Jaribu tena.");return;}
+              window.AFRNAndroid.saveBase64File(filename,mime,base64);
+            }catch(err){console.error("AFRN native save:",err);alert("Kuhifadhi faili hakukufaulu. Jaribu tena.");}
+          };
+          reader.readAsDataURL(blob);
+          return;
+        }
         const file=new File([blob],filename,{type:mime});
         if(navigator.share&&(!navigator.canShare||navigator.canShare({files:[file]}))){
           await navigator.share({files:[file],title:filename});
@@ -839,7 +854,7 @@ async function downloadGoalsScorersPDF(){
     const slug=String(C?.name||"Mashindano").toLowerCase().replace(/[^a-z0-9]+/g,"-").replace(/^-|-$/g,"")||"mashindano";
     const filename="AFRN-"+slug+"-magoli-wafungaji-"+(C?.season||"2026")+".pdf";
     // Tengeneza kiungo kinachoonekana ili mtumiaji aweze kukigusa mwenyewe ikiwa simu imezuia upakuaji wa moja kwa moja.
-    const blob=doc.output("blob"),url=URL.createObjectURL(blob);showReportDownloadLink(url,filename,"PDF",blob);doc.save(filename);
+    const blob=doc.output("blob"),url=URL.createObjectURL(blob);showReportDownloadLink(url,filename,"PDF",blob);if(!window.AFRNAndroid)doc.save(filename);
     setTimeout(()=>{try{URL.revokeObjectURL(url)}catch(_){}},10*60*1000);
   }catch(e){console.error("AFRN goals/scorers PDF:",e);alert("Imeshindikana kutengeneza PDF: "+(e.message||e));}
   finally{if(button)button.disabled=false;}
