@@ -694,7 +694,7 @@ async function downloadCardsPDF(clubId=null){
     doc.text(safe("JUMLA YA KADI: "+total+"   |   NJANO: "+yellow+"   |   NYEKUNDU: "+red),105,43,{align:"center"});
     const headers=["#","JINA LA TIMU","NJANO","NYEKUNDU","JUMLA"];
     const x=[10,25,119,145,174],w=[10,87,24,27,25];
-    const top=53,bottom=275,rowH=Math.min(9.2,(bottom-top)/(Math.max(rows.length,1)+1));
+    const top=62,bottom=275,rowH=Math.min(9.2,(bottom-top)/(Math.max(rows.length,1)+1));
     const fontSize=Math.max(7,Math.min(10.2,rowH*1.02));
     const draw=(vals,y,header=false,index=0)=>{
       if(header){doc.setFillColor(7,26,51);doc.setTextColor(255,255,255);doc.rect(8,y-rowH+1,194,rowH,"F");}
