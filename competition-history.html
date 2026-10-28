@@ -604,18 +604,40 @@ async function downloadCardsPDF(clubId=null){
   }catch(e){if(pdfWindow&&!pdfWindow.closed){try{pdfWindow.close()}catch(_){}}console.error(e);alert("Imeshindikana kutengeneza PDF ya kadi: "+(e.message||e));}
 }
 function cards(){
-  const c=events.filter(e=>{const t=String(e.event_type||"").toLowerCase();return t.includes("yellow")||t.includes("red");});
+  const c=events.filter(e=>{
+    const t=String(e.event_type||"").toLowerCase();
+    return t.includes("yellow")||t.includes("red");
+  });
   const clubIds=[...new Set(c.map(e=>String(e.club_id)).filter(Boolean))];
   const count=(rows,colour)=>rows.filter(e=>String(e.event_type||"").toLowerCase().includes(colour)).length;
+  const eventPlayerLabel=e=>{
+    const p=players.find(x=>String(x.id)===String(e.player_id));
+    if(p) return playerLabel(p);
+    const t=String(e.event_type||"").toLowerCase();
+    if(t.includes("coach")) return "Kocha";
+    if(t.includes("supporter")) return "Shabiki";
+    return e.description || "Jina la mchezaji halikuhifadhiwa";
+  };
+  const eventMatchLabel=e=>{
+    const m=matches.find(x=>String(x.id)===String(e.match_id));
+    if(!m) return {label:"Mechi haikupatikana",date:"",score:"",id:""};
+    const score=played(m.status)?(Number(m.home_score)||0)+" - "+(Number(m.away_score)||0):"Haijachezwa";
+    return {label:name(m.home_team_id)+" vs "+name(m.away_team_id),date:m.match_date||"Tarehe haijawekwa",score,id:m.id};
+  };
   window.openCompetitionClubCards=function(clubId){
-    const rows=c.filter(e=>String(e.club_id)===String(clubId)).slice().sort((a,b)=>(Number(a.minute)||999)-(Number(b.minute)||999));
+    const rows=c.filter(e=>String(e.club_id)===String(clubId)).slice().sort((a,b)=>{
+      const ma=matches.find(m=>String(m.id)===String(a.match_id));
+      const mb=matches.find(m=>String(m.id)===String(b.match_id));
+      return String(ma?.match_date||"9999-99-99").localeCompare(String(mb?.match_date||"9999-99-99"))||(Number(a.minute)||999)-(Number(b.minute)||999);
+    });
     const details=rows.map(e=>{
-      const type=String(e.event_type||"").toLowerCase(),red=type.includes("red");
-      return '<div style="padding:10px;border-bottom:1px solid #e5eaf1;display:flex;gap:10px;align-items:flex-start"><span style="font-size:20px">'+(red?"🟥":"🟨")+'</span><div><b>'+esc(name(clubId))+'</b><div style="font-size:13px;color:#64748b">'+esc(type.includes("red")?"Kadi nyekundu":"Kadi ya njano")+' · Dakika '+esc(e.minute??"—")+'</div></div></div>';
+      const type=String(e.event_type||"").toLowerCase(),red=type.includes("red"),m=eventMatchLabel(e);
+      const eventLabel=type.includes("red")?"Kadi nyekundu":"Kadi ya njano";
+      return '<div style="padding:12px 10px;border-bottom:1px solid #e5eaf1;display:flex;gap:10px;align-items:flex-start"><span style="font-size:22px">'+(red?"🟥":"🟨")+'</span><div style="min-width:0;flex:1"><b>'+esc(eventPlayerLabel(e))+'</b><div style="font-size:13px;color:#475569;margin-top:3px">'+esc(eventLabel)+' · Dakika '+esc(e.minute??"—")+'</div><div style="margin-top:6px;font-size:13px"><b>Mechi:</b> '+esc(m.label)+'</div><div style="font-size:12px;color:#64748b">Tarehe: '+esc(m.date||"—")+' · Matokeo: '+esc(m.score||"—")+'</div>'+(e.description?'<div style="font-size:12px;color:#64748b;margin-top:4px">Maelezo: '+esc(e.description)+'</div>':"")+(m.id?'<button type="button" class="small-btn" style="margin-top:7px" onclick="editHistoryMatch(\''+esc(m.id)+'\')">⚽ Fungua mechi</button>':"")+'</div></div>';
     }).join("");
     $("content").innerHTML='<button class="small-btn" onclick="cards()">← Rudi kwenye timu zote</button> <button class="small-btn event-primary" onclick="downloadCardsPDF(\''+esc(clubId)+'\')">⬇️ Pakua PDF (ukurasa 1)</button><h3>🟨🟥 Historia ya Kadi: '+esc(name(clubId))+'</h3><div style="padding:12px;border:1px solid #e2e8f0;border-radius:12px;margin:10px 0"><b>Jumla ya kadi: '+rows.length+'</b><div>🟨 Kadi za njano: '+count(rows,"yellow")+'　 🟥 Kadi nyekundu: '+count(rows,"red")+'</div></div>'+(details||'<div class="empty">Hakuna kadi za timu hii.</div>');
   };
-  $("content").innerHTML='<h3>🟨🟥 Kadi kwa Timu</h3><button class="small-btn event-primary" onclick="downloadCardsPDF()">⬇️ Pakua PDF ya Kadi Zote (ukurasa 1)</button><p style="color:#64748b">Ripoti inaonyesha majina ya timu pekee; majina ya wachezaji waliopewa kadi hayaonyeshwi.</p>'+
+  $("content").innerHTML='<h3>🟨🟥 Kadi kwa Timu</h3><button class="small-btn event-primary" onclick="downloadCardsPDF()">⬇️ Pakua PDF ya Kadi Zote (ukurasa 1)</button><p style="color:#64748b">Bonyeza timu kuona mchezaji/aliyepokea kadi, tarehe na mechi husika.</p>'+
     (clubIds.length?'<div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(230px,1fr));gap:10px">'+clubIds.map(id=>{
       const rows=c.filter(e=>String(e.club_id)===id),yellow=count(rows,"yellow"),red=count(rows,"red");
       return '<button type="button" onclick="openCompetitionClubCards(\''+esc(id)+'\')" style="width:100%;text-align:left;padding:13px;border:1px solid #dbe3ed;border-radius:12px;background:#fff;color:#172033;cursor:pointer"><b>'+esc(name(id))+'</b><div style="margin-top:7px">🟨 '+yellow+'　 🟥 '+red+'</div><div style="font-size:12px;color:#64748b;margin-top:3px">Jumla ya kadi: '+rows.length+' · Bonyeza kuona historia</div></button>';
