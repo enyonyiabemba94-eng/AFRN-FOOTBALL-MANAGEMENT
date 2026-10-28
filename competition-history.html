@@ -280,7 +280,7 @@ function standingsReportRows(){
     "GD":(Number(r.GF)||0)+"-"+(Number(r.GA)||0)
   }));
 }
-async function downloadStandingsWord(){
+async async function downloadStandingsWord(){
   try{
     const data=standingsReportRows();
     const safe=v=>String(v??"").replace(/[&<>"]/g,ch=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;"}[ch]));
@@ -644,7 +644,7 @@ function showReportDownloadLink(url,filename,kind){
   const filenameText=document.createElement("div");filenameText.textContent=filename;filenameText.style.cssText="font-size:12px;margin-top:8px;overflow-wrap:anywhere";box.appendChild(filenameText);
 }
 
-function downloadGoalsScorersWord(){
+async function downloadGoalsScorersWord(){
  try{
   const completed=matches.filter(m=>played(m.status)).slice().sort((a,b)=>String(a.match_date||"").localeCompare(String(b.match_date||""))||String(a.match_time||"").localeCompare(String(b.match_time||"")));
   const totalGoals=completed.reduce((sum,m)=>sum+Math.max(0,Number(m.home_score)||0)+Math.max(0,Number(m.away_score)||0),0);
