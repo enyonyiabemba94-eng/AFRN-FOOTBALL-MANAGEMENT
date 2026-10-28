@@ -1,6 +1,6 @@
 <!DOCTYPE html>
 <html lang="sw"><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>AFRN — Competition</title>
-<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script><script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script><script src="./supabase-config.js?v=20261028fix4"></script><script src="./afrn-standings-engine.js?v=20261028fix4"></script>
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script><script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script><script src="./supabase-config.js?v=20261028fix5"></script><script src="./afrn-standings-engine.js?v=20261028fix5"></script>
 <style>
 body{margin:0;background:#f4f7fb;color:#172033;font-family:Arial,sans-serif}header{background:linear-gradient(135deg,#06152b,#0d47a1);color:#fff;padding:16px}nav{display:flex;gap:7px;overflow:auto;background:#fff;padding:9px}nav a{padding:9px 12px;text-decoration:none;color:#172033;font-weight:700;white-space:nowrap}.wrap{max-width:1200px;margin:auto;padding:12px}.card{background:#fff;border:1px solid #d9e0ea;border-radius:15px;padding:16px;margin-bottom:14px}.hero{display:flex;gap:14px;align-items:center}.logo{width:70px;height:70px;object-fit:contain;border-radius:12px;border:1px solid #ddd}.muted{color:#687386;font-size:12px}.tabs{display:flex;gap:7px;overflow:auto}.tab{border:0;background:#e8edf5;padding:10px 13px;border-radius:9px;font-weight:800;white-space:nowrap}.tab.active{background:#0d47a1;color:#fff}.table-wrap{overflow:auto}table{width:100%;border-collapse:collapse;font-size:12px}th{background:#071a33;color:#fff;padding:9px;white-space:nowrap}td{padding:9px;border-bottom:1px solid #edf0f4;white-space:nowrap}td:nth-child(2){font-weight:800}.small-btn{padding:7px 10px;font-size:11px;border:0;border-radius:8px;background:#e8edf5;color:#172033;font-weight:800;cursor:pointer}.event-primary{background:#0d47a1;color:#fff}.event-warning{background:#fff5d6;color:#6b4a00}.event-overlay{position:fixed;inset:0;background:#071a33b8;z-index:9999;display:flex;align-items:center;justify-content:center;padding:12px}.event-modal{background:#fff;border-radius:15px;padding:16px;width:min(620px,100%);max-height:92vh;overflow:auto;box-shadow:0 10px 40px #0004}.event-modal label{display:block;font-weight:800;font-size:12px;margin:9px 0 5px}.event-modal input,.event-modal select{width:100%;box-sizing:border-box;padding:10px;border:1px solid #ccd5e2;border-radius:9px;font:inherit}.event-modal-grid{display:grid;grid-template-columns:1fr 1fr;gap:10px}@media(max-width:520px){.event-modal-grid{grid-template-columns:1fr}}.badge{display:inline-block;padding:5px 9px;border-radius:999px;background:#e9f8ef;color:#16834b;font-size:10px;font-weight:800}.empty{text-align:center;padding:28px;color:#687386}.grid{display:grid;grid-template-columns:repeat(4,1fr);gap:10px}.stat{border:1px solid #d9e0ea;border-radius:12px;padding:12px;text-align:center}.stat b{display:block;font-size:22px;color:#0d47a1}@media(max-width:700px){.grid{grid-template-columns:repeat(2,1fr)}}
 </style></head><body>
@@ -309,6 +309,16 @@ function standings(){
     <div class="muted" style="margin-top:9px">Mpangilio rasmi: Pointi → magoli ya kufunga → magoli ya kufungwa → kadi nyekundu chache → kadi za njano chache → sarafu ikiwa bado sare.</div>`;
 }
 
+function waitForReportImage(img, timeoutMs=5000){
+  return new Promise((resolve,reject)=>{
+    let settled=false;
+    const finish=(err)=>{if(settled)return;settled=true;clearTimeout(timer);img.onload=null;img.onerror=null;err?reject(err):resolve(img);};
+    const timer=setTimeout(()=>finish(new Error("Muda wa kupakia nembo umekwisha")),timeoutMs);
+    img.onload=()=>finish();img.onerror=()=>finish(new Error("Nembo haikuweza kupakiwa"));
+    if(img.complete){if(img.naturalWidth||img.width)finish();else finish(new Error("Nembo haikuweza kupakiwa"));}
+  });
+}
+
 function standingsReportDate(){
   const v=document.getElementById("standingsDate")?.value;
   if(!v) return "________________";
@@ -329,7 +339,7 @@ async function downloadStandingsWord(){
     let logoHtml='<b>AFRN</b>';
     try{
       const logo=new Image();logo.src=new URL("./IMG-20260319-WA0093.jpg",window.location.href).href;
-      await new Promise((resolve,reject)=>{logo.onload=resolve;logo.onerror=reject;});
+      await waitForReportImage(logo);
       const cv=document.createElement("canvas");cv.width=logo.naturalWidth||logo.width;cv.height=logo.naturalHeight||logo.height;
       cv.getContext("2d").drawImage(logo,0,0);
       logoHtml='<img src="'+cv.toDataURL("image/jpeg",0.9)+'" width="75" height="75">';
@@ -341,7 +351,7 @@ async function downloadStandingsWord(){
       if(!club?.logo_url)return;
       try{
         const im=new Image();im.crossOrigin="anonymous";im.src=club.logo_url;
-        await new Promise((resolve,reject)=>{im.onload=resolve;im.onerror=reject;});
+        await waitForReportImage(im);
         const cv=document.createElement("canvas");cv.width=im.naturalWidth||im.width;cv.height=im.naturalHeight||im.height;
         cv.getContext("2d").drawImage(im,0,0);
         wordClubLogos.set(String(r.club_id),cv.toDataURL("image/png"));
@@ -747,7 +757,7 @@ async function downloadGoalsScorersPDF(){
     try{
       const logoImage=new Image();
       logoImage.src=new URL("./IMG-20260319-WA0093.jpg",window.location.href).href;
-      await new Promise((resolve,reject)=>{logoImage.onload=resolve;logoImage.onerror=reject;});
+      await waitForReportImage(logoImage);
       const canvas=document.createElement("canvas");
       canvas.width=logoImage.naturalWidth||logoImage.width;canvas.height=logoImage.naturalHeight||logoImage.height;
       canvas.getContext("2d").drawImage(logoImage,0,0);
