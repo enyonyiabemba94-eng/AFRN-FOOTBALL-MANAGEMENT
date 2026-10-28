@@ -280,7 +280,7 @@ function standingsReportRows(){
     "GD":(Number(r.GF)||0)+"-"+(Number(r.GA)||0)
   }));
 }
-async async function downloadStandingsWord(){
+async function downloadStandingsWord(){
   try{
     const data=standingsReportRows();
     const safe=v=>String(v??"").replace(/[&<>"]/g,ch=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;"}[ch]));
@@ -343,7 +343,7 @@ async function ensureAFRNJsPDF(){
   throw new Error("Huduma ya PDF haijapakia. Hakikisha intaneti ipo kisha jaribu tena.");
 }
 
-async async function downloadStandingsPDF(){
+async function downloadStandingsPDF(){
   const button=document.activeElement;if(button)button.disabled=true;
   try{const jsPDF=await ensureAFRNJsPDF();
     const doc=new jsPDF({orientation:"landscape",unit:"mm",format:"a4"});
@@ -666,7 +666,7 @@ async function downloadGoalsScorersWord(){
   setTimeout(()=>{try{URL.revokeObjectURL(url)}catch(_){}},10*60*1000);
  }catch(e){console.error(e);alert("Imeshindikana kutengeneza ripoti ya Word: "+(e.message||e));}
 }
-async async function downloadGoalsScorersPDF(){
+async function downloadGoalsScorersPDF(){
   const button=document.activeElement;if(button)button.disabled=true;
   try{const jsPDF=await ensureAFRNJsPDF(),doc=new jsPDF({orientation:"landscape",unit:"mm",format:"a4"});
     // Weka nembo rasmi ya AFRN pande zote mbili za kichwa cha PDF.
