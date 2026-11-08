@@ -54,4 +54,6 @@ function renderProfile(pid){const p=players.find(x=>x.id===pid);if(!p){$('player
 
 window.deleteEvent=async id=>{try{if(!confirm('Una uhakika unataka kufuta tukio hili?'))return;const {error}=await db.from('player_performance_events').delete().eq('id',id);if(error)throw error;events=events.filter(e=>e.id!==id);renderTables();renderProfile($('profilePlayer').value);setStatus('Tukio limefutwa.','ok')}catch(e){setStatus('❌ '+e.message,'err')}};
 init();
-</script></body></html>
+</script>
+<script src="./afrn-player-photo-global.js"></script>
+</body></html>

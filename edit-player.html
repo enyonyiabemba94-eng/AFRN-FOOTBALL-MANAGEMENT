@@ -18,4 +18,6 @@ const c=await db.from('clubs').select('id,name,division').order('name');if(c.err
 }
 el('form').addEventListener('submit',async e=>{e.preventDefault();if(!player)return;const btn=el('save');btn.disabled=true;btn.textContent='Inahifadhi...';const payload={first_name:el('first').value.trim(),middle_name:el('middle').value.trim()||null,last_name:el('last').value.trim()||null,date_of_birth:el('dob').value||null,nationality:el('nationality').value.trim()||null,jersey_number:el('jersey').value?Number(el('jersey').value):null,phone:el('phone').value.trim()||null,address:el('address').value.trim()||null,position:el('position').value.trim()||null,status:el('status').value,club_id:el('club').value||null,registration_approval_status:el('approval').value||null};try{const r=await db.from('players').update(payload).eq('id',player.id);if(r.error)throw r.error;message('✅ Mabadiliko yamehifadhiwa. Tunafungua profile...',false);setTimeout(()=>location.href='./player-profile.html?id='+encodeURIComponent(player.id),700)}catch(err){message('❌ Hifadhi imeshindikana: '+(err.message||err),true)}finally{btn.disabled=false;btn.textContent='💾 Hifadhi Mabadiliko'}});
 init();
-</script></body></html>
+</script>
+<script src="./afrn-player-photo-global.js"></script>
+</body></html>
