@@ -4,6 +4,9 @@ on:
   push:
     paths:
       - 'android-app/**'
+      - '*.html'
+      - 'supabase-config.js'
+      - 'afrn-*.js'
       - 'IMG-20260319-WA0093.jpg'
       - '.github/workflows/build-afrn-apk.yml'
   workflow_dispatch:
