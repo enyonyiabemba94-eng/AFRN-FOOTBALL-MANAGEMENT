@@ -277,7 +277,7 @@ function standings(){
       const teamEvents = events.filter(e => String(e.club_id||"") === String(clubId||""));
       const reds = teamEvents.filter(e => /red|nyekundu/i.test(String(e.event_type||""))).length;
       const yellows = teamEvents.filter(e => /yellow|njano/i.test(String(e.event_type||""))).length;
-      return {...r, _reds: reds, _yellows: yellows};
+      return {...r, club_id: clubId, _reds: reds, _yellows: yellows};
     })
     .slice().sort((a,b) =>
       (Number(b.PTS)||0)-(Number(a.PTS)||0) ||
