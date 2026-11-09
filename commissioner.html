@@ -128,4 +128,6 @@ window.saveReport=async function(id){
 async function logout(){await db.auth.signOut();location.reload();}
 $("signOut").onclick=logout;$("signOutDenied").onclick=logout;
 start().catch(e=>note(e.message||String(e)));
-</script></body></html>
+</script>
+<script src="./afrn-player-photo-global.js"></script>
+</body></html>
