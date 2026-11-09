@@ -27,7 +27,7 @@ public class MainActivity extends Activity {
     private WebView webView;
     private ValueCallback<Uri[]> filePathCallback;
     private static final int FILE_CHOOSER_REQUEST = 1001;
-    private static final String APP_URL = "https://enyonyiabemba94-eng.github.io/AFRN-FOOTBALL-MANAGEMENT/";
+    private static final String APP_URL = "https://enyonyiabemba94-eng.github.io/AFRN-FOOTBALL-MANAGEMENT/app.html";
 
     @Override protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
