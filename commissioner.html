@@ -1,0 +1,131 @@
+<!doctype html>
+<html lang="sw"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover"><meta name="theme-color" content="#071a33"><title>AFRN - Makamisaa</title>
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script><script src="./supabase-config.js?v=commissioners1"></script>
+<style>
+:root{--navy:#071a33;--blue:#0b5ed7;--bg:#f3f6fa;--green:#16834a;--red:#c62828;--border:#dce3ed}*{box-sizing:border-box}body{margin:0;background:var(--bg);font-family:Arial,sans-serif;color:#172033}header{background:linear-gradient(135deg,#06152b,#0d47a1);color:#fff;padding:18px 15px}header h1{font-size:21px;margin:0}header p{font-size:12px;margin:6px 0 0;opacity:.85}main{max-width:1000px;margin:auto;padding:14px}.card{background:#fff;border:1px solid var(--border);border-radius:15px;padding:16px;margin:12px 0;box-shadow:0 4px 16px #071a3310}.muted{color:#667085;font-size:13px}.grid{display:grid;grid-template-columns:1fr 1fr;gap:12px}label{display:block;font-weight:700;font-size:14px;margin:12px 0 6px}input,select{width:100%;padding:12px;border:1px solid #cbd5e1;border-radius:9px;font-size:16px;background:white}button{border:0;border-radius:10px;padding:12px 15px;font-weight:800;font-size:14px;cursor:pointer}.primary{background:var(--blue);color:white}.green{background:var(--green);color:white}.light{background:#edf2f7;color:#172033}.danger{background:#ffeded;color:var(--red)}.full{width:100%;margin-top:14px}.msg{padding:12px;border-radius:10px;margin:10px 0;white-space:pre-wrap}.ok{background:#e9f8ef;color:#126238}.err{background:#fff0f0;color:#a32020}.match-head{display:flex;justify-content:space-between;gap:12px;align-items:center;flex-wrap:wrap}.score{font-size:22px;font-weight:900;color:var(--navy)}.event-row{border:1px solid var(--border);border-radius:12px;padding:10px;margin:10px 0;background:#fbfcfe}.event-row .grid{grid-template-columns:1fr 1fr}.section-title{font-size:17px;margin:0 0 8px;color:var(--navy)}.pill{display:inline-block;padding:5px 9px;background:#eaf2ff;color:#174ea6;border-radius:99px;font-size:11px;font-weight:800}.hidden{display:none!important}.top-actions{display:flex;gap:8px;flex-wrap:wrap;margin-top:10px}.hint{font-size:12px;color:#667085;margin-top:5px;line-height:1.4}.empty{text-align:center;padding:22px;color:#667085}@media(max-width:600px){.grid{grid-template-columns:1fr}main{padding:10px}.card{padding:13px}header h1{font-size:18px}}
+</style></head><body>
+<header><h1>⚽ AFRN — SEHEMU YA MAKAMISAA</h1><p>Ingiza matokeo, wafungaji na assist za mechi ulizopangiwa</p></header>
+<main>
+<div id="notice"></div>
+<section id="loginBox" class="card hidden"><h2 class="section-title">🔐 Ingia kama Kamisaa</h2><p class="muted">Tumia email na password uliyopewa na Super Admin / Admin AFRN.</p><form id="loginForm"><label>Email</label><input id="loginEmail" type="email" autocomplete="username" required placeholder="Email ya akaunti"><label>Password</label><input id="loginPassword" type="password" autocomplete="current-password" required placeholder="Password"><button class="primary full" type="submit">Ingia</button></form></section>
+<section id="deniedBox" class="card hidden"><h2>⛔ Huna ruhusa ya Kamisaa</h2><p class="muted">Akaunti hii haijasajiliwa kama Kamisaa au Admin AFRN.</p><button class="light" id="signOutDenied">Toka</button></section>
+<section id="mainBox" class="hidden">
+<div class="card match-head"><div><b id="welcome">Karibu</b><div class="muted" id="roleText"></div></div><button class="light" id="signOut">🚪 Toka</button></div>
+<section id="adminPanel" class="hidden">
+<div class="card"><h2 class="section-title">👤 Tengeneza Akaunti ya Kamisaa</h2><p class="muted">Akaunti itaingia kwenye mfumo bila kuhitaji majina ya makamisaa mapema.</p>
+<form id="createForm"><label>Jina kamili la Kamisaa</label><input id="newName" required minlength="2" placeholder="Jina la Kamisaa"><label>Email ya kuingia</label><input id="newEmail" type="email" required placeholder="mfano@email.com"><label>Password ya kuingia</label><input id="newPassword" type="password" required minlength="8" placeholder="Angalau herufi 8"><button class="primary full" type="submit">＋ Tengeneza Akaunti</button></form></div>
+<div class="card"><h2 class="section-title">📌 Panga Kamisaa kwenye Mechi</h2><label>Chagua Kamisaa</label><select id="assignUser"><option value="">Inapakia makamisaa...</option></select><label>Chagua Mechi</label><select id="assignMatch"><option value="">Inapakia mechi...</option></select><button id="assignBtn" class="green full">Pangia Mechi</button></div>
+<div class="card"><h2 class="section-title">📋 Akaunti za Makamisaa</h2><div id="accountList" class="muted">Inapakia...</div></div>
+</section>
+<section class="card"><h2 class="section-title">🏟️ Mechi Nilizopangiwa</h2><div id="matchList" class="muted">Inapakia mechi...</div></section>
+</section>
+</main>
+<script>
+const db=window.supabaseClient;let user=null,profile=null,matches=[],clubs=[],competitions=[],playersByClub={};
+const $=id=>document.getElementById(id);
+function esc(v){return String(v??"").replace(/[&<>"']/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]));}
+function note(text,ok=false){$("notice").innerHTML='<div class="msg '+(ok?'ok':'err')+'">'+esc(text)+'</div>';window.scrollTo({top:0,behavior:"smooth"});}
+const admins=["super_admin","superadmin","admin","administrator","afrn_admin","secretary_general"];
+async function start(){
+ if(!db){note("Supabase haijaunganishwa.");return;}
+ const s=await db.auth.getSession();user=s.data?.session?.user||null;
+ if(!user){$("loginBox").classList.remove("hidden");return;}
+ await loadIdentity();
+}
+async function loadIdentity(){
+ const r=await db.from("profiles").select("id,full_name,role").eq("id",user.id).maybeSingle();
+ if(r.error||!r.data){note(r.error?.message||"Profile haipatikani.");return;}
+ profile=r.data;const role=String(profile.role||"").toLowerCase();
+ if(role!=="commissioner"&&!admins.includes(role)){$("deniedBox").classList.remove("hidden");return;}
+ $("mainBox").classList.remove("hidden");$("welcome").textContent="Karibu, "+(profile.full_name||user.email);
+ $("roleText").textContent=admins.includes(role)?"Msimamizi wa makamisaa":"Akaunti ya Kamisaa";
+ if(admins.includes(role)){$("adminPanel").classList.remove("hidden");await loadAdmin();}
+ await loadCommissionerMatches();
+}
+$("loginForm").addEventListener("submit",async e=>{e.preventDefault();const b=e.submitter;b.disabled=true;const r=await db.auth.signInWithPassword({email:$("loginEmail").value.trim(),password:$("loginPassword").value});b.disabled=false;if(r.error){note("Login imeshindikana: "+r.error.message);return;}user=r.data.user;$("loginBox").classList.add("hidden");await loadIdentity();});
+async function loadAdmin(){
+ const [pr,mr,cr,co]=await Promise.all([
+  db.from("profiles").select("id,full_name,role").eq("role","commissioner").order("full_name"),
+  db.from("matches").select("*").order("match_date",{ascending:false}),
+  db.from("clubs").select("id,name"),db.from("competitions").select("id,name")
+ ]);
+ if(pr.error||mr.error||cr.error){note(pr.error?.message||mr.error?.message||cr.error?.message);return;}
+ clubs=cr.data||[];competitions=co.data||[];matches=mr.data||[];
+ $("assignUser").innerHTML='<option value="">Chagua Kamisaa</option>'+(pr.data||[]).map(x=>'<option value="'+esc(x.id)+'">'+esc(x.full_name||"Kamisaa")+'</option>').join("");
+ $("assignMatch").innerHTML='<option value="">Chagua Mechi</option>'+matches.map(m=>'<option value="'+esc(m.id)+'">'+esc(matchLabel(m))+'</option>').join("");
+ $("accountList").innerHTML=pr.data?.length?(pr.data.map(x=>'<div style="padding:10px;border-bottom:1px solid #e5eaf1"><b>'+esc(x.full_name||"Kamisaa")+'</b><div class="muted">Akaunti ya Kamisaa · '+esc(x.id.slice(0,8))+'</div></div>').join("")):'Hakuna akaunti bado. Tengeneza akaunti ya kwanza hapo juu.';
+}
+function matchLabel(m){const h=clubs.find(c=>c.id===m.home_team_id)?.name||"Home";const a=clubs.find(c=>c.id===m.away_team_id)?.name||"Away";const c=competitions.find(x=>x.id===m.competition_id)?.name||"Mashindano";return c+" · "+h+" vs "+a+" · "+(m.match_date||"");}
+$("createForm").addEventListener("submit",async e=>{
+ e.preventDefault();const b=e.submitter;b.disabled=true;b.textContent="Inatengeneza...";
+ const s=await db.auth.getSession();const token=s.data?.session?.access_token;
+ const r=await fetch("https://jjqhvruppafpumcthmwe.supabase.co/functions/v1/afrn-create-commissioner",{method:"POST",headers:{"Content-Type":"application/json","Authorization":"Bearer "+token,"apikey":"sb_publishable_02hhRG8bgDOqSFxva8IMvQ_zWTLMa3G"},body:JSON.stringify({full_name:$("newName").value,email:$("newEmail").value,password:$("newPassword").value})});
+ const data=await r.json();b.disabled=false;b.textContent="＋ Tengeneza Akaunti";
+ if(!r.ok||!data.ok){note(data.error||"Imeshindikana kutengeneza akaunti.");return;}
+ $("createForm").reset();note("Akaunti ya "+data.full_name+" imetengenezwa. Email: "+data.email, true);await loadAdmin();
+});
+$("assignBtn").addEventListener("click",async()=>{
+ const commissioner_id=$("assignUser").value,match_id=$("assignMatch").value;
+ if(!commissioner_id||!match_id){note("Chagua Kamisaa na mechi.");return;}
+ const r=await db.from("match_commissioners").insert({commissioner_id,match_id,assigned_by:user.id});
+ if(r.error){note("Imeshindikana kupanga mechi: "+r.error.message);return;}
+ note("Kamisaa amepangiwa mechi vizuri.",true);await loadAdmin();
+});
+function clubName(id){return clubs.find(c=>String(c.id)===String(id))?.name||"Timu";}
+async function loadCommissionerMatches(){
+ const role=String(profile.role||"").toLowerCase();let assigned=[];
+ if(admins.includes(role)){
+  const r=await db.from("matches").select("*").order("match_date",{ascending:false});if(r.error){$("matchList").textContent=r.error.message;return;}assigned=r.data||[];
+ }else{
+  const a=await db.from("match_commissioners").select("match_id").eq("commissioner_id",user.id);
+  if(a.error){$("matchList").textContent=a.error.message;return;}
+  const ids=(a.data||[]).map(x=>x.match_id);if(!ids.length){$("matchList").innerHTML='<div class="empty">Bado hujapangiwa mechi. Subiri Admin AFRN akupangie mechi.</div>';return;}
+  const m=await db.from("matches").select("*").in("id",ids).order("match_date",{ascending:false});if(m.error){$("matchList").textContent=m.error.message;return;}assigned=m.data||[];
+ }
+ clubs=clubs.length?clubs:(await db.from("clubs").select("id,name")).data||[];
+ competitions=competitions.length?competitions:(await db.from("competitions").select("id,name")).data||[];
+ if(!assigned.length){$("matchList").innerHTML='<div class="empty">Hakuna mechi zilizopatikana.</div>';return;}
+ $("matchList").innerHTML=assigned.map(m=>'<article class="card" style="box-shadow:none"><div class="match-head"><div><b>'+esc(clubName(m.home_team_id))+' vs '+esc(clubName(m.away_team_id))+'</b><div class="muted">'+esc(competitions.find(c=>c.id===m.competition_id)?.name||"")+' · '+esc(m.match_date||"")+' · '+esc(m.venue||"")+'</div></div><div class="score">'+(m.home_score??0)+' - '+(m.away_score??0)+'</div></div><div class="top-actions"><span class="pill">'+esc(m.status||"Scheduled")+'</span><button class="primary" onclick="openReport(\''+esc(m.id)+'\')">📝 Ingiza / Hariri Ripoti</button></div><div id="report-'+esc(m.id)+'" class="hidden"></div></article>').join("");
+}
+async function getPlayers(clubId){
+ if(playersByClub[clubId])return playersByClub[clubId];
+ const r=await db.from("players").select("id,first_name,middle_name,last_name,jersey_number,club_id").eq("club_id",clubId).order("first_name");
+ if(r.error)throw r.error;playersByClub[clubId]=r.data||[];return playersByClub[clubId];
+}
+function playerLabel(p){return [p.first_name,p.middle_name,p.last_name].filter(Boolean).join(" ")+(p.jersey_number!=null?" · #"+p.jersey_number:"");}
+async function openReport(id){
+ const box=$("report-"+id);if(!box)return;box.classList.remove("hidden");box.innerHTML='<p class="muted">Inapakia fomu...</p>';
+ const m=(await db.from("matches").select("*").eq("id",id).single()).data;if(!m){box.textContent="Mechi haipatikani.";return;}
+ const [hp,ap,ev]=await Promise.all([getPlayers(m.home_team_id),getPlayers(m.away_team_id),db.from("match_events").select("player_id,club_id,event_type,minute").eq("match_id",id).in("event_type",["goal","own_goal","assist"])]);
+ const saved=ev.data||[];
+ box.innerHTML='<h3>Ripoti ya Mechi</h3><p class="muted">'+esc(clubName(m.home_team_id))+' dhidi ya '+esc(clubName(m.away_team_id))+'</p><div class="grid"><div><label>Magoli ya '+esc(clubName(m.home_team_id))+'</label><input type="number" min="0" id="hs-'+id+'" value="'+(m.home_score??0)+'"></div><div><label>Magoli ya '+esc(clubName(m.away_team_id))+'</label><input type="number" min="0" id="as-'+id+'" value="'+(m.away_score??0)+'"></div></div><h3>⚽ Wafungaji na Assist</h3><p class="hint">Kwa kila goli ongeza tukio la Goli. Kama kuna assist, ongeza tukio la Assist tofauti. Goli la kujifunga lichague O.G.</p><div id="events-'+id+'"></div><div class="top-actions"><button type="button" class="light" onclick="addEventRow(\''+id+'\')">＋ Ongeza tukio</button><button type="button" class="green" onclick="saveReport(\''+id+'\')">💾 Hifadhi Ripoti</button></div><p class="hint">Kumbuka: jumla ya matukio ya Goli na O.G. lazima ilingane na matokeo.</p>';
+ window["players_"+id]={home:hp,away:ap,homeId:m.home_team_id,awayId:m.away_team_id};
+ if(saved.length){for(const e of saved)addEventRow(id,e);}else addEventRow(id);
+}
+window.addEventRow=function(id,saved=null){
+ const mPlayers=window["players_"+id];if(!mPlayers)return;
+ const holder=$("events-"+id),n=holder.children.length,uid=id+"-"+Date.now()+"-"+Math.random().toString(16).slice(2);
+ const row=document.createElement("div");row.className="event-row";row.dataset.event="1";
+ row.innerHTML='<div class="grid"><div><label>Timu</label><select class="ev-club"><option value="'+mPlayers.homeId+'">'+esc(clubName(mPlayers.homeId))+'</option><option value="'+mPlayers.awayId+'">'+esc(clubName(mPlayers.awayId))+'</option></select></div><div><label>Aina ya tukio</label><select class="ev-type"><option value="goal">Goli</option><option value="own_goal">O.G. (Goli la kujifunga)</option><option value="assist">Assist</option></select></div><div><label>Mchezaji</label><select class="ev-player"><option value="">Chagua mchezaji</option></select></div><div><label>Dakika</label><input class="ev-minute" type="number" min="1" max="130" placeholder="Mfano 35"></div></div><button type="button" class="danger" style="margin-top:9px" onclick="this.closest(\'.event-row\').remove()">Ondoa tukio</button>';
+ holder.appendChild(row);
+ const clubSel=row.querySelector(".ev-club"),playerSel=row.querySelector(".ev-player");
+ function fillPlayers(){const list=clubSel.value===mPlayers.homeId?mPlayers.home:mPlayers.away;playerSel.innerHTML='<option value="">Chagua mchezaji</option>'+list.map(p=>'<option value="'+p.id+'">'+esc(playerLabel(p))+'</option>').join("");}
+ clubSel.addEventListener("change",fillPlayers);fillPlayers();
+ if(saved){clubSel.value=saved.club_id;fillPlayers();playerSel.value=saved.player_id;row.querySelector(".ev-type").value=saved.event_type;row.querySelector(".ev-minute").value=saved.minute??"";}
+};
+window.saveReport=async function(id){
+ const home=Number($("hs-"+id).value),away=Number($("as-"+id).value);
+ if(!Number.isInteger(home)||!Number.isInteger(away)||home<0||away<0){note("Weka matokeo sahihi.");return;}
+ const events=[...$("events-"+id).querySelectorAll(".event-row")].map(row=>({club_id:row.querySelector(".ev-club").value,player_id:row.querySelector(".ev-player").value,event_type:row.querySelector(".ev-type").value,minute:row.querySelector(".ev-minute").value||null}));
+ if(events.some(e=>!e.club_id||!e.player_id)){note("Kila tukio lazima liwe na timu na mchezaji.");return;}
+ const btn=$("report-"+id).querySelector(".green");btn.disabled=true;btn.textContent="Inahifadhi...";
+ const {data,error}=await db.rpc("afrn_commissioner_submit_report",{p_match_id:id,p_home_score:home,p_away_score:away,p_events:events});
+ btn.disabled=false;btn.textContent="💾 Hifadhi Ripoti";
+ if(error){note("Ripoti haijahifadhiwa: "+error.message);return;}
+ note("Ripoti imehifadhiwa. Matokeo: "+home+" - "+away+". Matukio: "+data.events_saved,true);
+ await loadCommissionerMatches();
+};
+async function logout(){await db.auth.signOut();location.reload();}
+$("signOut").onclick=logout;$("signOutDenied").onclick=logout;
+start().catch(e=>note(e.message||String(e)));
+</script></body></html>
