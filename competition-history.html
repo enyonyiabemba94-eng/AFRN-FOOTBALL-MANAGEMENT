@@ -844,18 +844,18 @@ function showReportDownloadLink(url,filename,kind,blob=null){
   // Android WebView haiwezi kufungua blob URL kwa target=_blank kila wakati.
   // Tumia daraja la asili la Android kuhifadhi PDF moja kwa moja kwenye kifaa.
   link.addEventListener("click",event=>{
-    if(window.AFRNAndroid&&typeof window.AFRNAndroid.saveBase64File==="function"&&blob){
+    if(window.AFRNAndroid&&typeof window.AFRNAndroid.previewBase64File==="function"&&blob){
       event.preventDefault();
       try{
         const reader=new FileReader();
-        reader.onerror=()=>alert("Imeshindwa kusoma PDF. Tafadhali jaribu tena.");
+        reader.onerror=()=>alert("Imeshindwa kuandaa PDF kwa ajili ya kuifungua.");
         reader.onload=()=>{
           try{
             const dataUrl=String(reader.result||"");
             const base64=dataUrl.includes(",")?dataUrl.split(",")[1]:"";
             if(!base64){alert("PDF haijajiandaa vizuri. Jaribu tena.");return;}
-            window.AFRNAndroid.saveBase64File(filename,blob.type||"application/pdf",base64);
-          }catch(err){console.error("AFRN open/save:",err);alert("Kuhifadhi PDF hakukufaulu. Tumia kitufe cha SHIRIKI/HIFADHI FAILI.");}
+            window.AFRNAndroid.previewBase64File(filename,base64);
+          }catch(err){console.error("AFRN PDF preview:",err);alert("PDF imeshindwa kufunguka. Tumia kitufe cha SHIRIKI/HIFADHI FAILI.");}
         };
         reader.readAsDataURL(blob);
       }catch(err){console.error("AFRN PDF reader:",err);alert("Imeshindwa kuandaa PDF kwa simu.");}
