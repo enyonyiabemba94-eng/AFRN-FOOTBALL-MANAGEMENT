@@ -406,26 +406,30 @@ async function downloadStandingsPDF(){
     // A4 portrait: all eight columns fit within the printable width.
     const doc=new jsPDF({orientation:"portrait",unit:"mm",format:"a4"});
     const safe=v=>String(v??"—").replace(/[–—•]/g,"-").replace(/[^\x20-\xFF]/g,"");
-    // Logo haipaswi kuzuia PDF: kila picha ina kikomo cha sekunde 2.
+    // Pakia nembo kwa muda wa kutosha; data ya canvas ni PNG hivyo jsPDF ipokee PNG.
     const loadImageData=async(url)=>{
       try{
         if(!url)return null;
-        const im=new Image();im.crossOrigin="anonymous";
-        const loaded=new Promise((resolve,reject)=>{
-          const timer=setTimeout(()=>reject(new Error("Logo timeout")),2000);
-          im.onload=()=>{clearTimeout(timer);resolve();};
-          im.onerror=()=>{clearTimeout(timer);reject(new Error("Logo haipatikani"));};
-          im.src=url;
-          if(im.complete){if(im.naturalWidth||im.width){clearTimeout(timer);resolve();}else{clearTimeout(timer);reject(new Error("Logo haipatikani"));}}
+        const absolute=new URL(String(url),window.location.href).href;
+        const sameOrigin=new URL(absolute).origin===window.location.origin;
+        const im=new Image();
+        if(!sameOrigin)im.crossOrigin="anonymous";
+        await new Promise((resolve,reject)=>{
+          let settled=false;
+          const finish=err=>{if(settled)return;settled=true;clearTimeout(timer);err?reject(err):resolve();};
+          const timer=setTimeout(()=>finish(new Error("Logo timeout")),12000);
+          im.onload=()=>finish();
+          im.onerror=()=>finish(new Error("Logo haipatikani au CORS imezuia"));
+          im.src=absolute;
+          if(im.complete){if(im.naturalWidth||im.width)finish();else finish(new Error("Logo haipatikani"));}
         });
-        await loaded;
         const cv=document.createElement("canvas");cv.width=im.naturalWidth||im.width;cv.height=im.naturalHeight||im.height;
-        cv.getContext("2d").drawImage(im,0,0);
+        const ctx=cv.getContext("2d");ctx.drawImage(im,0,0);
         return cv.toDataURL("image/png");
-      }catch(_){return null;}
+      }catch(err){console.warn("AFRN PDF logo:",url,err);return null;}
     };
-    const afrLogo=await loadImageData(new URL("./IMG-20260319-WA0093.jpg",window.location.href).href);
-    if(afrLogo){try{doc.addImage(afrLogo,"JPEG",8,5,16,16);doc.addImage(afrLogo,"JPEG",186,5,16,16);}catch(_){}}
+    const afrLogo=await loadImageData("./IMG-20260319-WA0093.jpg");
+    if(afrLogo){try{doc.addImage(afrLogo,"PNG",8,5,16,16);doc.addImage(afrLogo,"PNG",186,5,16,16);}catch(err){console.warn("AFRN emblem PDF:",err);}}
     doc.setTextColor(7,26,51);doc.setFont("helvetica","bold");doc.setFontSize(13);
     doc.text("SHIRIKISHO LA MPIRA WA MIGUU KAMBINI NYARUGUSU",105,10,{align:"center",maxWidth:158});
     doc.setFontSize(12);
