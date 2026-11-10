@@ -96,6 +96,40 @@ public class MainActivity extends Activity {
             webView.post(() -> saveBase64FileOnUi(filename, mimeType, base64Data));
         }
 
+        @JavascriptInterface
+        public void previewBase64File(String filename, String base64Data) {
+            webView.post(() -> previewBase64FileOnUi(filename, base64Data));
+        }
+
+        private void previewBase64FileOnUi(String filename, String base64Data) {
+            try {
+                Uri current = Uri.parse(webView.getUrl() == null ? "" : webView.getUrl());
+                if (!"enyonyiabemba94-eng.github.io".equals(current.getHost())) {
+                    showDownloadMessage("Kufungua PDF kumezuiwa kwa ukurasa usioaminika.");
+                    return;
+                }
+                String safeName = filename == null ? "AFRN-ripoti.pdf" : filename.replaceAll("[^A-Za-z0-9._-]", "_");
+                if (!safeName.toLowerCase().endsWith(".pdf")) safeName += ".pdf";
+                File folder = new File(getCacheDir(), "pdf-preview");
+                if (!folder.exists() && !folder.mkdirs()) throw new Exception("Imeshindwa kuandaa PDF");
+                File pdf = new File(folder, safeName);
+                byte[] bytes = Base64.decode(base64Data, Base64.DEFAULT);
+                try (FileOutputStream output = new FileOutputStream(pdf)) {
+                    output.write(bytes);
+                    output.flush();
+                }
+                Uri uri = androidx.core.content.FileProvider.getUriForFile(
+                    MainActivity.this, getPackageName() + ".fileprovider", pdf);
+                Intent view = new Intent(Intent.ACTION_VIEW);
+                view.setDataAndType(uri, "application/pdf");
+                view.addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION);
+                Intent chooser = Intent.createChooser(view, "Fungua PDF");
+                startActivity(chooser);
+            } catch (Exception e) {
+                showDownloadMessage("Imeshindwa kufungua PDF. Hakikisha una programu ya kusoma PDF.");
+            }
+        }
+
         private void saveBase64FileOnUi(String filename, String mimeType, String base64Data) {
             try {
                 Uri current = Uri.parse(webView.getUrl() == null ? "" : webView.getUrl());
