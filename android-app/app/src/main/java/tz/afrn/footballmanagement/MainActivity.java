@@ -114,19 +114,35 @@ public class MainActivity extends Activity {
                 if (!folder.exists() && !folder.mkdirs()) throw new Exception("Imeshindwa kuandaa PDF");
                 File pdf = new File(folder, safeName);
                 byte[] bytes = Base64.decode(base64Data, Base64.DEFAULT);
+                if (bytes.length < 5 || bytes[0] != '%' || bytes[1] != 'P' || bytes[2] != 'D' || bytes[3] != 'F') {
+                    throw new IllegalArgumentException("Faili lililotumwa si PDF kamili");
+                }
                 try (FileOutputStream output = new FileOutputStream(pdf)) {
                     output.write(bytes);
                     output.flush();
                 }
                 Uri uri = androidx.core.content.FileProvider.getUriForFile(
                     MainActivity.this, getPackageName() + ".fileprovider", pdf);
+
+                // Jaribu kwanza kufungua PDF kwenye kisomaji cha simu.
                 Intent view = new Intent(Intent.ACTION_VIEW);
                 view.setDataAndType(uri, "application/pdf");
                 view.addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION);
-                Intent chooser = Intent.createChooser(view, "Fungua PDF");
-                startActivity(chooser);
+                try {
+                    startActivity(Intent.createChooser(view, "Fungua PDF"));
+                } catch (android.content.ActivityNotFoundException noPdfViewer) {
+                    // Ikiwa hakuna PDF reader, toa njia ya kuituma/kuihifadhi kupitia programu nyingine.
+                    Intent share = new Intent(Intent.ACTION_SEND);
+                    share.setType("application/pdf");
+                    share.putExtra(Intent.EXTRA_STREAM, uri);
+                    share.addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION);
+                    startActivity(Intent.createChooser(share, "Hifadhi au fungua PDF"));
+                }
+            } catch (android.content.ActivityNotFoundException e) {
+                showDownloadMessage("Hakuna programu ya kufungua au kuhifadhi PDF iliyopatikana kwenye simu. Tumia kitufe cha HIFADHI FAILI.");
             } catch (Exception e) {
-                showDownloadMessage("Imeshindwa kufungua PDF. Hakikisha una programu ya kusoma PDF.");
+                android.util.Log.e("AFRN-PDF", "PDF preview failed", e);
+                showDownloadMessage("PDF haikufunguka: " + (e.getMessage() == null ? "hitilafu ya simu" : e.getMessage()));
             }
         }
 
