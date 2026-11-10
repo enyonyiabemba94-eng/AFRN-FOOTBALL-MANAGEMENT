@@ -426,10 +426,10 @@ async function downloadStandingsPDF(){
     };
     const afrLogo=await loadImageData(new URL("./IMG-20260319-WA0093.jpg",window.location.href).href);
     if(afrLogo){try{doc.addImage(afrLogo,"JPEG",8,5,16,16);doc.addImage(afrLogo,"JPEG",186,5,16,16);}catch(_){}}
-    doc.setTextColor(7,26,51);doc.setFont("helvetica","bold");doc.setFontSize(15);
-    doc.text("AFRN FOOTBALL MANAGEMENT",105,10,{align:"center"});
+    doc.setTextColor(7,26,51);doc.setFont("helvetica","bold");doc.setFontSize(13);
+    doc.text("SHIRIKISHO LA MPIRA WA MIGUU KAMBINI NYARUGUSU",105,10,{align:"center",maxWidth:158});
     doc.setFontSize(12);
-    doc.text(safe("MSIMAMO WA "+String(C?.name||"MASHINDANO").toUpperCase()+" "+String(C?.season||"")),105,18,{align:"center",maxWidth:155});
+    doc.text(safe("MSIMAMO WA "+String(C?.name||"MASHINDANO").toUpperCase()),105,18,{align:"center",maxWidth:158});
     doc.setFont("helvetica","normal");doc.setFontSize(9);
     doc.text("TAREHE: "+standingsReportDate(),105,25,{align:"center"});
     const data=standingsReportRows();
@@ -470,7 +470,7 @@ async function downloadStandingsPDF(){
     draw(headers,top,true);
     data.forEach((r,i)=>draw([r["#"],r["KLABU"],r["MP"],r["W"],r["D"],r["L"],r["GD"],r["PTS"]],top+(i+1)*rowH,false,i));
     doc.setFont("helvetica","normal");doc.setFontSize(7);doc.setTextColor(100,100,100);
-    doc.text("AFRN FOOTBALL MANAGEMENT | MSIMAMO RASMI | Ukurasa 1/1",105,286,{align:"center"});
+    doc.text("MSIMAMO RASMI | Ukurasa 1/1",105,286,{align:"center"});
     const slug=String(C?.name||"mashindano").toLowerCase().replace(/[^a-z0-9]+/g,"-").replace(/^-|-$/g,"")||"mashindano";
     const filename="AFRN-Msimamo-"+slug+".pdf";
     const pdfBlob=doc.output("blob"),url=URL.createObjectURL(pdfBlob);
