@@ -1,6 +1,6 @@
 /* AFRN Competition/League standings engine — one rule everywhere */
 (function(){
-  const norm=v=>String(v??'').trim().toLowerCase().replace(/\\s+/g,'_');
+  const norm=v=>String(v??'').trim().toLowerCase().replace(/\s+/g,'_').replace(/-+/g,'_');
   function playedStatus(s){ return ['completed','finished','played','full_time','ft'].includes(norm(s)); }
   function buildStandings({teams=[],matches=[],events=[],clubName=()=>'',groupFilter=null}={}){
     const rows=teams.filter(t=>!groupFilter||String(t.group_name||'')===String(groupFilter)).map(t=>({
