@@ -836,7 +836,31 @@ function showReportDownloadLink(url,filename,kind,blob=null){
   const link=document.createElement("a");link.href=url;link.target="_blank";link.rel="noopener";
   if(kind==="PDF"){link.textContent="📄 FUNGUA PDF KISHA HIFADHI KWENYE SIMU";link.removeAttribute("download");}
   else{link.textContent="📄 FUNGUA RIPOTI YA WORD";link.removeAttribute("download");}
-  link.style.cssText="display:inline-block;padding:12px;background:#16834b;color:white;font-weight:bold;border-radius:8px;text-decoration:none;overflow-wrap:anywhere";box.appendChild(link);
+  link.style.cssText="display:inline-block;padding:12px;background:#16834b;color:white;font-weight:bold;border-radius:8px;text-decoration:none;overflow-wrap:anywhere";
+  // Android WebView haiwezi kufungua blob URL kwa target=_blank kila wakati.
+  // Tumia daraja la asili la Android kuhifadhi PDF moja kwa moja kwenye kifaa.
+  link.addEventListener("click",event=>{
+    if(window.AFRNAndroid&&typeof window.AFRNAndroid.saveBase64File==="function"&&blob){
+      event.preventDefault();
+      try{
+        const reader=new FileReader();
+        reader.onerror=()=>alert("Imeshindwa kusoma PDF. Tafadhali jaribu tena.");
+        reader.onload=()=>{
+          try{
+            const dataUrl=String(reader.result||"");
+            const base64=dataUrl.includes(",")?dataUrl.split(",")[1]:"";
+            if(!base64){alert("PDF haijajiandaa vizuri. Jaribu tena.");return;}
+            window.AFRNAndroid.saveBase64File(filename,blob.type||"application/pdf",base64);
+          }catch(err){console.error("AFRN open/save:",err);alert("Kuhifadhi PDF hakukufaulu. Tumia kitufe cha SHIRIKI/HIFADHI FAILI.");}
+        };
+        reader.readAsDataURL(blob);
+      }catch(err){console.error("AFRN PDF reader:",err);alert("Imeshindwa kuandaa PDF kwa simu.");}
+    }else{
+      // Kwenye kivinjari cha kawaida, fungua faili kwenye kichupo kipya.
+      link.href=url;link.target="_blank";
+    }
+  });
+  box.appendChild(link);
   const filenameText=document.createElement("div");filenameText.textContent=filename;filenameText.style.cssText="font-size:12px;margin-top:8px;overflow-wrap:anywhere";box.appendChild(filenameText);
 }
 
