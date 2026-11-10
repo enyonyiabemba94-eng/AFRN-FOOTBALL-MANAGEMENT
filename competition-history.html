@@ -408,25 +408,39 @@ async function downloadStandingsPDF(){
     const safe=v=>String(v??"—").replace(/[–—•]/g,"-").replace(/[^\x20-\xFF]/g,"");
     // Pakia nembo kwa muda wa kutosha; data ya canvas ni PNG hivyo jsPDF ipokee PNG.
     const loadImageData=async(url)=>{
+      if(!url)return null;
+      // Picha za Supabase zinaweza kuchelewa kwenye WebView; jaribu URL kamili na retry moja.
+      let absolute;
       try{
-        if(!url)return null;
-        const absolute=new URL(String(url),window.location.href).href;
-        const sameOrigin=new URL(absolute).origin===window.location.origin;
-        const im=new Image();
-        if(!sameOrigin)im.crossOrigin="anonymous";
-        await new Promise((resolve,reject)=>{
-          let settled=false;
-          const finish=err=>{if(settled)return;settled=true;clearTimeout(timer);err?reject(err):resolve();};
-          const timer=setTimeout(()=>finish(new Error("Logo timeout")),12000);
-          im.onload=()=>finish();
-          im.onerror=()=>finish(new Error("Logo haipatikani au CORS imezuia"));
-          im.src=absolute;
-          if(im.complete){if(im.naturalWidth||im.width)finish();else finish(new Error("Logo haipatikani"));}
-        });
-        const cv=document.createElement("canvas");cv.width=im.naturalWidth||im.width;cv.height=im.naturalHeight||im.height;
-        const ctx=cv.getContext("2d");ctx.drawImage(im,0,0);
-        return cv.toDataURL("image/png");
-      }catch(err){console.warn("AFRN PDF logo:",url,err);return null;}
+        absolute=new URL(String(url).trim(),window.location.href).href;
+        if(absolute.startsWith("http://"))absolute="https://"+absolute.slice(7);
+      }catch(err){console.warn("AFRN PDF logo URL si sahihi:",url,err);return null;}
+      for(let attempt=0;attempt<2;attempt++){
+        try{
+          const im=new Image();
+          im.decoding="async";
+          im.referrerPolicy="no-referrer";
+          if(new URL(absolute).origin!==window.location.origin)im.crossOrigin="anonymous";
+          await new Promise((resolve,reject)=>{
+            let settled=false;
+            const finish=err=>{if(settled)return;settled=true;clearTimeout(timer);err?reject(err):resolve();};
+            const timer=setTimeout(()=>finish(new Error("Logo timeout")),15000);
+            im.onload=()=>finish();
+            im.onerror=()=>finish(new Error("Logo haipatikani au seva imezuia CORS"));
+            im.src=attempt===0?absolute:absolute+(absolute.includes("?")?"&":"?")+"afrn_logo_retry=1";
+            if(im.complete){if(im.naturalWidth>0)finish();else finish(new Error("Logo haipatikani"));}
+          });
+          const cv=document.createElement("canvas");
+          cv.width=im.naturalWidth||im.width;cv.height=im.naturalHeight||im.height;
+          const ctx=cv.getContext("2d");
+          if(!ctx)throw new Error("Canvas haipatikani");
+          ctx.drawImage(im,0,0);
+          return cv.toDataURL("image/png");
+        }catch(err){
+          console.warn("AFRN PDF logo (jaribio "+(attempt+1)+"):",absolute,err);
+        }
+      }
+      return null;
     };
     const afrLogo=await loadImageData("./IMG-20260319-WA0093.jpg");
     if(afrLogo){try{doc.addImage(afrLogo,"PNG",8,5,16,16);doc.addImage(afrLogo,"PNG",186,5,16,16);}catch(err){console.warn("AFRN emblem PDF:",err);}}
