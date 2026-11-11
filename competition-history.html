@@ -434,8 +434,8 @@ async function downloadStandingsPDF(){
       }
       return null;
     };
-    const afrLogo=await loadImageData("./IMG-20260319-WA0093.jpg");
-    if(afrLogo){try{doc.addImage(afrLogo,"PNG",8,5,16,16);doc.addImage(afrLogo,"PNG",186,5,16,16);}catch(err){console.warn("AFRN emblem PDF:",err);}}
+    const afrLogo=await loadImageData("https://enyonyiabemba94-eng.github.io/AFRN-FOOTBALL-MANAGEMENT/IMG-20260319-WA0093.jpg");
+    if(afrLogo){try{doc.addImage(afrLogo,"PNG",8,5,16,16);doc.addImage(afrLogo,"PNG",186,5,16,16);}catch(err){console.warn("AFRN emblem PDF:",err);}}else{console.warn("Nembo ya AFRN haikuweza kupachikwa kwenye PDF.");}
     doc.setTextColor(7,26,51);doc.setFont("helvetica","bold");doc.setFontSize(13);
     doc.text("SHIRIKISHO LA MPIRA WA MIGUU KAMBINI NYARUGUSU",105,10,{align:"center",maxWidth:158});
     doc.setFontSize(12);
@@ -487,6 +487,7 @@ async function downloadStandingsPDF(){
     const filename="AFRN-Msimamo-"+slug+".pdf";
     const pdfBlob=doc.output("blob"),url=URL.createObjectURL(pdfBlob);
     showReportDownloadLink(url,filename,"PDF",pdfBlob);
+    if(missingClubLogos){const warning=document.createElement("p");warning.textContent="TAHADHARI: Nembo za vilabu "+missingClubLogos+" hazikuweza kuingizwa. Hakiki kuwa kila klabu ina logo_url inayofunguka na kuruhusu picha kutumika kwenye PDF.";warning.style.cssText="margin:8px 0;color:#9a3412;font-weight:700";document.getElementById("report-download-fallback")?.appendChild(warning);}
     // Usihifadhi moja kwa moja hapa: mtumiaji afungue PDF kwanza kupitia kiungo,
     // kisha aamue mwenyewe kama ataihifadhi au kuishiriki.
     setTimeout(()=>{try{URL.revokeObjectURL(url)}catch(_){}},10*60*1000);
