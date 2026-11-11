@@ -2,96 +2,49 @@
 'use strict';
 if(window.__AFRN_REPORT_PDF__)return;
 window.__AFRN_REPORT_PDF__=true;
-
-const loadScript=src=>new Promise((resolve,reject)=>{
- const s=document.createElement('script');
- s.src=src;s.async=true;
- s.onload=resolve;s.onerror=()=>reject(new Error('Failed to load '+src));
- document.head.appendChild(s);
-});
-const loadAny=async urls=>{
- for(const u of urls){try{await loadScript(u);return}catch(e){console.warn(e)}}
- throw new Error('PDF libraries could not be loaded');
-};
-const safeName=v=>String(v||'AFRN-Official-Report').replace(/[^a-z0-9_-]+/gi,'-').replace(/-+/g,'-').replace(/^-|-$/g,'');
 const getRoot=()=>document.querySelector('#reportContainer .report')||document.querySelector('#competitionReport .report')||document.querySelector('.report');
-const documentNo=()=>{
- const heading=document.querySelector('#reportContainer .report h2,#competitionReport .report h2');
- const name=heading?.textContent||document.querySelector('#reportContainer .report .team-report-name')?.textContent||'AFRN-Official-Report';
- return safeName('AFRN-'+name+'-'+new Date().getFullYear());
+const safeName=v=>String(v||'AFRN-Official-Report').replace(/[^a-z0-9_-]+/gi,'-').replace(/-+/g,'-').replace(/^-|-$/g,'');
+const documentName=()=>{
+ const team=document.querySelector('#reportContainer .team-report-name')?.textContent;
+ const heading=document.querySelector('#reportContainer .report h2,#competitionReport .report h2')?.textContent;
+ return safeName('AFRN-'+(team||heading||'Official-Report')+'-'+new Date().getFullYear());
 };
-const waitForImages=async root=>{
- const imgs=[...root.querySelectorAll('img')];
- await Promise.all(imgs.map(img=>new Promise(resolve=>{
-  if(img.complete)return resolve();
-  img.addEventListener('load',resolve,{once:true});
-  img.addEventListener('error',resolve,{once:true});
-  setTimeout(resolve,4000);
- })));
-};
-
 async function exportPDF(){
  const root=getRoot();
  if(!root){alert('⚠️ Fungua ripoti kwanza.');return}
- // Open a tab immediately during the user's tap so Android/Chrome does not block the PDF preview.
  let preview=null;
- try{preview=window.open('about:blank','_blank');if(preview)preview.document.write('<title>AFRN PDF</title><p style="font-family:Arial;padding:24px">Inaandaa PDF ya AFRN, tafadhali subiri...</p>')}catch(e){preview=null}
- const btn=document.activeElement;
- const oldText=btn?.textContent;
- if(btn){btn.disabled=true;btn.textContent='⏳ Inaandaa PDF...'}
- let clone=null;
  try{
-  if(!window.html2canvas)await loadAny([
-   'https://cdn.jsdelivr.net/npm/html2canvas@1.4.1/dist/html2canvas.min.js',
-   'https://unpkg.com/html2canvas@1.4.1/dist/html2canvas.min.js'
-  ]);
-  if(!window.jspdf)await loadAny([
-   'https://cdn.jsdelivr.net/npm/jspdf@2.5.1/dist/jspdf.umd.min.js',
-   'https://unpkg.com/jspdf@2.5.1/dist/jspdf.umd.min.js'
-  ]);
-  clone=root.cloneNode(true);
+  // Open synchronously from the user's tap; no external PDF libraries or network downloads are needed.
+  preview=window.open('about:blank','_blank');
+  if(!preview){alert('Kivinjari kimezuia dirisha jipya. Ruhusu pop-ups kwa tovuti ya AFRN kisha ujaribu tena.');return}
+  const btn=document.activeElement,oldText=btn?.textContent;
+  if(btn){btn.disabled=true;btn.textContent='⏳ Inaandaa PDF...'}
+  const clone=root.cloneNode(true);
   clone.querySelectorAll('.toolbar,.actions,button').forEach(x=>x.remove());
-  Object.assign(clone.style,{background:'#fff',padding:'24px',display:'block',position:'absolute',left:'-100000px',top:'0',width:'900px',maxWidth:'900px',boxShadow:'none'});
-  document.body.appendChild(clone);
-  await waitForImages(clone);
-  const canvas=await window.html2canvas(clone,{scale:2,useCORS:true,allowTaint:false,backgroundColor:'#fff',logging:false,imageTimeout:10000});
-  const jsPDF=window.jspdf?.jsPDF;
-  if(!jsPDF)throw new Error('Maktaba ya jsPDF haijapatikana');
-  const pdf=new jsPDF({orientation:'portrait',unit:'mm',format:'a4',compress:true});
-  const margin=10,usableW=190,pxPerMm=canvas.width/usableW,pagePx=Math.floor(277*pxPerMm);
-  let y=0,page=0;
-  while(y<canvas.height){
-   if(page>0)pdf.addPage();
-   const h=Math.min(pagePx,canvas.height-y),slice=document.createElement('canvas');
-   slice.width=canvas.width;slice.height=h;
-   const ctx=slice.getContext('2d');
-   ctx.fillStyle='#fff';ctx.fillRect(0,0,slice.width,slice.height);
-   ctx.drawImage(canvas,0,y,canvas.width,h,0,0,canvas.width,h);
-   pdf.addImage(slice.toDataURL('image/jpeg',0.94),'JPEG',margin,margin,usableW,h/pxPerMm);
-   y+=h;page++;
-  }
-  const total=pdf.getNumberOfPages();
-  for(let p=1;p<=total;p++){
-   pdf.setPage(p);pdf.setFontSize(7);pdf.setTextColor(100);
-   pdf.text('AFRN FOOTBALL MANAGEMENT — Official Document • Page '+p+'/'+total,105,291,{align:'center'});
-  }
-  const blob=pdf.output('blob');
-  const url=URL.createObjectURL(blob);
-  if(preview&&!preview.closed){
-   preview.location.href=url;
-   // The PDF viewer provides the user's own Save/Download control.
-  }else{
-   const a=document.createElement('a');a.href=url;a.download=documentNo()+'.pdf';
-   document.body.appendChild(a);a.click();a.remove();
-   alert('PDF imetengenezwa. Kichupo cha kuonyesha PDF kimezuiwa na kivinjari, hivyo faili limepelekwa kwenye vipakuliwa.');
-  }
- }catch(e){
-  console.error('AFRN PDF error',e);
-  try{if(preview&&!preview.closed)preview.close()}catch(_){}
-  alert('PDF haikuweza kutengenezwa: '+(e?.message||e)+'. Angalia intaneti kisha jaribu tena.');
- }finally{
-  if(clone)clone.remove();
+  clone.querySelectorAll('img').forEach(img=>{
+   const src=img.getAttribute('src');
+   if(src){try{img.src=new URL(src,document.baseURI).href}catch(e){}}
+  });
+  const styles=[...document.querySelectorAll('style')].map(s=>s.innerHTML).join('\n');
+  const title=documentName();
+  preview.document.open();
+  preview.document.write('<!doctype html><html lang="sw"><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>'+title+'</title><style>'+styles+'\n'+
+   'body{background:#fff!important;margin:0;padding:12px!important}.report{display:block!important;max-width:100%!important;width:100%!important;margin:0 auto!important;box-shadow:none!important;padding:14px!important}.hidden{display:none!important}header,nav,.status,.toolbar,.tabs,.cards,.actions{display:none!important}@page{size:A4;margin:12mm}@media print{body{padding:0!important}.report{padding:0!important}.team-match,.kpi,.signature{break-inside:avoid;page-break-inside:avoid}img{max-width:100%;-webkit-print-color-adjust:exact;print-color-adjust:exact}*{-webkit-print-color-adjust:exact;print-color-adjust:exact}}'+
+   '</style></head><body>'+clone.outerHTML+'</body></html>');
+  preview.document.close();
+  const images=[...preview.document.images];
+  await Promise.race([
+   Promise.all(images.map(img=>img.complete?Promise.resolve():new Promise(resolve=>{img.onload=resolve;img.onerror=resolve}))),
+   new Promise(resolve=>setTimeout(resolve,5000))
+  ]);
   if(btn){btn.disabled=false;btn.textContent=oldText||'📥 PDF Halisi'}
+  preview.focus();
+  setTimeout(()=>{try{preview.print()}catch(e){console.warn('Print preview',e)}},500);
+ }catch(e){
+  console.error('AFRN PDF preview error',e);
+  try{if(preview&&!preview.closed)preview.close()}catch(_){}
+  alert('Imeshindwa kufungua PDF/Print Preview: '+(e?.message||e));
+  const btn=document.activeElement;if(btn)btn.disabled=false;
  }
 }
 window.exportAFRNReportPDF=exportPDF;
