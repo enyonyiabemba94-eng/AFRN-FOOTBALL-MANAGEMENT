@@ -271,21 +271,10 @@ function standings(){
     $("content").innerHTML = '<div class="empty">Engine ya msimamo haijapakia.</div>';
     return;
   }
-  const rows = window.AFRNStandings.buildStandings({teams,matches,events,clubName:name})
-    .map(r => {
-      const clubId = r.club_id;
-      const teamEvents = events.filter(e => String(e.club_id||"") === String(clubId||""));
-      const reds = teamEvents.filter(e => /red|nyekundu/i.test(String(e.event_type||""))).length;
-      const yellows = teamEvents.filter(e => /yellow|njano/i.test(String(e.event_type||""))).length;
-      return {...r, club_id: clubId, _reds: reds, _yellows: yellows};
-    })
-    .slice().sort((a,b) =>
-      (Number(b.PTS)||0)-(Number(a.PTS)||0) ||
-      (Number(b.GF)||0)-(Number(a.GF)||0) ||
-      (Number(a.GA)||0)-(Number(b.GA)||0) ||
-      (Number(a._reds)||0)-(Number(b._reds)||0) ||
-      (Number(a._yellows)||0)-(Number(b._yellows)||0)
-    );
+  // Engine ndiyo chanzo kimoja cha hesabu na mpangilio rasmi.
+  // Usipange tena hapa: sort ya pili iliondoa kigezo cha coin-toss
+  // na ilihesabu kadi za mechi ambazo hazijakamilika.
+  const rows = window.AFRNStandings.buildStandings({teams,matches,events,clubName:name});
   window.afrnCurrentStandingsRows = rows;
   const today = new Date();
   const todayStr = today.getFullYear()+"-"+String(today.getMonth()+1).padStart(2,"0")+"-"+String(today.getDate()).padStart(2,"0");
