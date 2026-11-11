@@ -413,6 +413,21 @@ async function downloadStandingsPDF(){
         if(absolute.startsWith("http://"))absolute="https://"+absolute.slice(7);
       }catch(err){console.warn("AFRN PDF logo URL si sahihi:",url,err);return null;}
 
+      // Jaribu HTTP fetch ya public URL moja kwa moja kabla ya SDK; tumia URL ya logo_url bila kuibadilisha.
+      try{
+        const response=await Promise.race([
+          fetch(absolute,{method:"GET",mode:"cors",credentials:"omit",cache:"no-store"}),
+          new Promise((_,reject)=>setTimeout(()=>reject(new Error("HTTP fetch ya nembo imechukua muda mrefu")),12000))
+        ]);
+        if(response.ok){
+          const blob=await response.blob();
+          if(blob.size>0 && /^image\//i.test(blob.type||"")){
+            const dataUrl=await blobToDataURL(blob);
+            if(dataUrl)return dataUrl;
+          }else console.warn("AFRN logo response si picha:",response.status,blob.type,absolute);
+        }else console.warn("AFRN logo HTTP status:",response.status,response.statusText,absolute);
+      }catch(err){console.warn("AFRN public logo fetch/CORS:",absolute,err);}
+
       // URL za public Supabase Storage zinapakuliwa kwa SDK kwa kutumia bucket/path halisi.
       try{
         const u=new URL(absolute);
@@ -521,7 +536,13 @@ async function downloadStandingsPDF(){
     const filename="AFRN-Msimamo-"+slug+".pdf";
     const pdfBlob=doc.output("blob"),url=URL.createObjectURL(pdfBlob);
     showReportDownloadLink(url,filename,"PDF",pdfBlob);
-    if(missingClubLogos){const warning=document.createElement("p");warning.textContent="TAHADHARI: Nembo za vilabu "+missingClubLogos+" hazikuweza kuingizwa. Hakiki kuwa kila klabu ina logo_url inayofunguka na kuruhusu picha kutumika kwenye PDF.";warning.style.cssText="margin:8px 0;color:#9a3412;font-weight:700";document.getElementById("report-download-fallback")?.appendChild(warning);}
+    if(missingClubLogos){
+      const warning=document.createElement("p");
+      const reasons=missingLogoDetails.slice(0,4).map(x=>(x.name||x.club_id||"Klabu")+": "+(x.reason||"haijapakiwa")).join(" | ");
+      warning.textContent="TAHADHARI: Nembo "+missingClubLogos+" kati ya "+standingsRows.length+" hazikuweza kuingizwa. Sababu za mwanzo: "+reasons+". Angalia Console kwa maelezo ya kila nembo.";
+      warning.style.cssText="margin:8px 0;color:#9a3412;font-weight:700";
+      document.getElementById("report-download-fallback")?.appendChild(warning);
+    }
     // Usihifadhi moja kwa moja hapa: mtumiaji afungue PDF kwanza kupitia kiungo,
     // kisha aamue mwenyewe kama ataihifadhi au kuishiriki.
     setTimeout(()=>{try{URL.revokeObjectURL(url)}catch(_){}},10*60*1000);
