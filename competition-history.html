@@ -1091,12 +1091,48 @@ window.__AFRN_COMPETITION_HISTORY__ = true;
     html+='<div style="margin-top:10px"><b>✅ Timu zilizopo: '+teams.length+'</b></div>';
     if(!teams.length) html+='<div class="empty" style="margin-top:8px">Hakuna timu bado. Ongeza timu hapo juu.</div>';
     else html+='<div style="display:grid;gap:8px;margin-top:8px">'+teams.map(t=>{const c=clubRows.find(x=>String(x.id)===String(t.club_id));return '<div style="display:flex;align-items:center;gap:9px;padding:10px;border:1px solid #e1e6ee;border-radius:10px"><div style="flex:1"><b>'+esc2(c?.name||name(t.club_id))+'</b><div class="muted">'+esc2(c?.afrn_club_id||'—')+' · '+divName(c?.division||division)+(t.group_name?' · Group '+esc2(t.group_name):'')+'</div></div>'+(admin?'<button class="secondary small-btn" onclick="window.afrnRemoveCompetitionTeam(\''+esc2(t.id)+'\')">🗑 Ondoa</button>':'')+'</div>'}).join('')+'</div>';
+    if(admin && teams.length){
+      html+='<div style="margin-top:14px;padding:12px;background:#fffaf0;border:1px solid #f0d58a;border-radius:10px">';
+      html+='<b>🪙 Matokeo ya Sarafu — kigezo cha mwisho</b>';
+      html+='<div class="muted" style="margin:6px 0 10px">Jaza nafasi baada ya kurusha sarafu pale tu timu zinapolingana kwa pointi, GF, GA, kadi nyekundu na njano. Namba ndogo ndiyo nafasi ya juu. Timu zote zilizofungana kwenye kundi hilo lazima zipangiwe namba.</div>';
+      html+='<div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(210px,1fr));gap:8px">';
+      html+=teams.map(t=>'<label style="display:flex;align-items:center;justify-content:space-between;gap:8px;padding:8px;background:#fff;border:1px solid #e1e6ee;border-radius:8px"><span style="font-weight:700">'+esc2(name(t.club_id))+(t.group_name?' · '+esc2(t.group_name):'')+'</span><input id="afrnCoinToss_'+esc2(t.id)+'" type="number" min="1" step="1" value="'+(t.coin_toss_rank==null?'':esc2(t.coin_toss_rank))+'" placeholder="—" style="width:62px;padding:7px;border:1px solid #ccd5e2;border-radius:7px"></label>').join('');
+      html+='</div><button class="primary small-btn" style="margin-top:10px" onclick="window.afrnSaveCoinTossRanks()">💾 Hifadhi nafasi za sarafu</button></div>';
+    }
     if(!String(C.competition_type||C.format||'').toLowerCase().includes('league') && admin && teams.length){
       html+='<div style="margin-top:14px;padding:10px;background:#fffaf0;border:1px solid #f0d58a;border-radius:10px"><b>📌 Makundi</b><div class="muted">Baada ya kuongeza timu, tumia sehemu ya Makundi kwenye Mashindano kuzipanga A–H.</div></div>';
     }
     $("content").innerHTML=html;
     const ds=$("afrnCompetitionDivision"); if(ds){ds.value=division; $("saveCompetitionDivision").onclick=async()=>{const v=ds.value;if(!v){alert("⚠️ Chagua daraja.");return;}const r=await db.from("competitions").update({division:v}).eq("id",id);if(r.error){alert("❌ "+r.error.message);return;}C.division=v;alert("✅ Daraja limehifadhiwa: "+divName(v));manager();};}
   }
+  window.afrnSaveCoinTossRanks=async function(){
+    try{
+      if(!(await adminCheck()))throw new Error("Ni Admin pekee anayeruhusiwa kuhifadhi matokeo ya sarafu.");
+      const ranks=teams.map(t=>{
+        const input=document.getElementById("afrnCoinToss_"+t.id);
+        const raw=String(input?.value||"").trim();
+        if(!raw)return {id:t.id,group:String(t.group_name||""),rank:null};
+        const rank=Number(raw);
+        if(!Number.isInteger(rank)||rank<1)throw new Error("Nafasi ya sarafu lazima iwe namba kamili kuanzia 1.");
+        return {id:t.id,group:String(t.group_name||""),rank};
+      });
+      const seen=new Set();
+      for(const item of ranks){
+        if(item.rank==null)continue;
+        const key=item.group+"|"+item.rank;
+        if(seen.has(key))throw new Error("Namba za nafasi za sarafu zisijirudie ndani ya kundi moja.");
+        seen.add(key);
+      }
+      const results=await Promise.all(ranks.map(x=>db.from("competition_teams").update({coin_toss_rank:x.rank}).eq("id",x.id).eq("competition_id",id)));
+      const failed=results.find(x=>x.error);
+      if(failed)throw failed.error;
+      const tr=await db.from("competition_teams").select("*").eq("competition_id",id);
+      if(tr.error)throw tr.error;
+      teams=tr.data||[];
+      alert("✅ Matokeo ya sarafu yamehifadhiwa. Nafasi ndogo ndiyo inayotangulia kwenye sare ya mwisho.");
+      manager();
+    }catch(e){console.error(e);alert("❌ "+(e.message||e));}
+  };
   window.afrnAddCompetitionTeam=async function(clubId){
     const d=String(C.division||''); if(!d){alert("⚠️ Kwanza weka Daraja la mashindano.");return;}
     const c=await db.from('clubs').select('id,division').eq('id',clubId).maybeSingle();
@@ -1105,7 +1141,7 @@ window.__AFRN_COMPETITION_HISTORY__ = true;
     if(normalized!==d){alert("❌ Timu hii si ya "+divName(d)+".");return;}
     const x=await db.from('competition_teams').insert({competition_id:id,club_id:clubId,group_name:null});
     if(x.error){alert("❌ Imeshindikana kuongeza timu: "+x.error.message);return;}
-    const tr=await db.from('competition_teams').select('id,competition_id,club_id,group_name').eq('competition_id',id); teams=tr.data||[];
+    const tr=await db.from('competition_teams').select('*').eq('competition_id',id); teams=tr.data||[];
     manager();
   };
   window.afrnRemoveCompetitionTeam=async function(rowId){
