@@ -396,7 +396,13 @@ async function downloadStandingsPDF(){
     // A4 portrait: PDF shows GD as GF-GA (e.g. 8-2); GD is display-only, never a ranking criterion.
     const doc=new jsPDF({orientation:"portrait",unit:"mm",format:"a4"});
     const safe=v=>String(v??"—").replace(/[–—•]/g,"-").replace(/[^\x20-\xFF]/g,"");
-    // Pakia nembo kwa muda wa kutosha; data ya canvas ni PNG hivyo jsPDF ipokee PNG.
+    // Pakia nembo kutoka Supabase Storage SDK kwanza; kisha tumia Image/CORS kama njia mbadala.
+    const blobToDataURL=blob=>new Promise((resolve,reject)=>{
+      const reader=new FileReader();
+      reader.onload=()=>resolve(typeof reader.result==="string"?reader.result:null);
+      reader.onerror=()=>reject(new Error("Imeshindikana kusoma picha ya nembo"));
+      reader.readAsDataURL(blob);
+    });
     const loadImageData=async(url)=>{
       if(!url)return null;
       let absolute;
@@ -406,6 +412,31 @@ async function downloadStandingsPDF(){
         absolute=new URL(raw,window.location.href).href;
         if(absolute.startsWith("http://"))absolute="https://"+absolute.slice(7);
       }catch(err){console.warn("AFRN PDF logo URL si sahihi:",url,err);return null;}
+
+      // URL za public Supabase Storage zinapakuliwa kwa SDK kwa kutumia bucket/path halisi.
+      try{
+        const u=new URL(absolute);
+        const marker="/storage/v1/object/public/";
+        const at=u.pathname.indexOf(marker);
+        if(at>=0 && db?.storage?.from){
+          const objectParts=u.pathname.slice(at+marker.length).split("/");
+          const bucket=decodeURIComponent(objectParts.shift()||"");
+          const objectPath=objectParts.map(x=>decodeURIComponent(x)).join("/");
+          if(bucket&&objectPath){
+            const result=await Promise.race([
+              db.storage.from(bucket).download(objectPath),
+              new Promise((_,reject)=>setTimeout(()=>reject(new Error("Muda wa kupakua nembo kutoka Supabase umeisha")),12000))
+            ]);
+            if(!result.error&&result.data&&result.data.size>0){
+              const dataUrl=await blobToDataURL(result.data);
+              if(dataUrl)return dataUrl;
+            }
+            if(result.error)console.warn("AFRN Supabase logo download:",bucket,objectPath,result.error.message);
+          }
+        }
+      }catch(err){console.warn("AFRN Supabase logo SDK fallback:",absolute,err);}
+
+      // Njia mbadala kwa picha za nje au pale SDK inaposhindwa.
       for(let attempt=0;attempt<2;attempt++){
         try{
           const im=new Image();
@@ -415,10 +446,10 @@ async function downloadStandingsPDF(){
           await new Promise((resolve,reject)=>{
             let settled=false;
             const finish=err=>{if(settled)return;settled=true;clearTimeout(timer);err?reject(err):resolve();};
-            const timer=setTimeout(()=>finish(new Error("Logo imechelewa kupakia")),8000);
+            const timer=setTimeout(()=>finish(new Error("Logo imechelewa kupakia")),10000);
             im.onload=()=>finish();
             im.onerror=()=>finish(new Error("Logo haipatikani au seva haijaruhusu CORS"));
-            const source=attempt===0?absolute:absolute+(absolute.includes("?")?"&":"?")+"afrn_logo_retry=1";
+            const source=attempt===0?absolute:absolute+(absolute.includes("?")?"&":"?")+"afrn_logo_retry="+Date.now();
             im.src=source;
             if(im.complete){if(im.naturalWidth>0)finish();else finish(new Error("Logo haipatikani"));}
           });
@@ -428,9 +459,7 @@ async function downloadStandingsPDF(){
           if(!ctx)throw new Error("Canvas haipatikani");
           ctx.drawImage(im,0,0);
           return cv.toDataURL("image/png");
-        }catch(err){
-          console.warn("AFRN PDF logo (jaribio "+(attempt+1)+"):",absolute,err);
-        }
+        }catch(err){console.warn("AFRN PDF logo (jaribio "+(attempt+1)+"):",absolute,err);}
       }
       return null;
     };
@@ -451,16 +480,21 @@ async function downloadStandingsPDF(){
     const rowH=Math.min(11.5,(277-top)/(Math.max(data.length,1)+1));
     const fs=Math.max(7,Math.min(11,rowH*1.02));
     const clubLogoData=new Map();
-    // Picha za vilabu zinapakiwa sambamba; zilizokosekana zitarukwa badala ya kusimamisha PDF.
-    const logoResults=await Promise.allSettled((window.afrnCurrentStandingsRows||[]).map(async r=>{
-      const club=clubs.find(x=>String(x.id)===String(r.club_id));
-      if(!club?.logo_url)return {club_id:r.club_id,loaded:false};
+    const standingsRows=window.afrnCurrentStandingsRows||[];
+    const clubsById=new Map(clubs.map(c=>[String(c.id),c]));
+    // Tumia ID ya klabu kutoka mstari uleule wa msimamo; usitegemee mpangilio wa majina.
+    const logoResults=await Promise.allSettled(standingsRows.map(async r=>{
+      const clubId=String(r.club_id??"");
+      const club=clubsById.get(clubId);
+      if(!club)return {club_id:clubId,name:r.name,loaded:false,reason:"Klabu haikupatikana kwa ID"};
+      if(!club.logo_url)return {club_id:clubId,name:club.name,loaded:false,reason:"logo_url haipo"};
       const img=await loadImageData(club.logo_url);
-      if(img){clubLogoData.set(String(r.club_id),img);return {club_id:r.club_id,loaded:true};}
-      return {club_id:r.club_id,loaded:false};
+      if(img){clubLogoData.set(clubId,img);return {club_id:clubId,name:club.name,loaded:true};}
+      return {club_id:clubId,name:club.name,loaded:false,reason:"Picha haikupakika/CORS"};
     }));
-    const missingClubLogos=logoResults.filter(x=>x.status==="rejected"||!x.value?.loaded).length;
-    if(missingClubLogos)console.warn("AFRN PDF: nembo za vilabu "+missingClubLogos+" hazikuweza kupachikwa; hakiki logo_url na ruhusa za CORS.");
+    const missingLogoDetails=logoResults.map(x=>x.status==="fulfilled"?x.value:{loaded:false,reason:String(x.reason||"Hitilafu")}).filter(x=>!x.loaded);
+    const missingClubLogos=missingLogoDetails.length;
+    if(missingClubLogos)console.warn("AFRN PDF: nembo zilizokosekana:",missingLogoDetails);
     const draw=(vals,y,header=false,rowIndex=-1)=>{
       if(header){doc.setFillColor(7,26,51);doc.setTextColor(255,255,255);doc.rect(8,y-rowH+1,194,rowH,"F");}
       else{
