@@ -129,9 +129,11 @@ public class MainActivity extends Activity {
                 view.setDataAndType(uri, "application/pdf");
                 view.addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION);
                 try {
-                    startActivity(Intent.createChooser(view, "Fungua PDF"));
+                    // Fungua PDF moja kwa moja kwenye kisomaji kilichopo; mtumiaji anaweza
+                    // kuchagua Save/Download ndani ya kisomaji baada ya kuiona.
+                    startActivity(view);
                 } catch (android.content.ActivityNotFoundException noPdfViewer) {
-                    // Ikiwa hakuna PDF reader, toa njia ya kuituma/kuihifadhi kupitia programu nyingine.
+                    // Ikiwa hakuna PDF reader, ndipo toa chaguo la kushiriki au kuhifadhi.
                     Intent share = new Intent(Intent.ACTION_SEND);
                     share.setType("application/pdf");
                     share.putExtra(Intent.EXTRA_STREAM, uri);
