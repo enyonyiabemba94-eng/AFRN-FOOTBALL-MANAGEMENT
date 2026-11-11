@@ -48,7 +48,70 @@ const esc = v => String(v ?? "").replace(/[&<>"']/g, c => ({
 }[c]));
 let C = null, teams = [], matches = [], events = [], clubs = [], players = [], awards = [], tab = "MECHI";
 let activeLoadStep = "kuanza kupakia ukurasa";
+
 let loadAttempt = 0;
+
+// Nembo hupakiwa mapema na kuhifadhiwa kwenye IndexedDB ya simu.
+const AFRN_LOGO_MEMORY = new Map();
+let AFRN_LOGO_DB_PROMISE = null;
+function openAfrnLogoDB(){
+  if(!("indexedDB" in window)) return Promise.resolve(null);
+  if(!AFRN_LOGO_DB_PROMISE) AFRN_LOGO_DB_PROMISE=new Promise(resolve=>{
+    const req=indexedDB.open("AFRN_LOGO_CACHE",1);
+    req.onupgradeneeded=()=>{const d=req.result;if(!d.objectStoreNames.contains("logos"))d.createObjectStore("logos",{keyPath:"url"});};
+    req.onsuccess=()=>resolve(req.result);req.onerror=()=>resolve(null);
+  });
+  return AFRN_LOGO_DB_PROMISE;
+}
+async function readAfrnLogoCache(url){
+  if(AFRN_LOGO_MEMORY.has(url))return AFRN_LOGO_MEMORY.get(url);
+  const d=await openAfrnLogoDB();if(!d)return null;
+  return new Promise(resolve=>{
+    try{const tx=d.transaction("logos","readonly"),q=tx.objectStore("logos").get(url);
+      q.onsuccess=()=>{const value=q.result?.dataUrl||null;if(value)AFRN_LOGO_MEMORY.set(url,value);resolve(value);};
+      q.onerror=()=>resolve(null);
+    }catch(_){resolve(null);}
+  });
+}
+async function writeAfrnLogoCache(url,dataUrl){
+  AFRN_LOGO_MEMORY.set(url,dataUrl);
+  const d=await openAfrnLogoDB();if(!d)return;
+  try{const tx=d.transaction("logos","readwrite");tx.objectStore("logos").put({url,dataUrl,updatedAt:Date.now()});}catch(_){}
+}
+function afrBlobToDataURL(blob){
+  return new Promise((resolve,reject)=>{const reader=new FileReader();reader.onload=()=>resolve(typeof reader.result==="string"?reader.result:null);reader.onerror=()=>reject(new Error("Imeshindwa kusoma nembo"));reader.readAsDataURL(blob);});
+}
+async function loadAndCacheAfrnClubLogo(club){
+  const url=String(club?.logo_url||"").trim();if(!url)return null;
+  const cached=await readAfrnLogoCache(url);if(cached)return cached;
+  let absolute;try{absolute=new URL(url,location.href).href;}catch(_){return null;}
+  let blob=null;
+  // Supabase Storage SDK hupita CORS ya browser kwa public storage URL.
+  try{
+    const u=new URL(absolute),marker="/storage/v1/object/public/",at=u.pathname.indexOf(marker);
+    if(at>=0&&db?.storage?.from){
+      const parts=u.pathname.slice(at+marker.length).split("/");
+      const bucket=decodeURIComponent(parts.shift()||""),path=parts.map(x=>decodeURIComponent(x)).join("/");
+      if(bucket&&path){const result=await db.storage.from(bucket).download(path);if(!result.error&&result.data?.size)blob=result.data;}
+    }
+  }catch(e){console.warn("AFRN logo cache SDK:",club.name,e);}
+  if(!blob){
+    try{const response=await fetch(absolute,{mode:"cors",credentials:"omit",cache:"force-cache"});if(response.ok){const b=await response.blob();if(b.size&&/^image\//i.test(b.type||""))blob=b;}}
+    catch(e){console.warn("AFRN logo cache fetch:",club.name,e);}
+  }
+  if(!blob)return null;
+  try{const dataUrl=await afrBlobToDataURL(blob);if(dataUrl)await writeAfrnLogoCache(url,dataUrl);return dataUrl;}catch(e){console.warn("AFRN logo cache convert:",club.name,e);return null;}
+}
+async function preloadAfrnClubLogos(competitionTeams){
+  const ids=new Set((competitionTeams||[]).map(t=>String(t.club_id)));
+  const targets=clubs.filter(c=>ids.has(String(c.id))&&c.logo_url);
+  // Pakia kwa mafungu ili simu isiwe nzito.
+  for(let i=0;i<targets.length;i+=6){
+    await Promise.allSettled(targets.slice(i,i+6).map(loadAndCacheAfrnClubLogo));
+  }
+  window.AFRN_LOGOS_READY=true;
+  window.dispatchEvent(new Event("afrn-logos-ready"));
+}
 
 const played = s => window.AFRNStandings && window.AFRNStandings.playedStatus
   ? window.AFRNStandings.playedStatus(s)
@@ -109,7 +172,7 @@ async function loadData(){
   teams = tr.data || [];
   matches = mr.data || [];
   clubs = clr.data || [];
-  players = pr.data || [];
+  // Anza kupakia nembo za vilabu vya mashindano kabla mtumiaji hajaomba PDF.\n  window.AFRN_LOGOS_READY=false;\n  preloadAfrnClubLogos(tr.data || []).catch(e=>console.warn("AFRN logo preload:",e));\n  players = pr.data || [];
   awards = ar.data || [];
   events = [];
 
@@ -396,87 +459,13 @@ async function downloadStandingsPDF(){
     // A4 portrait: PDF shows GD as GF-GA (e.g. 8-2); GD is display-only, never a ranking criterion.
     const doc=new jsPDF({orientation:"portrait",unit:"mm",format:"a4"});
     const safe=v=>String(v??"—").replace(/[–—•]/g,"-").replace(/[^\x20-\xFF]/g,"");
-    // Pakia nembo kutoka Supabase Storage SDK kwanza; kisha tumia Image/CORS kama njia mbadala.
-    const blobToDataURL=blob=>new Promise((resolve,reject)=>{
-      const reader=new FileReader();
-      reader.onload=()=>resolve(typeof reader.result==="string"?reader.result:null);
-      reader.onerror=()=>reject(new Error("Imeshindikana kusoma picha ya nembo"));
-      reader.readAsDataURL(blob);
-    });
+    // Nembo za vilabu husomwa kutoka cache ya simu; usianze kupakua 17 tena wakati wa PDF.
     const loadImageData=async(url)=>{
       if(!url)return null;
-      let absolute;
-      try{
-        const raw=String(url).trim();
-        if(/^data:image\//i.test(raw))return raw;
-        absolute=new URL(raw,window.location.href).href;
-        if(absolute.startsWith("http://"))absolute="https://"+absolute.slice(7);
-      }catch(err){console.warn("AFRN PDF logo URL si sahihi:",url,err);return null;}
-
-      // Jaribu HTTP fetch ya public URL moja kwa moja kabla ya SDK; tumia URL ya logo_url bila kuibadilisha.
-      try{
-        const response=await Promise.race([
-          fetch(absolute,{method:"GET",mode:"cors",credentials:"omit",cache:"no-store"}),
-          new Promise((_,reject)=>setTimeout(()=>reject(new Error("HTTP fetch ya nembo imechukua muda mrefu")),12000))
-        ]);
-        if(response.ok){
-          const blob=await response.blob();
-          if(blob.size>0 && /^image\//i.test(blob.type||"")){
-            const dataUrl=await blobToDataURL(blob);
-            if(dataUrl)return dataUrl;
-          }else console.warn("AFRN logo response si picha:",response.status,blob.type,absolute);
-        }else console.warn("AFRN logo HTTP status:",response.status,response.statusText,absolute);
-      }catch(err){console.warn("AFRN public logo fetch/CORS:",absolute,err);}
-
-      // URL za public Supabase Storage zinapakuliwa kwa SDK kwa kutumia bucket/path halisi.
-      try{
-        const u=new URL(absolute);
-        const marker="/storage/v1/object/public/";
-        const at=u.pathname.indexOf(marker);
-        if(at>=0 && db?.storage?.from){
-          const objectParts=u.pathname.slice(at+marker.length).split("/");
-          const bucket=decodeURIComponent(objectParts.shift()||"");
-          const objectPath=objectParts.map(x=>decodeURIComponent(x)).join("/");
-          if(bucket&&objectPath){
-            const result=await Promise.race([
-              db.storage.from(bucket).download(objectPath),
-              new Promise((_,reject)=>setTimeout(()=>reject(new Error("Muda wa kupakua nembo kutoka Supabase umeisha")),12000))
-            ]);
-            if(!result.error&&result.data&&result.data.size>0){
-              const dataUrl=await blobToDataURL(result.data);
-              if(dataUrl)return dataUrl;
-            }
-            if(result.error)console.warn("AFRN Supabase logo download:",bucket,objectPath,result.error.message);
-          }
-        }
-      }catch(err){console.warn("AFRN Supabase logo SDK fallback:",absolute,err);}
-
-      // Njia mbadala kwa picha za nje au pale SDK inaposhindwa.
-      for(let attempt=0;attempt<2;attempt++){
-        try{
-          const im=new Image();
-          im.decoding="async";
-          im.referrerPolicy="no-referrer";
-          if(new URL(absolute).origin!==window.location.origin)im.crossOrigin="anonymous";
-          await new Promise((resolve,reject)=>{
-            let settled=false;
-            const finish=err=>{if(settled)return;settled=true;clearTimeout(timer);err?reject(err):resolve();};
-            const timer=setTimeout(()=>finish(new Error("Logo imechelewa kupakia")),10000);
-            im.onload=()=>finish();
-            im.onerror=()=>finish(new Error("Logo haipatikani au seva haijaruhusu CORS"));
-            const source=attempt===0?absolute:absolute+(absolute.includes("?")?"&":"?")+"afrn_logo_retry="+Date.now();
-            im.src=source;
-            if(im.complete){if(im.naturalWidth>0)finish();else finish(new Error("Logo haipatikani"));}
-          });
-          const cv=document.createElement("canvas");
-          cv.width=im.naturalWidth||im.width;cv.height=im.naturalHeight||im.height;
-          const ctx=cv.getContext("2d");
-          if(!ctx)throw new Error("Canvas haipatikani");
-          ctx.drawImage(im,0,0);
-          return cv.toDataURL("image/png");
-        }catch(err){console.warn("AFRN PDF logo (jaribio "+(attempt+1)+"):",absolute,err);}
-      }
-      return null;
+      const cached=await readAfrnLogoCache(String(url).trim());
+      if(cached)return cached;
+      const club=clubs.find(c=>String(c.logo_url||"").trim()===String(url).trim());
+      return club?await loadAndCacheAfrnClubLogo(club):null;
     };
     const afrLogo=await loadImageData("https://enyonyiabemba94-eng.github.io/AFRN-FOOTBALL-MANAGEMENT/IMG-20260319-WA0093.jpg");
     if(afrLogo){try{doc.addImage(afrLogo,"PNG",8,5,16,16);doc.addImage(afrLogo,"PNG",186,5,16,16);}catch(err){console.warn("AFRN emblem PDF:",err);}}else{console.warn("Nembo ya AFRN haikuweza kupachikwa kwenye PDF.");}
@@ -503,9 +492,11 @@ async function downloadStandingsPDF(){
       const club=clubsById.get(clubId);
       if(!club)return {club_id:clubId,name:r.name,loaded:false,reason:"Klabu haikupatikana kwa ID"};
       if(!club.logo_url)return {club_id:clubId,name:club.name,loaded:false,reason:"logo_url haipo"};
-      const img=await loadImageData(club.logo_url);
+      const img=await readAfrnLogoCache(String(club.logo_url).trim());
       if(img){clubLogoData.set(clubId,img);return {club_id:clubId,name:club.name,loaded:true};}
-      return {club_id:clubId,name:club.name,loaded:false,reason:"Picha haikupakika/CORS"};
+      const fallback=await loadImageData(club.logo_url);
+      if(fallback){clubLogoData.set(clubId,fallback);return {club_id:clubId,name:club.name,loaded:true};}
+      return {club_id:clubId,name:club.name,loaded:false,reason:"Nembo bado haijapakiwa; fungua ukurasa na subiri sekunde chache"};
     }));
     const missingLogoDetails=logoResults.map(x=>x.status==="fulfilled"?x.value:{loaded:false,reason:String(x.reason||"Hitilafu")}).filter(x=>!x.loaded);
     const missingClubLogos=missingLogoDetails.length;
