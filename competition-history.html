@@ -295,9 +295,9 @@ function standings(){
       <input id="standingsDate" type="date" value="${todayStr}" style="padding:8px;border:1px solid #ccd5e2;border-radius:8px">
     </div>
     <div class="table-wrap"><table><thead><tr>
-      <th>#</th><th>KLABU</th><th>MP</th><th>W</th><th>D</th><th>L</th><th>GF</th><th>GA</th><th>PTS</th>
+      <th>#</th><th>KLABU</th><th>PTS</th><th>MP</th><th>W</th><th>D</th><th>L</th><th>GF</th><th>GA</th>
     </tr></thead><tbody>
-    ${rows.map((r,i) => `<tr><td>${i+1}</td><td><div style="display:flex;align-items:center;gap:8px"><img src="${esc(clubs.find(x=>String(x.id)===String(r.club_id))?.logo_url||'')}" alt="" style="width:28px;height:28px;object-fit:contain;border-radius:50%;border:1px solid #d9e1ec" onerror="this.style.display='none'"><b>${esc(r.name)}</b></div></td><td><b>${r.PTS}</b></td><td>${r.P}</td><td>${r.W}</td><td>${r.D}</td><td>${r.L}</td><td>${Number(r.GF)||0}</td><td>${Number(r.GA)||0}</td><td>${r.PTS}</td></tr>`).join("")}
+    ${rows.map((r,i) => `<tr><td>${i+1}</td><td><div style="display:flex;align-items:center;gap:8px"><img src="${esc(clubs.find(x=>String(x.id)===String(r.club_id))?.logo_url||'')}" alt="" style="width:28px;height:28px;object-fit:contain;border-radius:50%;border:1px solid #d9e1ec" onerror="this.style.display='none'"><b>${esc(r.name)}</b></div></td><td><b>${r.PTS}</b></td><td>${r.P}</td><td>${r.W}</td><td>${r.D}</td><td>${r.L}</td><td>${Number(r.GF)||0}</td><td>${Number(r.GA)||0}</td></tr>`).join("")}
     </tbody></table></div>
     <div class="muted" style="margin-top:9px">Mpangilio rasmi: Pointi → magoli ya kufunga → magoli ya kufungwa → kadi nyekundu chache → kadi za njano chache → sarafu ikiwa bado sare.</div>`;
 }
@@ -337,7 +337,7 @@ async function downloadStandingsWord(){
       cv.getContext("2d").drawImage(logo,0,0);
       logoHtml='<img src="'+cv.toDataURL("image/jpeg",0.9)+'" width="75" height="75">';
     }catch(_){}
-    const headers=["#","KLABU","MP","W","D","L","GF","GA","PTS"];
+    const headers=["#","KLABU","PTS","MP","W","D","L","GF","GA"];
     const wordClubLogos=new Map();
     await Promise.all((window.afrnCurrentStandingsRows||[]).map(async r=>{
       const club=clubs.find(x=>String(x.id)===String(r.club_id));
@@ -441,8 +441,8 @@ async function downloadStandingsPDF(){
     doc.text("TAREHE: "+standingsReportDate(),105,25,{align:"center"});
     const data=standingsReportRows();
     const headers=["#","KLABU","MP","W","D","L","GF","GA","PTS"];
-    const xs=[11,22,108,122,134,146,158,173,190];
-    const widths=[8,82,12,10,10,10,12,12,13];
+    const xs=[11,22,108,122,134,146,158,170,187];
+    const widths=[8,82,12,10,10,10,10,12,12];
     const top=39;
     // Tumia nafasi yote iliyopo kabla ya footer ili kuongeza maandishi na kubaki ukurasa mmoja.
     const rowH=Math.min(11.5,(277-top)/(Math.max(data.length,1)+1));
@@ -475,7 +475,7 @@ async function downloadStandingsPDF(){
       });
     };
     draw(headers,top,true);
-    data.forEach((r,i)=>draw([r["#"],r["KLABU"],r["MP"],r["W"],r["D"],r["L"],r["GF"],r["GA"],r["PTS"]],top+(i+1)*rowH,false,i));
+    data.forEach((r,i)=>draw([r["#"],r["KLABU"],r["PTS"],r["MP"],r["W"],r["D"],r["L"],r["GF"],r["GA"]],top+(i+1)*rowH,false,i));
     doc.setFont("helvetica","normal");doc.setFontSize(7);doc.setTextColor(100,100,100);
     doc.text("MSIMAMO RASMI | Ukurasa 1/1",105,286,{align:"center"});
     const slug=String(C?.name||"mashindano").toLowerCase().replace(/[^a-z0-9]+/g,"-").replace(/^-|-$/g,"")||"mashindano";
