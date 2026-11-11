@@ -402,7 +402,7 @@ async function downloadStandingsPDF(){
       let absolute;
       try{
         const raw=String(url).trim();
-        if(/^data:image\\//i.test(raw))return raw;
+        if(/^data:image\//i.test(raw))return raw;
         absolute=new URL(raw,window.location.href).href;
         if(absolute.startsWith("http://"))absolute="https://"+absolute.slice(7);
       }catch(err){console.warn("AFRN PDF logo URL si sahihi:",url,err);return null;}
