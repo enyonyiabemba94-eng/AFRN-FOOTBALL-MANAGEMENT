@@ -1,6 +1,6 @@
 <!DOCTYPE html>
 <html lang="sw"><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>AFRN — Competition</title>
-<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script><script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script><script src="./supabase-config.js?v=20261028fix8"></script><script src="./afrn-standings-engine.js?v=20261028fix8"></script>
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script><script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script><script src="./supabase-config.js?v=20261028fix8"></script><script src="./afrn-standings-engine.js?v=20261111rules1"></script>
 <style>
 body{margin:0;background:#f4f7fb;color:#172033;font-family:Arial,sans-serif}header{background:linear-gradient(135deg,#06152b,#0d47a1);color:#fff;padding:16px}nav{display:flex;gap:7px;overflow:auto;background:#fff;padding:9px}nav a{padding:9px 12px;text-decoration:none;color:#172033;font-weight:700;white-space:nowrap}.wrap{max-width:1200px;margin:auto;padding:12px}.card{background:#fff;border:1px solid #d9e0ea;border-radius:15px;padding:16px;margin-bottom:14px}.hero{display:flex;gap:14px;align-items:center}.logo{width:70px;height:70px;object-fit:contain;border-radius:12px;border:1px solid #ddd}.muted{color:#687386;font-size:12px}.tabs{display:flex;gap:7px;overflow:auto}.tab{border:0;background:#e8edf5;padding:10px 13px;border-radius:9px;font-weight:800;white-space:nowrap}.tab.active{background:#0d47a1;color:#fff}.table-wrap{overflow:auto}table{width:100%;border-collapse:collapse;font-size:12px}th{background:#071a33;color:#fff;padding:9px;white-space:nowrap}td{padding:9px;border-bottom:1px solid #edf0f4;white-space:nowrap}td:nth-child(2){font-weight:800}.small-btn{padding:7px 10px;font-size:11px;border:0;border-radius:8px;background:#e8edf5;color:#172033;font-weight:800;cursor:pointer}.event-primary{background:#0d47a1;color:#fff}.event-warning{background:#fff5d6;color:#6b4a00}.event-overlay{position:fixed;inset:0;background:#071a33b8;z-index:9999;display:flex;align-items:center;justify-content:center;padding:12px}.event-modal{background:#fff;border-radius:15px;padding:16px;width:min(620px,100%);max-height:92vh;overflow:auto;box-shadow:0 10px 40px #0004}.event-modal label{display:block;font-weight:800;font-size:12px;margin:9px 0 5px}.event-modal input,.event-modal select{width:100%;box-sizing:border-box;padding:10px;border:1px solid #ccd5e2;border-radius:9px;font:inherit}.event-modal-grid{display:grid;grid-template-columns:1fr 1fr;gap:10px}@media(max-width:520px){.event-modal-grid{grid-template-columns:1fr}}.badge{display:inline-block;padding:5px 9px;border-radius:999px;background:#e9f8ef;color:#16834b;font-size:10px;font-weight:800}.empty{text-align:center;padding:28px;color:#687386}.grid{display:grid;grid-template-columns:repeat(4,1fr);gap:10px}.stat{border:1px solid #d9e0ea;border-radius:12px;padding:12px;text-align:center}.stat b{display:block;font-size:22px;color:#0d47a1}.standings-brand{display:grid;grid-template-columns:64px minmax(0,1fr) 64px;align-items:center;gap:8px;text-align:center;padding:12px 4px;margin:4px 0 14px;border-bottom:3px double #d49a21}.standings-brand>img{width:60px;height:60px;object-fit:contain}.standings-brand-title h3{font-size:clamp(11px,3vw,16px);margin:2px 0;color:#071a33}.standings-brand-title strong{display:block;font-size:clamp(12px,3.5vw,18px);color:#0d47a1;margin-top:6px}.standings-brand-title span{display:block;font-weight:900;letter-spacing:1px;font-size:12px;margin-top:4px;color:#9a6a00}@media(max-width:390px){.standings-brand{grid-template-columns:46px minmax(0,1fr) 46px;gap:4px}.standings-brand>img{width:44px;height:44px}.standings-brand-title h3{font-size:10px}.standings-brand-title strong{font-size:12px}}@media(max-width:700px){.grid{grid-template-columns:repeat(2,1fr)}}
 </style></head><body>
@@ -79,7 +79,7 @@ async function loadData(){
 
   activeLoadStep = "kupata timu za mashindano (competition_teams)";
   const tr = await db.from("competition_teams")
-    .select("id,competition_id,club_id,group_name")
+    .select("*")
     .eq("competition_id", id);
   if(tr.error) throw tr.error;
 
@@ -295,9 +295,9 @@ function standings(){
       <input id="standingsDate" type="date" value="${todayStr}" style="padding:8px;border:1px solid #ccd5e2;border-radius:8px">
     </div>
     <div class="table-wrap"><table><thead><tr>
-      <th>#</th><th>KLABU</th><th>PTS</th><th>MP</th><th>W</th><th>D</th><th>L</th><th>GD</th>
+      <th>#</th><th>KLABU</th><th>MP</th><th>W</th><th>D</th><th>L</th><th>GF</th><th>GA</th><th>PTS</th>
     </tr></thead><tbody>
-    ${rows.map((r,i) => `<tr><td>${i+1}</td><td><div style="display:flex;align-items:center;gap:8px"><img src="${esc(clubs.find(x=>String(x.id)===String(r.club_id))?.logo_url||'')}" alt="" style="width:28px;height:28px;object-fit:contain;border-radius:50%;border:1px solid #d9e1ec" onerror="this.style.display='none'"><b>${esc(r.name)}</b></div></td><td><b>${r.PTS}</b></td><td>${r.P}</td><td>${r.W}</td><td>${r.D}</td><td>${r.L}</td><td>${Number(r.GF)||0}-${Number(r.GA)||0}</td></tr>`).join("")}
+    ${rows.map((r,i) => `<tr><td>${i+1}</td><td><div style="display:flex;align-items:center;gap:8px"><img src="${esc(clubs.find(x=>String(x.id)===String(r.club_id))?.logo_url||'')}" alt="" style="width:28px;height:28px;object-fit:contain;border-radius:50%;border:1px solid #d9e1ec" onerror="this.style.display='none'"><b>${esc(r.name)}</b></div></td><td><b>${r.PTS}</b></td><td>${r.P}</td><td>${r.W}</td><td>${r.D}</td><td>${r.L}</td><td>${Number(r.GF)||0}</td><td>${Number(r.GA)||0}</td><td>${r.PTS}</td></tr>`).join("")}
     </tbody></table></div>
     <div class="muted" style="margin-top:9px">Mpangilio rasmi: Pointi → magoli ya kufunga → magoli ya kufungwa → kadi nyekundu chache → kadi za njano chache → sarafu ikiwa bado sare.</div>`;
 }
@@ -320,9 +320,9 @@ function standingsReportDate(){
 }
 function standingsReportRows(){
   return (window.afrnCurrentStandingsRows||[]).map((r,i)=>({
-    "#":i+1,"KLABU":r.name,"PTS":Number(r.PTS)||0,"MP":Number(r.P)||0,
-    "W":Number(r.W)||0,"D":Number(r.D)||0,"L":Number(r.L)||0,
-    "GD":(Number(r.GF)||0)+"-"+(Number(r.GA)||0)
+    "#":i+1,"KLABU":r.name,"MP":Number(r.P)||0,"W":Number(r.W)||0,
+    "D":Number(r.D)||0,"L":Number(r.L)||0,"GF":Number(r.GF)||0,
+    "GA":Number(r.GA)||0,"PTS":Number(r.PTS)||0
   }));
 }
 async function downloadStandingsWord(){
@@ -337,7 +337,7 @@ async function downloadStandingsWord(){
       cv.getContext("2d").drawImage(logo,0,0);
       logoHtml='<img src="'+cv.toDataURL("image/jpeg",0.9)+'" width="75" height="75">';
     }catch(_){}
-    const headers=["#","KLABU","PTS","MP","W","D","L","GD"];
+    const headers=["#","KLABU","MP","W","D","L","GF","GA","PTS"];
     const wordClubLogos=new Map();
     await Promise.all((window.afrnCurrentStandingsRows||[]).map(async r=>{
       const club=clubs.find(x=>String(x.id)===String(r.club_id));
@@ -392,7 +392,7 @@ async function downloadStandingsPDF(){
   const button=document.activeElement;if(button)button.disabled=true;
   try{
     const jsPDF=await ensureAFRNJsPDF();
-    // A4 portrait: all eight columns fit within the printable width.
+    // A4 portrait: GF and GA are separate columns; GD is not a ranking criterion.
     const doc=new jsPDF({orientation:"portrait",unit:"mm",format:"a4"});
     const safe=v=>String(v??"—").replace(/[–—•]/g,"-").replace(/[^\x20-\xFF]/g,"");
     // Pakia nembo kwa muda wa kutosha; data ya canvas ni PNG hivyo jsPDF ipokee PNG.
@@ -440,9 +440,9 @@ async function downloadStandingsPDF(){
     doc.setFont("helvetica","normal");doc.setFontSize(9);
     doc.text("TAREHE: "+standingsReportDate(),105,25,{align:"center"});
     const data=standingsReportRows();
-    const headers=["#","KLABU","MP","W","D","L","GD","PTS"];
-    const xs=[11,22,112,126,139,152,169,193];
-    const widths=[8,84,12,12,12,12,20,13];
+    const headers=["#","KLABU","MP","W","D","L","GF","GA","PTS"];
+    const xs=[11,22,108,122,134,146,158,173,190];
+    const widths=[8,82,12,10,10,10,12,12,13];
     const top=39;
     // Tumia nafasi yote iliyopo kabla ya footer ili kuongeza maandishi na kubaki ukurasa mmoja.
     const rowH=Math.min(11.5,(277-top)/(Math.max(data.length,1)+1));
@@ -475,7 +475,7 @@ async function downloadStandingsPDF(){
       });
     };
     draw(headers,top,true);
-    data.forEach((r,i)=>draw([r["#"],r["KLABU"],r["MP"],r["W"],r["D"],r["L"],r["GD"],r["PTS"]],top+(i+1)*rowH,false,i));
+    data.forEach((r,i)=>draw([r["#"],r["KLABU"],r["MP"],r["W"],r["D"],r["L"],r["GF"],r["GA"],r["PTS"]],top+(i+1)*rowH,false,i));
     doc.setFont("helvetica","normal");doc.setFontSize(7);doc.setTextColor(100,100,100);
     doc.text("MSIMAMO RASMI | Ukurasa 1/1",105,286,{align:"center"});
     const slug=String(C?.name||"mashindano").toLowerCase().replace(/[^a-z0-9]+/g,"-").replace(/^-|-$/g,"")||"mashindano";
