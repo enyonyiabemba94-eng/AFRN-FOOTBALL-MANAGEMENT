@@ -465,7 +465,10 @@ async function downloadStandingsPDF(){
       const cached=await readAfrnLogoCache(String(url).trim());
       if(cached)return cached;
       const club=clubs.find(c=>String(c.logo_url||"").trim()===String(url).trim());
-      return club?await loadAndCacheAfrnClubLogo(club):null;
+      if(club)return await loadAndCacheAfrnClubLogo(club);
+      // Nembo ya AFRN na picha nyingine zisizo za klabu.
+      try{const response=await fetch(new URL(url,location.href).href,{mode:"cors",credentials:"omit",cache:"force-cache"});if(response.ok){const blob=await response.blob();if(blob.size&&/^image\\//i.test(blob.type||""))return await afrBlobToDataURL(blob);}}catch(e){console.warn("AFRN report emblem:",e);}
+      return null;
     };
     const afrLogo=await loadImageData("https://enyonyiabemba94-eng.github.io/AFRN-FOOTBALL-MANAGEMENT/IMG-20260319-WA0093.jpg");
     if(afrLogo){try{doc.addImage(afrLogo,"PNG",8,5,16,16);doc.addImage(afrLogo,"PNG",186,5,16,16);}catch(err){console.warn("AFRN emblem PDF:",err);}}else{console.warn("Nembo ya AFRN haikuweza kupachikwa kwenye PDF.");}
