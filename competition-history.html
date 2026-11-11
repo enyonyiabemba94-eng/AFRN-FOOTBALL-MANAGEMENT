@@ -392,7 +392,7 @@ async function downloadStandingsPDF(){
   const button=document.activeElement;if(button)button.disabled=true;
   try{
     const jsPDF=await ensureAFRNJsPDF();
-    // A4 portrait: GF and GA are separate columns; GD is not a ranking criterion.
+    // A4 portrait: PDF shows GD as GF-GA (e.g. 8-2); GD is display-only, never a ranking criterion.
     const doc=new jsPDF({orientation:"portrait",unit:"mm",format:"a4"});
     const safe=v=>String(v??"—").replace(/[–—•]/g,"-").replace(/[^\x20-\xFF]/g,"");
     // Pakia nembo kwa muda wa kutosha; data ya canvas ni PNG hivyo jsPDF ipokee PNG.
@@ -440,9 +440,9 @@ async function downloadStandingsPDF(){
     doc.setFont("helvetica","normal");doc.setFontSize(9);
     doc.text("TAREHE: "+standingsReportDate(),105,25,{align:"center"});
     const data=standingsReportRows();
-    const headers=["#","KLABU","MP","W","D","L","GF","GA","PTS"];
-    const xs=[11,22,108,122,134,146,158,170,187];
-    const widths=[8,82,12,10,10,10,10,12,12];
+    const headers=["#","KLABU","MP","W","D","L","GD","PTS"];
+    const xs=[11,22,108,124,137,150,166,190];
+    const widths=[8,82,12,10,10,10,20,13];
     const top=39;
     // Tumia nafasi yote iliyopo kabla ya footer ili kuongeza maandishi na kubaki ukurasa mmoja.
     const rowH=Math.min(11.5,(277-top)/(Math.max(data.length,1)+1));
@@ -475,7 +475,7 @@ async function downloadStandingsPDF(){
       });
     };
     draw(headers,top,true);
-    data.forEach((r,i)=>draw([r["#"],r["KLABU"],r["PTS"],r["MP"],r["W"],r["D"],r["L"],r["GF"],r["GA"]],top+(i+1)*rowH,false,i));
+    data.forEach((r,i)=>draw([r["#"],r["KLABU"],r["MP"],r["W"],r["D"],r["L"],r["GD"],r["PTS"]],top+(i+1)*rowH,false,i));
     doc.setFont("helvetica","normal");doc.setFontSize(7);doc.setTextColor(100,100,100);
     doc.text("MSIMAMO RASMI | Ukurasa 1/1",105,286,{align:"center"});
     const slug=String(C?.name||"mashindano").toLowerCase().replace(/[^a-z0-9]+/g,"-").replace(/^-|-$/g,"")||"mashindano";
