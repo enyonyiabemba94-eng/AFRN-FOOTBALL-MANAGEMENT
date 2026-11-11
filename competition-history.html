@@ -46,7 +46,7 @@ const $ = id => document.getElementById(id);
 const esc = v => String(v ?? "").replace(/[&<>"']/g, c => ({
   "&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#039;"
 }[c]));
-let C = null, teams = [], matches = [], events = [], clubs = [], players = [], awards = [], tab = "MECHI";
+let C = null, teams = [], matches = [], events = [], legacyPerformance = [], clubs = [], players = [], awards = [], tab = "MECHI";
 let activeLoadStep = "kuanza kupakia ukurasa";
 
 let loadAttempt = 0;
@@ -184,6 +184,30 @@ async function loadData(){
       .in("match_id", matchIds);
     if(er.error) throw er.error;
     events = er.data || [];
+  }
+
+  // Soma pia matukio ya zamani yaliyorekodiwa kupitia ukurasa wa Wachezaji/Wafungaji.
+  // Baadhi ya magoli yako player_performance_events badala ya match_events.
+  legacyPerformance = [];
+  try {
+    const oldResult = await db.from("player_performance_events")
+      .select("player_id,club_id,event_type,description,match_id,competition_id,minute")
+      .limit(5000);
+    if (!oldResult.error) {
+      const matchIdSet = new Set(matches.map(m => String(m.id)));
+      legacyPerformance = (oldResult.data || []).filter(e =>
+        String(e.competition_id || "") === String(id) ||
+        (e.match_id && matchIdSet.has(String(e.match_id)))
+      ).map(e => {
+        const raw = (String(e.event_type || "") + " " + String(e.description || "")).toLowerCase().replace(/[ -]/g, "_");
+        const type = raw.includes("assist") ? "assist" : (raw.includes("goal") || raw.includes("goli") ? "goal" : String(e.event_type || "").toLowerCase());
+        return {...e, event_type:type};
+      });
+    } else {
+      console.warn("AFRN legacy player events hazikusomwa:", oldResult.error);
+    }
+  } catch (legacyError) {
+    console.warn("AFRN legacy player events:", legacyError);
   }
 
   $("hero").innerHTML = `
@@ -848,7 +872,14 @@ function cards(){
 
 function reportScorerRows(){
   const tally=new Map();
-  events.filter(e=>String(e.event_type||"").toLowerCase()==="goal"&&e.player_id).forEach(e=>{
+  const source=[...events.filter(e=>String(e.event_type||"").toLowerCase()==="goal"&&e.player_id)];
+  // Zuia kuhesabu mara mbili pale tukio lilelile limehifadhiwa kwenye meza zote mbili.
+  const seen=new Set(source.map(e=>[e.match_id||"",e.player_id||"",String(e.event_type||"").toLowerCase(),e.minute??""].join("|")));
+  legacyPerformance.filter(e=>String(e.event_type||"").toLowerCase()==="goal"&&e.player_id).forEach(e=>{
+    const key=[e.match_id||"",e.player_id||"","goal",e.minute??""].join("|");
+    if(!seen.has(key)){source.push(e);seen.add(key);}
+  });
+  source.forEach(e=>{
     const pid=String(e.player_id),p=players.find(x=>String(x.id)===pid);
     if(!p)return;
     const row=tally.get(pid)||{player:p,clubId:e.club_id||p.club_id,count:0};
