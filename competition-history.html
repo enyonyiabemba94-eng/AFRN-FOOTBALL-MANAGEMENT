@@ -322,7 +322,8 @@ function standingsReportRows(){
   return (window.afrnCurrentStandingsRows||[]).map((r,i)=>({
     "#":i+1,"KLABU":r.name,"MP":Number(r.P)||0,"W":Number(r.W)||0,
     "D":Number(r.D)||0,"L":Number(r.L)||0,"GF":Number(r.GF)||0,
-    "GA":Number(r.GA)||0,"PTS":Number(r.PTS)||0
+    "GA":Number(r.GA)||0,"GD":(Number(r.GF)||0)+"-"+(Number(r.GA)||0),
+    "PTS":Number(r.PTS)||0
   }));
 }
 async function downloadStandingsWord(){
