@@ -970,8 +970,8 @@ async function downloadGoalsScorersPDF(){
     const scorerRows=reportScorerRows();
     const safeText=v=>String(v??"").replace(/[–—•]/g,"-").replace(/[^\x20-\xFF]/g,"");
     let y=15;
-    doc.setFont("helvetica","bold");doc.setFontSize(16);doc.text(safeText("AFRN FOOTBALL MANAGEMENT"),148,y,{align:"center"});y+=8;
-    doc.setFontSize(13);doc.text(safeText("RIPOTI YA MAGOLI NA WAFUNGAJI BORA"),148,y,{align:"center"});y+=7;
+    doc.setFont("helvetica","bold");doc.setFontSize(14);doc.text(safeText("SHIRIKISHO LA MPIRA WA MIGUU KAMBINI NYARUGUSU"),148,y,{align:"center"});y+=8;
+    doc.setFontSize(16);doc.text(safeText("RIPOTI YA MAGOLI"),148,y,{align:"center"});y+=8;
     doc.setFont("helvetica","normal");doc.setFontSize(11);
     doc.text(safeText((C?.name||"Mashindano")+" "+(C?.season||"2026")),14,y);y+=6;
     doc.text(safeText("Mechi zilizokamilika: "+completed.length+" | Jumla ya magoli: "+total+" | Nyumbani: "+homeGoals+" | Ugenini: "+awayGoals),14,y);y+=8;
