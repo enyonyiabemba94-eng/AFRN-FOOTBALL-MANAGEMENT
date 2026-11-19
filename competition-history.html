@@ -495,7 +495,17 @@ async function downloadStandingsPDF(){
       return null;
     };
     const afrLogo=await loadImageData("https://enyonyiabemba94-eng.github.io/AFRN-FOOTBALL-MANAGEMENT/IMG-20260319-WA0093.jpg");
-    if(afrLogo){try{doc.addImage(afrLogo,"PNG",8,5,16,16);doc.addImage(afrLogo,"PNG",186,5,16,16);}catch(err){console.warn("AFRN emblem PDF:",err);}}else{console.warn("Nembo ya AFRN haikuweza kupachikwa kwenye PDF.");}
+    // Tambua aina halisi ya data URL; nembo ya AFRN ni JPG, si PNG.
+    const imageFormat=data=>/^data:image\\/(jpeg|jpg)/i.test(String(data||""))?"JPEG":/^data:image\\/png/i.test(String(data||""))?"PNG":/^data:image\\/webp/i.test(String(data||""))?"WEBP":null;
+    if(afrLogo){
+      const format=imageFormat(afrLogo);
+      if(!format)throw new Error("Muundo wa nembo ya AFRN haujatambulika.");
+      // Nembo ileile ya AFRN huwekwa kushoto na kulia, ndani ya ukingo wa A4.
+      doc.addImage(afrLogo,format,8,5,16,16);
+      doc.addImage(afrLogo,format,186,5,16,16);
+    }else{
+      throw new Error("Nembo ya AFRN haikupatikana; PDF haijatengenezwa bila nembo.");
+    }
     doc.setTextColor(7,26,51);doc.setFont("helvetica","bold");doc.setFontSize(13);
     doc.text("SHIRIKISHO LA MPIRA WA MIGUU KAMBINI NYARUGUSU",105,10,{align:"center",maxWidth:158});
     doc.setFontSize(12);
@@ -539,7 +549,7 @@ async function downloadStandingsPDF(){
         if(i===1&&!header){
           const source=(window.afrnCurrentStandingsRows||[])[rowIndex];
           const img=clubLogoData.get(String(source?.club_id));
-          if(img){try{doc.addImage(img,"PNG",23,y-rowH+(rowH-7)/2,7,7);}catch(_){}}
+          if(img){try{const format=imageFormat(img);if(format)doc.addImage(img,format,23,y-rowH+(rowH-7)/2,7,7);}catch(err){console.warn("Nembo ya klabu haikuingizwa:",err);}}
           doc.text(safe(v),img?31:23,y-rowH/2+fs*0.12,{maxWidth:img?75:83,align:"left",baseline:"middle"});
         }else{
           doc.text(safe(v),xs[i],y-rowH/2+fs*0.12,{maxWidth:widths[i],align:i===1?"left":"center",baseline:"middle"});
