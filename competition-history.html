@@ -496,7 +496,7 @@ async function downloadStandingsPDF(){
     };
     const afrLogo=await loadImageData("https://enyonyiabemba94-eng.github.io/AFRN-FOOTBALL-MANAGEMENT/IMG-20260319-WA0093.jpg");
     // Tambua aina halisi ya data URL; nembo ya AFRN ni JPG, si PNG.
-    const imageFormat=data=>/^data:image\\/(jpeg|jpg)/i.test(String(data||""))?"JPEG":/^data:image\\/png/i.test(String(data||""))?"PNG":/^data:image\\/webp/i.test(String(data||""))?"WEBP":null;
+    const imageFormat=data=>{const value=String(data||"").toLowerCase();return value.startsWith("data:image/jpeg")||value.startsWith("data:image/jpg")?"JPEG":value.startsWith("data:image/png")?"PNG":value.startsWith("data:image/webp")?"WEBP":null;};
     if(afrLogo){
       const format=imageFormat(afrLogo);
       if(!format)throw new Error("Muundo wa nembo ya AFRN haujatambulika.");
