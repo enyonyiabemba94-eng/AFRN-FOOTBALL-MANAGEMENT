@@ -1472,6 +1472,24 @@ Chagua competition.
 
 
 <!-- =================================================
+     ACTIVE LEAGUES
+================================================= -->
+<section class="card">
+  <h2>🏆 Ligi Zinazoendelea</h2>
+  <p class="meta">Ligi zijazo na zinazoendelea kuchezwa zitaonekana hapa.</p>
+  <div id="activeLeaguesContainer"><div class="empty">⏳ Inapakia ligi...</div></div>
+</section>
+
+<!-- =================================================
+     LEAGUE HISTORY
+================================================= -->
+<section class="card">
+  <h2>📚 History ya Ligi</h2>
+  <p class="meta">Ligi zilizowekwa rasmi kuwa Completed. Matokeo na takwimu zake hubaki salama.</p>
+  <div id="leagueHistoryContainer"><div class="empty">⏳ Inapakia history...</div></div>
+</section>
+
+<!-- =================================================
      COMPETITIONS LIST
 ================================================= -->
 
@@ -2957,219 +2975,79 @@ $("statusFilter")
 renderCompetitions;
 
 
+function isLeagueCompetition(competition){
+  const type=String(competition?.competition_type||"").trim().toLowerCase();
+  const format=String(competition?.format||"").trim().toLowerCase();
+  return type==="league" || format==="league";
+}
+
+function competitionCardHtml(competition){
+  const teamsCount=competitionTeams.filter(team=>String(team.competition_id)===String(competition.id)).length;
+  const statusClass=String(competition.status||"").toLowerCase();
+  return `
+  <div class="competition-card">
+    <div class="competition-top">
+      <img class="competition-logo" src="${esc(competition.logo_url||"./afrn-logo.png")}" alt="Logo">
+      <div>
+        <div class="competition-name" style="cursor:pointer;color:var(--blue)" onclick="openCompetitionHistory('${esc(competition.id)}')">${esc(competition.name)}</div>
+        <div class="meta">Season: ${esc(competition.season||"—")}</div>
+        <div class="meta">Daraja: <b>${esc(({"1":"I","2":"II","3":"III","4":"—"}[String(competition.division||"")]||"—"))}</b></div>
+      </div>
+    </div>
+    <span class="status-badge status-${statusClass}">${esc(competition.status||"—")}</span>
+    <div class="meta">📅 Mwanzo: ${esc(competition.start_date||"—")} · Mwisho: ${esc(competition.end_date||"—")}</div>
+    <div class="meta">👥 Vilabu: <b>${teamsCount}</b></div>
+    <div class="competition-actions">
+      <button class="primary small-btn" onclick="openCompetitionHistory('${esc(competition.id)}')">📂 Fungua Ligi</button>
+      <button class="gold small-btn admin-only" onclick="editCompetition('${esc(competition.id)}')">✏️ Hariri</button>
+      <button class="danger small-btn admin-only" onclick="deleteCompetition('${esc(competition.id)}')">🗑 Futa</button>
+    </div>
+  </div>`;
+}
+
+function renderCompetitionCards(containerId,list,emptyMessage){
+  const container=$(containerId);
+  if(!container)return;
+  container.innerHTML=list.length
+    ? '<div class="competition-list">'+list.map(competitionCardHtml).join("")+'</div>'
+    : '<div class="empty">'+emptyMessage+'</div>';
+}
+
 function renderCompetitions(){
+  const status=$("statusFilter").value;
+  const leagues=competitions.filter(isLeagueCompetition);
+  const activeLeagues=leagues.filter(c=>["upcoming","ongoing"].includes(String(c.status||"").toLowerCase()));
+  const completedLeagues=leagues.filter(c=>String(c.status||"").toLowerCase()==="completed");
+  const otherCompetitions=competitions.filter(c=>!isLeagueCompetition(c) && (!status || String(c.status||"")===status));
 
-const container =
-$("competitionsContainer");
+  renderCompetitionCards("activeLeaguesContainer",activeLeagues,"Hakuna ligi zijazo au zinazoendelea kwa sasa.");
+  renderCompetitionCards("leagueHistoryContainer",completedLeagues,"Bado hakuna ligi iliyokamilika rasmi.");
 
-const status =
-$("statusFilter")
-.value;
-
-
-const list =
-competitions.filter(
-  competition =>
-  !status ||
-  String(
-    competition.status
-  )
-  ===
-  status
-);
-
-
-if(!list.length){
-
-container.innerHTML = `
-<div class="empty">
-Hakuna competition iliyopatikana.
-</div>
-`;
-
-return;
-
+  const container=$("competitionsContainer");
+  if(!otherCompetitions.length){
+    container.innerHTML='<div class="empty">Hakuna mashindano mengine yaliyopatikana.</div>';
+    return;
+  }
+  container.innerHTML='<div class="competition-list">'+otherCompetitions.map(competition=>{
+    const teamsCount=competitionTeams.filter(team=>String(team.competition_id)===String(competition.id)).length;
+    const statusClass=String(competition.status||"").toLowerCase();
+    return `
+    <div class="competition-card">
+      <div class="competition-top">
+        <img class="competition-logo" src="${esc(competition.logo_url||"./afrn-logo.png")}" alt="Logo">
+        <div><div class="competition-name">${esc(competition.name)}</div>
+        <div class="meta">Aina: ${esc(competition.competition_type||"—")} · Season: ${esc(competition.season||"—")}</div></div>
+      </div>
+      <span class="status-badge status-${statusClass}">${esc(competition.status||"—")}</span>
+      <div class="meta">👥 Vilabu: <b>${teamsCount}</b></div>
+      <div class="competition-actions">
+        <button class="primary small-btn" onclick="openCompetitionHistory('${esc(competition.id)}')">📂 Fungua Competition</button>
+        <button class="gold small-btn admin-only" onclick="editCompetition('${esc(competition.id)}')">✏️ Hariri</button>
+        <button class="danger small-btn admin-only" onclick="deleteCompetition('${esc(competition.id)}')">🗑 Futa</button>
+      </div>
+    </div>`;
+  }).join("")+'</div>';
 }
-
-
-container.innerHTML = `
-
-<div class="competition-list">
-
-${list.map(
-competition => {
-
-const teamsCount =
-competitionTeams.filter(
-  team =>
-  String(
-    team.competition_id
-  )
-  ===
-  String(
-    competition.id
-  )
-).length;
-
-
-const statusClass =
-String(
-  competition.status
-  || ""
-)
-.toLowerCase();
-
-
-return `
-
-<div class="competition-card">
-
-<div class="competition-top">
-
-<img
-class="competition-logo"
-src="${
-esc(
-competition.logo_url
-||
-"./afrn-logo.png"
-)
-}"
-alt="Logo">
-
-<div>
-
-<div class="competition-name" style="cursor:pointer;color:var(--blue)"
-onclick="openCompetitionHistory('${esc(competition.id)}')">
-
-${esc(
-competition.name
-)}
-
-</div>
-
-<div class="meta">
-
-Type:
-${esc(
-competition.competition_type
-)}
-
-</div>
-
-<div class="meta">
-
-Season:
-${esc(
-competition.season
-)}
-
-</div>
-
-<div class="meta">
-
-🏷️ Daraja:
-<b>${esc(({"1":"I","2":"II","3":"III","4":"—"}[String(competition.division||"")] || "—"))}</b>
-
-</div>
-
-</div>
-
-</div>
-
-
-<span class="status-badge
-status-${statusClass}">
-
-${esc(
-competition.status
-)}
-
-</span>
-
-
-<div class="meta">
-
-📅 Start:
-${esc(
-competition.start_date
-|| "-"
-)}
-
-</div>
-
-
-<div class="meta">
-
-📅 End:
-${esc(
-competition.end_date
-|| "-"
-)}
-
-</div>
-
-
-<div class="meta">
-
-👥 Vilabu:
-<b>
-${teamsCount}
-</b>
-
-</div>
-
-
-<div class="competition-actions">
-
-<button
-class="primary small-btn"
-onclick="openCompetitionHistory('${esc(competition.id)}')">
-
-📂 Fungua Competition
-
-</button>
-
-<button
-class="secondary small-btn"
-onclick="openCompetitionHistory('${esc(competition.id)}')">
-
-📚 History
-
-</button>
-
-
-<button
-class="gold small-btn"
-onclick="editCompetition('${esc(competition.id)}')">
-
-✏️ Hariri
-
-</button>
-
-
-<button
-class="danger small-btn"
-onclick="deleteCompetition('${esc(competition.id)}')">
-
-🗑 Futa
-
-</button>
-
-</div>
-
-</div>
-
-`;
-
-}).join("")}
-
-</div>
-
-`;
-
-}
-
 
 window.openCompetitionHistory=function(id){const c=competitions.find(x=>String(x.id)===String(id));const isLeague=String(c?.competition_type||"").toLowerCase()==="league" || String(c?.format||"").toLowerCase()==="league";window.location.href="./competition-history.html?id="+encodeURIComponent(id)+"&v=20261028fix1";};
 
