@@ -3494,8 +3494,14 @@ $("generateFinalBtn").onclick=()=>generateStage("FINAL");
     const listSection=document.getElementById("competitionsContainer")?.closest("section");
     if(!main || !listSection) return;
     document.querySelectorAll("#competitionManagementToggle").forEach(x=>x.remove());
-    const others=[...main.querySelectorAll(":scope > section")].filter(s=>s!==listSection && !s.id.includes("viewerNotice"));
+    const leagueSections=[
+      document.getElementById("activeLeaguesContainer")?.closest("section"),
+      document.getElementById("leagueHistoryContainer")?.closest("section")
+    ].filter(Boolean);
+    const keepVisible=new Set([listSection,...leagueSections]);
+    const others=[...main.querySelectorAll(":scope > section")].filter(s=>!keepVisible.has(s) && !s.id.includes("viewerNotice"));
     others.forEach(s=>{s.dataset.competitionManagement="1";s.style.display="none";});
+    leagueSections.forEach(s=>{s.style.display="block";});
     const bar=document.createElement("div");
     bar.id="competitionManagementToggle";
     bar.className="card";
