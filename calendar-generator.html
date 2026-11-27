@@ -4,7 +4,7 @@
 :root{--navy:#071a33;--blue:#0d47a1;--gold:#f5b400;--bg:#f4f7fb;--line:#dce3ed;--muted:#667085;--green:#087443;--red:#b42318}*{box-sizing:border-box}body{margin:0;background:var(--bg);font-family:Arial,sans-serif;color:#172033}.wrap{max-width:1100px;margin:auto;padding:16px}.hero{background:linear-gradient(135deg,#071a33,#0d47a1);color:white;padding:20px;border-radius:16px}.hero h1{margin:0 0 7px;font-size:22px}.hero p{margin:0;color:#dce8ff;font-size:13px;line-height:1.5}.card{background:#fff;border:1px solid var(--line);border-radius:14px;padding:16px;margin-top:14px;box-shadow:0 2px 8px #00000008}.card h2{font-size:16px;color:var(--navy);margin:0 0 12px}.row{display:flex;gap:10px;flex-wrap:wrap;align-items:center}.row>*{flex:1;min-width:130px}label{font-size:12px;font-weight:800;color:#344054;display:block;margin:9px 0 5px}input,textarea,select{width:100%;padding:11px;border:1px solid #cfd8e5;border-radius:9px;font:inherit;font-size:13px;background:#fff}textarea{min-height:105px;resize:vertical}.btn{border:0;border-radius:9px;padding:11px 14px;background:var(--blue);color:#fff;font-weight:800;cursor:pointer}.btn.secondary{background:#eaf1fc;color:var(--navy)}.btn.green{background:var(--green)}.btn:disabled{opacity:.5;cursor:not-allowed}.hint{font-size:12px;color:var(--muted);line-height:1.5}.stats{display:grid;grid-template-columns:repeat(4,1fr);gap:9px}.stat{background:#f5f8fc;padding:12px;border-radius:10px;text-align:center}.stat b{font-size:21px;color:var(--navy);display:block}.stat small{font-size:11px;color:var(--muted)}.status{padding:11px;border-radius:9px;background:#eef4ff;color:#173d7a;font-size:13px;margin-top:10px;white-space:pre-wrap}.status.err{background:#fff0ef;color:var(--red)}.status.ok{background:#ecfdf3;color:#05603a}.table-wrap{overflow:auto}table{width:100%;border-collapse:collapse;min-width:650px}th,td{padding:9px;border-bottom:1px solid #e8edf3;text-align:left;font-size:12px}th{background:#f4f7fb;color:#344054}.tag{display:inline-block;padding:4px 7px;border-radius:20px;background:#edf4ff;color:#16468b;font-size:10px;font-weight:800}.hide{display:none!important}.actions{display:flex;gap:8px;flex-wrap:wrap}.week{margin:14px 0 7px;color:var(--navy);font-weight:900}.footer{padding:18px;text-align:center;color:var(--muted);font-size:11px}@media(max-width:650px){.stats{grid-template-columns:repeat(2,1fr)}.wrap{padding:10px}.hero{padding:16px}.hero h1{font-size:19px}}
 </style></head><body><main class="wrap">
 <section class="hero"><h1>⚽ AUTOMATIC FIXTURE GENERATOR</h1><p>AFRN Football Management · Zana ratiba kwa kuzingatia mapumziko, viwanja na usawa wa nyumbani/ugenini. Wapinzani na namba za mechi hubaki vilevile.</p></section>
-<section class="card"><h2>1. Ingiza mechi zilizopo</h2><p class="hint">Pakia CSV au bandika taarifa. Safu zinazotakiwa: match,date,home,away,venue,week. Tarehe iwe YYYY-MM-DD au DD/MM/YYYY. Unaweza kupakua mfano wa CSV hapa chini.</p><div class="actions"><button class="btn secondary" id="template">Pakua CSV ya mfano</button><label class="btn secondary" style="display:inline-flex;align-items:center;justify-content:center">Chagua CSV<input id="file" type="file" accept=".csv,text/csv" style="display:none"></label></div><label>Au bandika CSV hapa</label><textarea id="csv" placeholder="match,date,home,away,venue,week&#10;64,2026-11-28,GHI1 BILOMBE FC,AB3 ABEILLES,Z14,8"></textarea><div class="actions"><button class="btn" id="load">Soma mechi</button><button class="btn secondary" id="clear">Futa data</button></div><div id="importStatus" class="status">Bado hujaingiza mechi.</div></section>
+<section class="card"><h2>1. Ingiza mechi zilizopo</h2><p class="hint">Pakia CSV au bandika taarifa. Safu zinazotakiwa: match,date,home,away,venue,week. Tarehe iwe YYYY-MM-DD au DD/MM/YYYY. Unaweza kupakua mfano wa CSV hapa chini.</p><div class="actions"><button class="btn secondary" id="template">Pakua CSV ya mfano</button><button class="btn green" id="loadDb">🔗 Pakia mechi kutoka Supabase</button><label class="btn secondary" style="display:inline-flex;align-items:center;justify-content:center">Chagua CSV<input id="file" type="file" accept=".csv,text/csv" style="display:none"></label></div><label>Au bandika CSV hapa</label><textarea id="csv" placeholder="match,date,home,away,venue,week&#10;64,2026-11-28,GHI1 BILOMBE FC,AB3 ABEILLES,Z14,8"></textarea><div class="actions"><button class="btn" id="load">Soma mechi</button><button class="btn secondary" id="clear">Futa data</button></div><div id="importStatus" class="status">Bado hujaingiza mechi.</div></section>
 <section class="card"><h2>2. Masharti ya kupanga</h2><div class="row"><div><label>Siku za chini za mapumziko</label><input id="rest" type="number" min="1" max="21" value="6"></div><div><label>Mechi kwa siku (kiwango cha juu)</label><input id="perday" type="number" min="1" max="8" value="2"></div><div><label>Siku za kupanga baada ya kuanza wiki</label><input id="window" type="number" min="5" max="21" value="10"></div></div><label>Tarehe za kuanza wiki (Wiki: YYYY-MM-DD; moja kwa kila mstari)</label><textarea id="weeks">8: 2026-11-28
 9: 2026-12-03
 10: 2026-12-16
@@ -23,6 +23,39 @@ const $=id=>document.getElementById(id);let fixtures=[],scheduled=[];
 const template='match,date,home,away,venue,week\n64,2026-11-28,GHI1 BILOMBE FC,AB3 ABEILLES,Z14,8\n65,2026-11-28,FEBA ESPOIR,ASKU O3,Z14,8';
 function download(name,text,type='text/csv;charset=utf-8'){const a=document.createElement('a');a.href=URL.createObjectURL(new Blob(['\ufeff'+text],{type}));a.download=name;a.click();URL.revokeObjectURL(a.href)}
 $('template').onclick=()=>download('AFRN_fixture_template.csv',template);
+// Live read-only connection to AFRN Supabase. No match records are written or changed here.
+$('loadDb').onclick=async()=>{
+ const btn=$('loadDb');btn.disabled=true;btn.textContent='⏳ Inaunganisha...';
+ try{
+  const db=window.supabaseClient;
+  if(!db)throw Error('Supabase haijaunganishwa. Fungua upya app ukiwa umeingia.');
+  const {data:userData,error:userError}=await db.auth.getUser();
+  if(userError||!userData?.user)throw Error('Tafadhali ingia kwenye AFRN App kwanza.');
+  const {data:profile,error:profileError}=await db.from('profiles').select('role').eq('id',userData.user.id).maybeSingle();
+  if(profileError)throw profileError;
+  const role=String(profile?.role||'').toLowerCase();
+  if(!['super_admin','superadmin','admin','administrator','afrn_admin','secretary_general'].includes(role))throw Error('Ni Admin wa AFRN pekee anayeruhusiwa kutumia upangaji wa ratiba.');
+  const competitionId='9f077f46-74e1-49a5-998c-0cdf9fd2efd3';
+  const {data,error}=await db.from('matches')
+   .select('id,match_number,match_date,match_time,venue,status,match_week,notes,home_team:clubs!matches_home_team_id_fkey(name),away_team:clubs!matches_away_team_id_fkey(name)')
+   .eq('competition_id',competitionId).order('match_number',{ascending:true});
+  if(error)throw error;
+  const pending=(data||[]).filter(m=>!['finished','completed','played','cancelled'].includes(String(m.status||'').toLowerCase()));
+  if(!pending.length){
+   $('importStatus').className='status';
+   $('importStatus').textContent='Muunganisho umefanikiwa, lakini Supabase ina mechi '+(data||[]).length+' za mashindano haya na zote ziko Finished. Hakuna mechi zijazo/rasimu zilizohifadhiwa za kupakia. Mechi zilizochezwa hazitaingizwa kwenye ratiba mpya wala kubadilishwa. Ingiza ratiba ya raundi zijazo kwenye database au tumia CSV ya ratiba ya awali.';
+   $('csv').value='';fixtures=[];scheduled=[];stats();return;
+  }
+  const valid=pending.filter(m=>m.match_number!=null&&m.home_team?.name&&m.away_team?.name);
+  if(!valid.length)throw Error('Mechi zijazo zimepatikana lakini hazina namba ya mechi au majina ya timu yanayohitajika. Hakuna data iliyobadilishwa.');
+  const lines=[['match','date','home','away','venue','week'],...valid.map(m=>[m.match_number,normDate(m.match_date||''),m.home_team.name,m.away_team.name,m.venue||'',m.match_week||((m.notes||'').match(/AFRN_WEEK=(\d+)/)||[])[1]||''])];
+  $('csv').value=lines.map(r=>r.map(v=>'"'+String(v??'').replace(/"/g,'""')+'"').join(',')).join('\n');
+  $('load').click();
+  $('importStatus').textContent='Imeunganishwa na Supabase: mechi '+valid.length+' za baadaye zimepakuliwa kwa kusoma tu. Hakuna rekodi iliyobadilishwa.';
+ }catch(e){$('importStatus').className='status err';$('importStatus').textContent='Muunganisho umeshindikana: '+(e.message||e)}
+ finally{btn.disabled=false;btn.textContent='🔗 Pakia mechi kutoka Supabase'}
+};
+
 $('file').onchange=async e=>{const f=e.target.files[0];if(f)$('csv').value=await f.text()};
 $('clear').onclick=()=>{fixtures=[];scheduled=[];$('csv').value='';$('importStatus').textContent='Data imefutwa kwenye ukurasa huu.';$('result').textContent='Hakuna ratiba.';stats()};
 function parseCSV(s){const out=[];let row=[],v='',q=false;for(let i=0;i<s.length;i++){const c=s[i];if(c==='"'&&q&&s[i+1]==='"'){v+='"';i++}else if(c==='"')q=!q;else if(c===','&&!q){row.push(v.trim());v=''}else if((c==='\n'||c==='\r')&&!q){if(c==='\r'&&s[i+1]==='\n')i++;row.push(v.trim());if(row.some(x=>x))out.push(row);row=[];v=''}else v+=c}row.push(v.trim());if(row.some(x=>x))out.push(row);return out}
