@@ -66,6 +66,7 @@ $('load').onclick=()=>{try{const rows=parseCSV($('csv').value);if(rows.length<2)
 function stats(){const teams=new Set(fixtures.flatMap(x=>[x.home,x.away]));$('nMatches').textContent=fixtures.length;$('nTeams').textContent=teams.size;$('nVenues').textContent=new Set(fixtures.map(x=>x.venue).filter(Boolean)).size;$('nWarnings').textContent=scheduled.length?'0':'—';$('csvOut').disabled=!scheduled.length;$('print').disabled=!scheduled.length}
 function parseWeeks(){const m={};$('weeks').value.split(/\n/).forEach(line=>{const x=line.match(/^\s*(\d+)\s*:\s*(\d{4}-\d{2}-\d{2})/);if(x)m[x[1]]=x[2]});return m}
 function parseGrounds(){const m={};$('grounds').value.split(/\n/).forEach(l=>{const i=l.indexOf(':');if(i>0)m[l.slice(0,i).trim().toUpperCase()]=l.slice(i+1).trim()});return m}
+function isValidISODate(s){if(!/^\d{4}-\d{2}-\d{2}$/.test(s))return false;const d=new Date(s+'T00:00:00Z');return Number.isFinite(d.getTime())&&d.toISOString().slice(0,10)===s}
 function day(s){return Math.floor(new Date(s+'T00:00:00Z').getTime()/86400000)}
 function iso(d){return new Date(d*86400000).toISOString().slice(0,10)}
 function shuffle(a){for(let i=a.length-1;i>0;i--){const j=Math.floor(Math.random()*(i+1));[a[i],a[j]]=[a[j],a[i]]}return a}
@@ -76,7 +77,7 @@ if(fixtures.every(f=>f.date)){
  if(!rest||!cap)throw Error('Thamani za mapumziko au mechi kwa siku si sahihi.');
  const teamDates={},dayCounts={},venueSlots={};
  fixtures.forEach(f=>{
-  if(!/^\\d{4}-\\d{2}-\\d{2}$/.test(f.date))throw Error('Tarehe si sahihi kwenye mechi '+f.match+'.');
+  if(!/^\d{4}-\d{2}-\d{2}$/.test(f.date)||!isValidISODate(f.date))throw Error('Tarehe si sahihi kwenye mechi '+f.match+'.');
   dayCounts[f.date]=(dayCounts[f.date]||0)+1;
   if(dayCounts[f.date]>cap)throw Error('Mechi zimezidi kiwango cha '+cap+' kwa siku tarehe '+f.date+'.');
   const venueKey=f.date+'|'+String(f.venue||'').trim().toUpperCase();
