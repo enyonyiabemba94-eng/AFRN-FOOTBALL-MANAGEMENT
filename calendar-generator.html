@@ -5,7 +5,7 @@
 </style></head><body><main class="wrap">
 <section class="hero"><h1>⚽ AUTOMATIC FIXTURE GENERATOR</h1><p>AFRN Football Management · Zana ratiba kwa kuzingatia mapumziko, viwanja na usawa wa nyumbani/ugenini. Wapinzani na namba za mechi hubaki vilevile.</p></section>
 <section class="card"><h2>1. Ingiza mechi zilizopo</h2><p class="hint">Pakia CSV au bandika taarifa. Safu zinazotakiwa: match,date,home,away,venue,week. Tarehe iwe YYYY-MM-DD au DD/MM/YYYY. Unaweza kupakua mfano wa CSV hapa chini.</p><div class="actions"><button class="btn secondary" id="template">Pakua CSV ya mfano</button><button class="btn green" id="loadDb">🔗 Pakia mechi kutoka Supabase</button><label class="btn secondary" style="display:inline-flex;align-items:center;justify-content:center">Chagua CSV<input id="file" type="file" accept=".csv,text/csv" style="display:none"></label></div><label>Au bandika CSV hapa</label><textarea id="csv" placeholder="match,date,home,away,venue,week&#10;64,2026-11-28,GHI1 BILOMBE FC,AB3 ABEILLES,Z14,8"></textarea><div class="actions"><button class="btn" id="load">Soma mechi</button><button class="btn secondary" id="clear">Futa data</button></div><div id="importStatus" class="status">Bado hujaingiza mechi.</div></section>
-<section class="card"><h2>2. Masharti ya kupanga</h2><div class="row"><div><label>Siku za chini za mapumziko</label><input id="rest" type="number" min="1" max="21" value="6"></div><div><label>Mechi kwa siku (kiwango cha juu)</label><input id="perday" type="number" min="1" max="8" value="2"></div><div><label>Siku za kupanga baada ya kuanza wiki</label><input id="window" type="number" min="5" max="21" value="10"></div></div><label>Tarehe za kuanza wiki (Wiki: YYYY-MM-DD; moja kwa kila mstari)</label><textarea id="weeks">8: 2026-11-28
+<section class="card"><h2>2. Masharti ya kupanga</h2><div class="row"><div><label>Siku za chini za mapumziko</label><input id="rest" type="number" min="1" max="21" value="3"></div><div><label>Mechi kwa siku (kiwango cha juu)</label><input id="perday" type="number" min="1" max="8" value="2"></div><div><label>Siku za kupanga baada ya kuanza wiki</label><input id="window" type="number" min="5" max="21" value="10"></div></div><label>Tarehe za kuanza wiki (Wiki: YYYY-MM-DD; moja kwa kila mstari)</label><textarea id="weeks">8: 2026-11-28
 9: 2026-12-03
 10: 2026-12-16
 11: 2026-12-24
@@ -14,7 +14,7 @@
 14: 2027-01-19
 15: 2027-01-25
 16: 2027-02-02
-17: 2027-02-08</textarea><p class="hint">Tarehe za kuanza Wiki ya 8–15 zimewekwa kama zilivyokubaliwa. Mfumo hautabadilisha wapinzani wala namba za mechi. Dirisha la siku 10 linaweza kufanya baadhi ya mechi za wiki kuingia siku chache za wiki inayofuata ili kutimiza mapumziko.</p><label>Uwanja wa nyumbani wa kila timu (hiari; timu: uwanja, mstari mmoja kwa kila timu)</label><textarea id="grounds" placeholder="GHI1 BILOMBE FC: Z14&#10;FEBA ESPOIR: Z14&#10;AB3 ABEILLES: A3"></textarea><div class="actions"><button class="btn green" id="generate">⚙️ Tengeneza ratiba kiotomatiki</button></div><div id="genStatus" class="status">Ingiza mechi kisha tengeneza ratiba.</div></section>
+17: 2027-02-08</textarea><p class="hint">Tarehe za kuanza Wiki ya 8–17 zimehifadhiwa. Ukipakia mechi kutoka Supabase zikiwa na tarehe, mfumo utahifadhi tarehe, wapinzani, namba na viwanja hivyo hivyo; utakagua mapumziko na migongano tu. Kwa ratiba hii, kiwango cha chini ni siku 3.</p><label>Uwanja wa nyumbani wa kila timu (hiari; timu: uwanja, mstari mmoja kwa kila timu)</label><textarea id="grounds" placeholder="GHI1 BILOMBE FC: Z14&#10;FEBA ESPOIR: Z14&#10;AB3 ABEILLES: A3"></textarea><div class="actions"><button class="btn green" id="generate">⚙️ Tengeneza ratiba kiotomatiki</button></div><div id="genStatus" class="status">Ingiza mechi kisha tengeneza ratiba.</div></section>
 <section class="card"><h2>3. Matokeo na ukaguzi</h2><div class="stats"><div class="stat"><b id="nMatches">0</b><small>Mechi</small></div><div class="stat"><b id="nTeams">0</b><small>Timu</small></div><div class="stat"><b id="nVenues">0</b><small>Viwanja</small></div><div class="stat"><b id="nWarnings">—</b><small>Makosa</small></div></div><div id="result" class="hint" style="margin-top:12px">Ratiba itajitokeza hapa baada ya kutengenezwa.</div><div class="actions" style="margin-top:14px"><button class="btn secondary" id="csvOut" disabled>Pakua ratiba CSV</button><button class="btn secondary" id="print" disabled>Chapisha / Hifadhi PDF</button></div></section>
 <div class="footer">AFRN · Mfumo wa kusaidia upangaji wa ratiba. Ratiba ni rasimu hadi ithibitishwe na Admin.</div>
 </main>
@@ -68,7 +68,27 @@ function day(s){return Math.floor(new Date(s+'T00:00:00Z').getTime()/86400000)}
 function iso(d){return new Date(d*86400000).toISOString().slice(0,10)}
 function shuffle(a){for(let i=a.length-1;i>0;i--){const j=Math.floor(Math.random()*(i+1));[a[i],a[j]]=[a[j],a[i]]}return a}
 function assignHomes(list){const counts={};const out=list.map(x=>({...x}));const teams=[...new Set(out.flatMap(x=>[x.home,x.away]))];teams.forEach(t=>counts[t]=0);shuffle(out);for(const f of out){const a=counts[f.home],b=counts[f.away];if(a>b){[f.home,f.away]=[f.away,f.home]}counts[f.home]++;}return {out,counts}}
-function build(){if(!fixtures.length)throw Error('Ingiza mechi kwanza.');const starts=parseWeeks(),grounds=parseGrounds(),rest=Number($('rest').value),cap=Number($('perday').value),win=Number($('window').value);if(!rest||!cap||!win)throw Error('Thamani za masharti si sahihi.');const byWeek={};fixtures.forEach(f=>(byWeek[f.week]??=[]).push({...f}));const weeks=Object.keys(byWeek).sort((a,b)=>+a-+b);for(const w of weeks)if(!starts[w])throw Error('Tarehe ya kuanza Wiki '+w+' haijawekwa.');
+function build(){if(!fixtures.length)throw Error('Ingiza mechi kwanza.');
+if(fixtures.every(f=>f.date)){
+ const rest=Number($('rest').value),cap=Number($('perday').value);
+ if(!rest||!cap)throw Error('Thamani za mapumziko au mechi kwa siku si sahihi.');
+ const teamDates={},dayCounts={},venueSlots={};
+ fixtures.forEach(f=>{
+  if(!/^\\d{4}-\\d{2}-\\d{2}$/.test(f.date))throw Error('Tarehe si sahihi kwenye mechi '+f.match+'.');
+  dayCounts[f.date]=(dayCounts[f.date]||0)+1;
+  if(dayCounts[f.date]>cap)throw Error('Mechi zimezidi kiwango cha '+cap+' kwa siku tarehe '+f.date+'.');
+  const venueKey=f.date+'|'+String(f.venue||'').trim().toUpperCase();
+  if(f.venue&&venueSlots[venueKey])throw Error('Uwanja '+f.venue+' una mechi zaidi ya moja tarehe '+f.date+'.');
+  venueSlots[venueKey]=true;
+  [f.home,f.away].forEach(t=>(teamDates[t]??=[]).push(day(f.date)));
+ });
+ for(const [team,ds] of Object.entries(teamDates)){
+  ds.sort((a,b)=>a-b);
+  for(let i=1;i<ds.length;i++){const gap=ds[i]-ds[i-1];if(gap<rest)throw Error('Timu '+team+' ina mapumziko ya siku '+gap+' tu. Kiwango ulichochagua ni siku '+rest+'.');}
+ }
+ return fixtures.map(f=>({...f})).sort((a,b)=>Number(a.match)-Number(b.match));
+}
+const starts=parseWeeks(),grounds=parseGrounds(),rest=Number($('rest').value),cap=Number($('perday').value),win=Number($('window').value);if(!rest||!cap||!win)throw Error('Thamani za masharti si sahihi.');const byWeek={};fixtures.forEach(f=>(byWeek[f.week]??=[]).push({...f}));const weeks=Object.keys(byWeek).sort((a,b)=>+a-+b);for(const w of weeks)if(!starts[w])throw Error('Tarehe ya kuanza Wiki '+w+' haijawekwa.');
 let output=[],teamDates={},venueDates={};for(const w of weeks){let list=byWeek[w].sort((a,b)=>Number(a.match)-Number(b.match));let oriented=assignHomes(list).out;let start=day(starts[w]),days=Array.from({length:win},(_,i)=>start+i);let placed=Array(list.length).fill(null),dayUse={},nodes=0;const order=shuffle(oriented.map((f,i)=>i)).sort((a,b)=>{const fa=oriented[a],fb=oriented[b];return (teamDates[fa.home]||[]).length+(teamDates[fa.away]||[]).length-((teamDates[fb.home]||[]).length+(teamDates[fb.away]||[]).length)});
 function venueFor(f){return grounds[f.home.toUpperCase()]||f.venue||grounds[f.home]||'HAIJAWEKWA'}
 function can(f,d){let v=venueFor(f),key=iso(d);if((dayUse[key]||0)>=cap)return false;if(v&&(venueDates[key]||[]).includes(v))return false;for(const t of [f.home,f.away]){for(const old of (teamDates[t]||[]))if(Math.abs(d-old)<rest)return false}return true}
