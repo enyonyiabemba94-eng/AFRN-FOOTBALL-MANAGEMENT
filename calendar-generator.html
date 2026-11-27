@@ -50,4 +50,6 @@ function esc(s){return String(s).replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;',
 function csvOut(){const rows=[['match','date','home','away','venue','week'],...scheduled.map(f=>[f.match,f.date,f.home,f.away,f.venue,f.week])];download('AFRN_Automatic_Fixtures.csv',rows.map(r=>r.map(v=>'"'+String(v??'').replace(/"/g,'""')+'"').join(',')).join('\n'))}
 $('csvOut').onclick=csvOut;$('print').onclick=()=>{const w=window.open('','_blank');if(!w){alert('Ruhusu pop-up ili kuhifadhi PDF.');return}w.document.write('<html><head><title>AFRN Fixture Calendar</title><style>body{font:12px Arial;padding:20px;color:#172033}h1{color:#071a33;font-size:20px}h2{font-size:15px;margin:18px 0 7px}table{width:100%;border-collapse:collapse;margin-bottom:12px}td,th{border:1px solid #ccc;padding:6px;text-align:left}th{background:#eef2f7}@media print{button{display:none}}</style></head><body><h1>AFRN FOOTBALL · AUTOMATIC FIXTURE CALENDAR</h1>'+ $('result').innerHTML+'<script>window.onload=()=>window.print()<\/script></body></html>');w.document.close()};
 stats();
-</script></body></html>
+</script>
+<script src="./afrn-player-photo-global.js"></script>
+</body></html>
